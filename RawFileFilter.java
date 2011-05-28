@@ -35,26 +35,25 @@ public class RawFileFilter extends FileFilter {
         return ext;
     }
 
-  public boolean accept(File f) {
-    /**@todo: implement this javax.swing.filechooser.FileFilter abstract method*/
+    public boolean accept(File f) {
+        /**@todo: implement this javax.swing.filechooser.FileFilter abstract method*/
         if (f.isDirectory()) {
             return true;
         }
 
         String extension = getExtension(f);
-	if (extension != null) {
+        if (extension != null) {
             if (extension.equals("wav")) {
-                    return true;
+                return true;
             } else {
                 return false;
             }
-    	}
+        }
 
         return false;
-
-  }
-  public String getDescription() {
-    /**@todo: implement this javax.swing.filechooser.FileFilter abstract method*/
-    return "16-bit .wav";
-  }
+    }
+    public String getDescription() {
+        /**@todo: implement this javax.swing.filechooser.FileFilter abstract method*/
+        return "16-bit .wav";
+    }
 }

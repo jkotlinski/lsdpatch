@@ -24,55 +24,55 @@ import java.io.*;
 
 class sbc {
 
-	public static int DITHER_VAL=0x8;
+    public static int DITHER_VAL=0x8;
 
-	//outfile=dst, inSample=8bit unsigned sample 11468 kHz
-	public static void handle(byte dst[], FakeFile inFiles[], int byteLength[]) {
-  	  int offset=0x60; //don't overwrite samplebank info!
-	   for(int fileNo=0;fileNo<inFiles.length;fileNo++) {
-		int fileLength=-1;
-		FakeFile inFile = inFiles[fileNo];
-		if(inFile==null) {
-		  break;
-		}
+    //outfile=dst, inSample=8bit unsigned sample 11468 kHz
+    public static void handle(byte dst[], FakeFile inFiles[], int byteLength[]) {
+        int offset=0x60; //don't overwrite samplebank info!
+        for(int fileNo=0;fileNo<inFiles.length;fileNo++) {
+            int fileLength=-1;
+            FakeFile inFile = inFiles[fileNo];
+            if(inFile==null) {
+                break;
+            }
 
-		inFile.seekStart();
-		fileLength=(int)inFile.length();
-		fileLength-=fileLength%0x10;
+            inFile.seekStart();
+            fileLength=(int)inFile.length();
+            fileLength-=fileLength%0x10;
 
-		int addedBytes=0;
+            int addedBytes=0;
 
-		int outbuf[]=new int[32];
-		int outcounter=0;
-		for(int i=0;i<fileLength;i++) {
-			outbuf[outcounter]=inFile.read();
-			//apply dither
-			outbuf[outcounter]+=Math.random()*DITHER_VAL-DITHER_VAL/2;
-			//outbuf[outcounter]+=outcounter%2*DITHER_VAL-DITHER_VAL/2;
-			//throw away 4 LSB
-			outbuf[outcounter]/=16;
+            int outbuf[]=new int[32];
+            int outcounter=0;
+            for(int i=0;i<fileLength;i++) {
+                outbuf[outcounter]=inFile.read();
+                //apply dither
+                outbuf[outcounter]+=Math.random()*DITHER_VAL-DITHER_VAL/2;
+                //outbuf[outcounter]+=outcounter%2*DITHER_VAL-DITHER_VAL/2;
+                //throw away 4 LSB
+                outbuf[outcounter]/=16;
 
-			/*
-			//this is to get middle at 7.5 instead of 8.0
-			outbuf[outcounter]*=0xe;
-			outbuf[outcounter]/=0xf;
-			*/
+                /*
+                //this is to get middle at 7.5 instead of 8.0
+                outbuf[outcounter]*=0xe;
+                outbuf[outcounter]/=0xf;
+                */
 
-			//range check
-			outbuf[outcounter]=Math.min(0xf,outbuf[outcounter]);
-			outbuf[outcounter]=Math.max(0,outbuf[outcounter]);
+                //range check
+                outbuf[outcounter]=Math.min(0xf,outbuf[outcounter]);
+                outbuf[outcounter]=Math.max(0,outbuf[outcounter]);
 
-			if(outcounter==31) {
-				for(int j=0;j!=32;j+=2) {
-				  dst[offset++]=(byte)(outbuf[j]*0x10+outbuf[j+1]);
-				}
-				outcounter=-1;
-				addedBytes+=0x10;
-			}
-			outcounter++;
-		}
+                if(outcounter==31) {
+                    for(int j=0;j!=32;j+=2) {
+                        dst[offset++]=(byte)(outbuf[j]*0x10+outbuf[j+1]);
+                    }
+                    outcounter=-1;
+                    addedBytes+=0x10;
+                }
+                outcounter++;
+            }
 
-		byteLength[fileNo]=addedBytes;
-	   }
-	}
+            byteLength[fileNo]=addedBytes;
+        }
+    }
 }

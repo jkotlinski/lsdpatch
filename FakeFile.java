@@ -19,32 +19,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
 public class FakeFile {
-	String name;
-	byte[] buf;
-	int readPos;
+    String name;
+    byte[] buf;
+    int readPos;
 
-	public FakeFile ( byte[] iBuf, String iName ) {
-		buf = iBuf;
-		name = iName;
-	}
+    public FakeFile ( byte[] iBuf, String iName ) {
+        buf = iBuf;
+        name = iName;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public int length() {
-		return buf.length;
-	}
+    public int length() {
+        return buf.length;
+    }
 
-	public void seekStart() {
-		readPos = 0;
-	}
+    public void seekStart() {
+        readPos = 0;
+    }
 
-	public int read() {
-		int val = buf[readPos++];
-		val += 0x80;
-		return val;
-	}
+    public int read() {
+        int val = buf[readPos++];
+        val += 0x80;
+        return val;
+    }
 
 }
 
