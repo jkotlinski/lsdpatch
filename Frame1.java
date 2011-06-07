@@ -82,6 +82,8 @@ public class Frame1 extends JFrame {
             bankIsEditable[i]=false;
         }
         instrList.setListData(listData);
+
+        while (!load_rom()) {}
     }
 
     private void buildMenus()
@@ -263,12 +265,17 @@ public class Frame1 extends JFrame {
     }
 
     void loadROMButton_actionPerformed(ActionEvent e) {
-        JFileChooser chooser=new JFileChooser(latestPath);
+        load_rom();
+    }
+
+    // Returns true on success.
+    boolean load_rom() {
+        JFileChooser chooser = new JFileChooser(latestPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("Load ROM image");
         int returnVal = chooser.showOpenDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 setTitle(chooser.getSelectedFile().getAbsoluteFile().toString());
                 romFile=new RandomAccessFile(chooser.getSelectedFile(),"r");
@@ -285,7 +292,9 @@ public class Frame1 extends JFrame {
                 fe.printStackTrace();
             }
             updateRomView();
+            return true;
         }
+        return false;
     }
 
     private boolean isKitBank ( int a_bank ) {
