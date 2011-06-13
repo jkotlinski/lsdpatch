@@ -663,6 +663,9 @@ public class Frame1 extends JFrame {
                 }
 
                 FakeFile file = convertWav ( chooser.getSelectedFile() );
+                if (file == null) {
+                    return;
+                }
                 instrFile[currentSample[ getSelectedUiBank() ]] = file;
 
                 currentSample[ getSelectedUiBank()]++;
@@ -739,7 +742,7 @@ public class Frame1 extends JFrame {
         return ret;
     }
 
-    private static FakeFile convertWav(File file)
+    private FakeFile convertWav(File file)
     {
         int ch = 0;
         long sampleRate = 0;
@@ -765,14 +768,33 @@ public class Frame1 extends JFrame {
                 if ( chunkId == 0x666D7420 ) // fmt
                 {
                     int compression = readEndianShort(in);
-                    //assert 1 == compression; //uncompressed
+                    if (compression != 1) {
+                        JOptionPane.showMessageDialog(this,
+                                "Sample is compressed. Only PCM .wav files are supported.",
+                                "Format error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
                     ch = readEndianShort(in);
+                    if (ch > 2) {
+                        JOptionPane.showMessageDialog(this,
+                                "Unsupported number of channels!",
+                                "Format error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
                     sampleRate = readEndianWord(in);
                     readWord(in); //avg. bytes/second
                     blockAlign = readEndianShort(in);
-                    //assert blockAlign == 2;
                     bits = readEndianShort(in);
-                    //assert bits == 16;
+                    if (bits != 16) {
+                        JOptionPane.showMessageDialog(this,
+                                "Only 16-bit .wav is supported!",
+                                "Format error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
+                    assert blockAlign == 2;
                 }
                 else if ( chunkId == 0x64617461 ) // data
                 {
@@ -780,7 +802,7 @@ public class Frame1 extends JFrame {
                     in.read(buf);
 
                     //convert to mono
-                    //assert blockAlign == 2;
+                    assert blockAlign == 2;
                     if ( ch == 2 )
                     {
                         int inIt = 0;
