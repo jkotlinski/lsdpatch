@@ -784,6 +784,12 @@ public class Frame1 extends JFrame {
                         return null;
                     }
                     sampleRate = readEndianWord(in);
+                    if (sampleRate != 11468) {
+                        JOptionPane.showMessageDialog(this,
+                                "For best results, sample rate should be 11.468 Hz.",
+                                "Format warning",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
                     readWord(in); //avg. bytes/second
                     blockAlign = readEndianShort(in);
                     bits = readEndianShort(in);
