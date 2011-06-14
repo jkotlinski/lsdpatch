@@ -43,11 +43,7 @@ public class RawFileFilter extends FileFilter {
 
         String extension = getExtension(f);
         if (extension != null) {
-            if (extension.equals("wav")) {
-                return true;
-            } else {
-                return false;
-            }
+            return extension.equals("wav");
         }
 
         return false;
