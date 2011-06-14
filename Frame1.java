@@ -290,8 +290,12 @@ public class Frame1 extends JFrame {
                 exportKitButton.setEnabled(true);
                 renameKitButton.setEnabled(true);
                 createKitButton.setEnabled(true);
-            } catch(Exception fe) {
-                fe.printStackTrace();
+            } catch (FileNotFoundException fe) {
+                JOptionPane.showMessageDialog(this, "File not found!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (IOException io) {
+                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
             return true;
@@ -478,8 +482,12 @@ public class Frame1 extends JFrame {
                 ++inBank;
             }
             updateRomView();
-        } catch(Exception e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException fnf) {
+            JOptionPane.showMessageDialog(this, "File not found!", "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        } catch (IOException io) {
+            JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -490,19 +498,15 @@ public class Frame1 extends JFrame {
         chooser.setDialogTitle("select rom to import kits from");
         int returnVal = chooser.showOpenDialog(null);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File f=chooser.getSelectedFile();
-                latestPath=f.getAbsolutePath().toString();
+            File f=chooser.getSelectedFile();
+            latestPath=f.getAbsolutePath().toString();
 
-                if(!f.toString().toUpperCase().endsWith(".GB")) {
-                    f=new File(f.getAbsoluteFile().toString()+".gb");
-                }
-                //fileNameLabel.setText(f.getAbsoluteFile().toString());
-
-                importKits( f );
-            } catch(Exception fe) {
-                fe.printStackTrace();
+            if(!f.toString().toUpperCase().endsWith(".GB")) {
+                f=new File(f.getAbsoluteFile().toString()+".gb");
             }
+            //fileNameLabel.setText(f.getAbsoluteFile().toString());
+
+            importKits( f );
         }
     }
 
@@ -525,8 +529,12 @@ public class Frame1 extends JFrame {
                 romFile=new RandomAccessFile(f,"rw");
                 romFile.write(romImage);
                 romFile.close();
-            } catch(Exception fe) {
-                fe.printStackTrace();
+            } catch (FileNotFoundException fnf) {
+                JOptionPane.showMessageDialog(this, "File not found!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (IOException io) {
+                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -554,8 +562,12 @@ public class Frame1 extends JFrame {
                 bankFile.write(buf);
                 bankFile.close();
                 latestPath=f.getAbsolutePath().toString();
-            } catch(Exception fe) {
-                fe.printStackTrace();
+            } catch (FileNotFoundException fnf) {
+                JOptionPane.showMessageDialog(this, "File not found!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (IOException io) {
+                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
         }
@@ -578,10 +590,11 @@ public class Frame1 extends JFrame {
                 }
                 bankFile.close();
                 latestPath=chooser.getSelectedFile().getAbsolutePath().toString();
-            } catch(Exception fe) {
-                JOptionPane.showMessageDialog(this,
-                        "Can't read kit.",
-                        "File error",
+            } catch (FileNotFoundException fnf) {
+                JOptionPane.showMessageDialog(this, "File not found!", "File error",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (IOException io) {
+                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
                         JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
@@ -659,39 +672,35 @@ public class Frame1 extends JFrame {
         chooser.setDialogTitle("load kit");
         int returnVal = chooser.showOpenDialog(null);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                int offset = getSramOffsetForSelectedBank() + 0x22 + 
-                    currentSample[ getSelectedUiBank() ] * 3;
-                String s=dropExtension(chooser.getSelectedFile()).toUpperCase();
-                if(s.length()>0) {
-                    romImage[offset++]=(byte)s.charAt(0);
-                } else {
-                    romImage[offset++]='-';
-                }
-                if(s.length()>1) {
-                    romImage[offset++]=(byte)s.charAt(1);
-                } else {
-                    romImage[offset++]='-';
-                }
-                if(s.length()>2) {
-                    romImage[offset++]=(byte)s.charAt(2);
-                } else {
-                    romImage[offset++]='-';
-                }
-
-                FakeFile file = convertWav ( chooser.getSelectedFile() );
-                if (file == null) {
-                    return;
-                }
-                instrFile[currentSample[ getSelectedUiBank() ]] = file;
-
-                currentSample[ getSelectedUiBank()]++;
-
-                latestPathRaw=chooser.getSelectedFile().getAbsolutePath().toString();
-
-            } catch(Exception fe) {
-                fe.printStackTrace();
+            int offset = getSramOffsetForSelectedBank() + 0x22 + 
+                currentSample[ getSelectedUiBank() ] * 3;
+            String s=dropExtension(chooser.getSelectedFile()).toUpperCase();
+            if(s.length()>0) {
+                romImage[offset++]=(byte)s.charAt(0);
+            } else {
+                romImage[offset++]='-';
             }
+            if(s.length()>1) {
+                romImage[offset++]=(byte)s.charAt(1);
+            } else {
+                romImage[offset++]='-';
+            }
+            if(s.length()>2) {
+                romImage[offset++]=(byte)s.charAt(2);
+            } else {
+                romImage[offset++]='-';
+            }
+
+            FakeFile file = convertWav ( chooser.getSelectedFile() );
+            if (file == null) {
+                return;
+            }
+            instrFile[currentSample[ getSelectedUiBank() ]] = file;
+
+            currentSample[ getSelectedUiBank()]++;
+
+            latestPathRaw=chooser.getSelectedFile().getAbsolutePath().toString();
+
             updateRomView();
         }
 
@@ -766,8 +775,7 @@ public class Frame1 extends JFrame {
         int blockAlign = 0;
         int bits = 0;
 
-        try
-        {
+        try {
             FileInputStream in = new FileInputStream( file.getAbsolutePath() );
 
             long riffId = readWord(in);
@@ -881,10 +889,12 @@ public class Frame1 extends JFrame {
                     in.skip(chunkSize);
                 }
             }
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "File not found!", "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+                    JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
