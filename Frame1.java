@@ -557,7 +557,7 @@ public class Frame1 extends JFrame {
                 byte buf[]=new byte[0x4000];
                 int offset=getSramOffsetForSelectedBank();
                 RandomAccessFile bankFile=new RandomAccessFile(chooser.getSelectedFile(),"r");
-                bankFile.read(buf);
+                bankFile.readFully(buf);
 
                 for(int i=0;i<buf.length;i++) {
                     romImage[offset++]=buf[i];
@@ -565,7 +565,10 @@ public class Frame1 extends JFrame {
                 bankFile.close();
                 latestPath=chooser.getSelectedFile().getAbsolutePath().toString();
             } catch(Exception fe) {
-                fe.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                        "Can't read kit.",
+                        "File error",
+                        JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
         }
