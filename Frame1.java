@@ -83,7 +83,9 @@ public class Frame1 extends JFrame {
         }
         instrList.setListData(listData);
 
-        while (!load_rom()) {}
+        if (!load_rom()) {
+            System.exit(0);
+        }
     }
 
     private void buildMenus()
@@ -415,21 +417,33 @@ public class Frame1 extends JFrame {
         }
         instrList.setListData(s);
 
-        boolean b=false;
-        if(bankIsEditable[ getSelectedUiBank() ]) {
-            kitSizeLabel.setText(Integer.toHexString(totSampleSize)+"/3FA0 bytes used");
-            if(totSampleSize>0x3fa0) {
-                kitSizeLabel.setForeground(Color.red);
-            } else {
-                kitSizeLabel.setForeground(Color.black);
-            }
-            b=true;
+        updateKitSizeLabel();
+        addSampleButton.setEnabled(inBankEditMode());
+        dropSampleButton.setEnabled(inBankEditMode());
+        compileButton.setEnabled(inBankEditMode());
+    }
+
+    boolean inBankEditMode() {
+        return bankIsEditable[getSelectedUiBank()];
+    }
+
+    void updateKitSizeLabel() {
+        int sampleSize = 0;
+        if (inBankEditMode()) {
+            sampleSize = totSampleSize;
         } else {
-            kitSizeLabel.setText("0/3FA0 bytes used");
+            int offset = getSramOffsetForSelectedBank();
+            int max = 0;
+            for (int sample = 0; sample < 0x10; ++sample) {
+                int pos = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
+                max = pos > max ? pos : max;
+                offset += 2;
+            }
+            sampleSize = max - 0x4060;
         }
-        addSampleButton.setEnabled(b);
-        dropSampleButton.setEnabled(b);
-        compileButton.setEnabled(b);
+        kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3FA0 bytes used");
+        boolean tooFull = sampleSize > 0x3fa0;
+        kitSizeLabel.setForeground(tooFull ? Color.red : Color.black);
     }
 
     void bankBox_actionPerformed(ActionEvent e) {
