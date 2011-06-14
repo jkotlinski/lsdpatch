@@ -228,7 +228,7 @@ public class Frame1 extends JFrame {
         compileButton.setEnabled(false);
         compileButton.setText("compile kit");
         kitSizeLabel.setToolTipText("");
-        kitSizeLabel.setText("0/3FA0 bytes used");
+        kitSizeLabel.setText("0/3fa0 bytes used");
         kitSizeLabel.setBounds(new Rectangle(8, 346-17, 169, 22));
         jPanel2.setBorder(titledBorder3);
         jPanel2.setBounds(new Rectangle(210, 315-72, 174, 66));
@@ -441,7 +441,7 @@ public class Frame1 extends JFrame {
             }
             sampleSize = max - 0x4060;
         }
-        kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3FA0 bytes used");
+        kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3fa0 bytes used");
         boolean tooFull = sampleSize > 0x3fa0;
         kitSizeLabel.setForeground(tooFull ? Color.red : Color.black);
     }
@@ -892,7 +892,7 @@ public class Frame1 extends JFrame {
     void compileButton_actionPerformed(ActionEvent e) {
         updateBankView();
         if(totSampleSize>0x3fa0) {
-            kitSizeLabel.setText(Integer.toHexString(totSampleSize)+"/3FA0 bytes used");
+            kitSizeLabel.setText(Integer.toHexString(totSampleSize)+"/3fa0 bytes used");
             return;
         }
         kitSizeLabel.setText(Integer.toHexString(totSampleSize)+" bytes written");
