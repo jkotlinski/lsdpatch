@@ -357,29 +357,29 @@ public class Frame1 extends JFrame {
         return m_selected;
     }
 
-    private int getSelectedSramBank ( )
+    private int getSelectedROMBank ( )
     {
-        int l_sram_bank = 0;
+        int l_rom_bank = 0;
         int l_ui_bank = 0;
 
         for ( ;; )
         {
-            if ( isKitBank( l_sram_bank ) || isEmptyKitBank( l_sram_bank ) )
+            if ( isKitBank( l_rom_bank ) || isEmptyKitBank( l_rom_bank ) )
             {
                 if ( getSelectedUiBank() == l_ui_bank )
                 {
-                    return l_sram_bank;
+                    return l_rom_bank;
                 }
                 l_ui_bank++;
             }
-            l_sram_bank++;
+            l_rom_bank++;
         }
 
     }
 
-    private int getSramOffsetForSelectedBank ( )
+    private int getROMOffsetForSelectedBank ( )
     {
-        return getSelectedSramBank() * 0x4000;
+        return getSelectedROMBank() * 0x4000;
     }
 
     private void updateBankView() {
@@ -388,7 +388,7 @@ public class Frame1 extends JFrame {
 
         totSampleSize=0;
 
-        int bankOffset = getSramOffsetForSelectedBank();
+        int bankOffset = getROMOffsetForSelectedBank();
         instrList.removeAll();
         //do banks
 
@@ -431,8 +431,8 @@ public class Frame1 extends JFrame {
         int sampleSize = 0;
         if (inBankEditMode()) {
             sampleSize = totSampleSize;
-        } else if (isKitBank(getSelectedSramBank())) {
-            int offset = getSramOffsetForSelectedBank();
+        } else if (isKitBank(getSelectedROMBank())) {
+            int offset = getROMOffsetForSelectedBank();
             int max = 0;
             for (int sample = 0; sample < 0x10; ++sample) {
                 int pos = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
@@ -552,7 +552,7 @@ public class Frame1 extends JFrame {
                 }
 
                 byte buf[]=new byte[0x4000];
-                int offset=getSramOffsetForSelectedBank();
+                int offset=getROMOffsetForSelectedBank();
                 RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
 
                 for(int i=0;i<buf.length;i++) {
@@ -580,7 +580,7 @@ public class Frame1 extends JFrame {
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 byte buf[]=new byte[0x4000];
-                int offset=getSramOffsetForSelectedBank();
+                int offset=getROMOffsetForSelectedBank();
                 RandomAccessFile bankFile=new RandomAccessFile(chooser.getSelectedFile(),"r");
                 bankFile.readFully(buf);
 
@@ -628,21 +628,21 @@ public class Frame1 extends JFrame {
         bankIsEditable[ getSelectedUiBank() ]=true;
 
         //clear all bank
-        int offset = getSramOffsetForSelectedBank() + 2;
-        int max_offset = getSramOffsetForSelectedBank() + 0x4000; 
+        int offset = getROMOffsetForSelectedBank() + 2;
+        int max_offset = getROMOffsetForSelectedBank() + 0x4000; 
         while ( offset < max_offset )
         {
             romImage[offset++] = 0;
         }
 
         //clear kit name
-        offset=getSramOffsetForSelectedBank() + 0x52;
+        offset=getROMOffsetForSelectedBank() + 0x52;
         for(int i=0;i<6;i++) {
             romImage[offset++]=' ';
         }
 
         //clear instrument names
-        offset = getSramOffsetForSelectedBank() + 0x22;
+        offset = getROMOffsetForSelectedBank() + 0x22;
         byte b[]=new byte[3];
         for(int i=0;i<15;i++) {
             romImage[offset++]=0;
@@ -653,7 +653,7 @@ public class Frame1 extends JFrame {
     }
 
     void renameKitButton_actionPerformed(ActionEvent e) {
-        int offset= getSramOffsetForSelectedBank() +0x52;
+        int offset= getROMOffsetForSelectedBank() +0x52;
         String s=kitTextArea.getText().toUpperCase();
         for(int i=0;i<6;i++) {
             if(i<s.length()) {
@@ -672,7 +672,7 @@ public class Frame1 extends JFrame {
         chooser.setDialogTitle("load kit");
         int returnVal = chooser.showOpenDialog(null);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            int offset = getSramOffsetForSelectedBank() + 0x22 + 
+            int offset = getROMOffsetForSelectedBank() + 0x22 + 
                 currentSample[ getSelectedUiBank() ] * 3;
             String s=dropExtension(chooser.getSelectedFile()).toUpperCase();
             if(s.length()>0) {
@@ -927,7 +927,7 @@ public class Frame1 extends JFrame {
         }
 
         //copy sampledata to ROM image
-        int offset = getSramOffsetForSelectedBank() + 0x60;
+        int offset = getROMOffsetForSelectedBank() + 0x60;
         int offset2=0x60;
         do {
             romImage[offset++]=newSamples[offset2++];
@@ -935,7 +935,7 @@ public class Frame1 extends JFrame {
 
         //update samplelength info in rom image
         int bankOffset=0x4060;
-        offset=getSramOffsetForSelectedBank();
+        offset=getROMOffsetForSelectedBank();
         romImage[offset++]=0x60;
         romImage[offset++]=0x40;
 
@@ -965,9 +965,9 @@ public class Frame1 extends JFrame {
         instrFile[14]=null;
 
         //move up instr names
-        int offset= getSramOffsetForSelectedBank() +0x22+index*3;
+        int offset= getROMOffsetForSelectedBank() +0x22+index*3;
         int i;
-        for(i=offset;i< getSramOffsetForSelectedBank() +0x22+14*3;i+=3) {
+        for(i=offset;i< getROMOffsetForSelectedBank() +0x22+14*3;i+=3) {
             romImage[i]=romImage[i+3];
             romImage[i+1]=romImage[i+4];
             romImage[i+2]=romImage[i+5];
