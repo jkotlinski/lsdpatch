@@ -649,6 +649,10 @@ public class Frame1 extends JFrame {
             romImage[offset++]='-';
             romImage[offset++]='-';
         }
+
+        // Flushes out the loaded .wav files.
+        instrFile = new FakeFile[getBankCount()];
+
         updateRomView();
     }
 
