@@ -55,7 +55,7 @@ public class Frame1 extends JFrame {
     JTextArea kitTextArea = new JTextArea();
     JButton addSampleButton = new JButton();
     JButton dropSampleButton = new JButton();
-    JButton compileButton = new JButton();
+    JButton saveROMButton = new JButton();
     JLabel kitSizeLabel = new JLabel();
     JPanel jPanel2 = new JPanel();
     TitledBorder titledBorder3;
@@ -99,8 +99,7 @@ public class Frame1 extends JFrame {
         menuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 loadROMButton_actionPerformed(e);
-                }
-                });
+                }});
         menu.add(menuItem);
 
         menu.addSeparator();
@@ -121,8 +120,7 @@ public class Frame1 extends JFrame {
         saveROMItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 saveROMButton_actionPerformed(e);
-                }
-                });
+                }});
         menu.add(saveROMItem);
 
         //help menu
@@ -219,14 +217,13 @@ public class Frame1 extends JFrame {
                 dropSampleButton_actionPerformed(e);
                 }
                 });
-        compileButton.addActionListener(new java.awt.event.ActionListener() {
+        saveROMButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                compileButton_actionPerformed(e);
-                }
-                });
-        compileButton.setBounds(new Rectangle(212, 280-72, 170, 28));
-        compileButton.setEnabled(false);
-        compileButton.setText("compile kit");
+                saveROMButton_actionPerformed(e);
+                }});
+        saveROMButton.setBounds(new Rectangle(212, 280-72, 170, 28));
+        saveROMButton.setEnabled(true);
+        saveROMButton.setText("save rom...");
         kitSizeLabel.setToolTipText("");
         kitSizeLabel.setText("0/3fa0 bytes used");
         kitSizeLabel.setBounds(new Rectangle(8, 346-17, 169, 22));
@@ -252,7 +249,7 @@ public class Frame1 extends JFrame {
         contentPane.add(createKitButton, null);
         contentPane.add(addSampleButton, null);
         contentPane.add(dropSampleButton, null);
-        contentPane.add(compileButton, null);
+        contentPane.add(saveROMButton, null);
         contentPane.add(jPanel2, null);
         jPanel2.add(ditherSlider, null);
 
@@ -424,7 +421,6 @@ public class Frame1 extends JFrame {
         updateKitSizeLabel();
         addSampleButton.setEnabled(inBankEditMode());
         dropSampleButton.setEnabled(inBankEditMode());
-        compileButton.setEnabled(inBankEditMode());
     }
 
     boolean inBankEditMode() {
@@ -447,7 +443,10 @@ public class Frame1 extends JFrame {
         }
         kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3fa0 bytes used");
         boolean tooFull = sampleSize > 0x3fa0;
-        kitSizeLabel.setForeground(tooFull ? Color.red : Color.black);
+
+        Color c = tooFull ? Color.red : Color.black;
+        kitSizeLabel.setForeground(c);
+        instrList.setForeground(c);
     }
 
     void bankBox_actionPerformed(ActionEvent e) {
@@ -663,6 +662,7 @@ public class Frame1 extends JFrame {
                 romImage[offset++]=' ';
             }
         }
+        compileKit();
         updateRomView();
     }
 
@@ -701,6 +701,7 @@ public class Frame1 extends JFrame {
 
             latestPathRaw=chooser.getSelectedFile().getAbsolutePath().toString();
 
+            compileKit();
             updateRomView();
         }
 
@@ -899,7 +900,7 @@ public class Frame1 extends JFrame {
         return null;
     }
 
-    void compileButton_actionPerformed(ActionEvent e) {
+    void compileKit() {
         updateBankView();
         if(totSampleSize>0x3fa0) {
             kitSizeLabel.setText(Integer.toHexString(totSampleSize)+"/3fa0 bytes used");
@@ -921,10 +922,7 @@ public class Frame1 extends JFrame {
             }
         }
         if (!hasAnySample) {
-            JOptionPane.showMessageDialog(this,
-                    "At least one sample must be added!",
-                    "No samples added",
-                    JOptionPane.ERROR_MESSAGE);
+            // Not allowed to create kits without samples!
             return;
         }
 
@@ -980,6 +978,7 @@ public class Frame1 extends JFrame {
         if(index<currentSample[ getSelectedUiBank() ]) {
             currentSample[ getSelectedUiBank() ]--;
         }
+        compileKit();
         updateBankView();
     }
 
