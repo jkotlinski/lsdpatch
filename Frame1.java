@@ -431,7 +431,7 @@ public class Frame1 extends JFrame {
         int sampleSize = 0;
         if (inBankEditMode()) {
             sampleSize = totSampleSize;
-        } else {
+        } else if (isKitBank(getSelectedSramBank())) {
             int offset = getSramOffsetForSelectedBank();
             int max = 0;
             for (int sample = 0; sample < 0x10; ++sample) {
