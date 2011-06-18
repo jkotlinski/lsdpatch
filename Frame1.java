@@ -310,11 +310,8 @@ public class Frame1 extends JFrame {
                 exportKitButton.setEnabled(true);
                 renameKitButton.setEnabled(true);
                 createKitButton.setEnabled(true);
-            } catch (FileNotFoundException fe) {
-                JOptionPane.showMessageDialog(this, "File not found!", "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            } catch (IOException io) {
-                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+            } catch (Exception fe) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
@@ -504,11 +501,8 @@ public class Frame1 extends JFrame {
                 ++inBank;
             }
             updateRomView();
-        } catch (FileNotFoundException fnf) {
-            JOptionPane.showMessageDialog(this, "File not found!", "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (IOException io) {
-            JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -551,11 +545,8 @@ public class Frame1 extends JFrame {
                 romFile=new RandomAccessFile(f,"rw");
                 romFile.write(romImage);
                 romFile.close();
-            } catch (FileNotFoundException fnf) {
-                JOptionPane.showMessageDialog(this, "File not found!", "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            } catch (IOException io) {
-                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -584,11 +575,8 @@ public class Frame1 extends JFrame {
                 bankFile.write(buf);
                 bankFile.close();
                 latestPath=f.getAbsolutePath().toString();
-            } catch (FileNotFoundException fnf) {
-                JOptionPane.showMessageDialog(this, "File not found!", "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            } catch (IOException io) {
-                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
@@ -612,11 +600,8 @@ public class Frame1 extends JFrame {
                 }
                 bankFile.close();
                 latestPath=chooser.getSelectedFile().getAbsolutePath().toString();
-            } catch (FileNotFoundException fnf) {
-                JOptionPane.showMessageDialog(this, "File not found!", "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            } catch (IOException io) {
-                JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
             }
             updateRomView();
@@ -917,11 +902,8 @@ public class Frame1 extends JFrame {
                     in.skip(chunkSize);
                 }
             }
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "File not found!", "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "I/O error!", "File error",
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
         }
         return null;
