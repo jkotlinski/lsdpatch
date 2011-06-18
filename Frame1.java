@@ -118,7 +118,7 @@ public class Frame1 extends JFrame {
         saveROMItem.setEnabled(false);
         saveROMItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                saveROMButton_actionPerformed(e);
+                saveROMButton_actionPerformed();
                 }});
         menu.add(saveROMItem);
 
@@ -176,14 +176,12 @@ public class Frame1 extends JFrame {
         loadKitButton.setBounds(new Rectangle(212, 78-72, 170, 28));
         loadKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                loadKitButton_actionPerformed(e);
-                }
-                });
+                loadKitButton_actionPerformed();
+                }});
         exportKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                exportKitButton_actionPerformed(e);
-                }
-                });
+                exportKitButton_actionPerformed();
+                }});
         exportKitButton.setBounds(new Rectangle(212, 110-72, 170, 28));
         exportKitButton.setEnabled(false);
         exportKitButton.setText("export kit");
@@ -223,7 +221,7 @@ public class Frame1 extends JFrame {
                 });
         saveROMButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                saveROMButton_actionPerformed(e);
+                saveROMButton_actionPerformed();
                 }});
         saveROMButton.setBounds(new Rectangle(212, 280-72, 170, 28));
         saveROMButton.setEnabled(true);
@@ -310,7 +308,7 @@ public class Frame1 extends JFrame {
                 exportKitButton.setEnabled(true);
                 renameKitButton.setEnabled(true);
                 createKitButton.setEnabled(true);
-            } catch (Exception fe) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
             }
@@ -526,7 +524,7 @@ public class Frame1 extends JFrame {
         }
     }
 
-    void saveROMButton_actionPerformed(ActionEvent e) {
+    void saveROMButton_actionPerformed() {
         JFileChooser chooser=new JFileChooser(latestPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
@@ -552,7 +550,7 @@ public class Frame1 extends JFrame {
         }
     }
 
-    void exportKitButton_actionPerformed(ActionEvent e) {
+    void exportKitButton_actionPerformed() {
         JFileChooser chooser=new JFileChooser(latestPath);
         chooser.setFileFilter(new KitFileFilter());
         chooser.setDialogTitle("export kit");
@@ -583,7 +581,7 @@ public class Frame1 extends JFrame {
         }
     }
 
-    void loadKitButton_actionPerformed(ActionEvent e) {
+    void loadKitButton_actionPerformed() {
         JFileChooser chooser=new JFileChooser(latestPath);
         chooser.setFileFilter(new KitFileFilter());
         chooser.setDialogTitle("load kit");
