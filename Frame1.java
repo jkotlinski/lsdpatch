@@ -24,7 +24,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.beans.*;
-import javax.sound.sampled.*;
 
 public class Frame1 extends JFrame {
     JPanel contentPane;
@@ -160,11 +159,16 @@ public class Frame1 extends JFrame {
         bankBox.setBounds(new Rectangle(8, 18, 176, 25));
         bankBox.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                bankBox_actionPerformed(e);
-                }
-                });
+                    bankBox_actionPerformed(e);
+                }});
         instrList.setBorder(BorderFactory.createEtchedBorder());
         instrList.setBounds(new Rectangle(8, 64-17, 176, 280));
+        instrList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                int index = instrList.locationToIndex(e.getPoint());
+                playSample(index);
+            }});
+
         contentPane.setMinimumSize(new Dimension(1, 1));
         contentPane.setPreferredSize(new Dimension(400, 414));
         loadKitButton.setEnabled(false);
@@ -265,6 +269,25 @@ public class Frame1 extends JFrame {
 
     void loadROMButton_actionPerformed(ActionEvent e) {
         load_rom();
+    }
+
+    void playSample(int index) {
+        int offset = getSelectedROMBank() * 0x4000 + index * 2;
+        int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
+        int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
+        if (stop <= start) {
+            return;
+        }
+        byte[] arr = new byte[stop - start];
+        for (int i = start; i < stop; ++i) {
+            arr[i - start] = romImage[getSelectedROMBank() * 0x4000 - 0x4000 + i];
+        }
+        try {
+            Sound.play(arr);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     // Returns true on success.
