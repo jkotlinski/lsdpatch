@@ -26,6 +26,7 @@ import javax.swing.border.*;
 import java.beans.*;
 
 public class Frame1 extends JFrame {
+    String versionString = "LSD-Patcher v.11";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
     TitledBorder titledBorder1;
@@ -253,6 +254,9 @@ public class Frame1 extends JFrame {
         contentPane.add(dropSampleButton, null);
         contentPane.add(saveROMButton, null);
         contentPane.add(jPanel2, null);
+        JLabel versionLabel = new JLabel(versionString, SwingConstants.RIGHT);
+        versionLabel.setBounds(new Rectangle(210, 315, 174, 66));
+        contentPane.add(versionLabel);
         jPanel2.add(ditherSlider, null);
 
         buildMenus();
