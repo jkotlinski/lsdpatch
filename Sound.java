@@ -22,6 +22,7 @@ import javax.sound.sampled.*;
 
 public class Sound {
 
+    // Plays 4-bit packed Game Boy sample.
     static void play(byte[] gbSample) throws LineUnavailableException {
         AudioFormat format = new AudioFormat(11468, 8, 1, false, false);
         byte data[] = new byte[gbSample.length * 2];
