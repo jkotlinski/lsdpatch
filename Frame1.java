@@ -158,6 +158,19 @@ public class Frame1 extends JFrame {
         this.setSize(new Dimension(400, 414));
         this.setResizable(false);
         this.setTitle("LSDPatcher");
+
+        new FileDrop(contentPane, new FileDrop.Listener() {
+            public void filesDropped(java.io.File[] files) {
+                for (java.io.File file : files) {
+                    if (file.getName().toLowerCase().endsWith(".wav")) {
+                        if (!addSampleButton.isEnabled()) {
+                            createKitButton_actionPerformed();
+                        }
+                        addSample(file);
+                    }
+                }
+            }});
+
         jPanel1.setBorder(titledBorder1);
         jPanel1.setBounds(new Rectangle(8, 6, 193, 375-17));
         jPanel1.setLayout(null);
@@ -197,7 +210,7 @@ public class Frame1 extends JFrame {
         createKitButton.setBounds(new Rectangle(212, 184-72, 170, 28));
         createKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                createKitButton_actionPerformed(e);
+                createKitButton_actionPerformed();
                 }
                 });
         renameKitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -212,9 +225,8 @@ public class Frame1 extends JFrame {
         kitTextArea.setBounds(new Rectangle(212, 146-72, 67, 21));
         addSampleButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                addSampleButton_actionPerformed(e);
-                }
-                });
+                    selectSampleToAdd();
+                }});
         addSampleButton.setBounds(new Rectangle(212, 216-72, 170, 28));
         addSampleButton.setEnabled(false);
         addSampleButton.setText("add sample");
@@ -641,7 +653,7 @@ public class Frame1 extends JFrame {
         return ext;
     }
 
-    void createKitButton_actionPerformed(ActionEvent e) {
+    void createKitButton_actionPerformed() {
         currentSample[ getSelectedUiBank() ]=0;
 
         bankIsEditable[ getSelectedUiBank() ]=true;
@@ -689,45 +701,47 @@ public class Frame1 extends JFrame {
         updateRomView();
     }
 
-    void addSampleButton_actionPerformed(ActionEvent e) {
-        JFileChooser chooser=new JFileChooser(latestPathRaw);
-        chooser.setFileFilter(new RawFileFilter());
-        chooser.setDialogTitle("load kit");
-        int returnVal = chooser.showOpenDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            int offset = getROMOffsetForSelectedBank() + 0x22 + 
-                currentSample[ getSelectedUiBank() ] * 3;
-            String s=dropExtension(chooser.getSelectedFile()).toUpperCase();
-            if(s.length()>0) {
-                romImage[offset++]=(byte)s.charAt(0);
-            } else {
-                romImage[offset++]='-';
-            }
-            if(s.length()>1) {
-                romImage[offset++]=(byte)s.charAt(1);
-            } else {
-                romImage[offset++]='-';
-            }
-            if(s.length()>2) {
-                romImage[offset++]=(byte)s.charAt(2);
-            } else {
-                romImage[offset++]='-';
-            }
-
-            FakeFile file = convertWav ( chooser.getSelectedFile() );
-            if (file == null) {
-                return;
-            }
-            instrFile[currentSample[ getSelectedUiBank() ]] = file;
-
-            currentSample[ getSelectedUiBank()]++;
-
-            latestPathRaw=chooser.getSelectedFile().getAbsolutePath().toString();
-
-            compileKit();
-            updateRomView();
+    void addSample(File wavFile) {
+        int offset = getROMOffsetForSelectedBank() + 0x22 +
+            currentSample[getSelectedUiBank()] * 3;
+        String s = dropExtension(wavFile).toUpperCase();
+        if(s.length() > 0) {
+            romImage[offset++]=(byte)s.charAt(0);
+        } else {
+            romImage[offset++]='-';
+        }
+        if(s.length() > 1) {
+            romImage[offset++]=(byte)s.charAt(1);
+        } else {
+            romImage[offset++]='-';
+        }
+        if(s.length() > 2) {
+            romImage[offset++]=(byte)s.charAt(2);
+        } else {
+            romImage[offset++]='-';
         }
 
+        FakeFile file = convertWav(wavFile);
+        if (file == null) {
+            return;
+        }
+        instrFile[currentSample[getSelectedUiBank()]] = file;
+
+        currentSample[getSelectedUiBank()]++;
+
+        latestPathRaw = wavFile.getAbsolutePath().toString();
+
+        compileKit();
+        updateRomView();
+    }
+
+    void selectSampleToAdd() {
+        JFileChooser chooser=new JFileChooser(latestPathRaw);
+        chooser.setFileFilter(new RawFileFilter());
+        chooser.setDialogTitle("load sample");
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            addSample(chooser.getSelectedFile());
+        }
     }
 
     private static long readWord(FileInputStream in) throws IOException
