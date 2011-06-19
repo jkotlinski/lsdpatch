@@ -342,6 +342,7 @@ public class Frame1 extends JFrame {
             exportKitButton.setEnabled(true);
             renameKitButton.setEnabled(true);
             createKitButton.setEnabled(true);
+            flushWavFiles();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
