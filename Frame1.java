@@ -390,15 +390,14 @@ public class Frame1 extends JFrame {
         updateRomView();
     }
 
-    // Returns true on success.
     void selectRomToLoad() {
-        JFileChooser chooser = new JFileChooser(latestRomKitPath);
-        GBFileFilter filter = new GBFileFilter();
-        chooser.setFileFilter(filter);
-        chooser.setDialogTitle("Load ROM image");
-        int returnVal = chooser.showOpenDialog(null);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            loadRom(chooser.getSelectedFile());
+        FileDialog dialog = new FileDialog(this, "Load ROM Image",
+                FileDialog.LOAD);
+        dialog.setFilenameFilter(new GBFileFilter());
+        dialog.show();
+        String s = dialog.getFile();
+        if (dialog.getFile() != null) {
+            loadRom(new File(dialog.getDirectory(), dialog.getFile()));
         }
     }
 
@@ -556,7 +555,7 @@ public class Frame1 extends JFrame {
         updateBankView();
     }
 
-    void importKits ( File f ) {
+    void importKits(File f) {
         try {
             int inBank = 0;
             int outBank = 0;
@@ -584,6 +583,9 @@ public class Frame1 extends JFrame {
                 ++inBank;
             }
             updateRomView();
+            JOptionPane.showMessageDialog(this,
+                    "Imported " + copiedBankCount + " kits!",
+                    "Import OK!", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
@@ -591,47 +593,41 @@ public class Frame1 extends JFrame {
     }
 
     void importKits_actionPerformed(ActionEvent e) {
-        JFileChooser chooser=new JFileChooser(latestRomKitPath);
-        GBFileFilter filter = new GBFileFilter();
-        chooser.setFileFilter(filter);
-        chooser.setDialogTitle("select rom to import kits from");
-        int returnVal = chooser.showOpenDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            File f=chooser.getSelectedFile();
-            latestRomKitPath=f.getAbsolutePath().toString();
-
-            if(!f.toString().toUpperCase().endsWith(".GB")) {
-                f=new File(f.getAbsoluteFile().toString()+".gb");
-            }
-            //fileNameLabel.setText(f.getAbsoluteFile().toString());
-
-            importKits( f );
+        FileDialog dialog = new FileDialog(this, "Select ROM to import from",
+                FileDialog.LOAD);
+        dialog.setFilenameFilter(new GBFileFilter());
+        dialog.show();
+        if (dialog.getFile() == null) {
+            return;
         }
+        File f = new File(dialog.getDirectory(), dialog.getFile());
+        latestRomKitPath = f.getAbsolutePath().toString();
+
+        importKits(f);
     }
 
     void saveROMButton_actionPerformed() {
-        JFileChooser chooser=new JFileChooser(latestRomKitPath);
-        GBFileFilter filter = new GBFileFilter();
-        chooser.setFileFilter(filter);
-        chooser.setDialogTitle("save rom image");
-        int returnVal = chooser.showSaveDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File f=chooser.getSelectedFile();
-                latestRomKitPath=f.getAbsolutePath().toString();
+        FileDialog dialog = new FileDialog(this, "Save ROM Image",
+                FileDialog.SAVE);
+        dialog.setFilenameFilter(new GBFileFilter());
+        dialog.show();
+        if (dialog.getFile() == null) {
+            return;
+        }
+        try {
+            File f = new File(dialog.getDirectory(), dialog.getFile());
+            latestRomKitPath = f.getAbsolutePath().toString();
 
-                if(!f.toString().toUpperCase().endsWith(".GB")) {
-                    f=new File(f.getAbsoluteFile().toString()+".gb");
-                }
-                //fileNameLabel.setText(f.getAbsoluteFile().toString());
-
-                romFile=new RandomAccessFile(f,"rw");
-                romFile.write(romImage);
-                romFile.close();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                        JOptionPane.ERROR_MESSAGE);
+            if (!f.toString().toUpperCase().endsWith(".GB")) {
+                f = new File(f.getAbsoluteFile().toString()+".gb");
             }
+
+            romFile = new RandomAccessFile(f,"rw");
+            romFile.write(romImage);
+            romFile.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

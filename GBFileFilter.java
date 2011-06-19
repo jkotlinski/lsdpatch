@@ -18,41 +18,8 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE. */
 
-import javax.swing.filechooser.*;
-import java.io.File;
-
-public class GBFileFilter extends FileFilter {
-
-
-    private String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
-
-    public boolean accept(File f) {
-        /**@todo: implement this javax.swing.filechooser.FileFilter abstract method*/
-        if (f.isDirectory()) {
-            return true;
-        }
-
-        String extension = getExtension(f);
-        if (extension != null) {
-            if (extension.equals("gb")) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
-    public String getDescription() {
-        /**@todo: implement this javax.swing.filechooser.FileFilter abstract method*/
-        return "LSDj ROM Image";
+public class GBFileFilter implements java.io.FilenameFilter {
+    public boolean accept(java.io.File dir, String name) {
+        return name.toLowerCase().endsWith(".gb");
     }
 }
