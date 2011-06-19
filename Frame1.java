@@ -21,6 +21,7 @@ THE SOFTWARE. */
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.GeneralPath;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.beans.*;
@@ -58,11 +59,44 @@ public class Frame1 extends JFrame {
     JButton saveROMButton = new JButton();
     JLabel kitSizeLabel = new JLabel();
     JPanel jPanel2 = new JPanel();
+    SampleCanvas sampleView = new SampleCanvas();
     TitledBorder titledBorder3;
     JSlider ditherSlider = new JSlider();
     GridLayout gridLayout1 = new GridLayout();
 
     JMenuBar menuBar = new JMenuBar();
+
+    public class SampleCanvas extends Canvas {
+        byte[] buf;
+
+        public void paint(Graphics g) {}
+        public void update(Graphics gg) {
+            Graphics2D g = (Graphics2D)gg;
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int w = (int)g.getClipBounds().getWidth();
+            int h = (int)g.getClipBounds().getHeight();
+
+            if (buf == null) {
+                return;
+            }
+
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, w, h);
+
+            GeneralPath gp = new GeneralPath();
+            gp.moveTo(0, h);
+            for (int it = 0; it < buf.length; ++it) {
+                double val = buf[it];
+                if (val < 0) val += 256;
+                val /= 0xf0;
+                gp.lineTo(it * w / buf.length, h - h * val);
+            }
+            g.setColor(Color.YELLOW);
+            g.draw(gp);
+        }
+    }
 
     /**Construct the frame*/
 
@@ -155,7 +189,7 @@ public class Frame1 extends JFrame {
         titledBorder2 = new TitledBorder(BorderFactory.createLineBorder(new Color(153, 153, 153),2),"rename kit");
         titledBorder3 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white,new Color(164, 164, 159)),"Dithering (0-16)");
         contentPane.setLayout(null);
-        this.setSize(new Dimension(400, 414));
+        this.setSize(new Dimension(400, 464));
         this.setResizable(false);
         this.setTitle("LSDPatcher");
 
@@ -304,6 +338,9 @@ public class Frame1 extends JFrame {
         contentPane.add(versionLabel);
         jPanel2.add(ditherSlider, null);
 
+        sampleView.setBounds(new Rectangle(10, 370, 380, 40));
+        contentPane.add(sampleView);
+
         buildMenus();
     }
     /**Overridden so we can exit when window is closed*/
@@ -326,7 +363,8 @@ public class Frame1 extends JFrame {
             arr[i - start] = romImage[getSelectedROMBank() * 0x4000 - 0x4000 + i];
         }
         try {
-            Sound.play(arr);
+            sampleView.buf = Sound.play(arr);
+            sampleView.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
                     JOptionPane.INFORMATION_MESSAGE);

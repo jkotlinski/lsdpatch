@@ -22,8 +22,8 @@ import javax.sound.sampled.*;
 
 public class Sound {
 
-    // Plays 4-bit packed Game Boy sample.
-    static void play(byte[] gbSample) throws LineUnavailableException {
+    // Plays 4-bit packed Game Boy sample. Returns unpacked data.
+    static byte[] play(byte[] gbSample) throws LineUnavailableException {
         AudioFormat format = new AudioFormat(11468, 8, 1, false, false);
         byte data[] = new byte[gbSample.length * 2];
         for (int i = 0; i < gbSample.length; ++i) {
@@ -33,5 +33,6 @@ public class Sound {
         Clip clip = AudioSystem.getClip();
         clip.open(format, data, 0, data.length);
         clip.start();
+        return data;
     }
 }
