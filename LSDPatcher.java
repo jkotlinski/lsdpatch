@@ -45,7 +45,7 @@ public class LSDPatcher {
 
     public static void main(String[] args) {
         try {
-            System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch(Exception e) {
