@@ -117,9 +117,7 @@ public class Frame1 extends JFrame {
         }
         instrList.setListData(listData);
 
-        if (!selectRomToLoad()) {
-            System.exit(0);
-        }
+        selectRomToLoad();
     }
 
     private void buildMenus()
@@ -393,7 +391,7 @@ public class Frame1 extends JFrame {
     }
 
     // Returns true on success.
-    boolean selectRomToLoad() {
+    void selectRomToLoad() {
         JFileChooser chooser = new JFileChooser(latestRomKitPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
@@ -401,9 +399,7 @@ public class Frame1 extends JFrame {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             loadRom(chooser.getSelectedFile());
-            return true;
         }
-        return false;
     }
 
     private boolean isKitBank ( int a_bank ) {
