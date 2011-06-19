@@ -82,10 +82,6 @@ public class Frame1 extends JFrame {
             bankIsEditable[i]=false;
         }
         instrList.setListData(listData);
-
-        if (!load_rom()) {
-            System.exit(0);
-        }
     }
 
     private void buildMenus()
@@ -163,10 +159,23 @@ public class Frame1 extends JFrame {
             public void filesDropped(java.io.File[] files) {
                 for (java.io.File file : files) {
                     if (file.getName().toLowerCase().endsWith(".wav")) {
+                        if (!createKitButton.isEnabled()) {
+                            JOptionPane.showMessageDialog(contentPane,
+                                "Open .gb file before adding samples.",
+                                "Can't add sample!",
+                                JOptionPane.ERROR_MESSAGE);
+                            continue;
+                        }
                         if (!addSampleButton.isEnabled()) {
                             createKitButton_actionPerformed();
                         }
                         addSample(file);
+                    } else {
+                        JOptionPane.showMessageDialog(contentPane,
+                            "Unknown file type!",
+                            "File error",
+                            JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
                 }
             }});
