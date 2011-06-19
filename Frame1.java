@@ -141,6 +141,12 @@ public class Frame1 extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    class DitherListener implements javax.swing.event.ChangeListener {
+        public void stateChanged(javax.swing.event.ChangeEvent evt) {
+            compileKit();
+        }
+    }
+
     /**Component initialization*/
     private void jbInit() throws Exception  {
         //setIconImage(Toolkit.getDefaultToolkit().createImage(Frame1.class.getResource("[Your Icon]")));
@@ -240,6 +246,7 @@ public class Frame1 extends JFrame {
         ditherSlider.setPaintTicks(true);
         ditherSlider.setToolTipText("");
         ditherSlider.setValue(0);
+        ditherSlider.addChangeListener(new DitherListener());
         contentPane.add(jPanel1, null);
         //jPanel1.add(fileNameLabel, null);
         jPanel1.add(bankBox, null);
