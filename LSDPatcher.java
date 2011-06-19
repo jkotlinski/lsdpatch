@@ -22,19 +22,14 @@ import javax.swing.UIManager;
 import java.awt.*;
 
 public class LSDPatcher {
-    boolean packFrame = false;
-
     /**Construct the application*/
     public LSDPatcher() {
         Frame1 frame = new Frame1();
         //Validate frames that have preset sizes
         //Pack frames that have useful preferred size info, e.g. from their layout
-        if (packFrame) {
-            frame.pack();
-        }
-        else {
-            frame.validate();
-        }
+        frame.pack();
+        frame.validate();
+
         //Center the window
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = frame.getSize();
@@ -50,6 +45,7 @@ public class LSDPatcher {
     /**Main method*/
     public static void main(String[] args) {
         try {
+            System.setProperty("com.apple.macos.useScreenMenuBar", "true");
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch(Exception e) {
