@@ -22,7 +22,7 @@ import javax.swing.UIManager;
 import java.awt.*;
 
 public class LSDPatcher {
-    /**Construct the application*/
+
     public LSDPatcher() {
         Frame1 frame = new Frame1();
         //Validate frames that have preset sizes
@@ -42,7 +42,7 @@ public class LSDPatcher {
         frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
         frame.setVisible(true);
     }
-    /**Main method*/
+
     public static void main(String[] args) {
         try {
             System.setProperty("com.apple.macos.useScreenMenuBar", "true");
