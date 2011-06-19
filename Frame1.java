@@ -346,7 +346,7 @@ public class Frame1 extends JFrame {
         contentPane.add(saveROMButton, null);
         contentPane.add(jPanel2, null);
         JLabel versionLabel = new JLabel(versionString, SwingConstants.RIGHT);
-        versionLabel.setBounds(new Rectangle(210, 315, 174, 66));
+        versionLabel.setBounds(new Rectangle(210, 335, 174, 26));
         contentPane.add(versionLabel);
         jPanel2.add(ditherSlider, null);
 
