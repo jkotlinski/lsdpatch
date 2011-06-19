@@ -246,6 +246,7 @@ public class Frame1 extends JFrame {
         ditherSlider.setPaintTicks(true);
         ditherSlider.setToolTipText("");
         ditherSlider.setValue(0);
+        ditherSlider.setEnabled(false);
         ditherSlider.addChangeListener(new DitherListener());
         contentPane.add(jPanel1, null);
         //jPanel1.add(fileNameLabel, null);
@@ -450,6 +451,7 @@ public class Frame1 extends JFrame {
         updateKitSizeLabel();
         addSampleButton.setEnabled(inBankEditMode());
         dropSampleButton.setEnabled(inBankEditMode());
+        ditherSlider.setEnabled(inBankEditMode());
     }
 
     boolean inBankEditMode() {
