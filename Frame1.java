@@ -46,8 +46,6 @@ public class Frame1 extends JFrame {
 
     JMenuItem saveROMItem;
     JMenuItem importKitsItem;
-    String latestRomKitPath="";
-    String latestWavPath="";
     JButton loadKitButton = new JButton();
     JButton exportKitButton = new JButton();
     JButton createKitButton = new JButton();
@@ -95,6 +93,22 @@ public class Frame1 extends JFrame {
             }
             g.setColor(Color.YELLOW);
             g.draw(gp);
+        }
+    }
+
+    public class GBFileFilter implements java.io.FilenameFilter {
+        public boolean accept(java.io.File dir, String name) {
+            return name.toLowerCase().endsWith(".gb");
+        }
+    }
+    public class KitFileFilter implements java.io.FilenameFilter {
+        public boolean accept(java.io.File dir, String name) {
+            return name.toLowerCase().endsWith(".kit");
+        }
+    }
+    public class WavFileFilter implements java.io.FilenameFilter {
+        public boolean accept(java.io.File dir, String name) {
+            return name.toLowerCase().endsWith(".wav");
         }
     }
 
@@ -371,8 +385,7 @@ public class Frame1 extends JFrame {
 
     void loadRom(File gbFile) {
         try {
-            latestRomKitPath = gbFile.getAbsoluteFile().toString();
-            setTitle(latestRomKitPath);
+            setTitle(gbFile.getAbsoluteFile().toString());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
@@ -601,7 +614,6 @@ public class Frame1 extends JFrame {
             return;
         }
         File f = new File(dialog.getDirectory(), dialog.getFile());
-        latestRomKitPath = f.getAbsolutePath().toString();
 
         importKits(f);
     }
@@ -616,7 +628,6 @@ public class Frame1 extends JFrame {
         }
         try {
             File f = new File(dialog.getDirectory(), dialog.getFile());
-            latestRomKitPath = f.getAbsolutePath().toString();
 
             if (!f.toString().toUpperCase().endsWith(".GB")) {
                 f = new File(f.getAbsoluteFile().toString()+".gb");
@@ -632,34 +643,34 @@ public class Frame1 extends JFrame {
     }
 
     void exportKitButton_actionPerformed() {
-        JFileChooser chooser=new JFileChooser(latestRomKitPath);
-        chooser.setFileFilter(new KitFileFilter());
-        chooser.setDialogTitle("export kit");
-        int returnVal = chooser.showSaveDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File f=chooser.getSelectedFile();
-
-                if(!f.toString().toUpperCase().endsWith(".KIT")) {
-                    f=new File(chooser.getSelectedFile().getAbsoluteFile().toString()+".kit");
-                }
-
-                byte buf[]=new byte[0x4000];
-                int offset=getROMOffsetForSelectedBank();
-                RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
-
-                for(int i=0;i<buf.length;i++) {
-                    buf[i]=romImage[offset++];
-                }
-                bankFile.write(buf);
-                bankFile.close();
-                latestRomKitPath=f.getAbsolutePath().toString();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            updateRomView();
+        FileDialog dialog = new FileDialog(this, "Export kit", FileDialog.SAVE);
+        dialog.setFilenameFilter(new KitFileFilter());
+        dialog.show();
+        String fileName = dialog.getFile();
+        if (null == fileName) {
+            return;
         }
+        if (!fileName.toLowerCase().endsWith(".kit")) {
+            fileName = fileName + ".kit";
+        }
+
+        try {
+            File f = new File(dialog.getDirectory(), fileName);
+
+            byte buf[]=new byte[0x4000];
+            int offset=getROMOffsetForSelectedBank();
+            RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
+
+            for(int i=0;i<buf.length;i++) {
+                buf[i]=romImage[offset++];
+            }
+            bankFile.write(buf);
+            bankFile.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        updateRomView();
     }
 
     void loadKit(File kitFile) {
@@ -673,7 +684,6 @@ public class Frame1 extends JFrame {
                 romImage[offset++]=buf[i];
             }
             bankFile.close();
-            latestRomKitPath = kitFile.getAbsolutePath().toString();
             flushWavFiles();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
@@ -683,11 +693,11 @@ public class Frame1 extends JFrame {
     }
 
     void loadKitButton_actionPerformed() {
-        JFileChooser chooser=new JFileChooser(latestRomKitPath);
-        chooser.setFileFilter(new KitFileFilter());
-        chooser.setDialogTitle("load kit");
-        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            loadKit(chooser.getSelectedFile());
+        FileDialog dialog = new FileDialog(this, "Load kit", FileDialog.LOAD);
+        dialog.setFilenameFilter(new KitFileFilter());
+        dialog.show();
+        if (dialog.getFile() != null) {
+            loadKit(new File(dialog.getDirectory(), dialog.getFile()));
         }
     }
 
@@ -792,18 +802,17 @@ public class Frame1 extends JFrame {
 
         currentSample[getSelectedUiBank()]++;
 
-        latestWavPath = wavFile.getAbsolutePath().toString();
-
         compileKit();
         updateRomView();
     }
 
     void selectSampleToAdd() {
-        JFileChooser chooser=new JFileChooser(latestWavPath);
-        chooser.setFileFilter(new RawFileFilter());
-        chooser.setDialogTitle("load sample");
-        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            addSample(chooser.getSelectedFile());
+        FileDialog dialog = new FileDialog(this, "Load sample",
+                FileDialog.LOAD);
+        dialog.setFilenameFilter(new WavFileFilter());
+        dialog.show();
+        if (dialog.getFile() != null) {
+            addSample(new File(dialog.getDirectory(), dialog.getFile()));
         }
     }
 
