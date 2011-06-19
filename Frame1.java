@@ -94,7 +94,7 @@ public class Frame1 extends JFrame {
         JMenuItem menuItem = new JMenuItem("Open ROM...", KeyEvent.VK_O);
         menuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                loadROMButton_actionPerformed(e);
+                    selectRomToLoad();
                 }});
         menu.add(menuItem);
 
@@ -158,7 +158,8 @@ public class Frame1 extends JFrame {
         new FileDrop(contentPane, new FileDrop.Listener() {
             public void filesDropped(java.io.File[] files) {
                 for (java.io.File file : files) {
-                    if (file.getName().toLowerCase().endsWith(".wav")) {
+                    String fileName = file.getName().toLowerCase();
+                    if (fileName.endsWith(".wav")) {
                         if (!createKitButton.isEnabled()) {
                             JOptionPane.showMessageDialog(contentPane,
                                 "Open .gb file before adding samples.",
@@ -170,6 +171,17 @@ public class Frame1 extends JFrame {
                             createKitButton_actionPerformed();
                         }
                         addSample(file);
+                    } else if (fileName.endsWith(".gb")) {
+                        loadRom(file);
+                    } else if (fileName.endsWith(".kit")) {
+                        if (!createKitButton.isEnabled()) {
+                            JOptionPane.showMessageDialog(contentPane,
+                                "Open .gb file before adding samples.",
+                                "Can't add sample!",
+                                JOptionPane.ERROR_MESSAGE);
+                            continue;
+                        }
+                        loadKit(file);
                     } else {
                         JOptionPane.showMessageDialog(contentPane,
                             "Unknown file type!",
@@ -298,10 +310,6 @@ public class Frame1 extends JFrame {
         }
     }
 
-    void loadROMButton_actionPerformed(ActionEvent e) {
-        load_rom();
-    }
-
     void playSample(int index) {
         int offset = getSelectedROMBank() * 0x4000 + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
@@ -321,34 +329,36 @@ public class Frame1 extends JFrame {
         }
     }
 
+    void loadRom(File gbFile) {
+        try {
+            latestPath = gbFile.getAbsoluteFile().toString();
+            setTitle(latestPath);
+            romFile = new RandomAccessFile(gbFile, "r");
+            romFile.readFully(romImage);
+            romFile.close();
+            saveROMItem.setEnabled(true);
+            importKitsItem.setEnabled(true);
+            loadKitButton.setEnabled(true);
+            exportKitButton.setEnabled(true);
+            renameKitButton.setEnabled(true);
+            createKitButton.setEnabled(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        updateRomView();
+    }
+
     // Returns true on success.
-    boolean load_rom() {
+    void selectRomToLoad() {
         JFileChooser chooser = new JFileChooser(latestPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("Load ROM image");
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                setTitle(chooser.getSelectedFile().getAbsoluteFile().toString());
-                romFile=new RandomAccessFile(chooser.getSelectedFile(),"r");
-                romFile.read(romImage);
-                romFile.close();
-                latestPath=chooser.getSelectedFile().getAbsolutePath().toString();
-                saveROMItem.setEnabled(true);
-                importKitsItem.setEnabled(true);
-                loadKitButton.setEnabled(true);
-                exportKitButton.setEnabled(true);
-                renameKitButton.setEnabled(true);
-                createKitButton.setEnabled(true);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            updateRomView();
-            return true;
+            loadRom(chooser.getSelectedFile());
         }
-        return false;
     }
 
     private boolean isKitBank ( int a_bank ) {
@@ -615,28 +625,32 @@ public class Frame1 extends JFrame {
         }
     }
 
+    void loadKit(File kitFile) {
+        try {
+            byte buf[]=new byte[0x4000];
+            int offset=getROMOffsetForSelectedBank();
+            RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
+            bankFile.readFully(buf);
+
+            for(int i=0;i<buf.length;i++) {
+                romImage[offset++]=buf[i];
+            }
+            bankFile.close();
+            latestPath = kitFile.getAbsolutePath().toString();
+            flushWavFiles();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        updateRomView();
+    }
+
     void loadKitButton_actionPerformed() {
         JFileChooser chooser=new JFileChooser(latestPath);
         chooser.setFileFilter(new KitFileFilter());
         chooser.setDialogTitle("load kit");
-        int returnVal = chooser.showOpenDialog(null);
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                byte buf[]=new byte[0x4000];
-                int offset=getROMOffsetForSelectedBank();
-                RandomAccessFile bankFile=new RandomAccessFile(chooser.getSelectedFile(),"r");
-                bankFile.readFully(buf);
-
-                for(int i=0;i<buf.length;i++) {
-                    romImage[offset++]=buf[i];
-                }
-                bankFile.close();
-                latestPath=chooser.getSelectedFile().getAbsolutePath().toString();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            updateRomView();
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            loadKit(chooser.getSelectedFile());
         }
     }
 
@@ -690,10 +704,13 @@ public class Frame1 extends JFrame {
             romImage[offset++]='-';
         }
 
-        // Flushes out the loaded .wav files.
-        instrFile = new FakeFile[getBankCount()];
+        flushWavFiles();
 
         updateRomView();
+    }
+
+    void flushWavFiles() {
+        instrFile = new FakeFile[getBankCount()];
     }
 
     void renameKitButton_actionPerformed(ActionEvent e) {
