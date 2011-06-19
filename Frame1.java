@@ -45,8 +45,8 @@ public class Frame1 extends JFrame {
 
     JMenuItem saveROMItem;
     JMenuItem importKitsItem;
-    String latestPath="c:\\";
-    String latestPathRaw="c:\\";
+    String latestRomKitPath="";
+    String latestWavPath="";
     JButton loadKitButton = new JButton();
     JButton exportKitButton = new JButton();
     JButton createKitButton = new JButton();
@@ -82,6 +82,10 @@ public class Frame1 extends JFrame {
             bankIsEditable[i]=false;
         }
         instrList.setListData(listData);
+
+        if (!selectRomToLoad()) {
+            System.exit(0);
+        }
     }
 
     private void buildMenus()
@@ -331,8 +335,8 @@ public class Frame1 extends JFrame {
 
     void loadRom(File gbFile) {
         try {
-            latestPath = gbFile.getAbsoluteFile().toString();
-            setTitle(latestPath);
+            latestRomKitPath = gbFile.getAbsoluteFile().toString();
+            setTitle(latestRomKitPath);
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
@@ -351,15 +355,17 @@ public class Frame1 extends JFrame {
     }
 
     // Returns true on success.
-    void selectRomToLoad() {
-        JFileChooser chooser = new JFileChooser(latestPath);
+    boolean selectRomToLoad() {
+        JFileChooser chooser = new JFileChooser(latestRomKitPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("Load ROM image");
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             loadRom(chooser.getSelectedFile());
+            return true;
         }
+        return false;
     }
 
     private boolean isKitBank ( int a_bank ) {
@@ -551,14 +557,14 @@ public class Frame1 extends JFrame {
     }
 
     void importKits_actionPerformed(ActionEvent e) {
-        JFileChooser chooser=new JFileChooser(latestPath);
+        JFileChooser chooser=new JFileChooser(latestRomKitPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("select rom to import kits from");
         int returnVal = chooser.showOpenDialog(null);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             File f=chooser.getSelectedFile();
-            latestPath=f.getAbsolutePath().toString();
+            latestRomKitPath=f.getAbsolutePath().toString();
 
             if(!f.toString().toUpperCase().endsWith(".GB")) {
                 f=new File(f.getAbsoluteFile().toString()+".gb");
@@ -570,7 +576,7 @@ public class Frame1 extends JFrame {
     }
 
     void saveROMButton_actionPerformed() {
-        JFileChooser chooser=new JFileChooser(latestPath);
+        JFileChooser chooser=new JFileChooser(latestRomKitPath);
         GBFileFilter filter = new GBFileFilter();
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("save rom image");
@@ -578,7 +584,7 @@ public class Frame1 extends JFrame {
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File f=chooser.getSelectedFile();
-                latestPath=f.getAbsolutePath().toString();
+                latestRomKitPath=f.getAbsolutePath().toString();
 
                 if(!f.toString().toUpperCase().endsWith(".GB")) {
                     f=new File(f.getAbsoluteFile().toString()+".gb");
@@ -596,7 +602,7 @@ public class Frame1 extends JFrame {
     }
 
     void exportKitButton_actionPerformed() {
-        JFileChooser chooser=new JFileChooser(latestPath);
+        JFileChooser chooser=new JFileChooser(latestRomKitPath);
         chooser.setFileFilter(new KitFileFilter());
         chooser.setDialogTitle("export kit");
         int returnVal = chooser.showSaveDialog(null);
@@ -617,7 +623,7 @@ public class Frame1 extends JFrame {
                 }
                 bankFile.write(buf);
                 bankFile.close();
-                latestPath=f.getAbsolutePath().toString();
+                latestRomKitPath=f.getAbsolutePath().toString();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
@@ -637,7 +643,7 @@ public class Frame1 extends JFrame {
                 romImage[offset++]=buf[i];
             }
             bankFile.close();
-            latestPath = kitFile.getAbsolutePath().toString();
+            latestRomKitPath = kitFile.getAbsolutePath().toString();
             flushWavFiles();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
@@ -647,7 +653,7 @@ public class Frame1 extends JFrame {
     }
 
     void loadKitButton_actionPerformed() {
-        JFileChooser chooser=new JFileChooser(latestPath);
+        JFileChooser chooser=new JFileChooser(latestRomKitPath);
         chooser.setFileFilter(new KitFileFilter());
         chooser.setDialogTitle("load kit");
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -756,14 +762,14 @@ public class Frame1 extends JFrame {
 
         currentSample[getSelectedUiBank()]++;
 
-        latestPathRaw = wavFile.getAbsolutePath().toString();
+        latestWavPath = wavFile.getAbsolutePath().toString();
 
         compileKit();
         updateRomView();
     }
 
     void selectSampleToAdd() {
-        JFileChooser chooser=new JFileChooser(latestPathRaw);
+        JFileChooser chooser=new JFileChooser(latestWavPath);
         chooser.setFileFilter(new RawFileFilter());
         chooser.setDialogTitle("load sample");
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
