@@ -404,7 +404,7 @@ public class Frame1 extends JFrame {
     }
 
     void selectRomToLoad() {
-        FileDialog dialog = new FileDialog(this, "Load ROM Image",
+        FileDialog dialog = new FileDialog(this, "Load ROM Image (.gb)",
                 FileDialog.LOAD);
         dialog.setFilenameFilter(new GBFileFilter());
         dialog.show();
