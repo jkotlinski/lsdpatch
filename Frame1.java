@@ -882,18 +882,28 @@ public class Frame1 extends JFrame {
     {
         int ch = 0;
         long sampleRate = 0;
-        int blockAlign = 0;
         int bits = 0;
 
         try {
             FileInputStream in = new FileInputStream( file.getAbsolutePath() );
 
             long riffId = readWord(in);
-            //assert riffId == 0x52494646; //'RIFF'
+            if (riffId != 1380533830) {
+                JOptionPane.showMessageDialog(this,
+                "Missing RIFF id!",
+                "Format error",
+                JOptionPane.ERROR_MESSAGE);
+            }
+
             readWord(in); //skip file size
 
             long waveId = readWord(in);
-            //assert waveId == 0x57415645; //'WAVE'
+            if (waveId != 1463899717) {
+                JOptionPane.showMessageDialog(this,
+                        "Missing WAVE id!",
+                        "Format error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
 
             while ( in.available() != 0 )
             {
@@ -920,26 +930,22 @@ public class Frame1 extends JFrame {
                     }
                     sampleRate = readEndianWord(in);
                     readWord(in); //avg. bytes/second
-                    blockAlign = readEndianShort(in);
+                    readEndianShort(in);  // Block align.
                     bits = readEndianShort(in);
-                    if (bits != 16) {
+                    if (bits != 16 && bits != 8) {
                         JOptionPane.showMessageDialog(this,
-                                "Only 16-bit .wav is supported!",
+                                "Only 8-bit and 16-bit .wav are supported!",
                                 "Format error",
                                 JOptionPane.ERROR_MESSAGE);
                         return null;
                     }
-                    assert blockAlign == 2;
                 }
                 else if ( chunkId == 0x64617461 ) // data
                 {
                     byte[] buf = new byte[(int)chunkSize];
                     in.read(buf);
 
-                    //convert to mono
-                    assert blockAlign == 2;
-                    if ( ch == 2 )
-                    {
+                    if (ch == 2) {
                         int inIt = 0;
                         int outIt = 0;
                         while ( inIt < chunkSize )
@@ -952,26 +958,23 @@ public class Frame1 extends JFrame {
                         ch = 1;
                     }
 
-                    //convert to 8-bit
-                    {
+                    if (bits == 16) {
+                        // Convert from signed 16-bit to signed 8-bit
+                        // by simply taking the most significant byte.
                         int inIt = 1;
                         int outIt = 0;
 
-                        byte max = 0;
-                        byte min = 0;
-
-                        while ( inIt < chunkSize )
-                        {
-                            byte val = buf[inIt];
-                            //System.out.print(val+" ");
-                            if ( val < min ) min = val;
-                            if ( val > max ) max = val;
-                            buf[outIt] = val;
+                        while ( inIt < chunkSize ) {
+                            buf[outIt] = buf[inIt];
                             outIt++;
                             inIt+=2;
                         }
                         chunkSize /= 2;
-                        blockAlign = 1;
+                    } else if (bits == 8) {
+                        // Converts unsigned 8-bit to signed 8-bit.
+                        for (int it = 0; it < chunkSize; ++it) {
+                            buf[it] += 128;
+                        }
                     }
 
                     int frames = (int)chunkSize;
