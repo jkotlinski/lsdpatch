@@ -30,9 +30,19 @@ public class Sound {
             data[i * 2] = (byte)(0xf0 & gbSample[i]);
             data[i * 2 + 1] = (byte)((0xf & gbSample[i]) << 4);
         }
+
+        // Emulates Game Boy sound chip bug. While changing waveform,
+        // sound is played back at zero DC. This happens every 32'nd sample.
+        byte fuzzed_data[] = data.clone();
+        for (int i = 0; i < fuzzed_data.length; i += 32) {
+            fuzzed_data[i] = 0x78;
+        }
+
+        // Play it!
         Clip clip = AudioSystem.getClip();
-        clip.open(format, data, 0, data.length);
+        clip.open(format, fuzzed_data, 0, fuzzed_data.length);
         clip.start();
+
         return data;
     }
 }
