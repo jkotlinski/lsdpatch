@@ -26,7 +26,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.beans.*;
 
-public class Frame1 extends JFrame {
+public class Frame extends JFrame {
     String versionString = "LSD-Patcher v.16";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
@@ -112,9 +112,7 @@ public class Frame1 extends JFrame {
         }
     }
 
-    /**Construct the frame*/
-
-    public Frame1() {
+    public Frame() {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
