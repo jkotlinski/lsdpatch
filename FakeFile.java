@@ -42,6 +42,7 @@ public class FakeFile {
 
     public int read() {
         int val = buf[readPos++];
+        // Converts from signed to unsigned 8-bit.
         val += 0x80;
         return val;
     }
