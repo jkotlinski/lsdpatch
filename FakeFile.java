@@ -204,14 +204,14 @@ public class FakeFile {
         byte[] word = new byte[2];
         in.read ( word );
 
-        ret += val(word[1]);
+        ret += signedToUnsigned(word[1]);
         ret <<= 8;
-        ret += val(word[0]);
+        ret += signedToUnsigned(word[0]);
 
         return ret;
     }
 
-    static private int val(byte b) {
+    static private int signedToUnsigned(byte b) {
         if ( b >= 0 ) {
             return b;
         }
@@ -223,16 +223,16 @@ public class FakeFile {
         byte[] word = new byte[4];
         in.read ( word );
 
-        ret += val(word[3]);
+        ret += signedToUnsigned(word[3]);
         ret <<= 8;
 
-        ret += val(word[2]);
+        ret += signedToUnsigned(word[2]);
         ret <<= 8;
 
-        ret += val(word[1]);
+        ret += signedToUnsigned(word[1]);
         ret <<= 8;
 
-        ret += val(word[0]);
+        ret += signedToUnsigned(word[0]);
 
         return ret;
     }
