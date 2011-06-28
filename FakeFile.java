@@ -18,6 +18,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
+import java.io.*;
+import javax.swing.*;
+
 public class FakeFile {
     String name;
     byte[] buf;
@@ -47,5 +50,191 @@ public class FakeFile {
         return val;
     }
 
+    static FakeFile createFromWav(File file) {
+        int ch = 0;
+        long sampleRate = 0;
+        int bits = 0;
+
+        try {
+            FileInputStream in = new FileInputStream( file.getAbsolutePath() );
+
+            long riffId = readWord(in);
+            if (riffId != 1380533830) {
+                JOptionPane.showMessageDialog(null,
+                "Missing RIFF id!",
+                "Format error",
+                JOptionPane.ERROR_MESSAGE);
+            }
+
+            readWord(in); //skip file size
+
+            long waveId = readWord(in);
+            if (waveId != 1463899717) {
+                JOptionPane.showMessageDialog(null,
+                        "Missing WAVE id!",
+                        "Format error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+            while ( in.available() != 0 )
+            {
+                long chunkId = readWord(in);
+                long chunkSize = readEndianWord(in);
+
+                if ( chunkId == 0x666D7420 ) // fmt
+                {
+                    int compression = readEndianShort(in);
+                    if (compression != 1) {
+                        JOptionPane.showMessageDialog(null,
+                                "Sample is compressed. Only PCM .wav files are supported.",
+                                "Format error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
+                    ch = readEndianShort(in);
+                    if (ch > 2) {
+                        JOptionPane.showMessageDialog(null,
+                                "Unsupported number of channels!",
+                                "Format error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
+                    sampleRate = readEndianWord(in);
+                    readWord(in); //avg. bytes/second
+                    readEndianShort(in);  // Block align.
+                    bits = readEndianShort(in);
+                    if (bits != 16 && bits != 8) {
+                        JOptionPane.showMessageDialog(null,
+                                "Only 8-bit and 16-bit .wav are supported!",
+                                "Format error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return null;
+                    }
+                }
+                else if ( chunkId == 0x64617461 ) // data
+                {
+                    byte[] buf = new byte[(int)chunkSize];
+                    in.read(buf);
+
+                    if (ch == 2) {
+                        int inIt = 0;
+                        int outIt = 0;
+                        while ( inIt < chunkSize )
+                        {
+                            buf[outIt++] = buf[inIt++];
+                            buf[outIt++] = buf[inIt++];
+                            inIt += 2;
+                        }
+                        chunkSize /= 2;
+                        ch = 1;
+                    }
+
+                    if (bits == 16) {
+                        // Convert from signed 16-bit to signed 8-bit
+                        // by simply taking the most significant byte.
+                        int inIt = 1;
+                        int outIt = 0;
+
+                        while ( inIt < chunkSize ) {
+                            buf[outIt] = buf[inIt];
+                            outIt++;
+                            inIt+=2;
+                        }
+                        chunkSize /= 2;
+                    } else if (bits == 8) {
+                        // Converts unsigned 8-bit to signed 8-bit.
+                        for (int it = 0; it < chunkSize; ++it) {
+                            buf[it] += 128;
+                        }
+                    }
+
+                    int frames = (int)chunkSize;
+
+                    int outFreq = 11468;
+                    int outFrames = ( outFreq * frames ) / (int)sampleRate;
+
+                    double readPos = 0.0;
+                    double advance = (double)sampleRate / (double)outFreq;
+
+                    byte[] outBuf = new byte[outFrames];
+                    int writePos = 0;
+
+                    while ( writePos < outFrames )
+                    {
+                        byte val = buf[(int)readPos];
+                        outBuf[writePos++] = val;
+                        readPos += advance;
+                    }
+
+                    return new FakeFile ( outBuf, file.getName() );
+                }
+                else
+                {
+                    in.skip(chunkSize);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
+    }
+
+    static private long readWord(FileInputStream in) throws IOException {
+        long ret = 0;
+        byte[] word = new byte[4];
+        in.read ( word );
+
+        ret += word[0];
+        ret <<= 8;
+
+        ret += word[1];
+        ret <<= 8;
+
+        ret += word[2];
+        ret <<= 8;
+
+        ret += word[3];
+
+        return ret;
+    }
+
+    static private int readEndianShort(FileInputStream in) throws IOException {
+        int ret = 0;
+        byte[] word = new byte[2];
+        in.read ( word );
+
+        ret += val(word[1]);
+        ret <<= 8;
+        ret += val(word[0]);
+
+        return ret;
+    }
+
+    static private int val(byte b) {
+        if ( b >= 0 ) {
+            return b;
+        }
+        return 0x100 + b;
+    }
+
+    static private long readEndianWord(FileInputStream in) throws IOException {
+        long ret = 0;
+        byte[] word = new byte[4];
+        in.read ( word );
+
+        ret += val(word[3]);
+        ret <<= 8;
+
+        ret += val(word[2]);
+        ret <<= 8;
+
+        ret += val(word[1]);
+        ret <<= 8;
+
+        ret += val(word[0]);
+
+        return ret;
+    }
 }
 
