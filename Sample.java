@@ -21,12 +21,12 @@ THE SOFTWARE. */
 import java.io.*;
 import javax.swing.*;
 
-public class FakeFile {
+public class Sample {
     String name;
     byte[] buf;
     int readPos;
 
-    public FakeFile ( byte[] iBuf, String iName ) {
+    public Sample ( byte[] iBuf, String iName ) {
         buf = iBuf;
         name = iName;
     }
@@ -50,7 +50,7 @@ public class FakeFile {
         return val;
     }
 
-    static FakeFile createFromWav(File file) {
+    static Sample createFromWav(File file) {
         int ch = 0;
         long sampleRate = 0;
         int bits = 0;
@@ -166,7 +166,7 @@ public class FakeFile {
                         readPos += advance;
                     }
 
-                    return new FakeFile ( outBuf, file.getName() );
+                    return new Sample(outBuf, file.getName());
                 }
                 else
                 {

@@ -27,27 +27,27 @@ class sbc {
     public static int DITHER_VAL=0x8;
 
     //outfile=dst, inSample=8bit unsigned sample 11468 kHz
-    public static void handle(byte dst[], FakeFile inFiles[], int byteLength[]) {
+    public static void handle(byte dst[], Sample samples[], int byteLength[]) {
         int offset=0x60; //don't overwrite samplebank info!
-        for(int fileNo=0;fileNo<inFiles.length;fileNo++) {
-            int fileLength=-1;
-            FakeFile inFile = inFiles[fileNo];
-            if(inFile==null) {
+        for (int sampleIt = 0; sampleIt < samples.length; sampleIt++) {
+            Sample sample = samples[sampleIt];
+            if (sample == null) {
                 break;
             }
 
-            inFile.seekStart();
-            fileLength=(int)inFile.length();
-            fileLength-=fileLength%0x10;
+            sample.seekStart();
+            int sampleLength = sample.length();
+            // Trims the end of the sample to make it a multiple of 0x10.
+            sampleLength -= sampleLength % 0x10;
 
             int addedBytes=0;
 
             int outbuf[]=new int[32];
             int outcounter=0;
-            for(int i=0;i<fileLength;i++) {
-                outbuf[outcounter]=inFile.read();
+            for (int i = 0; i < sampleLength; i++) {
+                outbuf[outcounter] = sample.read();
                 //apply dither
-                outbuf[outcounter]+=Math.random()*DITHER_VAL-DITHER_VAL/2;
+                outbuf[outcounter] += Math.random()*DITHER_VAL-DITHER_VAL/2;
                 //outbuf[outcounter]+=outcounter%2*DITHER_VAL-DITHER_VAL/2;
                 //throw away 4 LSB
                 outbuf[outcounter]/=16;
@@ -62,17 +62,17 @@ class sbc {
                 outbuf[outcounter]=Math.min(0xf,outbuf[outcounter]);
                 outbuf[outcounter]=Math.max(0,outbuf[outcounter]);
 
-                if(outcounter==31) {
+                if (outcounter == 31) {
                     for(int j=0;j!=32;j+=2) {
                         dst[offset++]=(byte)(outbuf[j]*0x10+outbuf[j+1]);
                     }
-                    outcounter=-1;
-                    addedBytes+=0x10;
+                    outcounter = -1;
+                    addedBytes += 0x10;
                 }
                 outcounter++;
             }
 
-            byteLength[fileNo]=addedBytes;
+            byteLength[sampleIt] = addedBytes;
         }
     }
 }

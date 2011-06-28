@@ -42,7 +42,7 @@ public class Frame1 extends JFrame {
     byte romImage[]=new byte[0x4000 * getBankCount()];
 
     boolean bankIsEditable[]=new boolean[getBankCount()];
-    FakeFile instrFile[]= new FakeFile[getBankCount()];
+    Sample samples[]= new Sample[getBankCount()];
 
     JMenuItem saveROMItem;
     JMenuItem importKitsItem;
@@ -522,7 +522,7 @@ public class Frame1 extends JFrame {
                 }
             }
             s[instrNo-1]=instrNo+". "+new String(buf);
-            FakeFile f = instrFile[instrNo-1];
+            Sample f = samples[instrNo-1];
             if(bankIsEditable[ getSelectedUiBank() ] && f!=null) {
                 int flen=(int)(f.length()/2-f.length()/2%0x10);
                 totSampleSize+=flen;
@@ -757,7 +757,7 @@ public class Frame1 extends JFrame {
     }
 
     void flushWavFiles() {
-        instrFile = new FakeFile[getBankCount()];
+        samples = new Sample[getBankCount()];
     }
 
     void renameKitButton_actionPerformed(ActionEvent e) {
@@ -794,11 +794,11 @@ public class Frame1 extends JFrame {
             romImage[offset++]='-';
         }
 
-        FakeFile file = FakeFile.createFromWav(wavFile);
-        if (file == null) {
+        Sample sample = Sample.createFromWav(wavFile);
+        if (sample == null) {
             return;
         }
-        instrFile[currentSample[getSelectedUiBank()]] = file;
+        samples[currentSample[getSelectedUiBank()]] = sample;
 
         currentSample[getSelectedUiBank()]++;
 
@@ -827,7 +827,7 @@ public class Frame1 extends JFrame {
 
         byte newSamples[]=new byte[0x4000];
         int lengths[]=new int[15];
-        sbc.handle(newSamples,instrFile,lengths);
+        sbc.handle(newSamples,samples,lengths);
 
         // Checks if at least one sample has been added.
         boolean hasAnySample = false;
@@ -874,13 +874,13 @@ public class Frame1 extends JFrame {
             return;
         }
 
-        //move up instr file links
+        // move up samples.
         for(int i=index;i<14;i++) {
-            instrFile[i]=instrFile[i+1];
+            samples[i]=samples[i+1];
         }
-        instrFile[14]=null;
+        samples[14]=null;
 
-        //move up instr names
+        // move up instr names.
         int offset= getROMOffsetForSelectedBank() +0x22+index*3;
         int i;
         for(i=offset;i< getROMOffsetForSelectedBank() +0x22+14*3;i+=3) {
