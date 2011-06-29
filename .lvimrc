@@ -1,1 +1,2 @@
-map <F5> :wall!<CR>:!sh make-jar.sh<CR>:!java -jar LSDPatcher.jar<CR>
+map <F4> :wall!<CR>:!sh make-jar.sh<CR>
+map <F5> :wall!<CR>:!java -jar LSDPatcher.jar<CR>
