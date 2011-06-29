@@ -46,7 +46,7 @@ class sbc {
             int outcounter=0;
             for (int i = 0; i < sampleLength; i++) {
                 outbuf[outcounter] = sample.read();
-                if (sample.mayDither) {
+                if (sample.mayDither()) {
                     outbuf[outcounter] += Math.random()*DITHER_VAL-DITHER_VAL/2;
                 }
                 //outbuf[outcounter]+=outcounter%2*DITHER_VAL-DITHER_VAL/2;

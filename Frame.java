@@ -56,7 +56,7 @@ public class Frame extends JFrame {
     JMenuItem importKitsItem;
     JButton loadKitButton = new JButton();
     JButton exportKitButton = new JButton();
-    // JButton createKitButton = new JButton();
+    JButton exportSampleButton = new JButton();
     TitledBorder titledBorder2;
     JButton renameKitButton = new JButton();
     JTextArea kitTextArea = new JTextArea();
@@ -258,7 +258,13 @@ public class Frame extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 if (romImage != null) {
                     int index = instrList.locationToIndex(e.getPoint());
-                    playSample(index);
+
+                    boolean hasIndex = (index > -1);
+                    if (hasIndex) {
+                        playSample(index);
+                    }
+                    dropSampleButton.setEnabled(hasIndex);
+                    exportSampleButton.setEnabled(hasIndex);
                 }
             }});
 
@@ -278,15 +284,15 @@ public class Frame extends JFrame {
         exportKitButton.setBounds(new Rectangle(212, 110-72, 170, 28));
         exportKitButton.setEnabled(false);
         exportKitButton.setText("export kit");
-        /*
-        createKitButton.setEnabled(false);
-        createKitButton.setText("create new kit");
-        createKitButton.setBounds(new Rectangle(212, 184-72, 170, 28));
-        createKitButton.addActionListener(new java.awt.event.ActionListener() {
+
+        exportSampleButton.setEnabled(false);
+        exportSampleButton.setText("export sample");
+        exportSampleButton.setBounds(new Rectangle(212, 184-82, 170, 28));
+        exportSampleButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    createKit();
+                    exportSample();
                 }});
-                */
+
         renameKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 renameKitButton_actionPerformed(e);
@@ -316,14 +322,14 @@ public class Frame extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                 saveROMButton_actionPerformed();
                 }});
-        saveROMButton.setBounds(new Rectangle(212, 280-72, 170, 28));
+        saveROMButton.setBounds(new Rectangle(212, 280 - 64, 170, 28));
         saveROMButton.setEnabled(false);
-        saveROMButton.setText("save rom...");
+        saveROMButton.setText("save rom");
         kitSizeLabel.setToolTipText("");
         kitSizeLabel.setText("0/3fa0 bytes used");
         kitSizeLabel.setBounds(new Rectangle(8, 346-17, 169, 22));
         jPanel2.setBorder(titledBorder3);
-        jPanel2.setBounds(new Rectangle(210, 315-72, 174, 66));
+        jPanel2.setBounds(new Rectangle(210, 315-64, 174, 66));
         jPanel2.setLayout(gridLayout1);
         ditherSlider.setMajorTickSpacing(4);
         ditherSlider.setMaximum(16);
@@ -335,7 +341,6 @@ public class Frame extends JFrame {
         ditherSlider.setEnabled(false);
         ditherSlider.addChangeListener(new DitherListener());
         contentPane.add(jPanel1, null);
-        //jPanel1.add(fileNameLabel, null);
         jPanel1.add(bankBox, null);
         jPanel1.add(instrList, null);
         jPanel1.add(kitSizeLabel, null);
@@ -343,7 +348,7 @@ public class Frame extends JFrame {
         contentPane.add(exportKitButton, null);
         contentPane.add(renameKitButton, null);
         contentPane.add(kitTextArea, null);
-        // contentPane.add(createKitButton, null);
+        contentPane.add(exportSampleButton, null);
         contentPane.add(addSampleButton, null);
         contentPane.add(dropSampleButton, null);
         contentPane.add(saveROMButton, null);
@@ -407,7 +412,6 @@ public class Frame extends JFrame {
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
             renameKitButton.setEnabled(true);
-            // createKitButton.setEnabled(true);
             flushWavFiles();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
@@ -548,7 +552,6 @@ public class Frame extends JFrame {
 
         updateKitSizeLabel();
         addSampleButton.setEnabled(true);
-        dropSampleButton.setEnabled(true);
         ditherSlider.setEnabled(true);  // TODO: Should be individual per sample.
     }
 
@@ -653,6 +656,7 @@ public class Frame extends JFrame {
         FileDialog dialog = new FileDialog(this, "Save ROM Image",
                 FileDialog.SAVE);
         dialog.setFilenameFilter(new GBFileFilter());
+        dialog.setFile(getTitle());
         dialog.show();
         if (dialog.getFile() == null) {
             return;
@@ -943,4 +947,23 @@ public class Frame extends JFrame {
         updateBankView();
     }
 
+    void exportSample() {
+        Sample s = samples[instrList.getSelectedIndex()];
+        if (s == null) {
+            return;
+        }
+        FileDialog dialog = new FileDialog(this, "Save sample as .wav",
+                FileDialog.SAVE);
+        dialog.setFilenameFilter(new WavFileFilter());
+        dialog.setFile(s.getName() + ".wav");
+        dialog.show();
+        if (dialog.getFile() == null) {
+            return;
+        }
+        File f = new File(dialog.getDirectory(), dialog.getFile());
+        if (!f.toString().toUpperCase().endsWith(".WAV")) {
+            f = new File(f.getAbsoluteFile().toString()+".wav");
+        }
+        s.writeToWav(f);
+    }
 }
