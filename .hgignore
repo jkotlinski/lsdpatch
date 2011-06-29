@@ -3,3 +3,4 @@ syntax: glob
 classes/*.class
 *.jar
 tags
+.DS_Store
