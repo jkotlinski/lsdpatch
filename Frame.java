@@ -907,29 +907,36 @@ public class Frame extends JFrame {
     }
 
     void dropSampleButton_actionPerformed(ActionEvent e) {
-        int index=instrList.getSelectedIndex();
+        int[] indices = instrList.getSelectedIndices();
 
-        if(index==-1) {
-            return;
+        for (int indexIt = 0; indexIt < indices.length; ++indexIt) {
+            // Assumes that indices are sorted...
+            int index = indices[indexIt];
+
+            // Moves up samples.
+            for(int i=index;i<14;i++) {
+                samples[i]=samples[i+1];
+            }
+            samples[14]=null;
+
+            // Moves up instr names.
+            int offset= getROMOffsetForSelectedBank() +0x22+index*3;
+            int i;
+            for(i=offset;i< getROMOffsetForSelectedBank() +0x22+14*3;i+=3) {
+                romImage[i]=romImage[i+3];
+                romImage[i+1]=romImage[i+4];
+                romImage[i+2]=romImage[i+5];
+            }
+            romImage[i]=0;
+            romImage[i+1]='-';
+            romImage[i+2]='-';
+
+            // Adjusts indices.
+            for (int indexIt2 = indexIt + 1; indexIt2 < indices.length; ++indexIt2) {
+                --indices[indexIt2];
+            }
         }
 
-        // move up samples.
-        for(int i=index;i<14;i++) {
-            samples[i]=samples[i+1];
-        }
-        samples[14]=null;
-
-        // move up instr names.
-        int offset= getROMOffsetForSelectedBank() +0x22+index*3;
-        int i;
-        for(i=offset;i< getROMOffsetForSelectedBank() +0x22+14*3;i+=3) {
-            romImage[i]=romImage[i+3];
-            romImage[i+1]=romImage[i+4];
-            romImage[i+2]=romImage[i+5];
-        }
-        romImage[i]=0;
-        romImage[i+1]='-';
-        romImage[i+2]='-';
         compileKit();
         updateBankView();
     }
