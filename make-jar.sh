@@ -1,2 +1,3 @@
-javac *.java
-jar cvfm LSDPatcher.jar META-INF/MANIFEST.MF *.class *.java
+javac -d classes *.java
+cd classes
+jar cvfm ../LSDPatcher.jar ../META-INF/MANIFEST.MF *.class
