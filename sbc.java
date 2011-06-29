@@ -46,8 +46,9 @@ class sbc {
             int outcounter=0;
             for (int i = 0; i < sampleLength; i++) {
                 outbuf[outcounter] = sample.read();
-                //apply dither
-                outbuf[outcounter] += Math.random()*DITHER_VAL-DITHER_VAL/2;
+                if (sample.mayDither) {
+                    outbuf[outcounter] += Math.random()*DITHER_VAL-DITHER_VAL/2;
+                }
                 //outbuf[outcounter]+=outcounter%2*DITHER_VAL-DITHER_VAL/2;
                 //throw away 4 LSB
                 outbuf[outcounter]/=16;

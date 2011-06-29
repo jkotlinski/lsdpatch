@@ -25,10 +25,12 @@ public class Sample {
     String name;
     byte[] buf;
     int readPos;
+    boolean mayDither;
 
-    public Sample ( byte[] iBuf, String iName ) {
+    public Sample(byte[] iBuf, String iName, boolean iMayDither) {
         buf = iBuf;
         name = iName;
+        mayDither = iMayDither;
     }
 
     public String getName() {
@@ -61,7 +63,7 @@ public class Sample {
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
             buf[bufIt] -= 0x80;
         }
-        return new Sample(buf, name);
+        return new Sample(buf, name, false);
     }
 
     // ------------------
@@ -182,7 +184,7 @@ public class Sample {
                         readPos += advance;
                     }
 
-                    return new Sample(outBuf, file.getName());
+                    return new Sample(outBuf, file.getName(), true);
                 }
                 else
                 {
