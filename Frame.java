@@ -120,6 +120,12 @@ public class Frame extends JFrame {
         }
     }
 
+    void emptyInstrList() {
+        String listData[]={"1.","2.","3.","4.","5.","6.","7.","8.","9.","10.","11.",
+            "12.","13.","14.","15."};
+        instrList.setListData(listData);
+    }
+
     public Frame() {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
@@ -129,9 +135,7 @@ public class Frame extends JFrame {
             e.printStackTrace();
         }
 
-        String listData[]={"1.","2.","3.","4.","5.","6.","7.","8.","9.","10.","11.",
-            "12.","13.","14.","15."};
-        instrList.setListData(listData);
+        emptyInstrList();
 
         selectRomToLoad();
     }
@@ -501,6 +505,11 @@ public class Frame extends JFrame {
     }
 
     private void updateBankView() {
+        if (isEmptyKitBank(getSelectedROMBank())) {
+            emptyInstrList();
+            return;
+        }
+
         byte buf[]=new byte[3];
         String s[]=new String[15];
 
