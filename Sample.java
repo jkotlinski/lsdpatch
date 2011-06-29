@@ -50,6 +50,22 @@ public class Sample {
         return val;
     }
 
+    // ------------------
+
+    static Sample createFromNibbles(byte[] nibbles, String name) {
+        byte[] buf = new byte[nibbles.length * 2];
+        for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
+            buf[2 * nibbleIt] = (byte)(nibbles[nibbleIt] & 0xf0);
+            buf[2 * nibbleIt + 1] = (byte)((nibbles[nibbleIt] & 0xf) << 4);
+        }
+        for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
+            buf[bufIt] -= 0x80;
+        }
+        return new Sample(buf, name);
+    }
+
+    // ------------------
+
     static Sample createFromWav(File file) {
         int ch = 0;
         long sampleRate = 0;
