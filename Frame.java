@@ -256,8 +256,10 @@ public class Frame extends JFrame {
         instrList.setBounds(new Rectangle(8, 64-17, 176, 280));
         instrList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                int index = instrList.locationToIndex(e.getPoint());
-                playSample(index);
+                if (romImage != null) {
+                    int index = instrList.locationToIndex(e.getPoint());
+                    playSample(index);
+                }
             }});
 
         contentPane.setMinimumSize(new Dimension(1, 1));
