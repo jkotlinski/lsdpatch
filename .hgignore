@@ -1,0 +1,5 @@
+syntax: glob
+*~
+classes/*.class
+*.jar
+tags
