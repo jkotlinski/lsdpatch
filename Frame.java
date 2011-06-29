@@ -48,7 +48,7 @@ public class Frame extends JFrame {
     RandomAccessFile romFile;
     int totSampleSize=0;
 
-    byte romImage[]=new byte[0x4000 * BANK_COUNT];
+    byte romImage[]=null;
 
     Sample samples[]= new Sample[MAX_SAMPLES];
 
@@ -56,7 +56,7 @@ public class Frame extends JFrame {
     JMenuItem importKitsItem;
     JButton loadKitButton = new JButton();
     JButton exportKitButton = new JButton();
-    JButton createKitButton = new JButton();
+    // JButton createKitButton = new JButton();
     TitledBorder titledBorder2;
     JButton renameKitButton = new JButton();
     JTextArea kitTextArea = new JTextArea();
@@ -212,7 +212,7 @@ public class Frame extends JFrame {
                 for (java.io.File file : files) {
                     String fileName = file.getName().toLowerCase();
                     if (fileName.endsWith(".wav")) {
-                        if (!createKitButton.isEnabled()) {
+                        if (romImage == null) {
                             JOptionPane.showMessageDialog(contentPane,
                                 "Open .gb file before adding samples.",
                                 "Can't add sample!",
@@ -223,7 +223,7 @@ public class Frame extends JFrame {
                     } else if (fileName.endsWith(".gb")) {
                         loadRom(file);
                     } else if (fileName.endsWith(".kit")) {
-                        if (!createKitButton.isEnabled()) {
+                        if (romImage == null) {
                             JOptionPane.showMessageDialog(contentPane,
                                 "Open .gb file before adding samples.",
                                 "Can't add sample!",
@@ -272,6 +272,7 @@ public class Frame extends JFrame {
         exportKitButton.setBounds(new Rectangle(212, 110-72, 170, 28));
         exportKitButton.setEnabled(false);
         exportKitButton.setText("export kit");
+        /*
         createKitButton.setEnabled(false);
         createKitButton.setText("create new kit");
         createKitButton.setBounds(new Rectangle(212, 184-72, 170, 28));
@@ -279,6 +280,7 @@ public class Frame extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     createKit();
                 }});
+                */
         renameKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 renameKitButton_actionPerformed(e);
@@ -309,7 +311,7 @@ public class Frame extends JFrame {
                 saveROMButton_actionPerformed();
                 }});
         saveROMButton.setBounds(new Rectangle(212, 280-72, 170, 28));
-        saveROMButton.setEnabled(true);
+        saveROMButton.setEnabled(false);
         saveROMButton.setText("save rom...");
         kitSizeLabel.setToolTipText("");
         kitSizeLabel.setText("0/3fa0 bytes used");
@@ -335,7 +337,7 @@ public class Frame extends JFrame {
         contentPane.add(exportKitButton, null);
         contentPane.add(renameKitButton, null);
         contentPane.add(kitTextArea, null);
-        contentPane.add(createKitButton, null);
+        // contentPane.add(createKitButton, null);
         contentPane.add(addSampleButton, null);
         contentPane.add(dropSampleButton, null);
         contentPane.add(saveROMButton, null);
@@ -388,16 +390,18 @@ public class Frame extends JFrame {
 
     void loadRom(File gbFile) {
         try {
+            romImage = new byte[0x4000 * BANK_COUNT];
             setTitle(gbFile.getAbsoluteFile().toString());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
             saveROMItem.setEnabled(true);
+            saveROMButton.setEnabled(true);
             importKitsItem.setEnabled(true);
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
             renameKitButton.setEnabled(true);
-            createKitButton.setEnabled(true);
+            // createKitButton.setEnabled(true);
             flushWavFiles();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
@@ -652,6 +656,7 @@ public class Frame extends JFrame {
             romFile = new RandomAccessFile(f,"rw");
             romFile.write(romImage);
             romFile.close();
+            setTitle(f.getAbsoluteFile().toString());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
