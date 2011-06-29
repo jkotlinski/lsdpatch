@@ -219,9 +219,6 @@ public class Frame extends JFrame {
                                 JOptionPane.ERROR_MESSAGE);
                             continue;
                         }
-                        if (!addSampleButton.isEnabled()) {
-                            createKitButton_actionPerformed();
-                        }
                         addSample(file);
                     } else if (fileName.endsWith(".gb")) {
                         loadRom(file);
@@ -280,9 +277,8 @@ public class Frame extends JFrame {
         createKitButton.setBounds(new Rectangle(212, 184-72, 170, 28));
         createKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                createKitButton_actionPerformed();
-                }
-                });
+                    createKit();
+                }});
         renameKitButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 renameKitButton_actionPerformed(e);
@@ -743,7 +739,7 @@ public class Frame extends JFrame {
         return ext;
     }
 
-    void createKitButton_actionPerformed() {
+    void createKit() {
         //clear all bank
         int offset = getROMOffsetForSelectedBank() + 2;
         int max_offset = getROMOffsetForSelectedBank() + 0x4000; 
@@ -800,6 +796,9 @@ public class Frame extends JFrame {
     }
 
     void addSample(File wavFile) {
+        if (isEmptyKitBank(getSelectedROMBank())) {
+            createKit();
+        }
         if (firstFreeSampleSlot() == -1) {
             return;
         }
