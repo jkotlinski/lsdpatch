@@ -315,9 +315,8 @@ public class Frame extends JFrame {
         dropSampleButton.setBounds(new Rectangle(212, 248-72, 170, 28));
         dropSampleButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                dropSampleButton_actionPerformed(e);
-                }
-                });
+                    dropSample();
+                }});
         saveROMButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 saveROMButton_actionPerformed();
@@ -912,7 +911,7 @@ public class Frame extends JFrame {
         }
     }
 
-    void dropSampleButton_actionPerformed(ActionEvent e) {
+    void dropSample() {
         int[] indices = instrList.getSelectedIndices();
 
         for (int indexIt = 0; indexIt < indices.length; ++indexIt) {
