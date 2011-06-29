@@ -35,14 +35,17 @@ public class Frame extends JFrame {
     JComboBox bankBox = new JComboBox();
     JList instrList = new JList();
 
+    static final int BANK_COUNT = 64;
+    static final int MAX_SAMPLES = 16;
+
     RandomAccessFile romFile;
     int totSampleSize=0;
-    int currentSample[]=new int[getBankCount()];
+    int currentSample[]=new int[BANK_COUNT];
 
-    byte romImage[]=new byte[0x4000 * getBankCount()];
+    byte romImage[]=new byte[0x4000 * BANK_COUNT];
 
-    boolean bankIsEditable[]=new boolean[getBankCount()];
-    Sample samples[]= new Sample[getBankCount()];
+    boolean bankIsEditable[]=new boolean[BANK_COUNT];
+    Sample samples[]= new Sample[MAX_SAMPLES];
 
     JMenuItem saveROMItem;
     JMenuItem importKitsItem;
@@ -439,17 +442,13 @@ public class Frame extends JFrame {
         return new String ( buf );
     }
 
-    private int getBankCount() {
-        return 64;
-    }
-
     private void updateRomView() {
         int tmp=bankBox.getSelectedIndex();
         bankBox.removeAllItems();
 
         //do banks
         int l_ui_index = 0;
-        for(int bankNo=0; bankNo < getBankCount(); bankNo++) {
+        for(int bankNo=0; bankNo < BANK_COUNT; bankNo++) {
             if ( isKitBank ( bankNo ) || isEmptyKitBank ( bankNo ) ) {
                 bankBox.addItem( ++l_ui_index + ". "+ getKitName ( bankNo ) );
             }
@@ -755,7 +754,7 @@ public class Frame extends JFrame {
     }
 
     void flushWavFiles() {
-        samples = new Sample[getBankCount()];
+        samples = new Sample[MAX_SAMPLES];
     }
 
     void renameKitButton_actionPerformed(ActionEvent e) {
