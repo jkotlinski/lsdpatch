@@ -909,6 +909,10 @@ public class Frame extends JFrame {
                 romImage[offset++]=0;
             }
         }
+
+        // Resets forced loop data.
+        romImage[getROMOffsetForSelectedBank() + 0x5c] = 0;
+        romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
     }
 
     void dropSample() {
