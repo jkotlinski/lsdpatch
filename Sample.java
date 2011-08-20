@@ -170,10 +170,8 @@ public class Sample {
                         }
                     }
 
-                    int frames = (int)chunkSize;
-
                     int outFreq = 11468;
-                    int outFrames = ( outFreq * frames ) / (int)sampleRate;
+                    int outFrames = (int)((outFreq * chunkSize) / sampleRate);
 
                     double readPos = 0.0;
                     double advance = (double)sampleRate / (double)outFreq;
