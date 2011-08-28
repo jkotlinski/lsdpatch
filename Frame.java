@@ -550,7 +550,7 @@ public class Frame extends JFrame {
         instrList.setListData(s);
 
         updateKitSizeLabel();
-        addSampleButton.setEnabled(true);
+        addSampleButton.setEnabled(firstFreeSampleSlot() != -1);
         ditherSlider.setEnabled(true);  // TODO: Should be individual per sample.
     }
 
