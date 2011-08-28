@@ -819,6 +819,10 @@ public class Frame extends JFrame {
             createKit();
         }
         if (firstFreeSampleSlot() == -1) {
+            JOptionPane.showMessageDialog(contentPane,
+                "Can't add sample, kit is full!",
+                "Kit full",
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
         int offset = getROMOffsetForSelectedBank() + 0x22 +
