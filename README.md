@@ -4,7 +4,7 @@ LSD-Patcher, utility to add custom samples to Little Sound Dj (LSDj) ROM images.
 
 Download: https://github.com/jkotlinski/lsdpatch/releases
 
-Documentation: http://code.google.com/p/lsdpatch/wiki/Documentation
+Documentation: https://github.com/jkotlinski/lsdpatch/wiki/Documentation
 
 Tutorial by Little-Scale: http://little-scale.blogspot.com/2008/11/how-to-prepare-samples-and-create-lsdj.html
 
