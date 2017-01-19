@@ -34,7 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class PaletteEditor extends JFrame {
+public class PaletteEditor extends JFrame implements java.awt.event.ItemListener {
 
 	private JPanel contentPane;
 
@@ -120,6 +120,7 @@ public class PaletteEditor extends JFrame {
 		kitSelector = new JComboBox();
 		kitSelector.setBounds(10, 10, 140, 20);
         kitSelector.setEditable(true);
+        kitSelector.addItemListener(this);
 		contentPane.add(kitSelector);
 
 		JPanel previewSong = new JPanel();
@@ -363,7 +364,7 @@ public class PaletteEditor extends JFrame {
         if (nameOffset == -1) {
             System.err.println("Could not find palette name offset!");
         }
-        updateUiFromRom();
+        populateKitSelector();  // Needs to be done first.
     }
 
     private int selectedPalette() {
@@ -460,12 +461,6 @@ public class PaletteEditor extends JFrame {
         c5b2.setValue(secondColor(4).getBlue() >> 3);
     }
 
-    private void updateUiFromRom() {
-        populateKitSelector();  // Needs to be done first.
-        updatePreviewPanes();
-        updateSpinners();
-    }
-
     private int findNameOffset() {
         // Palette names are in bank 27.
         int i = 0x4000 * 27;
@@ -542,5 +537,13 @@ public class PaletteEditor extends JFrame {
             ++i;
         }
         return -1;
+    }
+
+    public void itemStateChanged(java.awt.event.ItemEvent e) {
+        if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            // Palette changed.
+            updatePreviewPanes();
+            updateSpinners();
+        }
     }
 }
