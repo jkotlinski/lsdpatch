@@ -131,11 +131,11 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         kitSelector.addItemListener(this);
 		contentPane.add(kitSelector);
 
-		previewSong = new JPanel();
+		previewSong = new JPanel(new BorderLayout());
 		previewSong.setBounds(314, 10, 160, 144);
 		contentPane.add(previewSong);
 
-		previewInstr = new JPanel();
+		previewInstr = new JPanel(new BorderLayout());
 		previewInstr.setBounds(314, 164, 160, 144);
 		contentPane.add(previewInstr);
 
@@ -503,6 +503,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     }
 
     private void updateSongAndInstrScreens() {
+        // TODO: paint the images using the palette.
         previewSong.add(new JLabel(new javax.swing.ImageIcon(songImage)));
         previewSong.repaint();
         previewInstr.add(new JLabel(new javax.swing.ImageIcon(instrImage)));
