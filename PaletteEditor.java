@@ -57,6 +57,9 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private JPanel preview5a;
     private JPanel preview5b;
 
+    private JPanel previewSong;
+    private JPanel previewInstr;
+
     private JSpinner c1r1;
     private JSpinner c1g1;
     private JSpinner c1b1;
@@ -89,6 +92,9 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private JSpinner c5b2;
 
     private JComboBox kitSelector;
+
+    private java.awt.image.BufferedImage songImage;
+    private java.awt.image.BufferedImage instrImage;
 
     private boolean updatingSpinners = false;
 
@@ -125,15 +131,13 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         kitSelector.addItemListener(this);
 		contentPane.add(kitSelector);
 
-		JPanel previewSong = new JPanel();
+		previewSong = new JPanel();
 		previewSong.setBounds(314, 10, 160, 144);
-        previewSong.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(previewSong);
 
-		JPanel previewProject = new JPanel();
-		previewProject.setBounds(314, 164, 160, 144);
-        previewProject.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(previewProject);
+		previewInstr = new JPanel();
+		previewInstr.setBounds(314, 164, 160, 144);
+		contentPane.add(previewInstr);
 
 		c1r1 = new JSpinner();
 		c1r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
@@ -356,6 +360,13 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
 		contentPane.add(preview5a);
 
         listenToSpinners();
+
+        try {
+            songImage = javax.imageio.ImageIO.read(getClass().getResource("/song.bmp"));
+            instrImage = javax.imageio.ImageIO.read(getClass().getResource("/instr.bmp"));
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
 	}
 
     private void listenToSpinners() {
@@ -491,6 +502,13 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         }
     }
 
+    private void updateSongAndInstrScreens() {
+        previewSong.add(new JLabel(new javax.swing.ImageIcon(songImage)));
+        previewSong.repaint();
+        previewInstr.add(new JLabel(new javax.swing.ImageIcon(instrImage)));
+        previewInstr.repaint();
+    }
+
     private void updatePreviewPanes() {
         preview1a.setBackground(firstColor(0));
         preview1b.setBackground(secondColor(0));
@@ -502,6 +520,8 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         preview4b.setBackground(secondColor(3));
         preview5a.setBackground(firstColor(4));
         preview5b.setBackground(secondColor(4));
+
+        updateSongAndInstrScreens();
     }
 
     private void updateSpinners() {
