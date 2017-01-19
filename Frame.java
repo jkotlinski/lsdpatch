@@ -27,7 +27,7 @@ import javax.swing.border.*;
 import java.beans.*;
 
 public class Frame extends JFrame {
-    String versionString = "LSD-Patcher v.19";
+    String versionString = "LSD-Patcher v1.0.0";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
     TitledBorder titledBorder1;
@@ -143,19 +143,18 @@ public class Frame extends JFrame {
 
     private void buildMenus()
     {
-        //menu stuff
-        JMenu menu = new JMenu("File");
-        menu.setMnemonic(KeyEvent.VK_F);
-        menuBar.add(menu);
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        menuBar.add(fileMenu);
 
         JMenuItem menuItem = new JMenuItem("Open ROM...", KeyEvent.VK_O);
         menuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     selectRomToLoad();
                 }});
-        menu.add(menuItem);
+        fileMenu.add(menuItem);
 
-        menu.addSeparator();
+        fileMenu.addSeparator();
 
         importKitsItem = new JMenuItem("Import kits from ROM...", KeyEvent.VK_I);
         importKitsItem.setEnabled(false);
@@ -165,8 +164,8 @@ public class Frame extends JFrame {
                 }
                 });
 
-        menu.add(importKitsItem);
-        menu.addSeparator();
+        fileMenu.add(importKitsItem);
+        fileMenu.addSeparator();
 
         saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
         saveROMItem.setEnabled(false);
@@ -174,7 +173,20 @@ public class Frame extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                 saveROMButton_actionPerformed();
                 }});
-        menu.add(saveROMItem);
+        fileMenu.add(saveROMItem);
+
+        // -----
+
+        JMenu paletteMenu = new JMenu("Palette");
+        fileMenu.setMnemonic(KeyEvent.VK_P);
+        menuBar.add(paletteMenu);
+
+        JMenuItem editPaletteItem = new JMenuItem("Edit Palette...", KeyEvent.VK_P);
+        editPaletteItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    paletteEditor.setVisible(true);
+                }});
+        paletteMenu.add(editPaletteItem);
 
         //help menu
         /*
