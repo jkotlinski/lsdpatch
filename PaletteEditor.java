@@ -383,9 +383,7 @@ public class PaletteEditor extends JFrame {
         }
     }
 
-    private void updateUiFromRom() {
-        populateKitSelector();  // Needs to be done first.
-
+    private void updatePreviewPanes() {
         preview1a.setBackground(firstColor(0));
         preview1b.setBackground(secondColor(0));
         preview2a.setBackground(firstColor(1));
@@ -396,6 +394,11 @@ public class PaletteEditor extends JFrame {
         preview4b.setBackground(secondColor(3));
         preview5a.setBackground(firstColor(4));
         preview5b.setBackground(secondColor(4));
+    }
+
+    private void updateUiFromRom() {
+        populateKitSelector();  // Needs to be done first.
+        updatePreviewPanes();
     }
 
     private int findNameOffset() {
