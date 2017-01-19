@@ -91,12 +91,14 @@ public class PaletteEditor extends JFrame {
         kitSelector.setEditable(true);
 		contentPane.add(kitSelector);
 
-		Panel previewSong = new Panel();
+		JPanel previewSong = new JPanel();
 		previewSong.setBounds(314, 10, 160, 144);
+        previewSong.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(previewSong);
 
-		Panel previewProject = new Panel();
+		JPanel previewProject = new JPanel();
 		previewProject.setBounds(314, 164, 160, 144);
+        previewProject.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(previewProject);
 
 		JSpinner c1r1 = new JSpinner();
@@ -119,12 +121,12 @@ public class PaletteEditor extends JFrame {
 		contentPane.add(c1b1);
 
 		preview1a = new JPanel();
-		preview1a.setBounds(205, 41, 36, 14);
+		preview1a.setBounds(95, 41, 43, 14);
         preview1a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview1a);
 
 		preview1b = new JPanel();
-		preview1b.setBounds(251, 41, 36, 14);
+		preview1b.setBounds(159, 41, 43, 14);
         preview1b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview1b);
 
@@ -178,12 +180,12 @@ public class PaletteEditor extends JFrame {
 		contentPane.add(c2b2);
 
 		preview2b = new JPanel();
-		preview2b.setBounds(251, 97, 36, 14);
+		preview2b.setBounds(159, 97, 43, 14);
         preview2b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview2b);
 
 		preview2a = new JPanel();
-		preview2a.setBounds(205, 97, 36, 14);
+		preview2a.setBounds(95, 97, 43, 14);
         preview2a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview2a);
 
@@ -222,12 +224,12 @@ public class PaletteEditor extends JFrame {
 		contentPane.add(c3b2);
 
 		preview3b = new JPanel();
-		preview3b.setBounds(251, 153, 36, 14);
+		preview3b.setBounds(159, 153, 43, 14);
         preview3b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview3b);
 
 		preview3a = new JPanel();
-		preview3a.setBounds(205, 153, 36, 14);
+		preview3a.setBounds(95, 153, 43, 14);
         preview3a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview3a);
 
@@ -266,12 +268,12 @@ public class PaletteEditor extends JFrame {
 		contentPane.add(c4b2);
 
 		preview4b = new JPanel();
-		preview4b.setBounds(251, 209, 36, 14);
+		preview4b.setBounds(159, 209, 43, 14);
         preview4b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview4b);
 
 		preview4a = new JPanel();
-		preview4a.setBounds(205, 209, 36, 14);
+		preview4a.setBounds(95, 209, 43, 14);
         preview4a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview4a);
 
@@ -310,12 +312,12 @@ public class PaletteEditor extends JFrame {
 		contentPane.add(c5b2);
 
 		preview5b = new JPanel();
-		preview5b.setBounds(251, 265, 36, 14);
+		preview5b.setBounds(159, 265, 43, 14);
         preview5b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview5b);
 
 		preview5a = new JPanel();
-		preview5a.setBounds(205, 265, 36, 14);
+		preview5a.setBounds(95, 265, 43, 14);
         preview5a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview5a);
 	}
