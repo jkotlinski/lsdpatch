@@ -54,6 +54,10 @@ public class PaletteEditor extends JFrame {
     private JPanel preview5a;
     private JPanel preview5b;
 
+    private JComboBox kitSelector;
+
+    private int paletteCount = 6;
+
 	/**
 	 * Launch the application.
 	 */
@@ -81,8 +85,9 @@ public class PaletteEditor extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JComboBox kitSelector = new JComboBox();
+		kitSelector = new JComboBox();
 		kitSelector.setBounds(10, 10, 140, 20);
+        kitSelector.setEditable(true);
 		contentPane.add(kitSelector);
 
 		Panel previewSong = new Panel();
@@ -314,7 +319,6 @@ public class PaletteEditor extends JFrame {
         if (nameOffset == -1) {
             System.err.println("Could not find palette name offset!");
         }
-        System.err.println(String.format("%x", nameOffset));
         updateUiFromRom();
     }
 
@@ -330,6 +334,24 @@ public class PaletteEditor extends JFrame {
         return java.awt.Color.green;  // TODO
     }
 
+    private String paletteName(int palette) {
+        assert palette >= 0;
+        assert palette < paletteCount;
+        String s = new String();
+        s += (char)romImage[nameOffset + palette * 5];
+        s += (char)romImage[nameOffset + palette * 5 + 1];
+        s += (char)romImage[nameOffset + palette * 5 + 2];
+        s += (char)romImage[nameOffset + palette * 5 + 3];
+        return s;
+    }
+
+    private void populateKitSelector() {
+        kitSelector.removeAllItems();
+        for (int i = 0; i < paletteCount; ++i) {
+            kitSelector.addItem(paletteName(i));
+        }
+    }
+
     private void updateUiFromRom() {
         preview1a.setBackground(firstColor(0));
         preview1b.setBackground(secondColor(0));
@@ -341,6 +363,8 @@ public class PaletteEditor extends JFrame {
         preview4b.setBackground(secondColor(3));
         preview5a.setBackground(firstColor(4));
         preview5b.setBackground(secondColor(4));
+
+        populateKitSelector();
     }
 
     private int findNameOffset() {
@@ -414,7 +438,6 @@ public class PaletteEditor extends JFrame {
                     romImage[i + 17] == 72 &&
                     romImage[i + 18] == 72 &&
                     romImage[i + 19] == 72) {
-                int paletteCount = 6;
                 return i - paletteCount * paletteSize;
             }
             ++i;
