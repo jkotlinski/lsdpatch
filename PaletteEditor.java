@@ -57,6 +57,37 @@ public class PaletteEditor extends JFrame {
     private JPanel preview5a;
     private JPanel preview5b;
 
+    private JSpinner c1r1;
+    private JSpinner c1g1;
+    private JSpinner c1b1;
+    private JSpinner c1r2;
+    private JSpinner c1g2;
+    private JSpinner c1b2;
+    private JSpinner c2r1;
+    private JSpinner c2g1;
+    private JSpinner c2b1;
+    private JSpinner c2r2;
+    private JSpinner c2g2;
+    private JSpinner c2b2;
+    private JSpinner c3r1;
+    private JSpinner c3g1;
+    private JSpinner c3b1;
+    private JSpinner c3r2;
+    private JSpinner c3g2;
+    private JSpinner c3b2;
+    private JSpinner c4r1;
+    private JSpinner c4g1;
+    private JSpinner c4b1;
+    private JSpinner c4r2;
+    private JSpinner c4g2;
+    private JSpinner c4b2;
+    private JSpinner c5r1;
+    private JSpinner c5g1;
+    private JSpinner c5b1;
+    private JSpinner c5r2;
+    private JSpinner c5g2;
+    private JSpinner c5b2;
+
     private JComboBox kitSelector;
 
 	/**
@@ -101,7 +132,7 @@ public class PaletteEditor extends JFrame {
         previewProject.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(previewProject);
 
-		JSpinner c1r1 = new JSpinner();
+		c1r1 = new JSpinner();
 		c1r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c1r1.setBounds(10, 66, 36, 20);
 		contentPane.add(c1r1);
@@ -110,12 +141,12 @@ public class PaletteEditor extends JFrame {
 		lblNormal.setBounds(10, 41, 46, 14);
 		contentPane.add(lblNormal);
 
-		JSpinner c1g1 = new JSpinner();
+		c1g1 = new JSpinner();
 		c1g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c1g1.setBounds(56, 66, 36, 20);
 		contentPane.add(c1g1);
 
-		JSpinner c1b1 = new JSpinner();
+		c1b1 = new JSpinner();
 		c1b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c1b1.setBounds(102, 66, 36, 20);
 		contentPane.add(c1b1);
@@ -130,17 +161,17 @@ public class PaletteEditor extends JFrame {
         preview1b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview1b);
 
-		JSpinner c1b2 = new JSpinner();
+		c1b2 = new JSpinner();
 		c1b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c1b2.setBounds(251, 66, 36, 20);
 		contentPane.add(c1b2);
 
-		JSpinner c1g2 = new JSpinner();
+		c1g2 = new JSpinner();
 		c1g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c1g2.setBounds(205, 66, 36, 20);
 		contentPane.add(c1g2);
 
-		JSpinner c1r2 = new JSpinner();
+		c1r2 = new JSpinner();
 		c1r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c1r2.setBounds(159, 66, 36, 20);
 		contentPane.add(c1r2);
@@ -149,32 +180,32 @@ public class PaletteEditor extends JFrame {
 		lblShaded.setBounds(10, 97, 46, 14);
 		contentPane.add(lblShaded);
 
-		JSpinner c2r1 = new JSpinner();
+		c2r1 = new JSpinner();
 		c2r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c2r1.setBounds(10, 122, 36, 20);
 		contentPane.add(c2r1);
 
-		JSpinner c2g1 = new JSpinner();
+		c2g1 = new JSpinner();
 		c2g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c2g1.setBounds(56, 122, 36, 20);
 		contentPane.add(c2g1);
 
-		JSpinner c2b1 = new JSpinner();
+		c2b1 = new JSpinner();
 		c2b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c2b1.setBounds(102, 122, 36, 20);
 		contentPane.add(c2b1);
 
-		JSpinner c2r2 = new JSpinner();
+		c2r2 = new JSpinner();
 		c2r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c2r2.setBounds(159, 122, 36, 20);
 		contentPane.add(c2r2);
 
-		JSpinner c2g2 = new JSpinner();
+		c2g2 = new JSpinner();
 		c2g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c2g2.setBounds(205, 122, 36, 20);
 		contentPane.add(c2g2);
 
-		JSpinner c2b2 = new JSpinner();
+		c2b2 = new JSpinner();
 		c2b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c2b2.setBounds(251, 122, 36, 20);
 		contentPane.add(c2b2);
@@ -193,32 +224,32 @@ public class PaletteEditor extends JFrame {
 		lblAlternate.setBounds(10, 153, 82, 14);
 		contentPane.add(lblAlternate);
 
-		JSpinner c3r1 = new JSpinner();
+		c3r1 = new JSpinner();
 		c3r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c3r1.setBounds(10, 178, 36, 20);
 		contentPane.add(c3r1);
 
-		JSpinner c3g1 = new JSpinner();
+		c3g1 = new JSpinner();
 		c3g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c3g1.setBounds(56, 178, 36, 20);
 		contentPane.add(c3g1);
 
-		JSpinner c3b1 = new JSpinner();
+		c3b1 = new JSpinner();
 		c3b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c3b1.setBounds(102, 178, 36, 20);
 		contentPane.add(c3b1);
 
-		JSpinner c3r2 = new JSpinner();
+		c3r2 = new JSpinner();
 		c3r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c3r2.setBounds(159, 178, 36, 20);
 		contentPane.add(c3r2);
 
-		JSpinner c3g2 = new JSpinner();
+		c3g2 = new JSpinner();
 		c3g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c3g2.setBounds(205, 178, 36, 20);
 		contentPane.add(c3g2);
 
-		JSpinner c3b2 = new JSpinner();
+		c3b2 = new JSpinner();
 		c3b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c3b2.setBounds(251, 178, 36, 20);
 		contentPane.add(c3b2);
@@ -237,32 +268,32 @@ public class PaletteEditor extends JFrame {
 		lblCursor.setBounds(10, 209, 82, 14);
 		contentPane.add(lblCursor);
 
-		JSpinner c4r1 = new JSpinner();
+		c4r1 = new JSpinner();
 		c4r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c4r1.setBounds(10, 234, 36, 20);
 		contentPane.add(c4r1);
 
-		JSpinner c4g1 = new JSpinner();
+		c4g1 = new JSpinner();
 		c4g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c4g1.setBounds(56, 234, 36, 20);
 		contentPane.add(c4g1);
 
-		JSpinner c4b1 = new JSpinner();
+		c4b1 = new JSpinner();
 		c4b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c4b1.setBounds(102, 234, 36, 20);
 		contentPane.add(c4b1);
 
-		JSpinner c4r2 = new JSpinner();
+		c4r2 = new JSpinner();
 		c4r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c4r2.setBounds(159, 234, 36, 20);
 		contentPane.add(c4r2);
 
-		JSpinner c4g2 = new JSpinner();
+		c4g2 = new JSpinner();
 		c4g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c4g2.setBounds(205, 234, 36, 20);
 		contentPane.add(c4g2);
 
-		JSpinner c4b2 = new JSpinner();
+		c4b2 = new JSpinner();
 		c4b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c4b2.setBounds(251, 234, 36, 20);
 		contentPane.add(c4b2);
@@ -281,32 +312,32 @@ public class PaletteEditor extends JFrame {
 		lblStartscroll.setBounds(10, 265, 65, 14);
 		contentPane.add(lblStartscroll);
 
-		JSpinner c5r1 = new JSpinner();
+		c5r1 = new JSpinner();
 		c5r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c5r1.setBounds(10, 290, 36, 20);
 		contentPane.add(c5r1);
 
-		JSpinner c5g1 = new JSpinner();
+		c5g1 = new JSpinner();
 		c5g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c5g1.setBounds(56, 290, 36, 20);
 		contentPane.add(c5g1);
 
-		JSpinner c5b1 = new JSpinner();
+		c5b1 = new JSpinner();
 		c5b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c5b1.setBounds(102, 290, 36, 20);
 		contentPane.add(c5b1);
 
-		JSpinner c5r2 = new JSpinner();
+		c5r2 = new JSpinner();
 		c5r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c5r2.setBounds(159, 290, 36, 20);
 		contentPane.add(c5r2);
 
-		JSpinner c5g2 = new JSpinner();
+		c5g2 = new JSpinner();
 		c5g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c5g2.setBounds(205, 290, 36, 20);
 		contentPane.add(c5g2);
 
-		JSpinner c5b2 = new JSpinner();
+		c5b2 = new JSpinner();
 		c5b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
 		c5b2.setBounds(251, 290, 36, 20);
 		contentPane.add(c5b2);
@@ -396,9 +427,43 @@ public class PaletteEditor extends JFrame {
         preview5b.setBackground(secondColor(4));
     }
 
+    private void updateSpinners() {
+        c1r1.setValue(firstColor(0).getRed() >> 3);
+        c1g1.setValue(firstColor(0).getGreen() >> 3);
+        c1b1.setValue(firstColor(0).getBlue() >> 3);
+        c1r2.setValue(secondColor(0).getRed() >> 3);
+        c1g2.setValue(secondColor(0).getGreen() >> 3);
+        c1b2.setValue(secondColor(0).getBlue() >> 3);
+        c2r1.setValue(firstColor(1).getRed() >> 3);
+        c2g1.setValue(firstColor(1).getGreen() >> 3);
+        c2b1.setValue(firstColor(1).getBlue() >> 3);
+        c2r2.setValue(secondColor(1).getRed() >> 3);
+        c2g2.setValue(secondColor(1).getGreen() >> 3);
+        c2b2.setValue(secondColor(1).getBlue() >> 3);
+        c3r1.setValue(firstColor(2).getRed() >> 3);
+        c3g1.setValue(firstColor(2).getGreen() >> 3);
+        c3b1.setValue(firstColor(2).getBlue() >> 3);
+        c3r2.setValue(secondColor(2).getRed() >> 3);
+        c3g2.setValue(secondColor(2).getGreen() >> 3);
+        c3b2.setValue(secondColor(2).getBlue() >> 3);
+        c4r1.setValue(firstColor(3).getRed() >> 3);
+        c4g1.setValue(firstColor(3).getGreen() >> 3);
+        c4b1.setValue(firstColor(3).getBlue() >> 3);
+        c4r2.setValue(secondColor(3).getRed() >> 3);
+        c4g2.setValue(secondColor(3).getGreen() >> 3);
+        c4b2.setValue(secondColor(3).getBlue() >> 3);
+        c5r1.setValue(firstColor(4).getRed() >> 3);
+        c5g1.setValue(firstColor(4).getGreen() >> 3);
+        c5b1.setValue(firstColor(4).getBlue() >> 3);
+        c5r2.setValue(secondColor(4).getRed() >> 3);
+        c5g2.setValue(secondColor(4).getGreen() >> 3);
+        c5b2.setValue(secondColor(4).getBlue() >> 3);
+    }
+
     private void updateUiFromRom() {
         populateKitSelector();  // Needs to be done first.
         updatePreviewPanes();
+        updateSpinners();
     }
 
     private int findNameOffset() {
