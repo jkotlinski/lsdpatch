@@ -34,7 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class PaletteEditor extends JFrame implements java.awt.event.ItemListener {
+public class PaletteEditor extends JFrame implements java.awt.event.ItemListener, ChangeListener {
 
 	private JPanel contentPane;
 
@@ -89,6 +89,8 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private JSpinner c5b2;
 
     private JComboBox kitSelector;
+
+    private boolean updatingSpinners = false;
 
 	/**
      * Launch the application.
@@ -352,7 +354,42 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
 		preview5a.setBounds(95, 265, 43, 14);
         preview5a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
 		contentPane.add(preview5a);
+
+        listenToSpinners();
 	}
+
+    private void listenToSpinners() {
+        c1r1.addChangeListener(this);
+        c1g1.addChangeListener(this);
+        c1b1.addChangeListener(this);
+        c1r2.addChangeListener(this);
+        c1g2.addChangeListener(this);
+        c1b2.addChangeListener(this);
+        c2r1.addChangeListener(this);
+        c2g1.addChangeListener(this);
+        c2b1.addChangeListener(this);
+        c2r2.addChangeListener(this);
+        c2g2.addChangeListener(this);
+        c2b2.addChangeListener(this);
+        c3r1.addChangeListener(this);
+        c3g1.addChangeListener(this);
+        c3b1.addChangeListener(this);
+        c3r2.addChangeListener(this);
+        c3g2.addChangeListener(this);
+        c3b2.addChangeListener(this);
+        c4r1.addChangeListener(this);
+        c4g1.addChangeListener(this);
+        c4b1.addChangeListener(this);
+        c4r2.addChangeListener(this);
+        c4g2.addChangeListener(this);
+        c4b2.addChangeListener(this);
+        c5r1.addChangeListener(this);
+        c5g1.addChangeListener(this);
+        c5b1.addChangeListener(this);
+        c5r2.addChangeListener(this);
+        c5g2.addChangeListener(this);
+        c5b2.addChangeListener(this);
+    }
 
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
@@ -381,6 +418,45 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         int g = ((romImage[offset + 1] & 0b11) << 6) | ((romImage[offset] & 0b11100000) >> 2);
         int b = (romImage[offset + 1] << 1) & 0b11111000;
         return new java.awt.Color(r, g, b);
+    }
+
+    private void updateRom(int offset,
+            JSpinner sr1,
+            JSpinner sg1,
+            JSpinner sb1,
+            JSpinner sr2,
+            JSpinner sg2,
+            JSpinner sb2) {
+        int r1 = (Integer)sr1.getValue();
+        int g1 = (Integer)sg1.getValue();
+        int b1 = (Integer)sb1.getValue();
+        // gggrrrrr 0bbbbbgg
+        romImage[offset] = (byte)(r1 | (g1 << 5));
+        romImage[offset + 1] = (byte)((g1 >> 3) | (b1 << 2));
+
+        int r2 = (Integer)sr2.getValue();
+        int g2 = (Integer)sg2.getValue();
+        int b2 = (Integer)sb2.getValue();
+        romImage[offset + 6] = (byte)(r2 | (g2 << 5));
+        romImage[offset + 7] = (byte)((g2 >> 3) | (b2 << 2));
+
+        // Generating antialiasing colors.
+        int rMid = (r1 + r2) / 2;
+        int gMid = (g1 + g2) / 2;
+        int bMid = (b1 + b2) / 2;
+        romImage[offset + 2] = (byte)(rMid | (gMid << 5));
+        romImage[offset + 3] = (byte)((gMid >> 3) | (bMid << 2));
+        romImage[offset + 4] = romImage[offset + 2];
+        romImage[offset + 5] = romImage[offset + 3];
+    }
+
+    private void updateRomFromSpinners() {
+        int offset = paletteOffset + selectedPalette();
+        updateRom(offset, c1r1, c1g1, c1b1, c1r2, c1g2, c1b2);
+        updateRom(offset + 8, c2r1, c2g1, c2b1, c2r2, c2g2, c2b2);
+        updateRom(offset + 16, c3r1, c3g1, c3b1, c3r2, c3g2, c3b2);
+        updateRom(offset + 24, c4r1, c4g1, c4b1, c4r2, c4g2, c4b2);
+        updateRom(offset + 32, c5r1, c5g1, c5b1, c5r2, c5g2, c5b2);
     }
 
     private java.awt.Color firstColor(int colorSet) {
@@ -429,6 +505,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     }
 
     private void updateSpinners() {
+        updatingSpinners = true;
         c1r1.setValue(firstColor(0).getRed() >> 3);
         c1g1.setValue(firstColor(0).getGreen() >> 3);
         c1b1.setValue(firstColor(0).getBlue() >> 3);
@@ -459,6 +536,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         c5r2.setValue(secondColor(4).getRed() >> 3);
         c5g2.setValue(secondColor(4).getGreen() >> 3);
         c5b2.setValue(secondColor(4).getBlue() >> 3);
+        updatingSpinners = false;
     }
 
     private int findNameOffset() {
@@ -544,6 +622,14 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
             // Palette changed.
             updatePreviewPanes();
             updateSpinners();
+        }
+    }
+
+    public void stateChanged(ChangeEvent e) {
+        // Spinner changed.
+        if (!updatingSpinners) {
+            updateRomFromSpinners();
+            updatePreviewPanes();
         }
     }
 }
