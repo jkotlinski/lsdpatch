@@ -1,3 +1,4 @@
+set -e
 mkdir -p classes
 javac -Xlint:deprecation -d classes *.java
 cd classes
