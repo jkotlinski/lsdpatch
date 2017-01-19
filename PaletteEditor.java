@@ -41,7 +41,10 @@ public class PaletteEditor extends JFrame {
     private byte romImage[] = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
-    private int paletteSize = 4 * 5 * 2;
+
+    private int colorSetSize = 4 * 2;  // one colorset contains 4 colors
+    private int paletteSize = 5 * colorSetSize;  // one palette contains 5 color sets
+    private int paletteCount = 6;
 
     private JPanel preview1a;
     private JPanel preview1b;
@@ -55,8 +58,6 @@ public class PaletteEditor extends JFrame {
     private JPanel preview5b;
 
     private JComboBox kitSelector;
-
-    private int paletteCount = 6;
 
 	/**
 	 * Launch the application.
@@ -322,16 +323,34 @@ public class PaletteEditor extends JFrame {
         updateUiFromRom();
     }
 
+    private int selectedPalette() {
+        int palette = kitSelector.getSelectedIndex();
+        assert palette >= 0;
+        assert palette < paletteCount;
+        return palette;
+    }
+
+    // Returns color scaled to 0, 255.
+    private java.awt.Color color(int offset) {
+        // gggrrrrr 0bbbbbgg
+        int r = (romImage[offset] & 0b11111) << 3;
+        int g = ((romImage[offset + 1] & 0b11) << 6) | ((romImage[offset] & 0b11100000) >> 2);
+        int b = (romImage[offset + 1] << 1) & 0b11111000;
+        return new java.awt.Color(r, g, b);
+    }
+
     private java.awt.Color firstColor(int colorSet) {
-        assert(colorSet >= 0);
-        assert(colorSet < 5);
-        return java.awt.Color.red;  // TODO
+        assert colorSet >= 0;
+        assert colorSet < 5;
+        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize;
+        return color(offset);
     }
 
     private java.awt.Color secondColor(int colorSet) {
-        assert(colorSet >= 0);
-        assert(colorSet < 5);
-        return java.awt.Color.green;  // TODO
+        assert colorSet >= 0;
+        assert colorSet < 5;
+        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 3 * 2;
+        return color(offset);
     }
 
     private String paletteName(int palette) {
@@ -353,6 +372,8 @@ public class PaletteEditor extends JFrame {
     }
 
     private void updateUiFromRom() {
+        populateKitSelector();  // Needs to be done first.
+
         preview1a.setBackground(firstColor(0));
         preview1b.setBackground(secondColor(0));
         preview2a.setBackground(firstColor(1));
@@ -363,8 +384,6 @@ public class PaletteEditor extends JFrame {
         preview4b.setBackground(secondColor(3));
         preview5a.setBackground(firstColor(4));
         preview5b.setBackground(secondColor(4));
-
-        populateKitSelector();
     }
 
     private int findNameOffset() {
