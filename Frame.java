@@ -35,6 +35,7 @@ public class Frame extends JFrame {
     int prevBankBoxIndex = -1;
     JComboBox bankBox = new JComboBox();
     JList instrList = new JList();
+    PaletteEditor paletteEditor = new PaletteEditor();
 
     static final int BANK_COUNT = 64;
     static final int MAX_SAMPLES = 15;
@@ -405,6 +406,7 @@ public class Frame extends JFrame {
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
+            paletteEditor.setRomImage(romImage);
             saveROMItem.setEnabled(true);
             saveROMButton.setEnabled(true);
             importKitsItem.setEnabled(true);
@@ -424,7 +426,7 @@ public class Frame extends JFrame {
         FileDialog dialog = new FileDialog(this, "Load ROM Image (.gb)",
                 FileDialog.LOAD);
         dialog.setFilenameFilter(new GBFileFilter());
-        dialog.show();
+        dialog.setVisible(true);
         String s = dialog.getFile();
         if (dialog.getFile() != null) {
             loadRom(new File(dialog.getDirectory(), dialog.getFile()));
@@ -642,7 +644,7 @@ public class Frame extends JFrame {
         FileDialog dialog = new FileDialog(this, "Select ROM to import from",
                 FileDialog.LOAD);
         dialog.setFilenameFilter(new GBFileFilter());
-        dialog.show();
+        dialog.setVisible(true);
         if (dialog.getFile() == null) {
             return;
         }
@@ -656,7 +658,7 @@ public class Frame extends JFrame {
                 FileDialog.SAVE);
         dialog.setFilenameFilter(new GBFileFilter());
         dialog.setFile(getTitle());
-        dialog.show();
+        dialog.setVisible(true);
         if (dialog.getFile() == null) {
             return;
         }
@@ -680,7 +682,7 @@ public class Frame extends JFrame {
     void exportKitButton_actionPerformed() {
         FileDialog dialog = new FileDialog(this, "Export kit", FileDialog.SAVE);
         dialog.setFilenameFilter(new KitFileFilter());
-        dialog.show();
+        dialog.setVisible(true);
         String fileName = dialog.getFile();
         if (null == fileName) {
             return;
@@ -730,7 +732,7 @@ public class Frame extends JFrame {
     void loadKitButton_actionPerformed() {
         FileDialog dialog = new FileDialog(this, "Load kit", FileDialog.LOAD);
         dialog.setFilenameFilter(new KitFileFilter());
-        dialog.show();
+        dialog.setVisible(true);
         if (dialog.getFile() != null) {
             loadKit(new File(dialog.getDirectory(), dialog.getFile()));
         }
@@ -858,7 +860,7 @@ public class Frame extends JFrame {
         FileDialog dialog = new FileDialog(this, "Load sample",
                 FileDialog.LOAD);
         dialog.setFilenameFilter(new WavFileFilter());
-        dialog.show();
+        dialog.setVisible(true);
         if (dialog.getFile() != null) {
             addSample(new File(dialog.getDirectory(), dialog.getFile()));
         }
@@ -963,7 +965,7 @@ public class Frame extends JFrame {
                 FileDialog.SAVE);
         dialog.setFilenameFilter(new WavFileFilter());
         dialog.setFile(s.getName() + ".wav");
-        dialog.show();
+        dialog.setVisible(true);
         if (dialog.getFile() == null) {
             return;
         }
