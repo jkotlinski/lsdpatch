@@ -607,7 +607,7 @@ public class Frame extends JFrame {
             int outBank = 0;
             int copiedBankCount = 0;
             FileInputStream in = new FileInputStream ( f.getAbsolutePath() );
-            while ( in.available() > 0 ) 
+            while ( in.available() > 0 )
             {
                 byte[] inBuf = new byte[0x4000];
                 in.read ( inBuf );
@@ -622,7 +622,7 @@ public class Frame extends JFrame {
                     int outPtr = outBank * 0x4000;
                     for ( int i = 0; i < 0x4000; i++ )
                     {
-                        romImage[outPtr++] = inBuf[i];  
+                        romImage[outPtr++] = inBuf[i];
                     }
                     copiedBankCount++;
                 }
@@ -761,7 +761,7 @@ public class Frame extends JFrame {
     void createKit() {
         //clear all bank
         int offset = getROMOffsetForSelectedBank() + 2;
-        int max_offset = getROMOffsetForSelectedBank() + 0x4000; 
+        int max_offset = getROMOffsetForSelectedBank() + 0x4000;
         while ( offset < max_offset )
         {
             romImage[offset++] = 0;
