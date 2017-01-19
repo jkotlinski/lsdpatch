@@ -39,6 +39,19 @@ public class PaletteEditor extends JFrame {
 	private JPanel contentPane;
 
     private byte romImage[] = null;
+    private int paletteOffset = -1;
+    private int paletteSize = 4 * 5 * 2;
+
+    private JPanel preview1a;
+    private JPanel preview1b;
+    private JPanel preview2a;
+    private JPanel preview2b;
+    private JPanel preview3a;
+    private JPanel preview3b;
+    private JPanel preview4a;
+    private JPanel preview4b;
+    private JPanel preview5a;
+    private JPanel preview5b;
 
 	/**
 	 * Launch the application.
@@ -98,11 +111,11 @@ public class PaletteEditor extends JFrame {
 		c1b1.setBounds(102, 66, 36, 20);
 		contentPane.add(c1b1);
 
-		JPanel preview1a = new JPanel();
+		preview1a = new JPanel();
 		preview1a.setBounds(205, 41, 36, 14);
 		contentPane.add(preview1a);
 
-		JPanel preview1b = new JPanel();
+		preview1b = new JPanel();
 		preview1b.setBounds(251, 41, 36, 14);
 		contentPane.add(preview1b);
 
@@ -155,11 +168,11 @@ public class PaletteEditor extends JFrame {
 		c2b2.setBounds(251, 122, 36, 20);
 		contentPane.add(c2b2);
 
-		JPanel preview2b = new JPanel();
+		preview2b = new JPanel();
 		preview2b.setBounds(251, 97, 36, 14);
 		contentPane.add(preview2b);
 
-		JPanel preview2a = new JPanel();
+		preview2a = new JPanel();
 		preview2a.setBounds(205, 97, 36, 14);
 		contentPane.add(preview2a);
 
@@ -197,11 +210,11 @@ public class PaletteEditor extends JFrame {
 		c3b2.setBounds(251, 178, 36, 20);
 		contentPane.add(c3b2);
 
-		JPanel preview3b = new JPanel();
+		preview3b = new JPanel();
 		preview3b.setBounds(251, 153, 36, 14);
 		contentPane.add(preview3b);
 
-		JPanel preview3a = new JPanel();
+		preview3a = new JPanel();
 		preview3a.setBounds(205, 153, 36, 14);
 		contentPane.add(preview3a);
 
@@ -239,11 +252,11 @@ public class PaletteEditor extends JFrame {
 		c4b2.setBounds(251, 234, 36, 20);
 		contentPane.add(c4b2);
 
-		JPanel preview4b = new JPanel();
+		preview4b = new JPanel();
 		preview4b.setBounds(251, 209, 36, 14);
 		contentPane.add(preview4b);
 
-		JPanel preview4a = new JPanel();
+		preview4a = new JPanel();
 		preview4a.setBounds(205, 209, 36, 14);
 		contentPane.add(preview4a);
 
@@ -281,16 +294,82 @@ public class PaletteEditor extends JFrame {
 		c5b2.setBounds(251, 290, 36, 20);
 		contentPane.add(c5b2);
 
-		JPanel preview5b = new JPanel();
+		preview5b = new JPanel();
 		preview5b.setBounds(251, 265, 36, 14);
 		contentPane.add(preview5b);
 
-		JPanel preview5a = new JPanel();
+		preview5a = new JPanel();
 		preview5a.setBounds(205, 265, 36, 14);
 		contentPane.add(preview5a);
 	}
 
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
+        paletteOffset = findPaletteOffset();
+        if (paletteOffset == -1) {
+            System.err.println("Could not find palette offset!");
+        }
+        updateUiFromRom();
+    }
+
+    private java.awt.Color firstColor(int colorSet) {
+        assert(colorSet >= 0);
+        assert(colorSet < 5);
+        return java.awt.Color.red;  // TODO
+    }
+
+    private java.awt.Color secondColor(int colorSet) {
+        assert(colorSet >= 0);
+        assert(colorSet < 5);
+        return java.awt.Color.green;  // TODO
+    }
+
+    private void updateUiFromRom() {
+        preview1a.setBackground(firstColor(0));
+        preview1b.setBackground(secondColor(0));
+        preview2a.setBackground(firstColor(1));
+        preview2b.setBackground(secondColor(1));
+        preview3a.setBackground(firstColor(2));
+        preview3b.setBackground(secondColor(2));
+        preview4a.setBackground(firstColor(3));
+        preview4b.setBackground(secondColor(3));
+        preview5a.setBackground(firstColor(4));
+        preview5b.setBackground(secondColor(4));
+    }
+
+    private int findPaletteOffset() {
+        // Finds the palette location by searching for the screen
+        // backgrounds, which are defined directly after the palettes
+        // in bank 1.
+        int i = 0x4000;
+        while (i < 0x8000) {
+            // The first screen background start with 17 zeroes
+            // followed by three 72's.
+            if (romImage[i] == 0 &&
+                    romImage[i + 1] == 0 &&
+                    romImage[i + 2] == 0 &&
+                    romImage[i + 3] == 0 &&
+                    romImage[i + 4] == 0 &&
+                    romImage[i + 5] == 0 &&
+                    romImage[i + 6] == 0 &&
+                    romImage[i + 7] == 0 &&
+                    romImage[i + 8] == 0 &&
+                    romImage[i + 9] == 0 &&
+                    romImage[i + 10] == 0 &&
+                    romImage[i + 11] == 0 &&
+                    romImage[i + 12] == 0 &&
+                    romImage[i + 13] == 0 &&
+                    romImage[i + 14] == 0 &&
+                    romImage[i + 15] == 0 &&
+                    romImage[i + 16] == 0 &&
+                    romImage[i + 17] == 72 &&
+                    romImage[i + 18] == 72 &&
+                    romImage[i + 19] == 72) {
+                int paletteCount = 6;
+                return i - paletteCount * paletteSize;
+            }
+            ++i;
+        }
+        return -1;
     }
 }

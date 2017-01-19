@@ -418,18 +418,18 @@ public class Frame extends JFrame {
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
-            paletteEditor.setRomImage(romImage);
-            saveROMItem.setEnabled(true);
-            saveROMButton.setEnabled(true);
-            importKitsItem.setEnabled(true);
-            loadKitButton.setEnabled(true);
-            exportKitButton.setEnabled(true);
-            renameKitButton.setEnabled(true);
-            flushWavFiles();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
         }
+        paletteEditor.setRomImage(romImage);
+        saveROMItem.setEnabled(true);
+        saveROMButton.setEnabled(true);
+        importKitsItem.setEnabled(true);
+        loadKitButton.setEnabled(true);
+        exportKitButton.setEnabled(true);
+        renameKitButton.setEnabled(true);
+        flushWavFiles();
         updateRomView();
         bankBox.setSelectedIndex(0);
     }
