@@ -27,7 +27,7 @@ import javax.swing.border.*;
 import java.beans.*;
 
 public class Frame extends JFrame {
-    String versionString = "LSD-Patcher v1.0.1";
+    String versionString = "LSD-Patcher v1.0.2";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
     TitledBorder titledBorder1;
