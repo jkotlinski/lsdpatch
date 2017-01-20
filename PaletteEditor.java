@@ -515,6 +515,14 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         }
     }
 
+    private java.awt.Color gammaCorrect(java.awt.Color c) {
+        float gamma = 0.5f;
+        int r = (int)(255 * Math.pow((float)c.getRed() / (float)0xf8, gamma));
+        int g = (int)(255 * Math.pow((float)c.getGreen() / (float)0xf8, gamma));
+        int b = (int)(255 * Math.pow((float)c.getBlue() / (float)0xf8, gamma));
+        return new java.awt.Color(r, g, b);
+    }
+
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
         int w = srcImage.getWidth();
         int h = srcImage.getHeight();
@@ -522,39 +530,42 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
                 int rgb = srcImage.getRGB(x, y);
+                java.awt.Color c;
                 if (rgb == 0xff000000) {
-                    dstImage.setRGB(x, y, firstColor(0).getRGB());
+                    c = firstColor(0);
                 } else if (rgb == 0xff000008) {
-                    dstImage.setRGB(x, y, midColor(0).getRGB());
+                    c = midColor(0);
                 } else if (rgb == 0xff000019) {
-                    dstImage.setRGB(x, y, secondColor(0).getRGB());
+                    c = secondColor(0);
                 } else if (rgb == 0xff000800) {
-                    dstImage.setRGB(x, y, firstColor(1).getRGB());
+                    c = firstColor(1);
                 } else if (rgb == 0xff000808) {
-                    dstImage.setRGB(x, y, midColor(1).getRGB());
+                    c = midColor(1);
                 } else if (rgb == 0xff000819) {
-                    dstImage.setRGB(x, y, secondColor(1).getRGB());
+                    c = secondColor(1);
                 } else if (rgb == 0xff001000) {
-                    dstImage.setRGB(x, y, firstColor(2).getRGB());
+                    c = firstColor(2);
                 } else if (rgb == 0xff001008) {
-                    dstImage.setRGB(x, y, midColor(2).getRGB());
+                    c = midColor(2);
                 } else if (rgb == 0xff001019) {
-                    dstImage.setRGB(x, y, secondColor(2).getRGB());
+                    c = secondColor(2);
                 } else if (rgb == 0xff001900) {
-                    dstImage.setRGB(x, y, firstColor(3).getRGB());
+                    c = firstColor(3);
                 } else if (rgb == 0xff001908) {
-                    dstImage.setRGB(x, y, midColor(3).getRGB());
+                    c = midColor(3);
                 } else if (rgb == 0xff001919) {
-                    dstImage.setRGB(x, y, secondColor(3).getRGB());
+                    c = secondColor(3);
                 } else if (rgb == 0xff002100) {
-                    dstImage.setRGB(x, y, firstColor(4).getRGB());
+                    c = firstColor(4);
                 } else if (rgb == 0xff002108) {
-                    dstImage.setRGB(x, y, midColor(4).getRGB());
+                    c = midColor(4);
                 } else if (rgb == 0xff002119) {
-                    dstImage.setRGB(x, y, secondColor(4).getRGB());
+                    c = secondColor(4);
                 } else {
                     System.err.println(String.format("%x", rgb));
+                    c = new java.awt.Color(255, 0, 255);
                 }
+                dstImage.setRGB(x, y, gammaCorrect(c).getRGB());
             }
         }
         return dstImage;
@@ -566,16 +577,16 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     }
 
     private void updatePreviewPanes() {
-        preview1a.setBackground(firstColor(0));
-        preview1b.setBackground(secondColor(0));
-        preview2a.setBackground(firstColor(1));
-        preview2b.setBackground(secondColor(1));
-        preview3a.setBackground(firstColor(2));
-        preview3b.setBackground(secondColor(2));
-        preview4a.setBackground(firstColor(3));
-        preview4b.setBackground(secondColor(3));
-        preview5a.setBackground(firstColor(4));
-        preview5b.setBackground(secondColor(4));
+        preview1a.setBackground(gammaCorrect(firstColor(0)));
+        preview1b.setBackground(gammaCorrect(secondColor(0)));
+        preview2a.setBackground(gammaCorrect(firstColor(1)));
+        preview2b.setBackground(gammaCorrect(secondColor(1)));
+        preview3a.setBackground(gammaCorrect(firstColor(2)));
+        preview3b.setBackground(gammaCorrect(secondColor(2)));
+        preview4a.setBackground(gammaCorrect(firstColor(3)));
+        preview4b.setBackground(gammaCorrect(secondColor(3)));
+        preview5a.setBackground(gammaCorrect(firstColor(4)));
+        preview5b.setBackground(gammaCorrect(secondColor(4)));
 
         updateSongAndInstrScreens();
     }
