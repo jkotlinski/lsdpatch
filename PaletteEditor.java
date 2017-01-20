@@ -58,7 +58,9 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private JPanel preview5b;
 
     private JPanel previewSong;
+    private JLabel previewSongLabel;
     private JPanel previewInstr;
+    private JLabel previewInstrLabel;
 
     private JSpinner c1r1;
     private JSpinner c1g1;
@@ -133,10 +135,14 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
 
 		previewSong = new JPanel(new BorderLayout());
 		previewSong.setBounds(314, 10, 160, 144);
+        previewSongLabel = new JLabel();
+        previewSong.add(previewSongLabel);
 		contentPane.add(previewSong);
 
 		previewInstr = new JPanel(new BorderLayout());
 		previewInstr.setBounds(314, 164, 160, 144);
+        previewInstrLabel = new JLabel();
+        previewInstr.add(previewInstrLabel);
 		contentPane.add(previewInstr);
 
 		c1r1 = new JSpinner();
@@ -502,12 +508,44 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         }
     }
 
+    private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
+        int w = srcImage.getWidth();
+        int h = srcImage.getHeight();
+        java.awt.image.BufferedImage dstImage = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                int rgb = srcImage.getRGB(x, y);
+                if (rgb == 0xff000000) {
+                    dstImage.setRGB(x, y, firstColor(0).getRGB());
+                } else if (rgb == 0xff000019) {
+                    dstImage.setRGB(x, y, secondColor(0).getRGB());
+                } else if (rgb == 0xff000800) {
+                    dstImage.setRGB(x, y, firstColor(1).getRGB());
+                } else if (rgb == 0xff000819) {
+                    dstImage.setRGB(x, y, secondColor(1).getRGB());
+                } else if (rgb == 0xff001000) {
+                    dstImage.setRGB(x, y, firstColor(2).getRGB());
+                } else if (rgb == 0xff001019) {
+                    dstImage.setRGB(x, y, secondColor(2).getRGB());
+                } else if (rgb == 0xff001900) {
+                    dstImage.setRGB(x, y, firstColor(3).getRGB());
+                } else if (rgb == 0xff001919) {
+                    dstImage.setRGB(x, y, secondColor(3).getRGB());
+                } else if (rgb == 0xff002100) {
+                    dstImage.setRGB(x, y, firstColor(4).getRGB());
+                } else if (rgb == 0xff002119) {
+                    dstImage.setRGB(x, y, secondColor(4).getRGB());
+                } else {
+                    // System.err.println(String.format("%x", rgb));
+                }
+            }
+        }
+        return dstImage;
+    }
+
     private void updateSongAndInstrScreens() {
-        // TODO: paint the images using the palette.
-        previewSong.add(new JLabel(new javax.swing.ImageIcon(songImage)));
-        previewSong.repaint();
-        previewInstr.add(new JLabel(new javax.swing.ImageIcon(instrImage)));
-        previewInstr.repaint();
+        previewSongLabel.setIcon(new javax.swing.ImageIcon(modifyUsingPalette(songImage)));
+        previewInstrLabel.setIcon(new javax.swing.ImageIcon(modifyUsingPalette(instrImage)));
     }
 
     private void updatePreviewPanes() {
