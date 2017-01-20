@@ -493,7 +493,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private java.awt.Color midColor(int colorSet) {
         assert colorSet >= 0;
         assert colorSet < 5;
-        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 2 * 2;
+        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 2;
         return color(offset);
     }
 
