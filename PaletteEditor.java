@@ -515,12 +515,15 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         }
     }
 
-    private java.awt.Color gammaCorrect(java.awt.Color c) {
-        float gamma = 0.5f;
-        int r = (int)(255 * Math.pow((float)c.getRed() / (float)0xf8, gamma));
-        int g = (int)(255 * Math.pow((float)c.getGreen() / (float)0xf8, gamma));
-        int b = (int)(255 * Math.pow((float)c.getBlue() / (float)0xf8, gamma));
-        return new java.awt.Color(r, g, b);
+    private int gammaCorrect(java.awt.Color c) {
+        int r = c.getRed() >> 3;
+        int g = c.getGreen() >> 3;
+        int b = c.getBlue() >> 3;
+
+        // Matrix conversion from Gambatte.
+        return (((r * 13 + g * 2 + b) >> 1) << 16)
+            | ((g * 3 + b) << 9)
+            | ((r * 3 + g * 2 + b * 11) >> 1);
     }
 
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
@@ -565,7 +568,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
                     System.err.println(String.format("%x", rgb));
                     c = new java.awt.Color(255, 0, 255);
                 }
-                dstImage.setRGB(x, y, gammaCorrect(c).getRGB());
+                dstImage.setRGB(x, y, gammaCorrect(c));
             }
         }
         return dstImage;
@@ -577,16 +580,16 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     }
 
     private void updatePreviewPanes() {
-        preview1a.setBackground(gammaCorrect(firstColor(0)));
-        preview1b.setBackground(gammaCorrect(secondColor(0)));
-        preview2a.setBackground(gammaCorrect(firstColor(1)));
-        preview2b.setBackground(gammaCorrect(secondColor(1)));
-        preview3a.setBackground(gammaCorrect(firstColor(2)));
-        preview3b.setBackground(gammaCorrect(secondColor(2)));
-        preview4a.setBackground(gammaCorrect(firstColor(3)));
-        preview4b.setBackground(gammaCorrect(secondColor(3)));
-        preview5a.setBackground(gammaCorrect(firstColor(4)));
-        preview5b.setBackground(gammaCorrect(secondColor(4)));
+        preview1a.setBackground(new java.awt.Color(gammaCorrect(firstColor(0))));
+        preview1b.setBackground(new java.awt.Color(gammaCorrect(secondColor(0))));
+        preview2a.setBackground(new java.awt.Color(gammaCorrect(firstColor(1))));
+        preview2b.setBackground(new java.awt.Color(gammaCorrect(secondColor(1))));
+        preview3a.setBackground(new java.awt.Color(gammaCorrect(firstColor(2))));
+        preview3b.setBackground(new java.awt.Color(gammaCorrect(secondColor(2))));
+        preview4a.setBackground(new java.awt.Color(gammaCorrect(firstColor(3))));
+        preview4b.setBackground(new java.awt.Color(gammaCorrect(secondColor(3))));
+        preview5a.setBackground(new java.awt.Color(gammaCorrect(firstColor(4))));
+        preview5b.setBackground(new java.awt.Color(gammaCorrect(secondColor(4))));
 
         updateSongAndInstrScreens();
     }
