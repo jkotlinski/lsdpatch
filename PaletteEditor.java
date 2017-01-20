@@ -127,8 +127,9 @@ public class PaletteEditor
      */
     public PaletteEditor() {
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setBounds(100, 100, 500, 360);
+        setBounds(100, 100, 650, 636);
         setResizable(false);
+        setTitle("Palette Editor");
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -142,13 +143,13 @@ public class PaletteEditor
         contentPane.add(kitSelector);
 
         previewSong = new JPanel(new BorderLayout());
-        previewSong.setBounds(314, 10, 160, 144);
+        previewSong.setBounds(314, 10, 160 * 2, 144 * 2);
         previewSongLabel = new JLabel();
         previewSong.add(previewSongLabel);
         contentPane.add(previewSong);
 
         previewInstr = new JPanel(new BorderLayout());
-        previewInstr.setBounds(314, 164, 160, 144);
+        previewInstr.setBounds(314, 10 + 144 * 2 + 10, 160 * 2, 144 * 2);
         previewInstrLabel = new JLabel();
         previewInstr.add(previewInstrLabel);
         contentPane.add(previewInstr);
@@ -595,8 +596,8 @@ public class PaletteEditor
     }
 
     private void updateSongAndInstrScreens() {
-        previewSongLabel.setIcon(new javax.swing.ImageIcon(modifyUsingPalette(songImage)));
-        previewInstrLabel.setIcon(new javax.swing.ImageIcon(modifyUsingPalette(instrImage)));
+        previewSongLabel.setIcon(new StretchIcon(modifyUsingPalette(songImage)));
+        previewInstrLabel.setIcon(new StretchIcon(modifyUsingPalette(instrImage)));
     }
 
     private void updatePreviewPanes() {

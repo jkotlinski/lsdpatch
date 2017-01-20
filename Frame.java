@@ -178,7 +178,7 @@ public class Frame extends JFrame {
         // -----
 
         JMenu paletteMenu = new JMenu("Palette");
-        fileMenu.setMnemonic(KeyEvent.VK_P);
+        paletteMenu.setMnemonic(KeyEvent.VK_P);
         menuBar.add(paletteMenu);
 
         JMenuItem editPaletteItem = new JMenuItem("Edit Palette...", KeyEvent.VK_P);
