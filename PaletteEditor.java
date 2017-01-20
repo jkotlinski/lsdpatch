@@ -1,22 +1,22 @@
 /** Copyright (C) 2017 by Johan Kotlinski
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. */
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE. */
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -38,7 +38,7 @@ public class PaletteEditor
     extends JFrame
     implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
 
-	private JPanel contentPane;
+    private JPanel contentPane;
 
     private byte romImage[] = null;
     private int paletteOffset = -1;
@@ -106,271 +106,271 @@ public class PaletteEditor
 
     private boolean updatingSpinners = false;
 
-	/**
+    /**
      * Launch the application.
      */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					PaletteEditor frame = new PaletteEditor();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    PaletteEditor frame = new PaletteEditor();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-	/**
+    /**
      * Create the frame.
      */
-	public PaletteEditor() {
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(100, 100, 500, 362);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+    public PaletteEditor() {
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setBounds(100, 100, 500, 362);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
 
-		kitSelector = new JComboBox();
-		kitSelector.setBounds(10, 10, 140, 20);
+        kitSelector = new JComboBox();
+        kitSelector.setBounds(10, 10, 140, 20);
         kitSelector.setEditable(true);
         kitSelector.addItemListener(this);
         kitSelector.addActionListener(this);
-		contentPane.add(kitSelector);
+        contentPane.add(kitSelector);
 
-		previewSong = new JPanel(new BorderLayout());
-		previewSong.setBounds(314, 10, 160, 144);
+        previewSong = new JPanel(new BorderLayout());
+        previewSong.setBounds(314, 10, 160, 144);
         previewSongLabel = new JLabel();
         previewSong.add(previewSongLabel);
-		contentPane.add(previewSong);
+        contentPane.add(previewSong);
 
-		previewInstr = new JPanel(new BorderLayout());
-		previewInstr.setBounds(314, 164, 160, 144);
+        previewInstr = new JPanel(new BorderLayout());
+        previewInstr.setBounds(314, 164, 160, 144);
         previewInstrLabel = new JLabel();
         previewInstr.add(previewInstrLabel);
-		contentPane.add(previewInstr);
+        contentPane.add(previewInstr);
 
-		c1r1 = new JSpinner();
-		c1r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c1r1.setBounds(10, 66, 36, 20);
-		contentPane.add(c1r1);
+        c1r1 = new JSpinner();
+        c1r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c1r1.setBounds(10, 66, 36, 20);
+        contentPane.add(c1r1);
 
-		JLabel lblNormal = new JLabel("Normal");
-		lblNormal.setBounds(10, 41, 46, 14);
-		contentPane.add(lblNormal);
+        JLabel lblNormal = new JLabel("Normal");
+        lblNormal.setBounds(10, 41, 46, 14);
+        contentPane.add(lblNormal);
 
-		c1g1 = new JSpinner();
-		c1g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c1g1.setBounds(56, 66, 36, 20);
-		contentPane.add(c1g1);
+        c1g1 = new JSpinner();
+        c1g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c1g1.setBounds(56, 66, 36, 20);
+        contentPane.add(c1g1);
 
-		c1b1 = new JSpinner();
-		c1b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c1b1.setBounds(102, 66, 36, 20);
-		contentPane.add(c1b1);
+        c1b1 = new JSpinner();
+        c1b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c1b1.setBounds(102, 66, 36, 20);
+        contentPane.add(c1b1);
 
-		preview1a = new JPanel();
-		preview1a.setBounds(95, 41, 43, 14);
+        preview1a = new JPanel();
+        preview1a.setBounds(95, 41, 43, 14);
         preview1a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview1a);
+        contentPane.add(preview1a);
 
-		preview1b = new JPanel();
-		preview1b.setBounds(159, 41, 43, 14);
+        preview1b = new JPanel();
+        preview1b.setBounds(159, 41, 43, 14);
         preview1b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview1b);
+        contentPane.add(preview1b);
 
-		c1b2 = new JSpinner();
-		c1b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c1b2.setBounds(251, 66, 36, 20);
-		contentPane.add(c1b2);
+        c1b2 = new JSpinner();
+        c1b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c1b2.setBounds(251, 66, 36, 20);
+        contentPane.add(c1b2);
 
-		c1g2 = new JSpinner();
-		c1g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c1g2.setBounds(205, 66, 36, 20);
-		contentPane.add(c1g2);
+        c1g2 = new JSpinner();
+        c1g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c1g2.setBounds(205, 66, 36, 20);
+        contentPane.add(c1g2);
 
-		c1r2 = new JSpinner();
-		c1r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c1r2.setBounds(159, 66, 36, 20);
-		contentPane.add(c1r2);
+        c1r2 = new JSpinner();
+        c1r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c1r2.setBounds(159, 66, 36, 20);
+        contentPane.add(c1r2);
 
-		JLabel lblShaded = new JLabel("Shaded");
-		lblShaded.setBounds(10, 97, 46, 14);
-		contentPane.add(lblShaded);
+        JLabel lblShaded = new JLabel("Shaded");
+        lblShaded.setBounds(10, 97, 46, 14);
+        contentPane.add(lblShaded);
 
-		c2r1 = new JSpinner();
-		c2r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c2r1.setBounds(10, 122, 36, 20);
-		contentPane.add(c2r1);
+        c2r1 = new JSpinner();
+        c2r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c2r1.setBounds(10, 122, 36, 20);
+        contentPane.add(c2r1);
 
-		c2g1 = new JSpinner();
-		c2g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c2g1.setBounds(56, 122, 36, 20);
-		contentPane.add(c2g1);
+        c2g1 = new JSpinner();
+        c2g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c2g1.setBounds(56, 122, 36, 20);
+        contentPane.add(c2g1);
 
-		c2b1 = new JSpinner();
-		c2b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c2b1.setBounds(102, 122, 36, 20);
-		contentPane.add(c2b1);
+        c2b1 = new JSpinner();
+        c2b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c2b1.setBounds(102, 122, 36, 20);
+        contentPane.add(c2b1);
 
-		c2r2 = new JSpinner();
-		c2r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c2r2.setBounds(159, 122, 36, 20);
-		contentPane.add(c2r2);
+        c2r2 = new JSpinner();
+        c2r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c2r2.setBounds(159, 122, 36, 20);
+        contentPane.add(c2r2);
 
-		c2g2 = new JSpinner();
-		c2g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c2g2.setBounds(205, 122, 36, 20);
-		contentPane.add(c2g2);
+        c2g2 = new JSpinner();
+        c2g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c2g2.setBounds(205, 122, 36, 20);
+        contentPane.add(c2g2);
 
-		c2b2 = new JSpinner();
-		c2b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c2b2.setBounds(251, 122, 36, 20);
-		contentPane.add(c2b2);
+        c2b2 = new JSpinner();
+        c2b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c2b2.setBounds(251, 122, 36, 20);
+        contentPane.add(c2b2);
 
-		preview2b = new JPanel();
-		preview2b.setBounds(159, 97, 43, 14);
+        preview2b = new JPanel();
+        preview2b.setBounds(159, 97, 43, 14);
         preview2b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview2b);
+        contentPane.add(preview2b);
 
-		preview2a = new JPanel();
-		preview2a.setBounds(95, 97, 43, 14);
+        preview2a = new JPanel();
+        preview2a.setBounds(95, 97, 43, 14);
         preview2a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview2a);
+        contentPane.add(preview2a);
 
-		JLabel lblAlternate = new JLabel("Alternate");
-		lblAlternate.setBounds(10, 153, 82, 14);
-		contentPane.add(lblAlternate);
+        JLabel lblAlternate = new JLabel("Alternate");
+        lblAlternate.setBounds(10, 153, 82, 14);
+        contentPane.add(lblAlternate);
 
-		c3r1 = new JSpinner();
-		c3r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c3r1.setBounds(10, 178, 36, 20);
-		contentPane.add(c3r1);
+        c3r1 = new JSpinner();
+        c3r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c3r1.setBounds(10, 178, 36, 20);
+        contentPane.add(c3r1);
 
-		c3g1 = new JSpinner();
-		c3g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c3g1.setBounds(56, 178, 36, 20);
-		contentPane.add(c3g1);
+        c3g1 = new JSpinner();
+        c3g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c3g1.setBounds(56, 178, 36, 20);
+        contentPane.add(c3g1);
 
-		c3b1 = new JSpinner();
-		c3b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c3b1.setBounds(102, 178, 36, 20);
-		contentPane.add(c3b1);
+        c3b1 = new JSpinner();
+        c3b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c3b1.setBounds(102, 178, 36, 20);
+        contentPane.add(c3b1);
 
-		c3r2 = new JSpinner();
-		c3r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c3r2.setBounds(159, 178, 36, 20);
-		contentPane.add(c3r2);
+        c3r2 = new JSpinner();
+        c3r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c3r2.setBounds(159, 178, 36, 20);
+        contentPane.add(c3r2);
 
-		c3g2 = new JSpinner();
-		c3g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c3g2.setBounds(205, 178, 36, 20);
-		contentPane.add(c3g2);
+        c3g2 = new JSpinner();
+        c3g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c3g2.setBounds(205, 178, 36, 20);
+        contentPane.add(c3g2);
 
-		c3b2 = new JSpinner();
-		c3b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c3b2.setBounds(251, 178, 36, 20);
-		contentPane.add(c3b2);
+        c3b2 = new JSpinner();
+        c3b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c3b2.setBounds(251, 178, 36, 20);
+        contentPane.add(c3b2);
 
-		preview3b = new JPanel();
-		preview3b.setBounds(159, 153, 43, 14);
+        preview3b = new JPanel();
+        preview3b.setBounds(159, 153, 43, 14);
         preview3b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview3b);
+        contentPane.add(preview3b);
 
-		preview3a = new JPanel();
-		preview3a.setBounds(95, 153, 43, 14);
+        preview3a = new JPanel();
+        preview3a.setBounds(95, 153, 43, 14);
         preview3a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview3a);
+        contentPane.add(preview3a);
 
-		JLabel lblCursor = new JLabel("Selection");
-		lblCursor.setBounds(10, 209, 82, 14);
-		contentPane.add(lblCursor);
+        JLabel lblCursor = new JLabel("Selection");
+        lblCursor.setBounds(10, 209, 82, 14);
+        contentPane.add(lblCursor);
 
-		c4r1 = new JSpinner();
-		c4r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c4r1.setBounds(10, 234, 36, 20);
-		contentPane.add(c4r1);
+        c4r1 = new JSpinner();
+        c4r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c4r1.setBounds(10, 234, 36, 20);
+        contentPane.add(c4r1);
 
-		c4g1 = new JSpinner();
-		c4g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c4g1.setBounds(56, 234, 36, 20);
-		contentPane.add(c4g1);
+        c4g1 = new JSpinner();
+        c4g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c4g1.setBounds(56, 234, 36, 20);
+        contentPane.add(c4g1);
 
-		c4b1 = new JSpinner();
-		c4b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c4b1.setBounds(102, 234, 36, 20);
-		contentPane.add(c4b1);
+        c4b1 = new JSpinner();
+        c4b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c4b1.setBounds(102, 234, 36, 20);
+        contentPane.add(c4b1);
 
-		c4r2 = new JSpinner();
-		c4r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c4r2.setBounds(159, 234, 36, 20);
-		contentPane.add(c4r2);
+        c4r2 = new JSpinner();
+        c4r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c4r2.setBounds(159, 234, 36, 20);
+        contentPane.add(c4r2);
 
-		c4g2 = new JSpinner();
-		c4g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c4g2.setBounds(205, 234, 36, 20);
-		contentPane.add(c4g2);
+        c4g2 = new JSpinner();
+        c4g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c4g2.setBounds(205, 234, 36, 20);
+        contentPane.add(c4g2);
 
-		c4b2 = new JSpinner();
-		c4b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c4b2.setBounds(251, 234, 36, 20);
-		contentPane.add(c4b2);
+        c4b2 = new JSpinner();
+        c4b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c4b2.setBounds(251, 234, 36, 20);
+        contentPane.add(c4b2);
 
-		preview4b = new JPanel();
-		preview4b.setBounds(159, 209, 43, 14);
+        preview4b = new JPanel();
+        preview4b.setBounds(159, 209, 43, 14);
         preview4b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview4b);
+        contentPane.add(preview4b);
 
-		preview4a = new JPanel();
-		preview4a.setBounds(95, 209, 43, 14);
+        preview4a = new JPanel();
+        preview4a.setBounds(95, 209, 43, 14);
         preview4a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview4a);
+        contentPane.add(preview4a);
 
-		JLabel lblStartscroll = new JLabel("Scroll");
-		lblStartscroll.setBounds(10, 265, 65, 14);
-		contentPane.add(lblStartscroll);
+        JLabel lblStartscroll = new JLabel("Scroll");
+        lblStartscroll.setBounds(10, 265, 65, 14);
+        contentPane.add(lblStartscroll);
 
-		c5r1 = new JSpinner();
-		c5r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c5r1.setBounds(10, 290, 36, 20);
-		contentPane.add(c5r1);
+        c5r1 = new JSpinner();
+        c5r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c5r1.setBounds(10, 290, 36, 20);
+        contentPane.add(c5r1);
 
-		c5g1 = new JSpinner();
-		c5g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c5g1.setBounds(56, 290, 36, 20);
-		contentPane.add(c5g1);
+        c5g1 = new JSpinner();
+        c5g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c5g1.setBounds(56, 290, 36, 20);
+        contentPane.add(c5g1);
 
-		c5b1 = new JSpinner();
-		c5b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c5b1.setBounds(102, 290, 36, 20);
-		contentPane.add(c5b1);
+        c5b1 = new JSpinner();
+        c5b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c5b1.setBounds(102, 290, 36, 20);
+        contentPane.add(c5b1);
 
-		c5r2 = new JSpinner();
-		c5r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c5r2.setBounds(159, 290, 36, 20);
-		contentPane.add(c5r2);
+        c5r2 = new JSpinner();
+        c5r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c5r2.setBounds(159, 290, 36, 20);
+        contentPane.add(c5r2);
 
-		c5g2 = new JSpinner();
-		c5g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c5g2.setBounds(205, 290, 36, 20);
-		contentPane.add(c5g2);
+        c5g2 = new JSpinner();
+        c5g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c5g2.setBounds(205, 290, 36, 20);
+        contentPane.add(c5g2);
 
-		c5b2 = new JSpinner();
-		c5b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-		c5b2.setBounds(251, 290, 36, 20);
-		contentPane.add(c5b2);
+        c5b2 = new JSpinner();
+        c5b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
+        c5b2.setBounds(251, 290, 36, 20);
+        contentPane.add(c5b2);
 
-		preview5b = new JPanel();
-		preview5b.setBounds(159, 265, 43, 14);
+        preview5b = new JPanel();
+        preview5b.setBounds(159, 265, 43, 14);
         preview5b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview5b);
+        contentPane.add(preview5b);
 
-		preview5a = new JPanel();
-		preview5a.setBounds(95, 265, 43, 14);
+        preview5a = new JPanel();
+        preview5a.setBounds(95, 265, 43, 14);
         preview5a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-		contentPane.add(preview5a);
+        contentPane.add(preview5a);
 
         listenToSpinners();
 
@@ -380,7 +380,7 @@ public class PaletteEditor
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
-	}
+    }
 
     private void listenToSpinners() {
         c1r1.addChangeListener(this);
@@ -720,7 +720,7 @@ public class PaletteEditor
                     romImage[i + 18] == 72 &&
                     romImage[i + 19] == 72) {
                 return i - paletteCount * paletteSize;
-            }
+                    }
             ++i;
         }
         return -1;
