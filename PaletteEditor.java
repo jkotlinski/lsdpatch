@@ -468,7 +468,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     }
 
     private void updateRomFromSpinners() {
-        int offset = paletteOffset + selectedPalette();
+        int offset = paletteOffset + selectedPalette() * paletteSize;
         updateRom(offset, c1r1, c1g1, c1b1, c1r2, c1g2, c1b2);
         updateRom(offset + 8, c2r1, c2g1, c2b1, c2r2, c2g2, c2b2);
         updateRom(offset + 16, c3r1, c3g1, c3b1, c3r2, c3g2, c3b2);
