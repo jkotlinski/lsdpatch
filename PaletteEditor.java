@@ -435,12 +435,12 @@ public class PaletteEditor
         return palette;
     }
 
-    // Returns color scaled to 0, 255.
+    // Returns color scaled to 0-0xf8.
     private java.awt.Color color(int offset) {
         // gggrrrrr 0bbbbbgg
-        int r = (romImage[offset] & 0b11111) << 3;
-        int g = ((romImage[offset + 1] & 0b11) << 6) | ((romImage[offset] & 0b11100000) >> 2);
-        int b = (romImage[offset + 1] << 1) & 0b11111000;
+        int r = (romImage[offset] & 0x1f) << 3;
+        int g = ((romImage[offset + 1] & 3) << 6) | ((romImage[offset] & 0xe0) >> 2);
+        int b = (romImage[offset + 1] << 1) & 0xf8;
         return new java.awt.Color(r, g, b);
     }
 
