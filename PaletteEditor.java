@@ -490,6 +490,13 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         return color(offset);
     }
 
+    private java.awt.Color midColor(int colorSet) {
+        assert colorSet >= 0;
+        assert colorSet < 5;
+        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 2 * 2;
+        return color(offset);
+    }
+
     private String paletteName(int palette) {
         assert palette >= 0;
         assert palette < paletteCount;
@@ -517,26 +524,36 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
                 int rgb = srcImage.getRGB(x, y);
                 if (rgb == 0xff000000) {
                     dstImage.setRGB(x, y, firstColor(0).getRGB());
+                } else if (rgb == 0xff000008) {
+                    dstImage.setRGB(x, y, midColor(0).getRGB());
                 } else if (rgb == 0xff000019) {
                     dstImage.setRGB(x, y, secondColor(0).getRGB());
                 } else if (rgb == 0xff000800) {
                     dstImage.setRGB(x, y, firstColor(1).getRGB());
+                } else if (rgb == 0xff000808) {
+                    dstImage.setRGB(x, y, midColor(1).getRGB());
                 } else if (rgb == 0xff000819) {
                     dstImage.setRGB(x, y, secondColor(1).getRGB());
                 } else if (rgb == 0xff001000) {
                     dstImage.setRGB(x, y, firstColor(2).getRGB());
+                } else if (rgb == 0xff001008) {
+                    dstImage.setRGB(x, y, midColor(2).getRGB());
                 } else if (rgb == 0xff001019) {
                     dstImage.setRGB(x, y, secondColor(2).getRGB());
                 } else if (rgb == 0xff001900) {
                     dstImage.setRGB(x, y, firstColor(3).getRGB());
+                } else if (rgb == 0xff001908) {
+                    dstImage.setRGB(x, y, midColor(3).getRGB());
                 } else if (rgb == 0xff001919) {
                     dstImage.setRGB(x, y, secondColor(3).getRGB());
                 } else if (rgb == 0xff002100) {
                     dstImage.setRGB(x, y, firstColor(4).getRGB());
+                } else if (rgb == 0xff002108) {
+                    dstImage.setRGB(x, y, midColor(4).getRGB());
                 } else if (rgb == 0xff002119) {
                     dstImage.setRGB(x, y, secondColor(4).getRGB());
                 } else {
-                    // System.err.println(String.format("%x", rgb));
+                    System.err.println(String.format("%x", rgb));
                 }
             }
         }
