@@ -34,7 +34,9 @@ import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class PaletteEditor extends JFrame implements java.awt.event.ItemListener, ChangeListener {
+public class PaletteEditor
+    extends JFrame
+    implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
 
 	private JPanel contentPane;
 
@@ -43,8 +45,10 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private int nameOffset = -1;
 
     private int colorSetSize = 4 * 2;  // one colorset contains 4 colors
-    private int paletteSize = 5 * colorSetSize;  // one palette contains 5 color sets
+    private int colorSetCount = 5;  // one palette contains 5 color sets
+    private int paletteSize = colorSetCount * colorSetSize;
     private int paletteCount = 6;
+    private int paletteNameSize = 5;
 
     private JPanel preview1a;
     private JPanel preview1b;
@@ -98,6 +102,8 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     private java.awt.image.BufferedImage songImage;
     private java.awt.image.BufferedImage instrImage;
 
+    private int previousSelectedKit = -1;
+
     private boolean updatingSpinners = false;
 
 	/**
@@ -131,6 +137,7 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
 		kitSelector.setBounds(10, 10, 140, 20);
         kitSelector.setEditable(true);
         kitSelector.addItemListener(this);
+        kitSelector.addActionListener(this);
 		contentPane.add(kitSelector);
 
 		previewSong = new JPanel(new BorderLayout());
@@ -478,21 +485,21 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
 
     private java.awt.Color firstColor(int colorSet) {
         assert colorSet >= 0;
-        assert colorSet < 5;
+        assert colorSet < colorSetCount;
         int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize;
         return color(offset);
     }
 
     private java.awt.Color secondColor(int colorSet) {
         assert colorSet >= 0;
-        assert colorSet < 5;
+        assert colorSet < colorSetCount;
         int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 3 * 2;
         return color(offset);
     }
 
     private java.awt.Color midColor(int colorSet) {
         assert colorSet >= 0;
-        assert colorSet < 5;
+        assert colorSet < colorSetCount;
         int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 2;
         return color(offset);
     }
@@ -501,11 +508,23 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         assert palette >= 0;
         assert palette < paletteCount;
         String s = new String();
-        s += (char)romImage[nameOffset + palette * 5];
-        s += (char)romImage[nameOffset + palette * 5 + 1];
-        s += (char)romImage[nameOffset + palette * 5 + 2];
-        s += (char)romImage[nameOffset + palette * 5 + 3];
+        s += (char)romImage[nameOffset + palette * paletteNameSize];
+        s += (char)romImage[nameOffset + palette * paletteNameSize + 1];
+        s += (char)romImage[nameOffset + palette * paletteNameSize + 2];
+        s += (char)romImage[nameOffset + palette * paletteNameSize + 3];
         return s;
+    }
+
+    private void setPaletteName(int palette, String name) {
+        if (name.length() >= paletteNameSize) {
+            name = name.substring(0, paletteNameSize - 1);
+        } else while (name.length() < paletteNameSize - 1) {
+            name = name + " ";
+        }
+        romImage[nameOffset + palette * paletteNameSize] = (byte)name.charAt(0);
+        romImage[nameOffset + palette * paletteNameSize + 1] = (byte)name.charAt(1);
+        romImage[nameOffset + palette * paletteNameSize + 2] = (byte)name.charAt(2);
+        romImage[nameOffset + palette * paletteNameSize + 3] = (byte)name.charAt(3);
     }
 
     private void populateKitSelector() {
@@ -516,9 +535,9 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     }
 
     private int gammaCorrect(java.awt.Color c) {
-        int r = c.getRed() >> 3;
-        int g = c.getGreen() >> 3;
-        int b = c.getBlue() >> 3;
+        int r = ((c.getRed() >> 3) * 255) / 0xf8;
+        int g = ((c.getGreen() >> 3) * 255) / 0xf8;
+        int b = ((c.getBlue() >> 3) * 255) / 0xf8;
 
         // Matrix conversion from Gambatte.
         return (((r * 13 + g * 2 + b) >> 1) << 16)
@@ -710,8 +729,10 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
     public void itemStateChanged(java.awt.event.ItemEvent e) {
         if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Palette changed.
-            updatePreviewPanes();
-            updateSpinners();
+            if (kitSelector.getSelectedIndex() != -1) {
+                updatePreviewPanes();
+                updateSpinners();
+            }
         }
     }
 
@@ -720,6 +741,18 @@ public class PaletteEditor extends JFrame implements java.awt.event.ItemListener
         if (!updatingSpinners) {
             updateRomFromSpinners();
             updatePreviewPanes();
+        }
+    }
+
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+        // Kit name was edited.
+        JComboBox cb = (JComboBox)e.getSource();
+        if (cb.getSelectedIndex() == -1) {
+            setPaletteName(previousSelectedKit, (String)cb.getSelectedItem());
+            populateKitSelector();
+            cb.setSelectedIndex(previousSelectedKit);
+        } else {
+            previousSelectedKit = cb.getSelectedIndex();
         }
     }
 }
