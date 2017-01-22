@@ -43,6 +43,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
 
     private JPanel contentPane;
 
+    private FontMap fontMap;
+
     private JComboBox fontSelector;
 
     private byte romImage[] = null;
@@ -50,6 +52,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
     private int nameOffset = -1;
 
     private int fontCount = 3;
+    private int fontHeaderSize = 130;
+    private int fontSize = 0xe96;
 
     /**
      * Launch the application.
@@ -94,7 +98,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        JPanel fontMap = new JPanel();
+        fontMap = new FontMap();
         fontMap.setBounds(10, 42, 128, 126);
         contentPane.add(fontMap);
 
@@ -213,6 +217,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
 
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
+        fontMap.setRomImage(romImage);
         fontOffset = findFontOffset();
         if (fontOffset == -1) {
             System.err.println("Could not find font offset!");
@@ -227,8 +232,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
     public void itemStateChanged(java.awt.event.ItemEvent e) {
         if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Font changed.
+            int index = fontSelector.getSelectedIndex();
             if (fontSelector.getSelectedIndex() != -1) {
-                // TODO
+                fontMap.setFontOffset(fontOffset + index * fontSize + fontHeaderSize);
             }
         }
     }
