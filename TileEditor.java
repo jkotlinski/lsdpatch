@@ -31,6 +31,8 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     int selectedTile = 0;
     int color = 3;
 
+    int clipboard[][] = null;
+
     TileChangedListener tileChangedListener;
 
     TileEditor() {
@@ -94,6 +96,12 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     void doMousePaint(java.awt.event.MouseEvent e) {
         int x = (e.getX() * 8) / getWidth();
         int y = (e.getY() * 8) / getHeight();
+        setColor(x, y, color);
+        repaint();
+        tileChangedListener.tileChanged();
+    }
+
+    void setColor(int x, int y, int color) {
         int tileOffset = fontOffset + selectedTile * 16 + y * 2;
         int xMask = 0x80 >> x;
         romImage[tileOffset] &= 0xff ^ xMask;
@@ -104,8 +112,6 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
             case 2:
                 romImage[tileOffset] |= xMask;
         }
-        repaint();
-        tileChangedListener.tileChanged();
     }
 
     public void mouseEntered(java.awt.event.MouseEvent e) {}
@@ -128,4 +134,29 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     void setTileChangedListener(TileChangedListener l) {
         tileChangedListener = l;
     }
+
+    void copyTile() {
+        if (clipboard == null) {
+            clipboard = new int[8][8];
+        }
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                clipboard[x][y] = getColor(selectedTile, x, y);
+            }
+        }
+    }
+
+    void pasteTile() {
+        if (clipboard == null) {
+            return;
+        }
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                setColor(x, y, clipboard[x][y]);
+            }
+        }
+        repaint();
+        tileChangedListener.tileChanged();
+    }
+
 }

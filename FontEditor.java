@@ -39,8 +39,12 @@ import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 
-public class FontEditor extends JFrame
-    implements java.awt.event.ItemListener, FontMap.TileSelectListener, TileEditor.TileChangedListener {
+public class FontEditor
+    extends JFrame
+    implements java.awt.event.ItemListener,
+               java.awt.event.ActionListener,
+               FontMap.TileSelectListener,
+               TileEditor.TileChangedListener {
 
     private JPanel contentPane;
 
@@ -95,11 +99,27 @@ public class FontEditor extends JFrame
 
         JMenuItem mntmOpen = new JMenuItem("Open...");
         mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+        mntmOpen.addActionListener(this);
         mnFile.add(mntmOpen);
 
         JMenuItem mntmSave = new JMenuItem("Save...");
         mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+        mntmSave.addActionListener(this);
         mnFile.add(mntmSave);
+
+        JMenu mnEdit = new JMenu("Edit");
+        menuBar.add(mnEdit);
+
+        JMenuItem mntmCopy = new JMenuItem("Copy Tile");
+        mntmCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
+        mntmCopy.addActionListener(this);
+        mnEdit.add(mntmCopy);
+
+        JMenuItem mntmPaste = new JMenuItem("Paste Tile");
+        mntmPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
+        mntmPaste.addActionListener(this);
+        mnEdit.add(mntmPaste);
+
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -291,5 +311,28 @@ public class FontEditor extends JFrame
 
     public void tileChanged() {
         fontMap.repaint();
+    }
+
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+        String cmd = e.getActionCommand();
+        if (cmd == "Copy Tile") {
+            tileEditor.copyTile();
+        } else if (cmd == "Paste Tile") {
+            tileEditor.pasteTile();
+        } else if (cmd == "Open...") {
+            open();
+        } else if (cmd == "Save...") {
+            save();
+        } else {
+            assert false;
+        }
+    }
+
+    void open() {
+        assert false;  // TODO
+    }
+
+    void save() {
+        assert false;  // TODO
     }
 }
