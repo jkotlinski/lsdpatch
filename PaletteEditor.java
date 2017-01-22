@@ -654,8 +654,6 @@ public class PaletteEditor
         // Palette names are in bank 27.
         int i = 0x4000 * 27;
         while (i < 0x4000 * 28) {
-            // The first screen background start with 17 zeroes
-            // followed by three 72's.
             if (romImage[i] == 'G' &&  // gray
                     romImage[i + 1] == 'R' &&
                     romImage[i + 2] == 'A' &&

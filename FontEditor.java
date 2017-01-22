@@ -45,6 +45,7 @@ public class FontEditor extends JFrame {
 
     private byte romImage[] = null;
     private int fontOffset = -1;
+    private int nameOffset = -1;
 
 	/**
 	 * Launch the application.
@@ -146,11 +147,56 @@ public class FontEditor extends JFrame {
         return -1;
     }
 
+    private int findNameOffset() {
+        // Palette names are in bank 27.
+        int i = 0x4000 * 27;
+        while (i < 0x4000 * 28) {
+            if (romImage[i] == 'G' &&  // gray
+                    romImage[i + 1] == 'R' &&
+                    romImage[i + 2] == 'A' &&
+                    romImage[i + 3] == 'Y' &&
+                    romImage[i + 4] == 0 &&
+                    romImage[i + 5] == 'I' &&  // inv
+                    romImage[i + 6] == 'N' &&
+                    romImage[i + 7] == 'V' &&
+                    romImage[i + 8] == ' ' &&
+                    romImage[i + 9] == 0 &&
+                    romImage[i + 10] == 0 &&  // empty
+                    romImage[i + 11] == 0 &&
+                    romImage[i + 12] == 0 &&
+                    romImage[i + 13] == 0 &&
+                    romImage[i + 14] == 0 &&
+                    romImage[i + 15] == 0 &&  // empty
+                    romImage[i + 16] == 0 &&
+                    romImage[i + 17] == 0 &&
+                    romImage[i + 18] == 0 &&
+                    romImage[i + 19] == 0 &&
+                    romImage[i + 20] == 0 &&  // empty
+                    romImage[i + 21] == 0 &&
+                    romImage[i + 22] == 0 &&
+                    romImage[i + 23] == 0 &&
+                    romImage[i + 24] == 0 &&
+                    romImage[i + 25] == 0 &&  // empty
+                    romImage[i + 26] == 0 &&
+                    romImage[i + 27] == 0 &&
+                    romImage[i + 28] == 0 &&
+                    romImage[i + 29] == 0) {
+                        return i - 15;
+                    }
+            ++i;
+        }
+        return -1;
+    }
+
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         fontOffset = findFontOffset();
         if (fontOffset == -1) {
             System.err.println("Could not find font offset!");
+        }
+        nameOffset = findNameOffset();
+        if (nameOffset == -1) {
+            System.err.println("Could not find font name offset!");
         }
         // populateFontSelector();  // Needs to be done first.
     }
