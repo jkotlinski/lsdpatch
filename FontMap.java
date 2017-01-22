@@ -108,4 +108,30 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         }
     }
 
+    void load(java.io.File file) {
+        try {
+            int fontSize = 71 * 16 * 8;
+            java.io.RandomAccessFile f = new java.io.RandomAccessFile(file, "r");
+            for (int i = fontOffset; i < fontOffset + fontSize; ++i) {
+                romImage[i] = (byte)f.read();
+            }
+            f.close();
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Load failed!");
+        }
+        repaint();
+    }
+
+    void save(String path) {
+        try {
+            java.io.FileOutputStream f = new java.io.FileOutputStream(path);
+            int fontSize = 71 * 16 * 8;
+            for (int i = fontOffset; i < fontOffset + fontSize; ++i) {
+                f.write(romImage[i]);
+            }
+            f.close();
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Save failed!");
+        }
+    }
 }

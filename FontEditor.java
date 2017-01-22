@@ -21,6 +21,8 @@
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -95,26 +97,30 @@ public class FontEditor
         setJMenuBar(menuBar);
 
         JMenu mnFile = new JMenu("File");
+		mnFile.setMnemonic(KeyEvent.VK_F);
         menuBar.add(mnFile);
 
         JMenuItem mntmOpen = new JMenuItem("Open...");
-        mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		mntmOpen.setMnemonic(KeyEvent.VK_O);
         mntmOpen.addActionListener(this);
         mnFile.add(mntmOpen);
 
         JMenuItem mntmSave = new JMenuItem("Save...");
-        mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		mntmSave.setMnemonic(KeyEvent.VK_S);
         mntmSave.addActionListener(this);
         mnFile.add(mntmSave);
 
         JMenu mnEdit = new JMenu("Edit");
+		mnEdit.setMnemonic(KeyEvent.VK_E);
         menuBar.add(mnEdit);
 
         JMenuItem mntmCopy = new JMenuItem("Copy Tile");
         mntmCopy.addActionListener(this);
+		mntmCopy.setMnemonic(KeyEvent.VK_C);
         mnEdit.add(mntmCopy);
 
         JMenuItem mntmPaste = new JMenuItem("Paste Tile");
+		mntmPaste.setMnemonic(KeyEvent.VK_P);
         mntmPaste.addActionListener(this);
         mnEdit.add(mntmPaste);
 
@@ -318,19 +324,35 @@ public class FontEditor
         } else if (cmd == "Paste Tile") {
             tileEditor.pasteTile();
         } else if (cmd == "Open...") {
-            open();
+            showOpenDialog();
         } else if (cmd == "Save...") {
-            save();
+            showSaveDialog();
         } else {
             assert false;
         }
     }
 
-    void open() {
-        assert false;  // TODO
+    void showOpenDialog() {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			fontMap.load(chooser.getSelectedFile());
+		}
     }
 
-    void save() {
-        assert false;  // TODO
+    void showSaveDialog() {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String filename = chooser.getSelectedFile().toString();
+			if (!filename.endsWith("lsdfnt")) {
+				filename += ".lsdfnt";
+			}
+			fontMap.save(filename);
+		}
     }
 }
