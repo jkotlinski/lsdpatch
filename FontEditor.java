@@ -101,6 +101,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, F
 
         fontMap = new FontMap();
         fontMap.setBounds(10, 42, 128, 146);
+        fontMap.setTileSelectListener(this);
         contentPane.add(fontMap);
 
         tileEditor = new TileEditor();
@@ -237,7 +238,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, F
             // Font changed.
             int index = fontSelector.getSelectedIndex();
             if (fontSelector.getSelectedIndex() != -1) {
-                fontMap.setFontOffset(fontOffset + index * fontSize + fontHeaderSize);
+                int selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
+                fontMap.setFontOffset(selectedFontOffset);
+                tileEditor.setFontOffset(selectedFontOffset);
             }
         }
     }
