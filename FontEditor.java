@@ -281,6 +281,7 @@ public class FontEditor
                 // Font changed.
                 int index = fontSelector.getSelectedIndex();
                 if (fontSelector.getSelectedIndex() != -1) {
+                    index = (index + 1) % 3;  // Adjusts for fonts being defined in wrong order.
                     int selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
                     fontMap.setFontOffset(selectedFontOffset);
                     tileEditor.setFontOffset(selectedFontOffset);

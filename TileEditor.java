@@ -97,8 +97,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         int x = (e.getX() * 8) / getWidth();
         int y = (e.getY() * 8) / getHeight();
         setColor(x, y, color);
-        repaint();
-        tileChangedListener.tileChanged();
+        tileChanged();
     }
 
     void setColor(int x, int y, int color) {
@@ -147,6 +146,26 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         }
     }
 
+    void generateShadedAndInvertedTiles() {
+        int tilesToCopy = 69;
+        for (int i = 0; i < tilesToCopy * 16; i += 2) {
+            int src = i + fontOffset + 2 * 16;  // The two first tiles are not mirrored.
+            int inverted = src + 0x4d2;
+            int shaded = inverted + 0x4d2;
+
+            // Shaded.
+            romImage[shaded] = (byte)0xff;
+            romImage[shaded + 1] = romImage[src + 1];
+
+            // Inverted.
+            // lsb 1, msb 1 => lsb 0, msb 0
+            // lsb 0, msb 0 => lsb 1, msb 1
+            // lsb 1, msb 0 => lsb 1, msb 0
+            romImage[inverted] = (byte)~romImage[src + 1];
+            romImage[inverted + 1] = (byte)~romImage[src];
+        }
+    }
+
     void pasteTile() {
         if (clipboard == null) {
             return;
@@ -160,8 +179,12 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
                 setColor(x, y, c);
             }
         }
-        repaint();
-        tileChangedListener.tileChanged();
+        tileChanged();
     }
 
+    void tileChanged() {
+        repaint();
+        generateShadedAndInvertedTiles();
+        tileChangedListener.tileChanged();
+    }
 }
