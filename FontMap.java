@@ -19,10 +19,28 @@
   THE SOFTWARE. */
 
 import javax.swing.JPanel;
+import java.awt.Graphics;
 
 public class FontMap extends JPanel {
     byte[] romImage = null;
     int fontOffset = -1;
+    int tileCount = 71;
+    int displayTileSize = 16;
+
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        for (int tile = 0; tile < tileCount; ++tile) {
+            paintTile(g, tile);
+        }
+    }
+
+    private void paintTile(Graphics g, int tile) {
+        int x = (tile * displayTileSize) % getWidth();
+        int y = ((tile * displayTileSize) / getWidth()) * displayTileSize;
+
+        g.drawLine(x, y, x, y);
+    }
 
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;

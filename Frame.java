@@ -189,7 +189,7 @@ public class Frame extends JFrame {
         paletteMenu.add(editPaletteItem);
 
         JMenu fontMenu = new JMenu("Font");
-        fontMenu.setMnemonic(KeyEvent.VK_P);
+        fontMenu.setMnemonic(KeyEvent.VK_O);
         menuBar.add(fontMenu);
         JMenuItem editFontItem = new JMenuItem("Edit Fonts...", KeyEvent.VK_F);
         editFontItem.addActionListener(new java.awt.event.ActionListener() {

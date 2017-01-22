@@ -99,7 +99,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
         contentPane.setLayout(null);
 
         fontMap = new FontMap();
-        fontMap.setBounds(10, 42, 128, 126);
+        fontMap.setBounds(10, 42, 128, 136);
         contentPane.add(fontMap);
 
         JPanel charEditor = new JPanel();
@@ -114,19 +114,19 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
 
         JRadioButton color1 = new JRadioButton("1");
         color1.setSelected(true);
-        color1.setBounds(10, 200, 37, 23);
+        color1.setBounds(10, 210, 37, 23);
         contentPane.add(color1);
 
         JRadioButton color2 = new JRadioButton("2");
-        color2.setBounds(49, 200, 37, 23);
+        color2.setBounds(49, 210, 37, 23);
         contentPane.add(color2);
 
         JRadioButton color3 = new JRadioButton("3");
-        color3.setBounds(88, 200, 37, 23);
+        color3.setBounds(88, 210, 37, 23);
         contentPane.add(color3);
 
         JLabel lblColor = new JLabel("Color:");
-        lblColor.setBounds(10, 179, 46, 14);
+        lblColor.setBounds(10, 189, 46, 14);
         contentPane.add(lblColor);
     }
 
