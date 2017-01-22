@@ -39,7 +39,7 @@ import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 
-public class FontEditor extends JFrame {
+public class FontEditor extends JFrame implements java.awt.event.ItemListener {
 
     private JPanel contentPane;
 
@@ -105,6 +105,7 @@ public class FontEditor extends JFrame {
         fontSelector = new JComboBox();
         fontSelector.setBounds(10, 11, 128, 20);
         fontSelector.setEditable(true);
+        fontSelector.addItemListener(this);
         contentPane.add(fontSelector);
 
         JRadioButton color1 = new JRadioButton("1");
@@ -221,5 +222,14 @@ public class FontEditor extends JFrame {
             System.err.println("Could not find font name offset!");
         }
         populateFontSelector();
+    }
+
+    public void itemStateChanged(java.awt.event.ItemEvent e) {
+        if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+            // Font changed.
+            if (fontSelector.getSelectedIndex() != -1) {
+                // TODO
+            }
+        }
     }
 }
