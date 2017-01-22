@@ -21,11 +21,25 @@
 import javax.swing.JPanel;
 import java.awt.Graphics;
 
-public class FontMap extends JPanel {
+public class FontMap extends JPanel implements java.awt.event.MouseListener {
     byte[] romImage = null;
     int fontOffset = -1;
     int tileCount = 71;
     int displayTileSize = 16;
+
+    public interface TileSelectListener {
+        public void tileSelected(int tile);
+    }
+
+    private TileSelectListener tileSelectedListener = null;
+
+    FontMap() {
+        addMouseListener(this);
+    }
+
+    public void setTileSelectListener(TileSelectListener l) {
+        tileSelectedListener = l;
+    }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -44,7 +58,7 @@ public class FontMap extends JPanel {
                 g.setColor(java.awt.Color.lightGray);
                 break;
             case 2:
-                g.setColor(java.awt.Color.darkGray);
+                g.setColor(java.awt.Color.pink);  // Not used.
                 break;
             case 3:
                 g.setColor(java.awt.Color.black);
@@ -80,4 +94,18 @@ public class FontMap extends JPanel {
         this.fontOffset = fontOffset;
         repaint();
     }
+
+    public void mouseEntered(java.awt.event.MouseEvent e) {}
+    public void mouseExited(java.awt.event.MouseEvent e) {}
+    public void mouseReleased(java.awt.event.MouseEvent e) {}
+    public void mousePressed(java.awt.event.MouseEvent e) {}
+    public void mouseClicked(java.awt.event.MouseEvent e) {
+        int tile = (e.getY() / displayTileSize) * (getWidth() / displayTileSize) +
+            e.getX() / displayTileSize;
+        assert tile >= 0;
+        if (tileSelectedListener != null && tile < tileCount) {
+            tileSelectedListener.tileSelected(tile);
+        }
+    }
+
 }
