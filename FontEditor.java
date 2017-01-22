@@ -111,12 +111,10 @@ public class FontEditor
         menuBar.add(mnEdit);
 
         JMenuItem mntmCopy = new JMenuItem("Copy Tile");
-        mntmCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
         mntmCopy.addActionListener(this);
         mnEdit.add(mntmCopy);
 
         JMenuItem mntmPaste = new JMenuItem("Paste Tile");
-        mntmPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
         mntmPaste.addActionListener(this);
         mnEdit.add(mntmPaste);
 

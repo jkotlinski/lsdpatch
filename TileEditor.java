@@ -102,6 +102,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void setColor(int x, int y, int color) {
+        assert color >= 1 && color <= 3;
         int tileOffset = fontOffset + selectedTile * 16 + y * 2;
         int xMask = 0x80 >> x;
         romImage[tileOffset] &= 0xff ^ xMask;
@@ -152,7 +153,11 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         }
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
-                setColor(x, y, clipboard[x][y]);
+                int c = clipboard[x][y];
+                if (c < 3) {
+                    ++c;  // Adjusts from Gameboy color to editor color.
+                }
+                setColor(x, y, c);
             }
         }
         repaint();
