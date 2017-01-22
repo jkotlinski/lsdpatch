@@ -39,7 +39,8 @@ import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 
-public class FontEditor extends JFrame implements java.awt.event.ItemListener, FontMap.TileSelectListener {
+public class FontEditor extends JFrame
+    implements java.awt.event.ItemListener, FontMap.TileSelectListener, TileEditor.TileChangedListener {
 
     private JPanel contentPane;
 
@@ -47,6 +48,11 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, F
     private TileEditor tileEditor;
 
     private JComboBox fontSelector;
+
+    private JRadioButton color1;
+    private JRadioButton color2;
+    private JRadioButton color3;
+    javax.swing.ButtonGroup colorGroup;
 
     private byte romImage[] = null;
     private int fontOffset = -1;
@@ -106,6 +112,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, F
 
         tileEditor = new TileEditor();
         tileEditor.setBounds(148, 11, 240, 240);
+        tileEditor.setTileChangedListener(this);
         contentPane.add(tileEditor);
 
         fontSelector = new JComboBox();
@@ -114,18 +121,29 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, F
         fontSelector.addItemListener(this);
         contentPane.add(fontSelector);
 
-        JRadioButton color1 = new JRadioButton("1");
-        color1.setSelected(true);
+        color1 = new JRadioButton("1");
         color1.setBounds(10, 220, 37, 23);
+        color1.addItemListener(this);
+        color1.setMnemonic(KeyEvent.VK_1);
         contentPane.add(color1);
 
-        JRadioButton color2 = new JRadioButton("2");
+        color2 = new JRadioButton("2");
         color2.setBounds(49, 220, 37, 23);
+        color2.addItemListener(this);
+        color2.setMnemonic(KeyEvent.VK_2);
         contentPane.add(color2);
 
-        JRadioButton color3 = new JRadioButton("3");
+        color3 = new JRadioButton("3");
         color3.setBounds(88, 220, 37, 23);
+        color3.addItemListener(this);
+        color3.setSelected(true);
+        color3.setMnemonic(KeyEvent.VK_3);
         contentPane.add(color3);
+
+        colorGroup = new javax.swing.ButtonGroup();
+        colorGroup.add(color1);
+        colorGroup.add(color2);
+        colorGroup.add(color3);
 
         JLabel lblColor = new JLabel("Color:");
         lblColor.setBounds(10, 199, 46, 14);
@@ -235,17 +253,43 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, F
 
     public void itemStateChanged(java.awt.event.ItemEvent e) {
         if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            // Font changed.
-            int index = fontSelector.getSelectedIndex();
-            if (fontSelector.getSelectedIndex() != -1) {
-                int selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
-                fontMap.setFontOffset(selectedFontOffset);
-                tileEditor.setFontOffset(selectedFontOffset);
+            if (e.getItemSelectable() == fontSelector) {
+                // Font changed.
+                int index = fontSelector.getSelectedIndex();
+                if (fontSelector.getSelectedIndex() != -1) {
+                    int selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
+                    fontMap.setFontOffset(selectedFontOffset);
+                    tileEditor.setFontOffset(selectedFontOffset);
+                }
+            } else if (colorGroup != null) {
+                // Handle color switch.
+                switch (colorGroup.getSelection().getMnemonic()) {
+                    case KeyEvent.VK_1:
+                        setColor(1);
+                        break;
+                    case KeyEvent.VK_2:
+                        setColor(2);
+                        break;
+                    case KeyEvent.VK_3:
+                        setColor(3);
+                        break;
+                    default:
+                        assert false;
+                }
             }
         }
     }
 
+    void setColor(int color) {
+        assert color >= 1 && color <= 3;
+        tileEditor.setColor(color);
+    }
+
     public void tileSelected(int tile) {
         tileEditor.setTile(tile);
+    }
+
+    public void tileChanged() {
+        fontMap.repaint();
     }
 }

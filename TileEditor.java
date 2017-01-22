@@ -21,10 +21,22 @@
 import javax.swing.JPanel;
 import java.awt.Graphics;
 
-class TileEditor extends JPanel {
+class TileEditor extends JPanel implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener {
+    public interface TileChangedListener {
+        void tileChanged();
+    }
+
     byte[] romImage = null;
     int fontOffset = -1;
     int selectedTile = 0;
+    int color = 3;
+
+    TileChangedListener tileChangedListener;
+
+    TileEditor() {
+        addMouseListener(this);
+        addMouseMotionListener(this);
+    }
 
     void setRomImage(byte[] romImage) {
         this.romImage = romImage;
@@ -77,5 +89,43 @@ class TileEditor extends JPanel {
                 g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight);
             }
         }
+    }
+
+    void doMousePaint(java.awt.event.MouseEvent e) {
+        int x = (e.getX() * 8) / getWidth();
+        int y = (e.getY() * 8) / getHeight();
+        int tileOffset = fontOffset + selectedTile * 16 + y * 2;
+        int xMask = 0x80 >> x;
+        romImage[tileOffset] &= 0xff ^ xMask;
+        romImage[tileOffset + 1] &= 0xff ^ xMask;
+        switch (color) {
+            case 3:
+                romImage[tileOffset + 1] |= xMask;
+            case 2:
+                romImage[tileOffset] |= xMask;
+        }
+        repaint();
+        tileChangedListener.tileChanged();
+    }
+
+    public void mouseEntered(java.awt.event.MouseEvent e) {}
+    public void mouseExited(java.awt.event.MouseEvent e) {}
+    public void mouseReleased(java.awt.event.MouseEvent e) {}
+    public void mousePressed(java.awt.event.MouseEvent e) {}
+    public void mouseClicked(java.awt.event.MouseEvent e) {
+        doMousePaint(e);
+    }
+    public void mouseMoved(java.awt.event.MouseEvent e) {}
+    public void mouseDragged(java.awt.event.MouseEvent e) {
+        doMousePaint(e);
+    }
+
+    void setColor(int color) {
+        assert color >= 1 && color <= 3;
+        this.color = color;
+    }
+
+    void setTileChangedListener(TileChangedListener l) {
+        tileChangedListener = l;
     }
 }
