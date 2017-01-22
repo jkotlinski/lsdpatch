@@ -26,7 +26,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.beans.*;
 
-public class Frame extends JFrame {
+public class MainWindow extends JFrame {
     String versionString = "LSD-Patcher v1.0.2";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
@@ -128,7 +128,7 @@ public class Frame extends JFrame {
         instrList.setListData(listData);
     }
 
-    public Frame() {
+    public MainWindow() {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();

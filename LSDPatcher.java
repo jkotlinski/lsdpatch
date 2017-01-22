@@ -24,7 +24,7 @@ import java.awt.*;
 public class LSDPatcher {
 
     public LSDPatcher() {
-        Frame frame = new Frame();
+        MainWindow frame = new MainWindow();
         //Validate frames that have preset sizes
         //Pack frames that have useful preferred size info, e.g. from their layout
         frame.pack();
