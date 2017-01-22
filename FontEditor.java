@@ -41,84 +41,89 @@ import java.awt.event.InputEvent;
 
 public class FontEditor extends JFrame {
 
-	private JPanel contentPane;
+    private JPanel contentPane;
+
+    private JComboBox fontSelector;
 
     private byte romImage[] = null;
     private int fontOffset = -1;
     private int nameOffset = -1;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					FontEditor frame = new FontEditor();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    private int fontCount = 3;
 
-	/**
-	 * Create the frame.
-	 */
-	public FontEditor() {
-		setTitle("Font Editor");
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    FontEditor frame = new FontEditor();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * Create the frame.
+     */
+    public FontEditor() {
+        setTitle("Font Editor");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(100, 100, 415, 324);
+        setBounds(100, 100, 415, 324);
         setResizable(false);
 
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
 
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
+        JMenu mnFile = new JMenu("File");
+        menuBar.add(mnFile);
 
-		JMenuItem mntmOpen = new JMenuItem("Open...");
-		mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
-		mnFile.add(mntmOpen);
+        JMenuItem mntmOpen = new JMenuItem("Open...");
+        mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+        mnFile.add(mntmOpen);
 
-		JMenuItem mntmSave = new JMenuItem("Save...");
-		mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
-		mnFile.add(mntmSave);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+        JMenuItem mntmSave = new JMenuItem("Save...");
+        mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+        mnFile.add(mntmSave);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
 
-		JPanel fontMap = new JPanel();
-		fontMap.setBounds(10, 42, 128, 126);
-		contentPane.add(fontMap);
+        JPanel fontMap = new JPanel();
+        fontMap.setBounds(10, 42, 128, 126);
+        contentPane.add(fontMap);
 
-		JPanel charEditor = new JPanel();
-		charEditor.setBounds(148, 11, 240, 240);
-		contentPane.add(charEditor);
+        JPanel charEditor = new JPanel();
+        charEditor.setBounds(148, 11, 240, 240);
+        contentPane.add(charEditor);
 
-		JComboBox fontSelector = new JComboBox();
-		fontSelector.setBounds(10, 11, 128, 20);
-		contentPane.add(fontSelector);
+        fontSelector = new JComboBox();
+        fontSelector.setBounds(10, 11, 128, 20);
+        fontSelector.setEditable(true);
+        contentPane.add(fontSelector);
 
-		JRadioButton color1 = new JRadioButton("1");
-		color1.setSelected(true);
-		color1.setBounds(10, 200, 37, 23);
-		contentPane.add(color1);
+        JRadioButton color1 = new JRadioButton("1");
+        color1.setSelected(true);
+        color1.setBounds(10, 200, 37, 23);
+        contentPane.add(color1);
 
-		JRadioButton color2 = new JRadioButton("2");
-		color2.setBounds(49, 200, 37, 23);
-		contentPane.add(color2);
+        JRadioButton color2 = new JRadioButton("2");
+        color2.setBounds(49, 200, 37, 23);
+        contentPane.add(color2);
 
-		JRadioButton color3 = new JRadioButton("3");
-		color3.setBounds(88, 200, 37, 23);
-		contentPane.add(color3);
+        JRadioButton color3 = new JRadioButton("3");
+        color3.setBounds(88, 200, 37, 23);
+        contentPane.add(color3);
 
-		JLabel lblColor = new JLabel("Color:");
-		lblColor.setBounds(10, 179, 46, 14);
-		contentPane.add(lblColor);
-	}
+        JLabel lblColor = new JLabel("Color:");
+        lblColor.setBounds(10, 179, 46, 14);
+        contentPane.add(lblColor);
+    }
 
     private int findFontOffset() {
         int i = 30 * 0x4000;  // Bank 30.
@@ -141,7 +146,7 @@ public class FontEditor extends JFrame {
                     romImage[i + 14] == 0 &&
                     romImage[i + 15] == 0) {
                 return i + 16;
-            }
+                    }
             ++i;
         }
         return -1;
@@ -188,6 +193,23 @@ public class FontEditor extends JFrame {
         return -1;
     }
 
+    private String fontName(int font) {
+        int fontNameSize = 5;
+        String s = new String();
+        s = s + (char)romImage[nameOffset + font * fontNameSize + 0];
+        s = s + (char)romImage[nameOffset + font * fontNameSize + 1];
+        s = s + (char)romImage[nameOffset + font * fontNameSize + 2];
+        s = s + (char)romImage[nameOffset + font * fontNameSize + 3];
+        return s;
+    }
+
+    private void populateFontSelector() {
+        fontSelector.removeAllItems();
+        for (int i = 0; i < fontCount; ++i) {
+            fontSelector.addItem(fontName(i));
+        }
+    }
+
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         fontOffset = findFontOffset();
@@ -198,6 +220,6 @@ public class FontEditor extends JFrame {
         if (nameOffset == -1) {
             System.err.println("Could not find font name offset!");
         }
-        // populateFontSelector();  // Needs to be done first.
+        populateFontSelector();
     }
 }
