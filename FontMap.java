@@ -35,11 +35,41 @@ public class FontMap extends JPanel {
         }
     }
 
+    private void switchColor(Graphics g, int c) {
+        switch (c & 3) {
+            case 0:
+                g.setColor(java.awt.Color.white);
+                break;
+            case 1:
+                g.setColor(java.awt.Color.lightGray);
+                break;
+            case 2:
+                g.setColor(java.awt.Color.darkGray);
+                break;
+            case 3:
+                g.setColor(java.awt.Color.black);
+                break;
+        }
+    }
+
+    private int getColor(int tile, int x, int y) {
+        int tileOffset = fontOffset + tile * 16 + y * 2;
+        int xMask = 7 - x;
+        int value = (romImage[tileOffset] >> xMask) & 1;
+        value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
+        return value;
+    }
+
     private void paintTile(Graphics g, int tile) {
         int x = (tile * displayTileSize) % getWidth();
         int y = ((tile * displayTileSize) / getWidth()) * displayTileSize;
 
-        g.drawLine(x, y, x, y);
+        for (int row = 0; row < 8; ++row) {
+            for (int column = 0; column < 8; ++column) {
+                switchColor(g, getColor(tile, column, row));
+                g.fillRect(x + column * 2, y + row * 2, 2, 2);
+            }
+        }
     }
 
     public void setRomImage(byte[] romImage) {
@@ -48,5 +78,6 @@ public class FontMap extends JPanel {
 
     public void setFontOffset(int fontOffset) {
         this.fontOffset = fontOffset;
+        repaint();
     }
 }
