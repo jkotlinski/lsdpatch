@@ -428,6 +428,7 @@ public class Frame extends JFrame {
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
+            fontEditor.setRomImage(romImage);
             paletteEditor.setRomImage(romImage);
             saveROMItem.setEnabled(true);
             saveROMButton.setEnabled(true);

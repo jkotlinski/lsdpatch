@@ -427,7 +427,7 @@ public class PaletteEditor
         if (nameOffset == -1) {
             System.err.println("Could not find palette name offset!");
         }
-        populateKitSelector();  // Needs to be done first.
+        populateKitSelector();
     }
 
     private int selectedPalette() {

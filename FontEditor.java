@@ -44,6 +44,7 @@ public class FontEditor extends JFrame {
 	private JPanel contentPane;
 
     private byte romImage[] = null;
+    private int fontOffset = -1;
 
 	/**
 	 * Launch the application.
@@ -118,18 +119,39 @@ public class FontEditor extends JFrame {
 		contentPane.add(lblColor);
 	}
 
+    private int findFontOffset() {
+        int i = 30 * 0x4000;  // Bank 30.
+        while (i < 31 * 0x4000) {
+            // Looks for the end of graphics font.
+            if (romImage[i] == 0 &&
+                    romImage[i + 1] == 0 &&
+                    romImage[i + 2] == 0 &&
+                    romImage[i + 3] == 0 &&
+                    romImage[i + 4] == (byte)0xd0 &&
+                    romImage[i + 5] == (byte)0x90 &&
+                    romImage[i + 6] == 0x50 &&
+                    romImage[i + 7] == 0x50 &&
+                    romImage[i + 8] == 0x50 &&
+                    romImage[i + 9] == 0x50 &&
+                    romImage[i + 10] == 0x50 &&
+                    romImage[i + 11] == 0x50 &&
+                    romImage[i + 12] == (byte)0xd0 &&
+                    romImage[i + 13] == (byte)0x90 &&
+                    romImage[i + 14] == 0 &&
+                    romImage[i + 15] == 0) {
+                return i + 16;
+            }
+            ++i;
+        }
+        return -1;
+    }
+
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
-        /*
-        paletteOffset = findPaletteOffset();
-        if (paletteOffset == -1) {
-            System.err.println("Could not find palette offset!");
+        fontOffset = findFontOffset();
+        if (fontOffset == -1) {
+            System.err.println("Could not find font offset!");
         }
-        nameOffset = findNameOffset();
-        if (nameOffset == -1) {
-            System.err.println("Could not find palette name offset!");
-        }
-        populateKitSelector();  // Needs to be done first.
-        */
+        // populateFontSelector();  // Needs to be done first.
     }
 }
