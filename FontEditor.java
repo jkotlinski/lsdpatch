@@ -39,11 +39,12 @@ import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 
-public class FontEditor extends JFrame implements java.awt.event.ItemListener {
+public class FontEditor extends JFrame implements java.awt.event.ItemListener, FontMap.TileSelectListener {
 
     private JPanel contentPane;
 
     private FontMap fontMap;
+    private TileEditor tileEditor;
 
     private JComboBox fontSelector;
 
@@ -102,9 +103,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
         fontMap.setBounds(10, 42, 128, 146);
         contentPane.add(fontMap);
 
-        JPanel charEditor = new JPanel();
-        charEditor.setBounds(148, 11, 240, 240);
-        contentPane.add(charEditor);
+        tileEditor = new TileEditor();
+        tileEditor.setBounds(148, 11, 240, 240);
+        contentPane.add(tileEditor);
 
         fontSelector = new JComboBox();
         fontSelector.setBounds(10, 11, 128, 20);
@@ -218,6 +219,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         fontMap.setRomImage(romImage);
+        tileEditor.setRomImage(romImage);
+
         fontOffset = findFontOffset();
         if (fontOffset == -1) {
             System.err.println("Could not find font offset!");
@@ -237,5 +240,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener {
                 fontMap.setFontOffset(fontOffset + index * fontSize + fontHeaderSize);
             }
         }
+    }
+
+    public void tileSelected(int tile) {
+        tileEditor.setTile(tile);
     }
 }
