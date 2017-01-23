@@ -518,6 +518,9 @@ public class PaletteEditor
     }
 
     private void setPaletteName(int palette, String name) {
+        if (name == null) {
+            return;
+        }
         if (name.length() >= paletteNameSize) {
             name = name.substring(0, paletteNameSize - 1);
         } else while (name.length() < paletteNameSize - 1) {
