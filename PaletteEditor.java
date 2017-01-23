@@ -542,7 +542,7 @@ public class PaletteEditor
         populatingPaletteSelector = false;
     }
 
-    private int gammaCorrect(java.awt.Color c) {
+    private int colorCorrect(java.awt.Color c) {
         int r = ((c.getRed() >> 3) * 255) / 0xf8;
         int g = ((c.getGreen() >> 3) * 255) / 0xf8;
         int b = ((c.getBlue() >> 3) * 255) / 0xf8;
@@ -595,7 +595,7 @@ public class PaletteEditor
                     System.err.println(String.format("%x", rgb));
                     c = new java.awt.Color(255, 0, 255);
                 }
-                dstImage.setRGB(x, y, gammaCorrect(c));
+                dstImage.setRGB(x, y, colorCorrect(c));
             }
         }
         return dstImage;
@@ -607,16 +607,16 @@ public class PaletteEditor
     }
 
     private void updatePreviewPanes() {
-        preview1a.setBackground(new java.awt.Color(gammaCorrect(firstColor(0))));
-        preview1b.setBackground(new java.awt.Color(gammaCorrect(secondColor(0))));
-        preview2a.setBackground(new java.awt.Color(gammaCorrect(firstColor(1))));
-        preview2b.setBackground(new java.awt.Color(gammaCorrect(secondColor(1))));
-        preview3a.setBackground(new java.awt.Color(gammaCorrect(firstColor(2))));
-        preview3b.setBackground(new java.awt.Color(gammaCorrect(secondColor(2))));
-        preview4a.setBackground(new java.awt.Color(gammaCorrect(firstColor(3))));
-        preview4b.setBackground(new java.awt.Color(gammaCorrect(secondColor(3))));
-        preview5a.setBackground(new java.awt.Color(gammaCorrect(firstColor(4))));
-        preview5b.setBackground(new java.awt.Color(gammaCorrect(secondColor(4))));
+        preview1a.setBackground(new java.awt.Color(colorCorrect(firstColor(0))));
+        preview1b.setBackground(new java.awt.Color(colorCorrect(secondColor(0))));
+        preview2a.setBackground(new java.awt.Color(colorCorrect(firstColor(1))));
+        preview2b.setBackground(new java.awt.Color(colorCorrect(secondColor(1))));
+        preview3a.setBackground(new java.awt.Color(colorCorrect(firstColor(2))));
+        preview3b.setBackground(new java.awt.Color(colorCorrect(secondColor(2))));
+        preview4a.setBackground(new java.awt.Color(colorCorrect(firstColor(3))));
+        preview4b.setBackground(new java.awt.Color(colorCorrect(secondColor(3))));
+        preview5a.setBackground(new java.awt.Color(colorCorrect(firstColor(4))));
+        preview5b.setBackground(new java.awt.Color(colorCorrect(secondColor(4))));
 
         updateSongAndInstrScreens();
     }
