@@ -97,7 +97,7 @@ public class PaletteEditor
     private JSpinner c5g2;
     private JSpinner c5b2;
 
-    private JComboBox kitSelector;
+    private JComboBox paletteSelector;
 
     private java.awt.image.BufferedImage songImage;
     private java.awt.image.BufferedImage instrImage;
@@ -105,6 +105,7 @@ public class PaletteEditor
     private int previousSelectedKit = -1;
 
     private boolean updatingSpinners = false;
+    private boolean populatingPaletteSelector = false;
 
     /**
      * Launch the application.
@@ -135,12 +136,12 @@ public class PaletteEditor
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        kitSelector = new JComboBox();
-        kitSelector.setBounds(10, 10, 140, 20);
-        kitSelector.setEditable(true);
-        kitSelector.addItemListener(this);
-        kitSelector.addActionListener(this);
-        contentPane.add(kitSelector);
+        paletteSelector = new JComboBox();
+        paletteSelector.setBounds(10, 10, 140, 20);
+        paletteSelector.setEditable(true);
+        paletteSelector.addItemListener(this);
+        paletteSelector.addActionListener(this);
+        contentPane.add(paletteSelector);
 
         previewSong = new JPanel(new BorderLayout());
         previewSong.setBounds(314, 10, 160 * 2, 144 * 2);
@@ -427,11 +428,11 @@ public class PaletteEditor
         if (nameOffset == -1) {
             System.err.println("Could not find palette name offset!");
         }
-        populateKitSelector();
+        populatePaletteSelector();
     }
 
     private int selectedPalette() {
-        int palette = kitSelector.getSelectedIndex();
+        int palette = paletteSelector.getSelectedIndex();
         assert palette >= 0;
         assert palette < paletteCount;
         return palette;
@@ -532,11 +533,13 @@ public class PaletteEditor
         romImage[nameOffset + palette * paletteNameSize + 3] = (byte)name.charAt(3);
     }
 
-    private void populateKitSelector() {
-        kitSelector.removeAllItems();
+    private void populatePaletteSelector() {
+        populatingPaletteSelector = true;
+        paletteSelector.removeAllItems();
         for (int i = 0; i < paletteCount; ++i) {
-            kitSelector.addItem(paletteName(i));
+            paletteSelector.addItem(paletteName(i));
         }
+        populatingPaletteSelector = false;
     }
 
     private int gammaCorrect(java.awt.Color c) {
@@ -732,7 +735,7 @@ public class PaletteEditor
     public void itemStateChanged(java.awt.event.ItemEvent e) {
         if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Palette changed.
-            if (kitSelector.getSelectedIndex() != -1) {
+            if (paletteSelector.getSelectedIndex() != -1) {
                 updatePreviewPanes();
                 updateSpinners();
             }
@@ -752,8 +755,10 @@ public class PaletteEditor
         JComboBox cb = (JComboBox)e.getSource();
         if (cb.getSelectedIndex() == -1) {
             setPaletteName(previousSelectedKit, (String)cb.getSelectedItem());
-            populateKitSelector();
-            cb.setSelectedIndex(previousSelectedKit);
+            if (!populatingPaletteSelector) {
+                populatePaletteSelector();
+                cb.setSelectedIndex(previousSelectedKit);
+            }
         } else {
             previousSelectedKit = cb.getSelectedIndex();
         }
