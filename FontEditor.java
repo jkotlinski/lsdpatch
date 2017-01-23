@@ -375,13 +375,15 @@ public class FontEditor
 		JFileChooser chooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
 		chooser.setFileFilter(filter);
+        String fontName = fontSelector.getSelectedItem().toString();
+        chooser.setSelectedFile(new java.io.File(fontName + ".lsdfnt"));
 		int returnVal = chooser.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String filename = chooser.getSelectedFile().toString();
 			if (!filename.endsWith("lsdfnt")) {
 				filename += ".lsdfnt";
 			}
-			fontMap.save(filename, fontSelector.getSelectedItem().toString());
+			fontMap.save(filename, fontName);
 		}
     }
 }
