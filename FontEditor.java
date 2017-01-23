@@ -242,7 +242,7 @@ public class FontEditor
         return -1;
     }
 
-    private String fontName(int font) {
+    private String getFontName(int font) {
         int fontNameSize = 5;
         String s = new String();
         s = s + (char)romImage[nameOffset + font * fontNameSize + 0];
@@ -252,10 +252,23 @@ public class FontEditor
         return s;
     }
 
+    private void setFontName(int fontIndex, String fontName) {
+        while (fontName.length() < 4) {
+            fontName += " ";
+        }
+        int fontNameSize = 5;
+        romImage[nameOffset + fontIndex * fontNameSize + 0] = (byte)fontName.charAt(0);
+        romImage[nameOffset + fontIndex * fontNameSize + 1] = (byte)fontName.charAt(1);
+        romImage[nameOffset + fontIndex * fontNameSize + 2] = (byte)fontName.charAt(2);
+        romImage[nameOffset + fontIndex * fontNameSize + 3] = (byte)fontName.charAt(3);
+        populateFontSelector();
+        fontSelector.setSelectedIndex(fontIndex);
+    }
+
     private void populateFontSelector() {
         fontSelector.removeAllItems();
         for (int i = 0; i < fontCount; ++i) {
-            fontSelector.addItem(fontName(i));
+            fontSelector.addItem(getFontName(i));
         }
     }
 
@@ -339,7 +352,8 @@ public class FontEditor
 		chooser.setFileFilter(filter);
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			fontMap.load(chooser.getSelectedFile());
+			String fontName = fontMap.load(chooser.getSelectedFile());
+            setFontName(fontSelector.getSelectedIndex(), fontName);
 		}
     }
 
@@ -353,7 +367,7 @@ public class FontEditor
 			if (!filename.endsWith("lsdfnt")) {
 				filename += ".lsdfnt";
 			}
-			fontMap.save(filename);
+			fontMap.save(filename, fontSelector.getSelectedItem().toString());
 		}
     }
 }
