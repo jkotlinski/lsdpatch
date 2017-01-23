@@ -86,9 +86,6 @@ public class FontEditor
         });
     }
 
-    /**
-     * Create the frame.
-     */
     public FontEditor() {
         setTitle("Font Editor");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

@@ -21,6 +21,10 @@
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
+import java.awt.event.KeyEvent;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -123,11 +127,26 @@ public class PaletteEditor
         });
     }
 
-    /**
-     * Create the frame.
-     */
     public PaletteEditor() {
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+        JMenu mnFile = new JMenu("File");
+		mnFile.setMnemonic(KeyEvent.VK_F);
+        menuBar.add(mnFile);
+
+        JMenuItem mntmOpen = new JMenuItem("Open...");
+		mntmOpen.setMnemonic(KeyEvent.VK_O);
+        mntmOpen.addActionListener(this);
+        mnFile.add(mntmOpen);
+
+        JMenuItem mntmSave = new JMenuItem("Save...");
+		mntmSave.setMnemonic(KeyEvent.VK_S);
+        mntmSave.addActionListener(this);
+        mnFile.add(mntmSave);
+
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
         setBounds(100, 100, 650, 636);
         setResizable(false);
         setTitle("Palette Editor");
@@ -750,17 +769,34 @@ public class PaletteEditor
         }
     }
 
+    private void showOpenDialog() {
+        // TODO
+    }
+    private void showSaveDialog() {
+        // TODO
+    }
+
     public void actionPerformed(java.awt.event.ActionEvent e) {
-        // Kit name was edited.
-        JComboBox cb = (JComboBox)e.getSource();
-        if (cb.getSelectedIndex() == -1) {
-            setPaletteName(previousSelectedKit, (String)cb.getSelectedItem());
-            if (!populatingPaletteSelector) {
-                populatePaletteSelector();
-                cb.setSelectedIndex(previousSelectedKit);
+        String cmd = e.getActionCommand();
+        if (cmd == "Open...") {
+            showOpenDialog();
+        } else if (cmd == "Save...") {
+            showSaveDialog();
+        } else if (cmd == "comboBoxChanged") {
+        } else if (cmd == "comboBoxEdited") {
+            // Kit name was edited.
+            JComboBox cb = (JComboBox)e.getSource();
+            if (cb.getSelectedIndex() == -1) {
+                setPaletteName(previousSelectedKit, (String)cb.getSelectedItem());
+                if (!populatingPaletteSelector) {
+                    populatePaletteSelector();
+                    cb.setSelectedIndex(previousSelectedKit);
+                }
+            } else {
+                previousSelectedKit = cb.getSelectedIndex();
             }
         } else {
-            previousSelectedKit = cb.getSelectedIndex();
+            assert false;
         }
     }
 }
