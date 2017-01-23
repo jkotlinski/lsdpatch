@@ -149,7 +149,7 @@ public class PaletteEditor
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-        setBounds(100, 100, 650, 636);
+        setBounds(100, 100, 650, 656);
         setResizable(false);
         setTitle("Palette Editor");
         contentPane = new JPanel();
