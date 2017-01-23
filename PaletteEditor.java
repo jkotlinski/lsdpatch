@@ -22,6 +22,8 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import java.awt.event.KeyEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -496,33 +498,36 @@ public class PaletteEditor
         romImage[offset + 5] = romImage[offset + 3];
     }
 
+    int selectedPaletteOffset() {
+        return paletteOffset + selectedPalette() * paletteSize;
+    }
+
     private void updateRomFromSpinners() {
-        int offset = paletteOffset + selectedPalette() * paletteSize;
-        updateRom(offset, c1r1, c1g1, c1b1, c1r2, c1g2, c1b2);
-        updateRom(offset + 8, c2r1, c2g1, c2b1, c2r2, c2g2, c2b2);
-        updateRom(offset + 16, c3r1, c3g1, c3b1, c3r2, c3g2, c3b2);
-        updateRom(offset + 24, c4r1, c4g1, c4b1, c4r2, c4g2, c4b2);
-        updateRom(offset + 32, c5r1, c5g1, c5b1, c5r2, c5g2, c5b2);
+        updateRom(selectedPaletteOffset(), c1r1, c1g1, c1b1, c1r2, c1g2, c1b2);
+        updateRom(selectedPaletteOffset() + 8, c2r1, c2g1, c2b1, c2r2, c2g2, c2b2);
+        updateRom(selectedPaletteOffset() + 16, c3r1, c3g1, c3b1, c3r2, c3g2, c3b2);
+        updateRom(selectedPaletteOffset() + 24, c4r1, c4g1, c4b1, c4r2, c4g2, c4b2);
+        updateRom(selectedPaletteOffset() + 32, c5r1, c5g1, c5b1, c5r2, c5g2, c5b2);
     }
 
     private java.awt.Color firstColor(int colorSet) {
         assert colorSet >= 0;
         assert colorSet < colorSetCount;
-        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize;
+        int offset = selectedPaletteOffset() + colorSet * colorSetSize;
         return color(offset);
     }
 
     private java.awt.Color secondColor(int colorSet) {
         assert colorSet >= 0;
         assert colorSet < colorSetCount;
-        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 3 * 2;
+        int offset = selectedPaletteOffset() + colorSet * colorSetSize + 3 * 2;
         return color(offset);
     }
 
     private java.awt.Color midColor(int colorSet) {
         assert colorSet >= 0;
         assert colorSet < colorSetCount;
-        int offset = paletteOffset + selectedPalette() * paletteSize + colorSet * colorSetSize + 2;
+        int offset = selectedPaletteOffset() + colorSet * colorSetSize + 2;
         return color(offset);
     }
 
@@ -769,11 +774,52 @@ public class PaletteEditor
         }
     }
 
-    private void showOpenDialog() {
-        // TODO
+    private void savePalette(String path) {
     }
+
+    private void loadPalette(File f) {
+        String name = new String();
+        try {
+            java.io.RandomAccessFile f = new java.io.RandomAccessFile(file, "r");
+            name += (char)f.read();
+            name += (char)f.read();
+            name += (char)f.read();
+            name += (char)f.read();
+            setPaletteName(paletteSelector.getSelectedIndex());
+            for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + paletteSize; ++i) {
+                romImage[i] = (byte)f.read();
+            }
+            f.close();
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Load failed!");
+        }
+        populatePaletteSelector();
+    }
+
+    private void showOpenDialog() {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Palette", "lsdpal");
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			loadPalette(chooser.getSelectedFile());
+		}
+    }
+
     private void showSaveDialog() {
-        // TODO
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdpal");
+		chooser.setFileFilter(filter);
+        String paletteName = paletteSelector.getSelectedItem().toString();
+        chooser.setSelectedFile(new java.io.File(paletteName + ".lsdpal"));
+		int returnVal = chooser.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String filename = chooser.getSelectedFile().toString();
+			if (!filename.endsWith("lsdpal")) {
+				filename += ".lsdpal";
+			}
+			savePalette(filename);
+		}
     }
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
