@@ -79,6 +79,19 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         }
     }
 
+    private void paintGrid(Graphics g) {
+        g.setColor(java.awt.Color.gray);
+        int dx = getWidth() / 8;
+        for (int x = dx; x < getWidth(); x += dx) {
+            g.drawLine(x, 0, x, getHeight());
+        }
+
+        int dy = getHeight() / 8;
+        for (int y = dy; y < getHeight(); y += dy) {
+            g.drawLine(0, y, getWidth(), y);
+        }
+    }
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -91,6 +104,8 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
                 g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight);
             }
         }
+
+        paintGrid(g);
     }
 
     void doMousePaint(java.awt.event.MouseEvent e) {
