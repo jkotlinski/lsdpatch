@@ -108,7 +108,7 @@ public class PaletteEditor
     private java.awt.image.BufferedImage songImage;
     private java.awt.image.BufferedImage instrImage;
 
-    private int previousSelectedKit = -1;
+    private int previousSelectedPalette = -1;
 
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
@@ -775,9 +775,24 @@ public class PaletteEditor
     }
 
     private void savePalette(String path) {
+        String paletteName = paletteSelector.getSelectedItem().toString();
+        assert paletteName.length() == 4;
+        try {
+            java.io.FileOutputStream f = new java.io.FileOutputStream(path);
+            f.write(paletteName.charAt(0));
+            f.write(paletteName.charAt(1));
+            f.write(paletteName.charAt(2));
+            f.write(paletteName.charAt(3));
+            for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + paletteSize; ++i) {
+                f.write(romImage[i]);
+            }
+            f.close();
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Save failed!");
+        }
     }
 
-    private void loadPalette(File f) {
+    private void loadPalette(java.io.File file) {
         String name = new String();
         try {
             java.io.RandomAccessFile f = new java.io.RandomAccessFile(file, "r");
@@ -785,7 +800,7 @@ public class PaletteEditor
             name += (char)f.read();
             name += (char)f.read();
             name += (char)f.read();
-            setPaletteName(paletteSelector.getSelectedIndex());
+            setPaletteName(paletteSelector.getSelectedIndex(), name);
             for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + paletteSize; ++i) {
                 romImage[i] = (byte)f.read();
             }
@@ -793,7 +808,9 @@ public class PaletteEditor
         } catch (java.io.IOException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Load failed!");
         }
+        int index = paletteSelector.getSelectedIndex();
         populatePaletteSelector();
+        paletteSelector.setSelectedIndex(index);
     }
 
     private void showOpenDialog() {
@@ -829,17 +846,21 @@ public class PaletteEditor
         } else if (cmd == "Save...") {
             showSaveDialog();
         } else if (cmd == "comboBoxChanged") {
+            JComboBox cb = (JComboBox)e.getSource();
+            if (cb.getSelectedIndex() != -1) {
+                previousSelectedPalette = cb.getSelectedIndex();
+            }
         } else if (cmd == "comboBoxEdited") {
             // Kit name was edited.
             JComboBox cb = (JComboBox)e.getSource();
             if (cb.getSelectedIndex() == -1) {
-                setPaletteName(previousSelectedKit, (String)cb.getSelectedItem());
+                setPaletteName(previousSelectedPalette, (String)cb.getSelectedItem());
                 if (!populatingPaletteSelector) {
                     populatePaletteSelector();
-                    cb.setSelectedIndex(previousSelectedKit);
+                    cb.setSelectedIndex(previousSelectedPalette);
                 }
             } else {
-                previousSelectedKit = cb.getSelectedIndex();
+                previousSelectedPalette = cb.getSelectedIndex();
             }
         } else {
             assert false;
