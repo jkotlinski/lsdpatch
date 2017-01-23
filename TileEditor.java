@@ -101,6 +101,9 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void setColor(int x, int y, int color) {
+        if (x < 0 || y < 0 || x > 7 || y > 7) {
+            return;
+        }
         assert color >= 1 && color <= 3;
         int tileOffset = fontOffset + selectedTile * 16 + y * 2;
         int xMask = 0x80 >> x;
