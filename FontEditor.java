@@ -343,12 +343,17 @@ public class FontEditor
         } else if (cmd == "Save...") {
             showSaveDialog();
         } else if (cmd == "comboBoxChanged") {
+            JComboBox cb = (JComboBox)e.getSource();
+            if (cb.getSelectedIndex() != -1) {
+                previousSelectedFont = cb.getSelectedIndex();
+            }
         } else if (cmd == "comboBoxEdited") {
             JComboBox cb = (JComboBox)e.getSource();
             if (cb.getSelectedIndex() == -1) {
-                setFontName(previousSelectedFont, (String)cb.getSelectedItem());
+                int index = previousSelectedFont;
+                setFontName(index, (String)cb.getSelectedItem());
                 populateFontSelector();
-                cb.setSelectedIndex(previousSelectedFont);
+                cb.setSelectedIndex(index);
             } else {
                 previousSelectedFont = cb.getSelectedIndex();
             }
