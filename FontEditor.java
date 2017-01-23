@@ -68,6 +68,8 @@ public class FontEditor
     private int fontHeaderSize = 130;
     private int fontSize = 0xe96;
 
+    int previousSelectedFont = -1;
+
     /**
      * Launch the application.
      */
@@ -143,6 +145,7 @@ public class FontEditor
         fontSelector.setBounds(10, 11, 128, 20);
         fontSelector.setEditable(true);
         fontSelector.addItemListener(this);
+        fontSelector.addActionListener(this);
         contentPane.add(fontSelector);
 
         color1 = new JRadioButton("1");
@@ -293,7 +296,8 @@ public class FontEditor
             if (e.getItemSelectable() == fontSelector) {
                 // Font changed.
                 int index = fontSelector.getSelectedIndex();
-                if (fontSelector.getSelectedIndex() != -1) {
+                if (index != -1) {
+                    previousSelectedFont = index;
                     index = (index + 1) % 3;  // Adjusts for fonts being defined in wrong order.
                     int selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
                     fontMap.setFontOffset(selectedFontOffset);
@@ -341,6 +345,16 @@ public class FontEditor
             showOpenDialog();
         } else if (cmd == "Save...") {
             showSaveDialog();
+        } else if (cmd == "comboBoxChanged") {
+        } else if (cmd == "comboBoxEdited") {
+            JComboBox cb = (JComboBox)e.getSource();
+            if (cb.getSelectedIndex() == -1) {
+                setFontName(previousSelectedFont, (String)cb.getSelectedItem());
+                populateFontSelector();
+                cb.setSelectedIndex(previousSelectedFont);
+            } else {
+                previousSelectedFont = cb.getSelectedIndex();
+            }
         } else {
             assert false;
         }
