@@ -115,11 +115,11 @@ public class FontEditor
 
         JMenuItem mntmCopy = new JMenuItem("Copy Tile");
         mntmCopy.addActionListener(this);
-		mntmCopy.setMnemonic(KeyEvent.VK_C);
+        mntmCopy.setMnemonic(KeyEvent.VK_C);
         mnEdit.add(mntmCopy);
 
         JMenuItem mntmPaste = new JMenuItem("Paste Tile");
-		mntmPaste.setMnemonic(KeyEvent.VK_P);
+        mntmPaste.setMnemonic(KeyEvent.VK_P);
         mntmPaste.addActionListener(this);
         mnEdit.add(mntmPaste);
 
@@ -363,29 +363,30 @@ public class FontEditor
     }
 
     void showOpenDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
-		chooser.setFileFilter(filter);
-		int returnVal = chooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String fontName = fontMap.load(chooser.getSelectedFile());
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String fontName = fontMap.load(chooser.getSelectedFile());
+            tileEditor.generateShadedAndInvertedTiles();
             setFontName(fontSelector.getSelectedIndex(), fontName);
-		}
+        }
     }
 
     void showSaveDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
-		chooser.setFileFilter(filter);
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+        chooser.setFileFilter(filter);
         String fontName = fontSelector.getSelectedItem().toString();
         chooser.setSelectedFile(new java.io.File(fontName + ".lsdfnt"));
-		int returnVal = chooser.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String filename = chooser.getSelectedFile().toString();
-			if (!filename.endsWith("lsdfnt")) {
-				filename += ".lsdfnt";
-			}
-			fontMap.save(filename, fontName);
-		}
+        int returnVal = chooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String filename = chooser.getSelectedFile().toString();
+            if (!filename.endsWith("lsdfnt")) {
+                filename += ".lsdfnt";
+            }
+            fontMap.save(filename, fontName);
+        }
     }
 }
