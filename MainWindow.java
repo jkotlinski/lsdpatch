@@ -488,11 +488,10 @@ public class MainWindow extends JFrame {
         bankBox.removeActionListener(bankBoxListener);
         bankBox.removeAllItems();
 
-        //do banks
         int l_ui_index = 0;
         for (int bankNo=0; bankNo < BANK_COUNT; bankNo++) {
-            if ( isKitBank ( bankNo ) || isEmptyKitBank ( bankNo ) ) {
-                bankBox.addItem( ++l_ui_index + ". "+ getKitName ( bankNo ) );
+            if (isKitBank(bankNo) || isEmptyKitBank(bankNo)) {
+                bankBox.addItem(Integer.toHexString(++l_ui_index).toUpperCase() + " " + getKitName(bankNo));
             }
         }
         bankBox.setSelectedIndex(tmp==-1?0:tmp);
