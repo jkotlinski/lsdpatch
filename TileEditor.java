@@ -101,7 +101,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         int tileOffset = fontOffset + tile * 16;
         for(int i = 0; i < 16; i++)
         {
-        	romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&1)<<7) | (romImage[tileOffset+i]>>1)&0b01111111);
+        	romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&1)<<7) | (romImage[tileOffset+i]>>1)&0x7F);
         }
     	tileChanged();
     }
@@ -111,7 +111,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     	int tileOffset = fontOffset + tile * 16;
     	for(int i = 0; i < 16; i++)
     	{
-    		romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&0b10000000)>>7) | (romImage[tileOffset+i]<<1));
+    		romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&0x80)>>7) | (romImage[tileOffset+i]<<1));
     	}
     	tileChanged();
     }

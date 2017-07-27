@@ -19,6 +19,8 @@
   THE SOFTWARE. */
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -121,12 +123,23 @@ public class FontEditor
 
         JMenuItem mntmImport = new JMenuItem("Import bitmap...");
         mntmImport.setMnemonic(KeyEvent.VK_I);
-        mntmImport.addActionListener(e -> importBitmap());
+        mntmImport.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+	        	importBitmap();
+			}
+		});
+
         mnFile.add(mntmImport);        
 
         JMenuItem mntmExport = new JMenuItem("Export bitmap...");
         mntmExport.setMnemonic(KeyEvent.VK_E);
-        mntmExport.addActionListener(e -> exportBitmap());
+        mntmExport.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+	        	exportBitmap();
+			}
+		});
         mnFile.add(mntmExport);        
         
         JMenu mnEdit = new JMenu("Edit");
@@ -220,22 +233,42 @@ public class FontEditor
         
         shiftUp = new JButton("Shift up");
         shiftUp.setBounds(0, 270, 90, 20);
-        shiftUp.addActionListener(e -> tileEditor.shiftUp(tileEditor.getTile()));
+        shiftUp.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftUp(tileEditor.getTile());
+			}
+		});
         contentPane.add(shiftUp);
 
         shiftDown = new JButton("Shift down");
         shiftDown.setBounds(100, 270, 90, 20);
-        shiftDown.addActionListener(e -> tileEditor.shiftDown(tileEditor.getTile()));
+        shiftDown.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftDown(tileEditor.getTile());
+			}
+		});
         contentPane.add(shiftDown);
         
         shiftLeft = new JButton("Shift left");
         shiftLeft.setBounds(200, 270, 90, 20);
-        shiftLeft.addActionListener(e -> tileEditor.shiftLeft(tileEditor.getTile()));
+        shiftLeft.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftLeft(tileEditor.getTile());
+			}
+        });
         contentPane.add(shiftLeft);
         
         shiftRight = new JButton("Shift right");
         shiftRight.setBounds(300, 270, 90, 20);
-        shiftRight.addActionListener(e -> tileEditor.shiftRight(tileEditor.getTile()));
+        shiftRight.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftRight(tileEditor.getTile());
+			}
+        });
         contentPane.add(shiftRight);
     }
 
