@@ -178,19 +178,22 @@ public class FontEditor
         fontSelector.addActionListener(this);
         contentPane.add(fontSelector);
 
-        color1 = new JRadioButton("1");
+        color1 = new JRadioButton();
+        color1.setBackground(Color.WHITE);
         color1.setBounds(10, 220, 37, 23);
         color1.addItemListener(this);
         color1.setMnemonic(KeyEvent.VK_1);
         contentPane.add(color1);
 
-        color2 = new JRadioButton("2");
+        color2 = new JRadioButton();
+        color2.setBackground(Color.GRAY);
         color2.setBounds(49, 220, 37, 23);
         color2.addItemListener(this);
         color2.setMnemonic(KeyEvent.VK_2);
         contentPane.add(color2);
 
-        color3 = new JRadioButton("3");
+        color3 = new JRadioButton();
+        color3.setBackground(Color.BLACK);
         color3.setBounds(88, 220, 37, 23);
         color3.addItemListener(this);
         color3.setSelected(true);
@@ -198,19 +201,22 @@ public class FontEditor
         contentPane.add(color3);
         
 
-        colorRight1 = new JRadioButton("1");
+        colorRight1 = new JRadioButton();
+        colorRight1.setBackground(Color.WHITE);
         colorRight1.setBounds(10, 240, 37, 23);
         colorRight1.addItemListener(this);
         colorRight1.setMnemonic(KeyEvent.VK_1);
         contentPane.add(colorRight1);
 
-        colorRight2 = new JRadioButton("2");
+        colorRight2 = new JRadioButton();
+        colorRight2.setBackground(Color.GRAY);
         colorRight2.setBounds(49, 240, 37, 23);
         colorRight2.addItemListener(this);
         colorRight2.setMnemonic(KeyEvent.VK_2);
         contentPane.add(colorRight2);
 
-        colorRight3 = new JRadioButton("3");
+        colorRight3 = new JRadioButton();
+        colorRight3.setBackground(Color.BLACK);
         colorRight3.setBounds(88, 240, 37, 23);
         colorRight3.addItemListener(this);
         colorRight3.setSelected(true);
@@ -226,8 +232,9 @@ public class FontEditor
         colorRightGroup.add(colorRight1);
         colorRightGroup.add(colorRight2);
         colorRightGroup.add(colorRight3);
+        colorRight1.setSelected(true);
 
-        JLabel lblColor = new JLabel("Color:");
+        JLabel lblColor = new JLabel("Color");
         lblColor.setBounds(10, 199, 46, 14);
         contentPane.add(lblColor);
         
@@ -541,7 +548,6 @@ public class FontEditor
 						int currentTileIndex = (y/8) * 8 + x/8;
 						int localX = x%8;
 						int localY = y%8;
-						System.out.printf("%02x;", lum);
 						int col = 3;
 						if (lum >= 192)
 							col = 1;
@@ -551,7 +557,6 @@ public class FontEditor
 							col = 3;
 						tileEditor.setDirectPixel(currentTileIndex, localX, localY, col);
 					}
-					System.out.print("\n");
 				}
 				tileEditor.tileChanged();
 				tileChanged();
@@ -580,7 +585,6 @@ public class FontEditor
             	for(int x = 0; x < 64; x++)
             	{
             		int color = tileEditor.getDirectPixel(x, y);
-            		System.out.println(color);
             		switch(color)
             		{
             		case 0:
