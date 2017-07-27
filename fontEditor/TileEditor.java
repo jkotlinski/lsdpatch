@@ -1,3 +1,4 @@
+package fontEditor;
 /** Copyright (C) 2017 by Johan Kotlinski
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,18 +19,24 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE. */
 
+import java.awt.Graphics;
+
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import java.awt.Graphics;
+import structures.LSDJFont;
 
 class TileEditor extends JPanel implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener {
-    public interface TileChangedListener {
+
+	private static final long serialVersionUID = 4048727729255703626L;
+
+	public interface TileChangedListener {
         void tileChanged();
     }
 
-    byte[] romImage = null;
-    int fontOffset = -1;
+//    byte[] romImage = null;
+//    int fontOffset = -1;
+    LSDJFont font = null;
     int selectedTile = 0;
     int color = 3;
     int rightColor = 3;
@@ -39,17 +46,18 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     TileChangedListener tileChangedListener;
 
     TileEditor() {
+    	font = new LSDJFont();
         addMouseListener(this);
         addMouseMotionListener(this);
     }
 
     void setRomImage(byte[] romImage) {
-        this.romImage = romImage;
+        font.setRomImage(romImage);
     }
 
     void setFontOffset(int offset) {
-        fontOffset = offset;
-        repaint();
+    	font.setFontOffset(offset);
+    	repaint();
     }
 
     void setTile(int tile) {
@@ -64,64 +72,30 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     
     void shiftUp(int tile)
     {
-        int tileOffset = fontOffset + tile * 16;
-        byte line0origin1 = romImage[tileOffset];
-        byte line0origin2 = romImage[tileOffset+1];
-        for(int i = 0; i < 8; i++)
-        {
-            int lineTargetOffset = fontOffset + tile * 16 + i*2;
-            int lineOriginOffset = fontOffset + tile * 16 + (i+1%8)*2;
-            romImage[lineTargetOffset] = romImage[lineOriginOffset];
-            romImage[lineTargetOffset+1] = romImage[lineOriginOffset+1];
-        }
-        romImage[tileOffset+7*2] = line0origin1;
-        romImage[tileOffset+7*2+1] = line0origin1;
+    	font.shiftUp(tile);
     	tileChanged();
     }
     
     void shiftDown(int tile)
     {
-        int tileOffset = fontOffset + tile * 16;
-        byte line7origin1 = romImage[tileOffset + 7*2];
-        byte line7origin2 = romImage[tileOffset + 7*2 + 1];
-        for(int i = 7; i > 0; i--)
-        {
-            int lineTargetOffset = fontOffset + tile * 16 + i*2;
-            int lineOriginOffset = fontOffset + tile * 16 + (i-1)*2;
-            romImage[lineTargetOffset] = romImage[lineOriginOffset];
-            romImage[lineTargetOffset+1] = romImage[lineOriginOffset+1];
-        }
-        romImage[tileOffset] = line7origin1;
-        romImage[tileOffset+1] = line7origin2;
+    	font.shiftDown(tile);
     	tileChanged();
     }
     
     void shiftRight(int tile)
     {
-        int tileOffset = fontOffset + tile * 16;
-        for(int i = 0; i < 16; i++)
-        {
-        	romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&1)<<7) | (romImage[tileOffset+i]>>1)&0x7F);
-        }
+    	font.shiftRight(tile);
     	tileChanged();
     }
     
     void shiftLeft(int tile)
     {
-    	int tileOffset = fontOffset + tile * 16;
-    	for(int i = 0; i < 16; i++)
-    	{
-    		romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&0x80)>>7) | (romImage[tileOffset+i]<<1));
-    	}
+    	font.shiftLeft(tile);
     	tileChanged();
     }
     
     private int getColor(int tile, int x, int y) {
-        int tileOffset = fontOffset + tile * 16 + y * 2;
-        int xMask = 7 - x;
-        int value = (romImage[tileOffset] >> xMask) & 1;
-        value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
-        return value;
+    	return font.getTilePixel(tile, x, y);
     }
 
     private void switchColor(Graphics g, int c) {
@@ -143,27 +117,32 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     private void paintGrid(Graphics g) {
         g.setColor(java.awt.Color.gray);
-        int dx = getWidth() / 8;
-        for (int x = dx; x < getWidth(); x += dx) {
-            g.drawLine(x, 0, x, getHeight());
+        int minimumDimension = Integer.min(getWidth(), getHeight());
+        int offsetX = (getWidth() - minimumDimension) / 2;
+        int offsetY = (getHeight() - minimumDimension) / 2;
+        int dx = minimumDimension / 8;
+        for (int x = dx + offsetX; x < minimumDimension + offsetX; x += dx) {
+            g.drawLine(x, offsetY, x, minimumDimension + offsetY);
         }
 
-        int dy = getHeight() / 8;
-        for (int y = dy; y < getHeight(); y += dy) {
-            g.drawLine(0, y, getWidth(), y);
+        int dy = minimumDimension / 8;
+        for (int y = dy + offsetY; y < minimumDimension + offsetY; y += dy) {
+            g.drawLine(offsetX, y, offsetX + minimumDimension, y);
         }
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        int minimumDimension = Integer.min(getWidth(), getHeight());
+        int offsetX = (getWidth() - minimumDimension) / 2;
+        int offsetY = (getHeight() - minimumDimension) / 2;
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
                 int color = getColor(selectedTile, x, y);
                 switchColor(g, color);
-                int pixelWidth = getWidth() / 8;
-                int pixelHeight = getHeight() / 8;
-                g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight);
+                int pixelWidth = minimumDimension / 8;
+                int pixelHeight = minimumDimension / 8;
+                g.fillRect(offsetX + x * pixelWidth, offsetY +  y * pixelHeight, pixelWidth, pixelHeight);
             }
         }
 
@@ -181,50 +160,17 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void setColor(int x, int y, int color) {
-        if (x < 0 || y < 0 || x > 7 || y > 7) {
-            return;
-        }
-        assert color >= 1 && color <= 3;
-        int tileOffset = fontOffset + selectedTile * 16 + y * 2;
-        int xMask = 0x80 >> x;
-        romImage[tileOffset] &= 0xff ^ xMask;
-        romImage[tileOffset + 1] &= 0xff ^ xMask;
-        switch (color) {
-            case 3:
-                romImage[tileOffset + 1] |= xMask;
-            case 2:
-                romImage[tileOffset] |= xMask;
-        }
+    	font.setTilePixel(selectedTile, x, y, color);
     }
     
     void setDirectPixel(int tile, int x, int y, int color)
     {
-    	System.err.print(color);
-        if (x < 0 || y < 0 || x > 7 || y > 7) {
-        	System.err.println("Out of bounds : "+x+";"+y);
-        	return;
-        }
-        assert color >= 1 && color <= 3;
-        int tileOffset = fontOffset + tile * 16 + y * 2;
-        int xMask = 0x80 >> x;
-        romImage[tileOffset] &= 0xff ^ xMask;
-        romImage[tileOffset + 1] &= 0xff ^ xMask;
-        switch (color) {
-            case 3:
-                romImage[tileOffset + 1] |= xMask;
-            case 2:
-                romImage[tileOffset] |= xMask;
-        }    	
+    	font.setTilePixel(tile, x, y, color);
     }
     
     int getDirectPixel(int x, int y)
     {
-		int tileToRead = (y/8) * 8 + x/8;
-        int tileOffset = fontOffset + tileToRead * 16 + (y%8) * 2;
-        int xMask = 7 - (x%8);
-        int value = (romImage[tileOffset] >> xMask) & 1;
-        value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
-        return value;
+    	return font.getPixel(x, y);
     }
 
     public void mouseEntered(java.awt.event.MouseEvent e) {}
@@ -265,23 +211,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void generateShadedAndInvertedTiles() {
-        int tilesToCopy = 69;
-        for (int i = 0; i < tilesToCopy * 16; i += 2) {
-            int src = i + fontOffset + 2 * 16;  // The two first tiles are not mirrored.
-            int inverted = src + 0x4d2;
-            int shaded = inverted + 0x4d2;
-
-            // Shaded.
-            romImage[shaded] = (byte)0xff;
-            romImage[shaded + 1] = romImage[src + 1];
-
-            // Inverted.
-            // lsb 1, msb 1 => lsb 0, msb 0
-            // lsb 0, msb 0 => lsb 1, msb 1
-            // lsb 1, msb 0 => lsb 1, msb 0
-            romImage[inverted] = (byte)~romImage[src + 1];
-            romImage[inverted + 1] = (byte)~romImage[src];
-        }
+    	font.generateShadedAndInvertedTiles();
     }
 
     void pasteTile() {
