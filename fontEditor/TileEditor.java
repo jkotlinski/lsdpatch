@@ -121,13 +121,14 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         int offsetX = (getWidth() - minimumDimension) / 2;
         int offsetY = (getHeight() - minimumDimension) / 2;
         int dx = minimumDimension / 8;
-        for (int x = dx + offsetX; x < minimumDimension + offsetX; x += dx) {
-            g.drawLine(x, offsetY, x, minimumDimension + offsetY);
+        int minimumDimensionSquare = (minimumDimension/8)*8;
+        for (int x = dx + offsetX; x < minimumDimensionSquare + offsetX; x += dx) {
+            g.drawLine(x, offsetY, x, minimumDimensionSquare + offsetY);
         }
 
         int dy = minimumDimension / 8;
-        for (int y = dy + offsetY; y < minimumDimension + offsetY; y += dy) {
-            g.drawLine(offsetX, y, offsetX + minimumDimension, y);
+        for (int y = dy + offsetY; y < minimumDimensionSquare + offsetY; y += dy) {
+            g.drawLine(offsetX, y, offsetX + minimumDimensionSquare, y);
         }
     }
 
