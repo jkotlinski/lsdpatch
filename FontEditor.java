@@ -234,8 +234,8 @@ public class FontEditor
         colorRightGroup.add(colorRight3);
         colorRight1.setSelected(true);
 
-        JLabel lblColor = new JLabel("Color");
-        lblColor.setBounds(10, 199, 46, 14);
+        JLabel lblColor = new JLabel("Left/right button colors");
+        lblColor.setBounds(10, 199, 120, 14);
         contentPane.add(lblColor);
         
         shiftUp = new JButton("Shift up");
