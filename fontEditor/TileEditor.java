@@ -152,8 +152,13 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void doMousePaint(java.awt.event.MouseEvent e) {
-        int x = (e.getX() * 8) / getWidth();
-        int y = (e.getY() * 8) / getHeight();
+        int minimumDimension = Integer.min(getWidth(), getHeight());
+        int offsetX = (getWidth() - minimumDimension) / 2;
+        int offsetY = (getHeight() - minimumDimension) / 2;
+
+    	int x = ((e.getX() - offsetX) * 8) / minimumDimension;
+        int y = ((e.getY() - offsetY) * 8) / minimumDimension;
+        if(x < 0 || x >= 8 || y < 0 ||y >= 8) return;
         if (SwingUtilities.isLeftMouseButton(e))
         	setColor(x, y, color);
         else if(SwingUtilities.isRightMouseButton(e))

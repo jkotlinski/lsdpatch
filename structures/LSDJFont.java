@@ -1,5 +1,8 @@
 package structures;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 /**
  * Helper class to access and manipulate font data.
  * 
@@ -10,7 +13,7 @@ public class LSDJFont {
 	public static final int FONT_NUM_TILES_X = 8;
 	public static final int FONT_NUM_TILES_Y = 9;
 	public static final int FONT_MAP_WIDTH = FONT_NUM_TILES_X * 8;
-	public static final int FONT_MAP_HEIGHT = FONT_NUM_TILES_Y * 9;
+	public static final int FONT_MAP_HEIGHT = FONT_NUM_TILES_Y * 8;
 	public static final int TILE_COUNT = 71;
 	public static final int FONT_HEADER_SIZE = 130;
 
@@ -135,4 +138,63 @@ public class LSDJFont {
 			romImage[inverted + 1] = (byte) ~romImage[src];
 		}
 	}
+    
+	public String readImage(String name, BufferedImage image) {
+		for (int y = 0; y < image.getHeight(); y++) {
+			for (int x = 0; x < image.getWidth(); x++) {
+				int currentTileIndex = (y / 8) * 8 + x / 8;
+				if(currentTileIndex >= LSDJFont.TILE_COUNT) break;
+				int rgb = image.getRGB(x, y);
+				float color[] = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
+				int lum = (int) (color[2] * 255);
+
+				int localX = x % 8;
+				int localY = y % 8;
+				int col = 3;
+				if (lum >= 192)
+					col = 1;
+				else if (lum >= 64)
+					col = 2;
+				else if (lum >= 0)
+					col = 3;
+				setPixel(x, y, col);
+			}
+		}
+		String sub;
+		if (name.length() < 4) {
+			sub = name;
+			for (int i = 0; i < 4 - sub.length(); i++)
+				sub += " ";
+		} else
+			sub = name.substring(0, 4);
+		return sub;
+	}
+	
+	public BufferedImage createImage() {
+		BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, LSDJFont.FONT_MAP_HEIGHT,
+				BufferedImage.TYPE_INT_RGB);
+		for (int y = 0; y < LSDJFont.FONT_MAP_HEIGHT; y++) {
+			for (int x = 0; x < LSDJFont.FONT_MAP_WIDTH; x++) {
+				int tileToRead = (y / 8) * 8 + x / 8;
+				if (tileToRead >= 71)
+					break;
+				int color = getPixel(x, y);
+				switch (color) {
+				case 0:
+					image.setRGB(x, y, 0xFFFFFF);
+					break;
+				case 1:
+					image.setRGB(x, y, 0x808080);
+					break;
+				case 3:
+					image.setRGB(x, y, 0x000000);
+					break;
+				default:
+					image.setRGB(x, y, 0xFFFFFF);
+					break;
+				}
+			}
+		}
+		return image;
+	}	
 }
