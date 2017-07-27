@@ -19,6 +19,8 @@
   THE SOFTWARE. */
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import java.awt.Graphics;
 
 class TileEditor extends JPanel implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener {
@@ -30,6 +32,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     int fontOffset = -1;
     int selectedTile = 0;
     int color = 3;
+    int rightColor = 3;
 
     int clipboard[][] = null;
 
@@ -53,7 +56,66 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         selectedTile = tile;
         repaint();
     }
-
+    
+    int getTile()
+    {
+    	return selectedTile;
+    }
+    
+    void shiftUp(int tile)
+    {
+        int tileOffset = fontOffset + tile * 16;
+        byte line0origin1 = romImage[tileOffset];
+        byte line0origin2 = romImage[tileOffset+1];
+        for(int i = 0; i < 8; i++)
+        {
+            int lineTargetOffset = fontOffset + tile * 16 + i*2;
+            int lineOriginOffset = fontOffset + tile * 16 + (i+1%8)*2;
+            romImage[lineTargetOffset] = romImage[lineOriginOffset];
+            romImage[lineTargetOffset+1] = romImage[lineOriginOffset+1];
+        }
+        romImage[tileOffset+7*2] = line0origin1;
+        romImage[tileOffset+7*2+1] = line0origin1;
+    	tileChanged();
+    }
+    
+    void shiftDown(int tile)
+    {
+        int tileOffset = fontOffset + tile * 16;
+        byte line7origin1 = romImage[tileOffset + 7*2];
+        byte line7origin2 = romImage[tileOffset + 7*2 + 1];
+        for(int i = 7; i > 0; i--)
+        {
+            int lineTargetOffset = fontOffset + tile * 16 + i*2;
+            int lineOriginOffset = fontOffset + tile * 16 + (i-1)*2;
+            romImage[lineTargetOffset] = romImage[lineOriginOffset];
+            romImage[lineTargetOffset+1] = romImage[lineOriginOffset+1];
+        }
+        romImage[tileOffset] = line7origin1;
+        romImage[tileOffset+1] = line7origin2;
+    	tileChanged();
+    }
+    
+    void shiftRight(int tile)
+    {
+        int tileOffset = fontOffset + tile * 16;
+        for(int i = 0; i < 16; i++)
+        {
+        	romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&1)<<7) | (romImage[tileOffset+i]>>1)&0b01111111);
+        }
+    	tileChanged();
+    }
+    
+    void shiftLeft(int tile)
+    {
+    	int tileOffset = fontOffset + tile * 16;
+    	for(int i = 0; i < 16; i++)
+    	{
+    		romImage[tileOffset+i] = (byte) (((romImage[tileOffset+i]&0b10000000)>>7) | (romImage[tileOffset+i]<<1));
+    	}
+    	tileChanged();
+    }
+    
     private int getColor(int tile, int x, int y) {
         int tileOffset = fontOffset + tile * 16 + y * 2;
         int xMask = 7 - x;
@@ -111,7 +173,10 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     void doMousePaint(java.awt.event.MouseEvent e) {
         int x = (e.getX() * 8) / getWidth();
         int y = (e.getY() * 8) / getHeight();
-        setColor(x, y, color);
+        if (SwingUtilities.isLeftMouseButton(e))
+        	setColor(x, y, color);
+        else if(SwingUtilities.isRightMouseButton(e))
+        	setColor(x, y, rightColor);
         tileChanged();
     }
 
@@ -131,6 +196,36 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
                 romImage[tileOffset] |= xMask;
         }
     }
+    
+    void setDirectPixel(int tile, int x, int y, int color)
+    {
+    	System.err.print(color);
+        if (x < 0 || y < 0 || x > 7 || y > 7) {
+        	System.err.println("Out of bounds : "+x+";"+y);
+        	return;
+        }
+        assert color >= 1 && color <= 3;
+        int tileOffset = fontOffset + tile * 16 + y * 2;
+        int xMask = 0x80 >> x;
+        romImage[tileOffset] &= 0xff ^ xMask;
+        romImage[tileOffset + 1] &= 0xff ^ xMask;
+        switch (color) {
+            case 3:
+                romImage[tileOffset + 1] |= xMask;
+            case 2:
+                romImage[tileOffset] |= xMask;
+        }    	
+    }
+    
+    int getDirectPixel(int x, int y)
+    {
+		int tileToRead = (y/8) * 8 + x/8;
+        int tileOffset = fontOffset + tileToRead * 16 + (y%8) * 2;
+        int xMask = 7 - (x%8);
+        int value = (romImage[tileOffset] >> xMask) & 1;
+        value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
+        return value;
+    }
 
     public void mouseEntered(java.awt.event.MouseEvent e) {}
     public void mouseExited(java.awt.event.MouseEvent e) {}
@@ -147,6 +242,11 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     void setColor(int color) {
         assert color >= 1 && color <= 3;
         this.color = color;
+    }
+
+    void setRightColor(int color) {
+        assert color >= 1 && color <= 3;
+        this.rightColor = color;
     }
 
     void setTileChangedListener(TileChangedListener l) {
