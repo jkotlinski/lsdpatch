@@ -1,3 +1,4 @@
+
 /** Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,52 +34,47 @@ import utils.FontIO;
 
 public class LSDPatcher {
 
-    public LSDPatcher() {
-        MainWindow frame = new MainWindow();
-        //Validate frames that have preset sizes
-        //Pack frames that have useful preferred size info, e.g. from their layout
-        frame.pack();
-        frame.validate();
+	public LSDPatcher() {
+		MainWindow frame = new MainWindow();
+		// Validate frames that have preset sizes
+		// Pack frames that have useful preferred size info, e.g. from their layout
+		frame.pack();
+		frame.validate();
 
-        //Center the window
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension frameSize = frame.getSize();
-        if (frameSize.height > screenSize.height) {
-            frameSize.height = screenSize.height;
-        }
-        if (frameSize.width > screenSize.width) {
-            frameSize.width = screenSize.width;
-        }
-        frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-        frame.setVisible(true);
-    }
+		// Center the window
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = frame.getSize();
+		if (frameSize.height > screenSize.height) {
+			frameSize.height = screenSize.height;
+		}
+		if (frameSize.width > screenSize.width) {
+			frameSize.width = screenSize.width;
+		}
+		frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+		frame.setVisible(true);
+	}
 
-    public static void main(String[] args) {
-    	if (args.length > 1)
-    	{
-    		boolean openWindow = processArguments(args);
-    		if (!openWindow)
-    			return;
-    	}
-        try {
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        new LSDPatcher();
-    }
+	public static void main(String[] args) {
+		if (args.length > 1) {
+			boolean openWindow = processArguments(args);
+			if (!openWindow)
+				return;
+		}
+		try {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		new LSDPatcher();
+	}
 
 	private static boolean processArguments(String[] args) {
 		String command = args[0];
-		if (command.toLowerCase().compareTo("fnt2bmp") == 0 && args.length == 3)
-		{
+		if (command.toLowerCase().compareTo("fnt2bmp") == 0 && args.length == 3) {
 			fontToBmp(args[1], args[2]);
 			return false;
-		}
-		else if (command.toLowerCase().compareTo("bmp2fnt") == 0 && args.length == 4)
-		{
+		} else if (command.toLowerCase().compareTo("bmp2fnt") == 0 && args.length == 4) {
 			bmpToFont(args[1], args[2], args[3]);
 			return false;
 		}
@@ -90,18 +86,18 @@ public class LSDPatcher {
 		try {
 			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
 			BufferedImage image = ImageIO.read(new File(bmpFile));
-			if(image.getWidth() != LSDJFont.FONT_MAP_WIDTH && image.getHeight() != LSDJFont.FONT_MAP_HEIGHT)
-			{
+			if (image.getWidth() != LSDJFont.FONT_MAP_WIDTH && image.getHeight() != LSDJFont.FONT_MAP_HEIGHT) {
 				System.err.println("Wrong size!");
 				return;
 			}
-			
+
 			LSDJFont font = new LSDJFont();
 			font.setRomImage(buffer);
 			font.setFontOffset(0);
 			for (int y = 0; y < image.getHeight(); y++) {
 				for (int x = 0; x < image.getWidth(); x++) {
-
+					int currentTileIndex = (y / 8) * 8 + x / 8;
+					if(currentTileIndex >= LSDJFont.TILE_COUNT) break;
 					int rgb = image.getRGB(x, y);
 					float color[] = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
 					int lum = (int) (color[2] * 255);
@@ -117,22 +113,21 @@ public class LSDPatcher {
 						col = 3;
 					font.setPixel(x, y, col);
 				}
-				String sub;
-				if (name.length() < 4) {
-					sub = name;
-					for(int i = 0; i < 4 - sub.length(); i++)
-						sub += " ";
-				}
-				else
-					sub = name.substring(0, 4);
-				
-				FontIO.saveFnt(new File(fntFile), sub, buffer);
 			}
+			String sub;
+			if (name.length() < 4) {
+				sub = name;
+				for (int i = 0; i < 4 - sub.length(); i++)
+					sub += " ";
+			} else
+				sub = name.substring(0, 4);
+
+			FontIO.saveFnt(new File(fntFile), sub, buffer);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}	}
+		}
+	}
 
-	
 	private static void fontToBmp(String fntFile, String bmpFile) {
 		try {
 			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
@@ -140,11 +135,13 @@ public class LSDPatcher {
 			LSDJFont font = new LSDJFont();
 			font.setRomImage(buffer);
 			font.setFontOffset(0);
-			BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, LSDJFont.FONT_MAP_HEIGHT, BufferedImage.TYPE_INT_RGB);
+			BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, LSDJFont.FONT_MAP_HEIGHT,
+					BufferedImage.TYPE_INT_RGB);
 			for (int y = 0; y < LSDJFont.FONT_MAP_HEIGHT; y++) {
 				for (int x = 0; x < LSDJFont.FONT_MAP_WIDTH; x++) {
 					int tileToRead = (y / 8) * 8 + x / 8;
-					if(tileToRead >= 71) break;
+					if (tileToRead >= 71)
+						break;
 					int color = font.getPixel(x, y);
 					switch (color) {
 					case 0:
