@@ -20,6 +20,10 @@ package fontEditor;
   THE SOFTWARE. */
 
 import javax.swing.JPanel;
+
+import structures.LSDJFont;
+
+import java.awt.Dimension;
 import java.awt.Graphics;
 
 public class FontMap extends JPanel implements java.awt.event.MouseListener {
@@ -27,6 +31,7 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 	byte[] romImage = null;
     int fontOffset = -1;
     int tileCount = 71;
+    int tileZoom = 1;
     int displayTileSize = 16;
 
     public interface TileSelectListener {
@@ -45,9 +50,14 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+    	tileZoom = Integer.min(getWidth()/LSDJFont.FONT_MAP_WIDTH/2 , getHeight()/LSDJFont.FONT_MAP_HEIGHT/2);
+    	tileZoom = Integer.max(tileZoom, 1);
+    	setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, LSDJFont.FONT_MAP_HEIGHT * tileZoom));
+    	int offsetX = (getWidth()/2 - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
+    	int offsetY = (getHeight()/2 - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
+    	
         for (int tile = 0; tile < tileCount; ++tile) {
-            paintTile(g, tile);
+            paintTile(g, tile, offsetX, offsetY);
         }
     }
 
@@ -76,14 +86,15 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         return value;
     }
 
-    private void paintTile(Graphics g, int tile) {
-        int x = (tile * displayTileSize) % getWidth();
-        int y = ((tile * displayTileSize) / getWidth()) * displayTileSize;
+    private void paintTile(Graphics g, int tile, int offsetX, int offsetY) {
+    	displayTileSize = 16 * tileZoom;
+    	int x = (tile % 8) * displayTileSize;
+    	int y = (tile / 8) * displayTileSize;
 
         for (int row = 0; row < 8; ++row) {
             for (int column = 0; column < 8; ++column) {
                 switchColor(g, getColor(tile, column, row));
-                g.fillRect(x + column * 2, y + row * 2, 2, 2);
+                g.fillRect(offsetX + x + column * 2*tileZoom, offsetY + y + row * 2*tileZoom, 2*tileZoom, 2*tileZoom);
             }
         }
     }

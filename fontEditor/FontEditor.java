@@ -147,7 +147,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		tileEditor.setPreferredSize(new Dimension(240, 240));
 		tileEditor.setTileChangedListener(this);
 		constraints.fill = GridBagConstraints.BOTH;
-		constraints.gridx = 2;
+		constraints.gridx = 3;
 		constraints.gridy = 0;
 		constraints.weightx = 1;
 		constraints.weighty = 1;
@@ -164,7 +164,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.weightx = 0;
 		constraints.weighty = 0;
 		constraints.gridheight = 1;
-		constraints.gridwidth = 2;
+		constraints.gridwidth = 3;
 		contentPane.add(fontSelector, constraints);
 
 		JLabel lblColorLeft = new JLabel("Left click");
@@ -173,7 +173,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.gridy = 2;
 		constraints.ipady = 5;
 		constraints.gridwidth = 1;
-		constraints.ipadx = 8;
+		constraints.ipadx = 0;
 		contentPane.add(lblColorLeft, constraints);
 
 		JLabel lblColorRight = new JLabel("Right click");
@@ -181,7 +181,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.gridx = 0;
 		constraints.gridy = 3;
 		constraints.ipady = 5;
-		constraints.gridwidth = 1;
 		contentPane.add(lblColorRight, constraints);
 
 		leftColorPanel = new JPanel();
@@ -198,8 +197,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridx = 1;
 		constraints.gridy = 2;
+		constraints.gridwidth = 2;
 		constraints.ipady = 0;
-		constraints.ipadx = 0;
 		contentPane.add(leftColorPanel, constraints);
 
 		rightColorPanel = new JPanel();
@@ -222,13 +221,14 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
 		fontMap.setPreferredSize(new Dimension(128, 16 * 8 * 2));
 		fontMap.setTileSelectListener(this);
-		constraints.fill = GridBagConstraints.NONE;
+		constraints.fill = GridBagConstraints.BOTH;
 		constraints.gridx = 0;
 		constraints.gridy = 4;
 		constraints.ipadx = 0;
-		constraints.ipady = 5;
+		constraints.ipady = 0;
+		constraints.weightx = 0.1;
 		constraints.weighty = 1;
-		constraints.gridwidth = 2;
+		constraints.gridwidth = 3;
 		contentPane.add(fontMap, constraints);
 
 		setMinimumSize(layout.preferredLayoutSize(contentPane));
@@ -243,6 +243,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridx = 0;
 		constraints.gridy = 5;
+		constraints.ipadx = 0;
+		constraints.ipady = 0;
+		constraints.weightx = 0.1;
 		constraints.weighty = 0;
 		constraints.gridwidth = 1;
 		contentPane.add(shiftUp, constraints);
@@ -256,6 +259,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		});
 		constraints.gridx = 1;
 		constraints.gridy = 5;
+		constraints.gridwidth = 1;
 		contentPane.add(shiftDown, constraints);
 
 		shiftLeft = new JButton("Shift left");
@@ -267,6 +271,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		});
 		constraints.gridx = 0;
 		constraints.gridy = 6;
+		constraints.gridwidth = 1;
 		contentPane.add(shiftLeft, constraints);
 
 		shiftRight = new JButton("Shift right");
@@ -278,6 +283,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		});
 		constraints.gridx = 1;
 		constraints.gridy = 6;
+		constraints.gridwidth = 1;
 		contentPane.add(shiftRight, constraints);
 	}
 

@@ -1,5 +1,6 @@
 package fontEditor;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
@@ -18,17 +19,16 @@ public class FontEditorColorSelector extends ButtonGroup implements java.awt.eve
 	
 	public FontEditorColorSelector(JPanel buttonPanel)
 	{
-		darkButton = new JRadioButton();
+		darkButton = new JRadioButton("Dark");
 		darkButton.setBackground(Color.BLACK);
 		darkButton.addActionListener(this);
-		mediumButton = new JRadioButton();
+		mediumButton = new JRadioButton("Medium");
 		mediumButton.setBackground(Color.GRAY);
 		mediumButton.addActionListener(this);
-		lightButton = new JRadioButton();
+		lightButton = new JRadioButton("Light");
 		lightButton.setBackground(Color.WHITE);
 		lightButton.addActionListener(this);
 
-		
 		add(lightButton);
 		add(mediumButton);
 		add(darkButton);
