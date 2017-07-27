@@ -45,6 +45,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import structures.LSDJFont;
+import utils.FontIO;
+
 public class FontEditor extends JFrame implements java.awt.event.ItemListener, java.awt.event.ActionListener,
 		FontMap.TileSelectListener, TileEditor.TileChangedListener {
 
@@ -70,6 +73,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
 	private byte romImage[] = null;
 	private int fontOffset = -1;
+	private int selectedFontOffset = -1;
 	private int nameOffset = -1;
 
 	private int fontCount = 3;
@@ -77,6 +81,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	private int fontSize = 0xe96;
 
 	int previousSelectedFont = -1;
+
 
 	public FontEditor() {
 		setTitle("Font Editor");
@@ -380,7 +385,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 				if (index != -1) {
 					previousSelectedFont = index;
 					index = (index + 1) % 3; // Adjusts for fonts being defined in wrong order.
-					int selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
+					selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
 					fontMap.setFontOffset(selectedFontOffset);
 					tileEditor.setFontOffset(selectedFontOffset);
 				}
@@ -439,30 +444,44 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	}
 
 	void showOpenDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
-		chooser.setFileFilter(filter);
-		int returnVal = chooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String fontName = fontMap.load(chooser.getSelectedFile());
-			tileEditor.generateShadedAndInvertedTiles();
-			setFontName(fontSelector.getSelectedIndex(), fontName);
+		try {
+			JFileChooser chooser = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+			chooser.setFileFilter(filter);
+			int returnVal = chooser.showOpenDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				String fontName;
+				fontName = FontIO.loadFnt(chooser.getSelectedFile(), romImage, selectedFontOffset);
+				tileEditor.generateShadedAndInvertedTiles();
+				setFontName(fontSelector.getSelectedIndex(), fontName);
+				tileEditor.tileChanged();
+				tileChanged();
+			}
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Couldn't open fnt file.\n" + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
 	void showSaveDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
-		chooser.setFileFilter(filter);
-		String fontName = fontSelector.getSelectedItem().toString();
-		chooser.setSelectedFile(new java.io.File(fontName + ".lsdfnt"));
-		int returnVal = chooser.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String filename = chooser.getSelectedFile().toString();
-			if (!filename.endsWith("lsdfnt")) {
-				filename += ".lsdfnt";
+		try {
+			JFileChooser chooser = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+			chooser.setFileFilter(filter);
+			String fontName = fontSelector.getSelectedItem().toString();
+			chooser.setSelectedFile(new java.io.File(fontName + ".lsdfnt"));
+			int returnVal = chooser.showSaveDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				String filename = chooser.getSelectedFile().toString();
+				if (!filename.endsWith("lsdfnt")) {
+					filename += ".lsdfnt";
+				}
+				FontIO.saveFnt(chooser.getSelectedFile(), fontName, romImage, selectedFontOffset);
+
 			}
-			fontMap.save(filename, fontName);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Couldn't save fnt file.\n" + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

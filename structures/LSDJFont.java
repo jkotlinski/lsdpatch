@@ -2,6 +2,7 @@ package structures;
 
 /**
  * Helper class to access and manipulate font data.
+ * 
  * @author Eiyeron
  *
  */
@@ -10,6 +11,8 @@ public class LSDJFont {
 	public static final int FONT_NUM_TILES_Y = 9;
 	public static final int FONT_MAP_WIDTH = FONT_NUM_TILES_X * 8;
 	public static final int FONT_MAP_HEIGHT = FONT_NUM_TILES_Y * 9;
+	public static final int TILE_COUNT = 71;
+	public static final int FONT_HEADER_SIZE = 130;
 
 	private byte romImage[] = null;
 	private int fontOffset = -1;
