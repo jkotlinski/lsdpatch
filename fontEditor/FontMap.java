@@ -23,7 +23,8 @@ import javax.swing.JPanel;
 import java.awt.Graphics;
 
 public class FontMap extends JPanel implements java.awt.event.MouseListener {
-    byte[] romImage = null;
+	private static final long serialVersionUID = -7745908775698863845L;
+	byte[] romImage = null;
     int fontOffset = -1;
     int tileCount = 71;
     int displayTileSize = 16;

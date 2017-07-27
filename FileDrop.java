@@ -1,4 +1,4 @@
-package fontEditor;
+
 
 import java.awt.datatransfer.DataFlavor;
 import java.io.BufferedReader;

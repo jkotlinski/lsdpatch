@@ -25,7 +25,6 @@ import java.awt.geom.GeneralPath;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import fontEditor.FileDrop;
 import fontEditor.FontEditor;
 
 import java.beans.*;
