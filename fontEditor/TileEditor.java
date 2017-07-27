@@ -20,6 +20,7 @@ package fontEditor;
   THE SOFTWARE. */
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -236,4 +237,13 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         generateShadedAndInvertedTiles();
         tileChangedListener.tileChanged();
     }
+
+	public void readImage(String name, BufferedImage image) {
+		font.readImage(name, image);
+		
+	}
+
+	public BufferedImage createImage() {
+		return font.createImage();
+	}
 }

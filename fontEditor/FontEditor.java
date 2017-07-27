@@ -1,26 +1,5 @@
 package fontEditor;
 
-/** Copyright (C) 2017 by Johan Kotlinski
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE. */
-
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import structures.LSDJFont;
 import utils.FontIO;
 
 public class FontEditor extends JFrame implements java.awt.event.ItemListener, java.awt.event.ActionListener,
@@ -500,26 +478,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 							"Make sure your picture has the right dimensions (64 * 72 pixels).");
 					return;
 				}
+				tileEditor.readImage(chooser.getSelectedFile().getName(), image);
 
-				for (int y = 0; y < image.getHeight(); y++) {
-					for (int x = 0; x < image.getWidth(); x++) {
-						int rgb = image.getRGB(x, y);
-						float color[] = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
-						int lum = (int) (color[2] * 255);
-
-						int currentTileIndex = (y / 8) * 8 + x / 8;
-						int localX = x % 8;
-						int localY = y % 8;
-						int col = 3;
-						if (lum >= 192)
-							col = 1;
-						else if (lum >= 64)
-							col = 2;
-						else if (lum >= 0)
-							col = 3;
-						tileEditor.setDirectPixel(currentTileIndex, localX, localY, col);
-					}
-				}
 				tileEditor.tileChanged();
 				tileChanged();
 
@@ -541,7 +501,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 			if (!filename.endsWith("bmp")) {
 				filename += ".bmp";
 			}
-			BufferedImage image = new BufferedImage(64, 72, BufferedImage.TYPE_INT_RGB);
+			BufferedImage image = tileEditor.createImage();
+					
+					new BufferedImage(64, 72, BufferedImage.TYPE_INT_RGB);
 			for (int y = 0; y < 72; y++) {
 				for (int x = 0; x < 64; x++) {
 					int color = tileEditor.getDirectPixel(x, y);

@@ -94,39 +94,14 @@ public class LSDPatcher {
 			LSDJFont font = new LSDJFont();
 			font.setRomImage(buffer);
 			font.setFontOffset(0);
-			for (int y = 0; y < image.getHeight(); y++) {
-				for (int x = 0; x < image.getWidth(); x++) {
-					int currentTileIndex = (y / 8) * 8 + x / 8;
-					if(currentTileIndex >= LSDJFont.TILE_COUNT) break;
-					int rgb = image.getRGB(x, y);
-					float color[] = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
-					int lum = (int) (color[2] * 255);
-
-					int localX = x % 8;
-					int localY = y % 8;
-					int col = 3;
-					if (lum >= 192)
-						col = 1;
-					else if (lum >= 64)
-						col = 2;
-					else if (lum >= 0)
-						col = 3;
-					font.setPixel(x, y, col);
-				}
-			}
-			String sub;
-			if (name.length() < 4) {
-				sub = name;
-				for (int i = 0; i < 4 - sub.length(); i++)
-					sub += " ";
-			} else
-				sub = name.substring(0, 4);
+			String sub = font.readImage(name, image);
 
 			FontIO.saveFnt(new File(fntFile), sub, buffer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 
 	private static void fontToBmp(String fntFile, String bmpFile) {
 		try {
@@ -135,30 +110,7 @@ public class LSDPatcher {
 			LSDJFont font = new LSDJFont();
 			font.setRomImage(buffer);
 			font.setFontOffset(0);
-			BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, LSDJFont.FONT_MAP_HEIGHT,
-					BufferedImage.TYPE_INT_RGB);
-			for (int y = 0; y < LSDJFont.FONT_MAP_HEIGHT; y++) {
-				for (int x = 0; x < LSDJFont.FONT_MAP_WIDTH; x++) {
-					int tileToRead = (y / 8) * 8 + x / 8;
-					if (tileToRead >= 71)
-						break;
-					int color = font.getPixel(x, y);
-					switch (color) {
-					case 0:
-						image.setRGB(x, y, 0xFFFFFF);
-						break;
-					case 1:
-						image.setRGB(x, y, 0x808080);
-						break;
-					case 3:
-						image.setRGB(x, y, 0x000000);
-						break;
-					default:
-						image.setRGB(x, y, 0xFFFFFF);
-						break;
-					}
-				}
-			}
+			BufferedImage image = font.createImage();
 			ImageIO.write(image, "BMP", new File(bmpFile));
 		} catch (IOException e) {
 			e.printStackTrace();
