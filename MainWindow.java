@@ -24,6 +24,9 @@ import java.awt.event.*;
 import java.awt.geom.GeneralPath;
 import javax.swing.*;
 import javax.swing.border.*;
+
+import fontEditor.FontEditor;
+
 import java.beans.*;
 
 public class MainWindow extends JFrame {
