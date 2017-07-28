@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 import structures.LSDJFont;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
@@ -50,11 +51,11 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-    	tileZoom = Integer.min(getWidth()/LSDJFont.FONT_MAP_WIDTH/2 , getHeight()/LSDJFont.FONT_MAP_HEIGHT/2);
+    	tileZoom = Integer.min(getWidth()/LSDJFont.FONT_MAP_WIDTH , getHeight()/LSDJFont.FONT_MAP_HEIGHT);
     	tileZoom = Integer.max(tileZoom, 1);
+    	int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
+    	int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
     	setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, LSDJFont.FONT_MAP_HEIGHT * tileZoom));
-    	int offsetX = (getWidth()/2 - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
-    	int offsetY = (getHeight()/2 - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
     	
         for (int tile = 0; tile < tileCount; ++tile) {
             paintTile(g, tile, offsetX, offsetY);
@@ -87,14 +88,14 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     }
 
     private void paintTile(Graphics g, int tile, int offsetX, int offsetY) {
-    	displayTileSize = 16 * tileZoom;
+    	displayTileSize = 8 * tileZoom;
     	int x = (tile % 8) * displayTileSize;
     	int y = (tile / 8) * displayTileSize;
-
+    	
         for (int row = 0; row < 8; ++row) {
             for (int column = 0; column < 8; ++column) {
                 switchColor(g, getColor(tile, column, row));
-                g.fillRect(offsetX + x + column * 2*tileZoom, offsetY + y + row * 2*tileZoom, 2*tileZoom, 2*tileZoom);
+                g.fillRect(offsetX + x + column * tileZoom, offsetY + y + row * tileZoom, tileZoom, tileZoom);
             }
         }
     }
@@ -113,9 +114,19 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     public void mouseReleased(java.awt.event.MouseEvent e) {}
     public void mousePressed(java.awt.event.MouseEvent e) {}
     public void mouseClicked(java.awt.event.MouseEvent e) {
-        int tile = (e.getY() / displayTileSize) * (getWidth() / displayTileSize) +
-            e.getX() / displayTileSize;
-        assert tile >= 0;
+    	int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
+    	int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
+    	
+    	int realX = e.getX() - offsetX;
+    	int realY = e.getY() - offsetY;
+    	
+    	if(realX < 0 || realY < 0 || realX > LSDJFont.FONT_MAP_WIDTH * tileZoom || realY > LSDJFont.FONT_MAP_HEIGHT * tileZoom)
+    		return;
+    	
+    	int tile = (realY / displayTileSize) * LSDJFont.FONT_NUM_TILES_X +
+            realX / displayTileSize;
+    	if (tile < 0 || tile >= LSDJFont.TILE_COUNT)
+    		return;
         if (tileSelectedListener != null && tile < tileCount) {
             tileSelectedListener.tileSelected(tile);
         }
