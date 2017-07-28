@@ -31,9 +31,8 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 	private static final long serialVersionUID = -7745908775698863845L;
 	byte[] romImage = null;
     int fontOffset = -1;
-    int tileCount = 71;
     int tileZoom = 1;
-    int displayTileSize = 16;
+    int displayTileSize = 8;
 
     public interface TileSelectListener {
         public void tileSelected(int tile);
@@ -57,7 +56,7 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     	int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
     	setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, LSDJFont.FONT_MAP_HEIGHT * tileZoom));
     	
-        for (int tile = 0; tile < tileCount; ++tile) {
+        for (int tile = 0; tile < LSDJFont.TILE_COUNT; ++tile) {
             paintTile(g, tile, offsetX, offsetY);
         }
     }
@@ -127,7 +126,7 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
             realX / displayTileSize;
     	if (tile < 0 || tile >= LSDJFont.TILE_COUNT)
     		return;
-        if (tileSelectedListener != null && tile < tileCount) {
+        if (tileSelectedListener != null && tile < LSDJFont.TILE_COUNT) {
             tileSelectedListener.tileSelected(tile);
         }
     }
