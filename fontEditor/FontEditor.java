@@ -12,11 +12,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -38,16 +38,13 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
 	private JComboBox<String> fontSelector;
 
-	private JPanel leftColorPanel;
-	private FontEditorColorSelector leftColorSelector;
+	private JPanel colorPanel;
+	private FontEditorColorSelector colorSelector;
 
-	private JPanel rightColorPanel;
-	private FontEditorColorSelector rightColorSelector;
-
-	private JButton shiftUp;
-	private JButton shiftDown;
-	private JButton shiftLeft;
-	private JButton shiftRight;
+	private JButton shiftUp = null;
+	private JButton shiftDown = null;
+	private JButton shiftLeft = null;
+	private JButton shiftRight = null;
 
 	private byte romImage[] = null;
 	private int fontOffset = -1;
@@ -58,9 +55,14 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	private int fontHeaderSize = 130;
 	private int fontSize = 0xe96;
 
+	private JPanel shiftButtonPanel = null;
+	BufferedImage shiftUpImage = null;
+	BufferedImage shiftDownImage = null;
+	BufferedImage shiftLeftImage = null;
+	BufferedImage shiftRightImage = null;
+
 	int previousSelectedFont = -1;
-
-
+	
 	public FontEditor() {
 		setTitle("Font Editor");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -134,7 +136,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.gridy = 0;
 		constraints.weightx = 1;
 		constraints.weighty = 1;
-		constraints.gridheight = 7;
+		constraints.gridheight = 6;
 		contentPane.add(tileEditor, constraints);
 
 		fontSelector = new JComboBox<String>();
@@ -150,55 +152,84 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.gridwidth = 3;
 		contentPane.add(fontSelector, constraints);
 
-		JLabel lblColorLeft = new JLabel("Left click");
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.gridx = 0;
-		constraints.gridy = 2;
-		constraints.ipady = 5;
-		constraints.gridwidth = 1;
-		constraints.ipadx = 0;
-		contentPane.add(lblColorLeft, constraints);
-
-		JLabel lblColorRight = new JLabel("Right click");
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.gridx = 0;
-		constraints.gridy = 3;
-		constraints.ipady = 5;
-		contentPane.add(lblColorRight, constraints);
-
-		leftColorPanel = new JPanel();
-		leftColorPanel.setLayout(new BoxLayout(leftColorPanel, BoxLayout.X_AXIS));
-		leftColorSelector = new FontEditorColorSelector(leftColorPanel);
-		leftColorSelector.addChangeEventListener(new ChangeEventListener() {
+		colorPanel = new JPanel();
+		colorPanel.setLayout(new BoxLayout(colorPanel, BoxLayout.X_AXIS));
+		colorSelector = new FontEditorColorSelector(colorPanel);
+		colorSelector.addChangeEventListener(new ChangeEventListener() {
 			@Override
-			public void onChange(int color) {
-				setColor(color);
+			public void onChange(int color, ChangeEventMouseSide side) {
+				if(side == ChangeEventMouseSide.LEFT)
+					setColor(color);
+				else
+					setRightColor(color);
 			}
 		});
-		leftColorSelector.setSelectedColor(1);
+
 		setColor(1);
 		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.gridx = 1;
+		constraints.gridx = 0;
 		constraints.gridy = 2;
-		constraints.gridwidth = 2;
+		constraints.gridwidth = 3;
+		constraints.gridheight = 1;
 		constraints.ipady = 0;
-		contentPane.add(leftColorPanel, constraints);
+		contentPane.add(colorPanel, constraints);
 
-		rightColorPanel = new JPanel();
-		rightColorPanel.setLayout(new BoxLayout(rightColorPanel, BoxLayout.X_AXIS));
-		rightColorSelector = new FontEditorColorSelector(rightColorPanel);
-		rightColorSelector.addChangeEventListener(new ChangeEventListener() {
+		shiftButtonPanel = new JPanel();
+		shiftButtonPanel.setLayout(new BoxLayout(shiftButtonPanel, BoxLayout.X_AXIS));
+		
+		shiftUpImage = loadImage("/shift_up.png");
+		shiftUp = new JButton();
+		setUpButtonIconOrText(shiftUp, shiftUpImage, "Shift Up");
+		shiftUp.addActionListener(new ActionListener() {
 			@Override
-			public void onChange(int color) {
-				setRightColor(color);
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftUp(tileEditor.getTile());
 			}
 		});
-		rightColorSelector.setSelectedColor(3);
-		setRightColor(3);
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.gridx = 1;
+		shiftButtonPanel.add(shiftUp);
+		
+		
+		shiftDownImage = loadImage("/shift_down.png");
+		shiftDown = new JButton();
+		setUpButtonIconOrText(shiftDown, shiftDownImage, "Shift Down");
+		shiftDown.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftDown(tileEditor.getTile());
+			}
+		});
+		shiftButtonPanel.add(shiftDown);
+		
+		
+		shiftLeftImage = loadImage("/shift_left.png");
+		shiftLeft = new JButton();
+		setUpButtonIconOrText(shiftLeft, shiftLeftImage, "Shift left");
+		shiftLeft.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftLeft(tileEditor.getTile());
+			}
+		});
+		shiftButtonPanel.add(shiftLeft);
+		
+		shiftRightImage = loadImage("/shift_right.png");
+		shiftRight = new JButton();
+		setUpButtonIconOrText(shiftRight, shiftRightImage, "Shift right");
+		shiftRight.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tileEditor.shiftRight(tileEditor.getTile());
+			}
+		});
+		shiftButtonPanel.add(shiftRight);
+		
+		constraints.gridx = 0;
 		constraints.gridy = 3;
-		contentPane.add(rightColorPanel, constraints);
+		constraints.gridwidth = 3;
+		constraints.gridheight = 1;
+		constraints.fill = GridBagConstraints.NONE;
+		contentPane.add(shiftButtonPanel, constraints);
+
 
 		fontMap = new FontMap();
 		fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
@@ -212,64 +243,31 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.weightx = 0.1;
 		constraints.weighty = 1;
 		constraints.gridwidth = 3;
+		constraints.gridheight = 1;
 		contentPane.add(fontMap, constraints);
 
 		setMinimumSize(layout.preferredLayoutSize(contentPane));
 
-		shiftUp = new JButton("Shift up");
-		shiftUp.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				tileEditor.shiftUp(tileEditor.getTile());
-			}
-		});
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.gridx = 0;
-		constraints.gridy = 5;
-		constraints.ipadx = 0;
-		constraints.ipady = 0;
-		constraints.weightx = 0.1;
-		constraints.weighty = 0;
-		constraints.gridwidth = 1;
-		contentPane.add(shiftUp, constraints);
-
-		shiftDown = new JButton("Shift down");
-		shiftDown.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				tileEditor.shiftDown(tileEditor.getTile());
-			}
-		});
-		constraints.gridx = 1;
-		constraints.gridy = 5;
-		constraints.gridwidth = 1;
-		contentPane.add(shiftDown, constraints);
-
-		shiftLeft = new JButton("Shift left");
-		shiftLeft.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				tileEditor.shiftLeft(tileEditor.getTile());
-			}
-		});
-		constraints.gridx = 0;
-		constraints.gridy = 6;
-		constraints.gridwidth = 1;
-		contentPane.add(shiftLeft, constraints);
-
-		shiftRight = new JButton("Shift right");
-		shiftRight.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				tileEditor.shiftRight(tileEditor.getTile());
-			}
-		});
-		constraints.gridx = 1;
-		constraints.gridy = 6;
-		constraints.gridwidth = 1;
-		contentPane.add(shiftRight, constraints);
 	}
 
+	private BufferedImage loadImage(String iconPath) {
+		try {
+			return javax.imageio.ImageIO.read(getClass().getResource(iconPath));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		return null;
+	}
+	
+	private void setUpButtonIconOrText(JButton button, BufferedImage image, String text)
+	{
+		if (image != null)
+			button.setIcon(new ImageIcon(image));
+		else
+			button.setText("Shift Down");		
+	}
+
+	
 	private int findFontOffset() {
 		int i = 30 * 0x4000; // Bank 30.
 		while (i < 31 * 0x4000) {
@@ -502,8 +500,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 				filename += ".bmp";
 			}
 			BufferedImage image = tileEditor.createImage();
-					
-					new BufferedImage(64, 72, BufferedImage.TYPE_INT_RGB);
+
+			new BufferedImage(64, 72, BufferedImage.TYPE_INT_RGB);
 			for (int y = 0; y < 72; y++) {
 				for (int x = 0; x < 64; x++) {
 					int color = tileEditor.getDirectPixel(x, y);

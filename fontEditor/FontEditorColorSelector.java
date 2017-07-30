@@ -1,79 +1,136 @@
 package fontEditor;
+
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
-import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.SwingUtilities;
 
-public class FontEditorColorSelector extends ButtonGroup implements java.awt.event.ActionListener {
+import fontEditor.ChangeEventListener.ChangeEventMouseSide;
+
+public class FontEditorColorSelector {
 	private static final long serialVersionUID = 7459644463721795475L;
 
-	private JRadioButton darkButton;
-	private JRadioButton mediumButton;
-	private JRadioButton lightButton;
+	private JPanel darkButton;
+	private JPanel mediumButton;
+	private JPanel lightButton;
+
+	private JPanel indicatorContainer;
+	private JPanel foregroundColorIndicator;
+	private JPanel backgroundColorIndicator;
 
 	private ArrayList<ChangeEventListener> listeners;
-	
-	public FontEditorColorSelector(JPanel buttonPanel)
-	{
-		darkButton = new JRadioButton("Dark");
-		darkButton.setBackground(Color.BLACK);
-		darkButton.addActionListener(this);
-		mediumButton = new JRadioButton("Medium");
-		mediumButton.setBackground(Color.GRAY);
-		mediumButton.addActionListener(this);
-		lightButton = new JRadioButton("Light");
-		lightButton.setBackground(Color.WHITE);
-		lightButton.addActionListener(this);
 
-		add(lightButton);
-		add(mediumButton);
-		add(darkButton);
-		
+	private class FontEditorColorListener implements MouseListener {
+		JPanel button;
+		FontEditorColorSelector selector;
+		int color = 0;
+
+		public FontEditorColorListener(FontEditorColorSelector selector, int color, JPanel button) {
+			this.selector = selector;
+			this.color = color;
+			this.button = button;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (SwingUtilities.isRightMouseButton(e))
+				selector.sendEvent(color, ChangeEventMouseSide.RIGHT);
+			if (SwingUtilities.isLeftMouseButton(e))
+				selector.sendEvent(color, ChangeEventMouseSide.LEFT);
+
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+	}
+
+	public FontEditorColorSelector(JPanel buttonPanel) {
+		darkButton = new JPanel();
+		darkButton.setBackground(Color.BLACK);
+		darkButton.setForeground(Color.BLACK);
+		darkButton.addMouseListener(new FontEditorColorListener(this, 3, darkButton));
+
+		mediumButton = new JPanel();
+		mediumButton.setBackground(Color.GRAY);
+		mediumButton.addMouseListener(new FontEditorColorListener(this, 2, mediumButton));
+
+		lightButton = new JPanel();
+		lightButton.setBackground(Color.WHITE);
+		lightButton.addMouseListener(new FontEditorColorListener(this, 1, lightButton));
+
 		listeners = new ArrayList<ChangeEventListener>();
-		
+
+		indicatorContainer = new JPanel();
+		indicatorContainer.setLayout(null);
+
+		foregroundColorIndicator = new JPanel();
+		foregroundColorIndicator.setBackground(Color.WHITE);
+		foregroundColorIndicator.setForeground(Color.WHITE);
+		foregroundColorIndicator.setPreferredSize(new Dimension(24, 24));
+		foregroundColorIndicator.setBounds(8, 8, 24, 24);
+		indicatorContainer.add(foregroundColorIndicator);
+
+		backgroundColorIndicator = new JPanel();
+		backgroundColorIndicator.setBackground(Color.BLACK);
+		backgroundColorIndicator.setForeground(Color.BLACK);
+		backgroundColorIndicator.setPreferredSize(new Dimension(24, 24));
+		backgroundColorIndicator.setBounds(0, 0, 24, 24);
+		indicatorContainer.add(backgroundColorIndicator);
+
+
+		buttonPanel.add(indicatorContainer);
 		buttonPanel.add(darkButton);
 		buttonPanel.add(mediumButton);
 		buttonPanel.add(lightButton);
 
-	}
-	
-	public void setSelectedColor(int color)
-	{
-		switch(color)
-		{
-		case 1:
-			lightButton.setSelected(true);
-			break;
-		case 2:
-			mediumButton.setSelected(true);
-			break;
-		case 3:
-			darkButton.setSelected(true);
-			break;
-		}
+		buttonPanel.setPreferredSize(new Dimension(200, 32));
+
 	}
 
-	void addChangeEventListener(ChangeEventListener changeEventListener)
+	protected void sendEvent(int color, ChangeEventMouseSide side)
 	{
+		Color buttonCol = Color.RED;
+		switch(color) {
+		case 1:				
+			buttonCol = Color.WHITE;
+			break;
+		case 2 :
+			buttonCol = Color.GRAY;
+			break;
+		case 3 :
+			buttonCol = Color.BLACK;
+			break;
+		}
+
+		for(ChangeEventListener listener : listeners) {
+			listener.onChange(color, side);
+		}
+		if(side == ChangeEventMouseSide.LEFT)
+			foregroundColorIndicator.setBackground(buttonCol);
+		else
+			backgroundColorIndicator.setBackground(buttonCol);
+	}
+
+	void addChangeEventListener(ChangeEventListener changeEventListener) {
 		listeners.add(changeEventListener);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		int color = -1;
-
-		if(event.getSource() == lightButton)
-			color = 1;
-		else if (event.getSource() == mediumButton)
-			color = 2;
-		else if (event.getSource() == darkButton)
-			color = 3;
-		
-		for(ChangeEventListener listener : listeners)
-			listener.onChange(color);
-	}
 }
