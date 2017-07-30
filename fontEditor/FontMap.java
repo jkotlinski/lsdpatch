@@ -19,13 +19,12 @@ package fontEditor;
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE. */
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+
 import javax.swing.JPanel;
 
 import structures.LSDJFont;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 
 public class FontMap extends JPanel implements java.awt.event.MouseListener {
 	private static final long serialVersionUID = -7745908775698863845L;

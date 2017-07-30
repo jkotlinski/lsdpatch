@@ -6,14 +6,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import fontEditor.ChangeEventListener.ChangeEventMouseSide;
 
 public class FontEditorColorSelector {
-	private static final long serialVersionUID = 7459644463721795475L;
 
 	private JPanel darkButton;
 	private JPanel mediumButton;
@@ -26,14 +24,12 @@ public class FontEditorColorSelector {
 	private ArrayList<ChangeEventListener> listeners;
 
 	private class FontEditorColorListener implements MouseListener {
-		JPanel button;
 		FontEditorColorSelector selector;
 		int color = 0;
 
 		public FontEditorColorListener(FontEditorColorSelector selector, int color, JPanel button) {
 			this.selector = selector;
 			this.color = color;
-			this.button = button;
 		}
 
 		@Override

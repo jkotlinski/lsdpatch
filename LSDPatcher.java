@@ -19,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -106,6 +105,7 @@ public class LSDPatcher {
 	private static void fontToBmp(String fntFile, String bmpFile) {
 		try {
 			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
+			@SuppressWarnings("unused")
 			String name = FontIO.loadFnt(new File(fntFile), buffer);
 			LSDJFont font = new LSDJFont();
 			font.setRomImage(buffer);
