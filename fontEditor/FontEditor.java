@@ -36,7 +36,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	private FontMap fontMap;
 	private TileEditor tileEditor;
 
-	private JComboBox<String> fontSelector;
+	private JComboBox fontSelector;
 
 	private JPanel colorPanel;
 	private FontEditorColorSelector colorSelector;
@@ -139,7 +139,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		constraints.gridheight = 6;
 		contentPane.add(tileEditor, constraints);
 
-		fontSelector = new JComboBox<String>();
+		fontSelector = new JComboBox();
 		fontSelector.setEditable(true);
 		fontSelector.addItemListener(this);
 		fontSelector.addActionListener(this);
@@ -397,15 +397,13 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 			showOpenDialog();
 		} else if (cmd == "Save...") {
 			showSaveDialog();
-		} else if (cmd == "comboBoxChanged" && e.getSource() instanceof JComboBox<?>) {
-			@SuppressWarnings("unchecked")
-			JComboBox<String> cb = (JComboBox<String>) e.getSource();
+		} else if (cmd == "comboBoxChanged" && e.getSource() instanceof JComboBox) {
+			JComboBox cb = (JComboBox) e.getSource();
 			if (cb.getSelectedIndex() != -1) {
 				previousSelectedFont = cb.getSelectedIndex();
 			}
-		} else if (cmd == "comboBoxEdited" && e.getSource() instanceof JComboBox<?>) {
-			@SuppressWarnings("unchecked")
-			JComboBox<String> cb = (JComboBox<String>) e.getSource();
+		} else if (cmd == "comboBoxEdited" && e.getSource() instanceof JComboBox) {
+			JComboBox cb = (JComboBox) e.getSource();
 			if (cb.getSelectedIndex() == -1) {
 				int index = previousSelectedFont;
 				setFontName(index, (String) cb.getSelectedItem());

@@ -116,9 +116,14 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         }
     }
 
+	private int getMinimumDimension() {
+		int minimumDimension = getWidth() < getHeight() ? getWidth() : getHeight();
+		return minimumDimension;
+	}
+
     private void paintGrid(Graphics g) {
         g.setColor(java.awt.Color.gray);
-        int minimumDimension = Integer.min(getWidth(), getHeight());
+        int minimumDimension = getMinimumDimension();
         int offsetX = (getWidth() - minimumDimension) / 2;
         int offsetY = (getHeight() - minimumDimension) / 2;
         int dx = minimumDimension / 8;
@@ -135,7 +140,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        int minimumDimension = Integer.min(getWidth(), getHeight());
+        int minimumDimension = getMinimumDimension();
         int offsetX = (getWidth() - minimumDimension) / 2;
         int offsetY = (getHeight() - minimumDimension) / 2;
         for (int x = 0; x < 8; ++x) {
@@ -152,7 +157,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void doMousePaint(java.awt.event.MouseEvent e) {
-        int minimumDimension = Integer.min(getWidth(), getHeight());
+        int minimumDimension = getMinimumDimension();
         int offsetX = (getWidth() - minimumDimension) / 2;
         int offsetY = (getHeight() - minimumDimension) / 2;
 

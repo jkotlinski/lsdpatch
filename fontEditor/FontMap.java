@@ -49,8 +49,10 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-    	tileZoom = Integer.min(getWidth()/LSDJFont.FONT_MAP_WIDTH , getHeight()/LSDJFont.FONT_MAP_HEIGHT);
-    	tileZoom = Integer.max(tileZoom, 1);
+        int widthScale = getWidth()/LSDJFont.FONT_MAP_WIDTH;
+        int heightScale = getHeight()/LSDJFont.FONT_MAP_HEIGHT;
+    	tileZoom = widthScale < heightScale ? widthScale : heightScale;
+    	tileZoom = tileZoom > 1 ? tileZoom : 1;
     	int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
     	int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
     	setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, LSDJFont.FONT_MAP_HEIGHT * tileZoom));
