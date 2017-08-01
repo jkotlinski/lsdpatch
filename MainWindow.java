@@ -106,6 +106,8 @@ public class MainWindow extends JFrame {
     GridLayout gridLayout1 = new GridLayout();
 
     JMenuBar menuBar = new JMenuBar();
+    
+    File previousPath = null;
 
     public class SampleCanvas extends Canvas {
         byte[] buf;
@@ -172,7 +174,7 @@ public class MainWindow extends JFrame {
     }
 
     public MainWindow() {
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+    	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
         }
@@ -495,12 +497,15 @@ public class MainWindow extends JFrame {
     	chooser.addChoosableFileFilter(filter);
     	chooser.setFileFilter(filter);
     	chooser.setDialogTitle("Load ROM image");
+    	if (previousPath != null)
+    		chooser.setCurrentDirectory(previousPath);
     	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{
     		File f = chooser.getSelectedFile();
     		if (f != null) {
     			loadRom(f);
+    			previousPath = f.getParentFile();
     		}    		
     	}
     }
@@ -718,6 +723,8 @@ public class MainWindow extends JFrame {
     	chooser.setDialogTitle("Select ROM to import from");
     	chooser.addChoosableFileFilter(filter);
     	chooser.setFileFilter(filter);
+    	if (previousPath != null)
+    		chooser.setCurrentDirectory(previousPath);
 
        	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
@@ -727,8 +734,8 @@ public class MainWindow extends JFrame {
 	        if (f == null) {
 	            return;
 	        }
-
-        importKits(f);
+	        previousPath = f.getParentFile();
+	        importKits(f);
     	}
 	}
 
@@ -739,12 +746,15 @@ public class MainWindow extends JFrame {
     	chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
     	chooser.addChoosableFileFilter(filter);
     	chooser.setFileFilter(filter);
-    	
+    	if (previousPath != null)
+    		chooser.setCurrentDirectory(previousPath);
+
        	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{ 
 	        try {
 	            File f = chooser.getSelectedFile();
+		        previousPath = f.getParentFile();
 	
 	            romFile = new RandomAccessFile(f,"rw");
 	            romFile.write(romImage);
@@ -763,13 +773,15 @@ public class MainWindow extends JFrame {
     	chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
     	chooser.addChoosableFileFilter(filter);
     	chooser.setFileFilter(filter);
+    	if (previousPath != null)
+    		chooser.setCurrentDirectory(previousPath);
     	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{
 
     		try {
     			File f = chooser.getSelectedFile();
-    			
+    			previousPath = f.getParentFile();
     			byte buf[]=new byte[0x4000];
     			int offset=getROMOffsetForSelectedBank();
     			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
