@@ -18,16 +18,46 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.RandomAccessFile;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import fontEditor.FontEditor;
-
-import java.beans.*;
 
 public class MainWindow extends JFrame {
     String versionString = "LSD-Patcher v1.1.4";
@@ -109,10 +139,20 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public class GBFileFilter implements java.io.FilenameFilter {
+    public class GBFileFilter extends FileFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".gb");
         }
+
+		@Override
+		public boolean accept(File file) {
+            return file.getName().toLowerCase().endsWith(".gb");
+		}
+
+		@Override
+		public String getDescription() {
+			return "Game Boy ROM (*.gb)";
+		}
     }
     public class KitFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
@@ -449,14 +489,20 @@ public class MainWindow extends JFrame {
     }
 
     void selectRomToLoad() {
-        FileDialog dialog = new FileDialog(this, "Load ROM Image (.gb)",
-                FileDialog.LOAD);
-        dialog.setFilenameFilter(new GBFileFilter());
-        dialog.setVisible(true);
-        String s = dialog.getFile();
-        if (dialog.getFile() != null) {
-            loadRom(new File(dialog.getDirectory(), dialog.getFile()));
-        }
+    	FileFilter filter = new FileNameExtensionFilter("Game Boy ROM", "gb");
+    	JFileChooser chooser = new JFileChooser("Load ROM Image");
+    	chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
+    	chooser.addChoosableFileFilter(filter);
+    	chooser.setFileFilter(filter);
+    	chooser.setDialogTitle("Load ROM image");
+    	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{
+    		File f = chooser.getSelectedFile();
+    		if (f != null) {
+    			loadRom(f);
+    		}    		
+    	}
     }
 
     private boolean isKitBank ( int a_bank ) {
@@ -666,73 +712,80 @@ public class MainWindow extends JFrame {
     }
 
     void importKits_actionPerformed(ActionEvent e) {
-        FileDialog dialog = new FileDialog(this, "Select ROM to import from",
-                FileDialog.LOAD);
-        dialog.setFilenameFilter(new GBFileFilter());
-        dialog.setVisible(true);
-        if (dialog.getFile() == null) {
-            return;
-        }
-        File f = new File(dialog.getDirectory(), dialog.getFile());
+    	FileFilter filter = new FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb");
+    	JFileChooser chooser = new JFileChooser();
+    	chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
+    	chooser.setDialogTitle("Select ROM to import from");
+    	chooser.addChoosableFileFilter(filter);
+    	chooser.setFileFilter(filter);
+
+       	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{
+ 
+	        File f = chooser.getSelectedFile();
+	        if (f == null) {
+	            return;
+	        }
 
         importKits(f);
-    }
+    	}
+	}
 
     void saveROMButton_actionPerformed() {
-        FileDialog dialog = new FileDialog(this, "Save ROM Image",
-                FileDialog.SAVE);
-        dialog.setFilenameFilter(new GBFileFilter());
-        dialog.setFile(getTitle());
-        dialog.setVisible(true);
-        if (dialog.getFile() == null) {
-            return;
-        }
-        try {
-            File f = new File(dialog.getDirectory(), dialog.getFile());
-
-            if (!f.toString().toUpperCase().endsWith(".GB")) {
-                f = new File(f.getAbsoluteFile().toString()+".gb");
-            }
-
-            romFile = new RandomAccessFile(f,"rw");
-            romFile.write(romImage);
-            romFile.close();
-            setTitle(f.getAbsoluteFile().toString());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+    	FileFilter filter = new FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb");
+    	JFileChooser chooser = new JFileChooser();
+    	chooser.setDialogTitle("Save ROM image");
+    	chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
+    	chooser.addChoosableFileFilter(filter);
+    	chooser.setFileFilter(filter);
+    	
+       	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{ 
+	        try {
+	            File f = chooser.getSelectedFile();
+	
+	            romFile = new RandomAccessFile(f,"rw");
+	            romFile.write(romImage);
+	            romFile.close();
+	            setTitle(f.getAbsoluteFile().toString());
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+	                    JOptionPane.ERROR_MESSAGE);
+	        }
+    	}
     }
 
     void exportKitButton_actionPerformed() {
-        FileDialog dialog = new FileDialog(this, "Export kit", FileDialog.SAVE);
-        dialog.setFilenameFilter(new KitFileFilter());
-        dialog.setVisible(true);
-        String fileName = dialog.getFile();
-        if (null == fileName) {
-            return;
-        }
-        if (!fileName.toLowerCase().endsWith(".kit")) {
-            fileName = fileName + ".kit";
-        }
+    	FileFilter filter = new FileNameExtensionFilter("LSDJ Kit (*.kit)", "kit");
+    	JFileChooser chooser = new JFileChooser("Export kit");
+    	chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
+    	chooser.addChoosableFileFilter(filter);
+    	chooser.setFileFilter(filter);
+    	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{
 
-        try {
-            File f = new File(dialog.getDirectory(), fileName);
-
-            byte buf[]=new byte[0x4000];
-            int offset=getROMOffsetForSelectedBank();
-            RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
-
-            for(int i=0;i<buf.length;i++) {
-                buf[i]=romImage[offset++];
-            }
-            bankFile.write(buf);
-            bankFile.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        updateRomView();
+    		try {
+    			File f = chooser.getSelectedFile();
+    			
+    			byte buf[]=new byte[0x4000];
+    			int offset=getROMOffsetForSelectedBank();
+    			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
+    			
+    			for(int i=0;i<buf.length;i++) {
+    				buf[i]=romImage[offset++];
+    			}
+    			bankFile.write(buf);
+    			bankFile.close();
+    		} catch (Exception e) {
+    			JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+    					JOptionPane.ERROR_MESSAGE);
+    		}
+    		updateRomView();    		
+    	}
+    	
     }
 
     void loadKit(File kitFile) {
@@ -761,17 +814,6 @@ public class MainWindow extends JFrame {
         if (dialog.getFile() != null) {
             loadKit(new File(dialog.getDirectory(), dialog.getFile()));
         }
-    }
-
-    private String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
     }
 
     private String dropExtension(File f) {

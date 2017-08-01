@@ -421,6 +421,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		try {
 			JFileChooser chooser = new JFileChooser();
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
+			chooser.addChoosableFileFilter(filter);
 			chooser.setFileFilter(filter);
 			int returnVal = chooser.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
