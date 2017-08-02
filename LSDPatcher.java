@@ -54,8 +54,20 @@ public class LSDPatcher {
 		frame.setVisible(true);
 	}
 
+	private static void usage() {
+		System.out.println("LSDJPatcher\n");
+		System.out.println("java -jar LSDJPatcher.jar");
+		System.out.println(" Opens the GUI.\n");
+
+		System.out.println("java -jar fnt2png <fntfile> <pngfile>");
+		System.out.println(" Exports the font file into a PNG\n");
+
+		System.out.println("java -jar png2fnt <font title> <pngfile> <fntfile>");
+		System.out.println(" Converts the PNG into a font with given name.\n");
+	}
+
 	public static void main(String[] args) {
-		if (args.length > 1) {
+		if (args.length >= 1) {
 			boolean openWindow = processArguments(args);
 			if (!openWindow)
 				return;
@@ -72,21 +84,21 @@ public class LSDPatcher {
 
 	private static boolean processArguments(String[] args) {
 		String command = args[0];
-		if (command.toLowerCase().compareTo("fnt2bmp") == 0 && args.length == 3) {
-			fontToBmp(args[1], args[2]);
+		if (command.toLowerCase().compareTo("fnt2png") == 0 && args.length == 3) {
+			fontToPng(args[1], args[2]);
 			return false;
-		} else if (command.toLowerCase().compareTo("bmp2fnt") == 0 && args.length == 4) {
-			bmpToFont(args[1], args[2], args[3]);
+		} else if (command.toLowerCase().compareTo("png2fnt") == 0 && args.length == 4) {
+			pngToFont(args[1], args[2], args[3]);
 			return false;
 		}
-		System.err.println("Meh");
+		usage();
 		return false;
 	}
 
-	private static void bmpToFont(String name, String bmpFile, String fntFile) {
+	private static void pngToFont(String name, String pngFile, String fntFile) {
 		try {
 			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
-			BufferedImage image = ImageIO.read(new File(bmpFile));
+			BufferedImage image = ImageIO.read(new File(pngFile));
 			if (image.getWidth() != LSDJFont.FONT_MAP_WIDTH && image.getHeight() != LSDJFont.FONT_MAP_HEIGHT) {
 				System.err.println("Wrong size!");
 				return;
@@ -103,8 +115,7 @@ public class LSDPatcher {
 		}
 	}
 
-
-	private static void fontToBmp(String fntFile, String bmpFile) {
+	private static void fontToPng(String fntFile, String pngFile) {
 		try {
 			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
 			@SuppressWarnings("unused")
@@ -113,7 +124,7 @@ public class LSDPatcher {
 			font.setRomImage(buffer);
 			font.setFontOffset(0);
 			BufferedImage image = font.createImage();
-			ImageIO.write(image, "BMP", new File(bmpFile));
+			ImageIO.write(image, "PNG", new File(pngFile));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
