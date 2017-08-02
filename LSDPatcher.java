@@ -30,6 +30,7 @@ import javax.swing.UIManager;
 
 import structures.LSDJFont;
 import utils.FontIO;
+import utils.GlobalHolder;
 
 public class LSDPatcher {
 
@@ -65,6 +66,7 @@ public class LSDPatcher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		GlobalHolder.set(new File(System.getProperty("user.dir")), File.class, "JFileChooser");
 		new LSDPatcher();
 	}
 
