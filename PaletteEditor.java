@@ -22,7 +22,12 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import java.awt.event.KeyEvent;
+import java.io.File;
+
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import utils.GlobalHolder;
+
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -817,9 +822,12 @@ public class PaletteEditor
 		JFileChooser chooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Palette", "lsdpal");
 		chooser.setFileFilter(filter);
+		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			loadPalette(chooser.getSelectedFile());
+            File f = chooser.getSelectedFile();
+			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+			loadPalette(f);
 		}
     }
 
@@ -829,9 +837,12 @@ public class PaletteEditor
 		chooser.setFileFilter(filter);
         String paletteName = paletteSelector.getSelectedItem().toString();
         chooser.setSelectedFile(new java.io.File(paletteName + ".lsdpal"));
+		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
 		int returnVal = chooser.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String filename = chooser.getSelectedFile().toString();
+            File f = chooser.getSelectedFile();
+			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+			String filename = f.toString();
 			if (!filename.endsWith("lsdpal")) {
 				filename += ".lsdpal";
 			}
