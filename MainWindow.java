@@ -59,6 +59,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import fontEditor.FontEditor;
 import utils.GlobalHolder;
+import utils.JFileChooserFactory;
+import utils.JFileChooserFactory.FileOperation;
+import utils.JFileChooserFactory.FileType;
 
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = -3993608561466542956L;
@@ -491,13 +494,7 @@ public class MainWindow extends JFrame {
     }
 
     void selectRomToLoad() {
-    	FileFilter filter = new FileNameExtensionFilter("Game Boy ROM", "gb");
-    	JFileChooser chooser = new JFileChooser("Load ROM Image");
-    	chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
-    	chooser.addChoosableFileFilter(filter);
-    	chooser.setFileFilter(filter);
-    	chooser.setDialogTitle("Load ROM image");
-		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Load ROM Image", FileType.Gb, FileOperation.Load);
     	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{
@@ -716,14 +713,7 @@ public class MainWindow extends JFrame {
     }
 
     void importKits_actionPerformed(ActionEvent e) {
-    	FileFilter filter = new FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb");
-    	JFileChooser chooser = new JFileChooser();
-    	chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
-    	chooser.setDialogTitle("Select ROM to import from");
-    	chooser.addChoosableFileFilter(filter);
-    	chooser.setFileFilter(filter);
-		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
-
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Select ROM to import from", FileType.Gb, FileOperation.Load);
        	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{
@@ -738,13 +728,7 @@ public class MainWindow extends JFrame {
 	}
 
     void saveROMButton_actionPerformed() {
-    	FileFilter filter = new FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb");
-    	JFileChooser chooser = new JFileChooser();
-    	chooser.setDialogTitle("Save ROM image");
-    	chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
-    	chooser.addChoosableFileFilter(filter);
-    	chooser.setFileFilter(filter);
-		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Save ROM image", FileType.Gb, FileOperation.Save);
 
        	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
@@ -765,12 +749,8 @@ public class MainWindow extends JFrame {
     }
 
     void exportKitButton_actionPerformed() {
-    	FileFilter filter = new FileNameExtensionFilter("LSDJ Kit (*.kit)", "kit");
-    	JFileChooser chooser = new JFileChooser("Export kit");
-    	chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
-    	chooser.addChoosableFileFilter(filter);
-    	chooser.setFileFilter(filter);
-		GlobalHolder.get(File.class, "JFileChooser");
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Export kit", FileType.Kit, FileOperation.Save);
+
     	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{

@@ -4,3 +4,6 @@
 /Singleton$Holder.class
 /GlobalHolder$Holder.class
 /GlobalHolder.class
+/JFileChooserFactory.class
+/JFileChooserFactory$FileType.class
+/JFileChooserFactory$FileOperation.class
