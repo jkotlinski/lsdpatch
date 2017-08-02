@@ -27,6 +27,9 @@ import java.io.File;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import utils.GlobalHolder;
+import utils.JFileChooserFactory;
+import utils.JFileChooserFactory.FileOperation;
+import utils.JFileChooserFactory.FileType;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
@@ -819,10 +822,7 @@ public class PaletteEditor
     }
 
     private void showOpenDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Palette", "lsdpal");
-		chooser.setFileFilter(filter);
-		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
+		JFileChooser chooser = JFileChooserFactory.createChooser("Load Palette", FileType.Lsdpal, FileOperation.Load);
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
@@ -832,12 +832,7 @@ public class PaletteEditor
     }
 
     private void showSaveDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdpal");
-		chooser.setFileFilter(filter);
-        String paletteName = paletteSelector.getSelectedItem().toString();
-        chooser.setSelectedFile(new java.io.File(paletteName + ".lsdpal"));
-		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
+		JFileChooser chooser = JFileChooserFactory.createChooser("Save Palette", FileType.Lsdpal, FileOperation.Save);
 		int returnVal = chooser.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
