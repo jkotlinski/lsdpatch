@@ -501,7 +501,7 @@ public class MainWindow extends JFrame {
     		File f = chooser.getSelectedFile();
     		if (f != null) {
     			loadRom(f);
-    			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+        		JFileChooserFactory.recordNewBaseFolder(f.getParent());
     		}    		
     	}
     }
@@ -719,10 +719,10 @@ public class MainWindow extends JFrame {
     	{
  
 	        File f = chooser.getSelectedFile();
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 	        if (f == null) {
 	            return;
 	        }
-			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
 	        importKits(f);
     	}
 	}
@@ -735,7 +735,7 @@ public class MainWindow extends JFrame {
     	{ 
 	        try {
 	            File f = chooser.getSelectedFile();
-    			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 	
 	            romFile = new RandomAccessFile(f,"rw");
 	            romFile.write(romImage);
@@ -757,7 +757,7 @@ public class MainWindow extends JFrame {
 
     		try {
     			File f = chooser.getSelectedFile();
-    			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+        		JFileChooserFactory.recordNewBaseFolder(f.getParent());
     			byte buf[]=new byte[0x4000];
     			int offset=getROMOffsetForSelectedBank();
     			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");

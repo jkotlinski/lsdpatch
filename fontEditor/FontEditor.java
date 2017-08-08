@@ -22,10 +22,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import utils.FontIO;
-import utils.GlobalHolder;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
@@ -427,7 +425,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 			int returnVal = chooser.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File f = chooser.getSelectedFile();
-    			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 				String fontName;
 				fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
 				tileEditor.generateShadedAndInvertedTiles();
@@ -444,15 +442,11 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	void showSaveDialog() {
 		try {
 	    	JFileChooser chooser = JFileChooserFactory.createChooser("Save Font", FileType.Lsdfnt, FileOperation.Save);
-			FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdfnt");
-			chooser.setFileFilter(filter);
 			String fontName = fontSelector.getSelectedItem().toString();
-			chooser.setSelectedFile(new java.io.File(fontName + ".lsdfnt"));
-			chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
 			int returnVal = chooser.showSaveDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File f = chooser.getSelectedFile();
-    			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 				String filename = f.toString();
 				if (!filename.endsWith("lsdfnt")) {
 					filename += ".lsdfnt";
@@ -472,7 +466,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File bitmap = chooser.getSelectedFile();
-			GlobalHolder.set(bitmap.getParentFile(), File.class, "JFileChooser");
+    		JFileChooserFactory.recordNewBaseFolder(bitmap.getParent());
 			try {
 				BufferedImage image = ImageIO.read(bitmap);
 				if (image.getWidth() != 64 && image.getHeight() != 72) {
@@ -498,7 +492,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File f = chooser.getSelectedFile();
-			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 			String filename = f.toString();
 			if (!filename.endsWith("png")) {
 				filename += ".png";

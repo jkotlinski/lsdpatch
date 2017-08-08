@@ -826,7 +826,7 @@ public class PaletteEditor
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 			loadPalette(f);
 		}
     }
@@ -836,7 +836,7 @@ public class PaletteEditor
 		int returnVal = chooser.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-			GlobalHolder.set(f.getParentFile(), File.class, "JFileChooser");
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 			String filename = f.toString();
 			if (!filename.endsWith("lsdpal")) {
 				filename += ".lsdpal";

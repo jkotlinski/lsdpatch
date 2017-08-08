@@ -24,6 +24,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.UIManager;
@@ -78,7 +79,11 @@ public class LSDPatcher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		GlobalHolder.set(new File(System.getProperty("user.dir")), File.class, "JFileChooser");
+		Preferences prefs = Preferences.userRoot().node(LSDPatcher.class.getName()); 
+		System.out.println("Using as remembered folder: " + prefs.get("path", System.getProperty("user.dir")));
+		GlobalHolder.set(prefs, Preferences.class);
+		prefs.put("path", prefs.get("path", System.getProperty("user.dir")));
+		
 		new LSDPatcher();
 	}
 

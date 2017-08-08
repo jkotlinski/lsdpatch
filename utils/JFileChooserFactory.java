@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.File;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -48,7 +49,7 @@ public class JFileChooserFactory {
 		chooser.addChoosableFileFilter(filter);
 		chooser.setFileFilter(filter);
 
-		chooser.setCurrentDirectory(GlobalHolder.get(File.class, "JFileChooser"));
+		chooser.setCurrentDirectory(new File(GlobalHolder.get(Preferences.class).get("path", System.getProperty("user.dir"))));
 
 		if (operation == FileOperation.Save)
 			chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
@@ -58,5 +59,10 @@ public class JFileChooserFactory {
 		chooser.setMultiSelectionEnabled(operation == FileOperation.MultipleLoad);
 
 		return chooser;
+	}
+	
+	public static void recordNewBaseFolder(String newPath)
+	{
+		GlobalHolder.get(Preferences.class).put("path", newPath);
 	}
 }
