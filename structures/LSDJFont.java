@@ -16,6 +16,8 @@ public class LSDJFont {
 	public static final int FONT_MAP_HEIGHT = FONT_NUM_TILES_Y * 8;
 	public static final int TILE_COUNT = 71;
 	public static final int FONT_HEADER_SIZE = 130;
+	public static final int FONT_COUNT = 3;
+	public static final int FONT_SIZE = 0xe96;	
 
 	private byte romImage[] = null;
 	private int fontOffset = -1;

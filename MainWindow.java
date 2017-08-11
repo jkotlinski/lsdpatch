@@ -55,13 +55,12 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import fontEditor.FontEditor;
-import utils.GlobalHolder;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
+import utils.RomUtilities;
 
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = -3993608561466542956L;
@@ -76,7 +75,6 @@ public class MainWindow extends JFrame {
     PaletteEditor paletteEditor = new PaletteEditor();
     FontEditor fontEditor = new FontEditor();
 
-    static final int BANK_COUNT = 64;
     static final int MAX_SAMPLES = 15;
 
     java.awt.event.ActionListener bankBoxListener =
@@ -442,7 +440,7 @@ public class MainWindow extends JFrame {
     }
 
     byte[] get4BitSamples(int index) {
-        int offset = getSelectedROMBank() * 0x4000 + index * 2;
+        int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
         if (stop <= start) {
@@ -450,7 +448,7 @@ public class MainWindow extends JFrame {
         }
         byte[] arr = new byte[stop - start];
         for (int i = start; i < stop; ++i) {
-            arr[i - start] = romImage[getSelectedROMBank() * 0x4000 - 0x4000 + i];
+            arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
         }
         return arr;
     }
@@ -471,7 +469,7 @@ public class MainWindow extends JFrame {
 
     void loadRom(File gbFile) {
         try {
-            romImage = new byte[0x4000 * BANK_COUNT];
+            romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
             setTitle(gbFile.getAbsoluteFile().toString());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
@@ -507,14 +505,14 @@ public class MainWindow extends JFrame {
     }
 
     private boolean isKitBank ( int a_bank ) {
-        int l_offset = ( a_bank ) * 0x4000;
+        int l_offset = ( a_bank ) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
         return ( l_char_1 == 0x60 && l_char_2 == 0x40 );
     }
 
     private boolean isEmptyKitBank ( int a_bank ) {
-        int l_offset = ( a_bank ) * 0x4000;
+        int l_offset = ( a_bank ) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
         return ( l_char_1 == -1 && l_char_2 == -1 );
@@ -526,7 +524,7 @@ public class MainWindow extends JFrame {
         }
 
         byte buf[]=new byte[6];
-        int offset=(a_bank)*0x4000+0x52;
+        int offset=(a_bank)*RomUtilities.BANK_SIZE+0x52;
         for(int i=0;i<6;i++) {
             buf[i]=romImage[offset++];
         }
@@ -539,7 +537,7 @@ public class MainWindow extends JFrame {
         bankBox.removeAllItems();
 
         int l_ui_index = 0;
-        for (int bankNo=0; bankNo < BANK_COUNT; bankNo++) {
+        for (int bankNo=0; bankNo < RomUtilities.BANK_COUNT; bankNo++) {
             if (isKitBank(bankNo) || isEmptyKitBank(bankNo)) {
                 bankBox.addItem(Integer.toHexString(++l_ui_index).toUpperCase() + ". " + getKitName(bankNo));
             }
@@ -580,7 +578,7 @@ public class MainWindow extends JFrame {
     }
 
     private int getROMOffsetForSelectedBank() {
-        return getSelectedROMBank() * 0x4000;
+        return getSelectedROMBank() * RomUtilities.BANK_SIZE;
     }
 
     private void updateBankView() {
@@ -683,7 +681,7 @@ public class MainWindow extends JFrame {
             FileInputStream in = new FileInputStream ( f.getAbsolutePath() );
             while ( in.available() > 0 )
             {
-                byte[] inBuf = new byte[0x4000];
+                byte[] inBuf = new byte[RomUtilities.BANK_SIZE];
                 in.read ( inBuf );
                 if ( inBuf[0] == 0x60 && inBuf[1] == 0x40 )
                 {
@@ -693,8 +691,8 @@ public class MainWindow extends JFrame {
                     {
                         outBank++;
                     }
-                    int outPtr = outBank * 0x4000;
-                    for ( int i = 0; i < 0x4000; i++ )
+                    int outPtr = outBank * RomUtilities.BANK_SIZE;
+                    for ( int i = 0; i < RomUtilities.BANK_SIZE; i++ )
                     {
                         romImage[outPtr++] = inBuf[i];
                     }
@@ -758,7 +756,7 @@ public class MainWindow extends JFrame {
     		try {
     			File f = chooser.getSelectedFile();
         		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-    			byte buf[]=new byte[0x4000];
+    			byte buf[]=new byte[RomUtilities.BANK_SIZE];
     			int offset=getROMOffsetForSelectedBank();
     			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
     			
@@ -778,7 +776,7 @@ public class MainWindow extends JFrame {
 
     void loadKit(File kitFile) {
         try {
-            byte buf[]=new byte[0x4000];
+            byte buf[]=new byte[RomUtilities.BANK_SIZE];
             int offset=getROMOffsetForSelectedBank();
             RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
             bankFile.readFully(buf);
@@ -818,7 +816,7 @@ public class MainWindow extends JFrame {
     void createKit() {
         //clear all bank
         int offset = getROMOffsetForSelectedBank() + 2;
-        int max_offset = getROMOffsetForSelectedBank() + 0x4000;
+        int max_offset = getROMOffsetForSelectedBank() + RomUtilities.BANK_SIZE;
         while ( offset < max_offset )
         {
             romImage[offset++] = 0;
@@ -930,7 +928,7 @@ public class MainWindow extends JFrame {
         kitSizeLabel.setText(Integer.toHexString(totSampleSize)+" bytes written");
         sbc.DITHER_VAL=ditherSlider.getValue();
 
-        byte newSamples[]=new byte[0x4000];
+        byte newSamples[]=new byte[RomUtilities.BANK_SIZE];
         int lengths[]=new int[15];
         sbc.handle(newSamples,samples,lengths);
 
@@ -952,7 +950,7 @@ public class MainWindow extends JFrame {
         int offset2=0x60;
         do {
             romImage[offset++]=newSamples[offset2++];
-        } while(offset2!=0x4000);
+        } while(offset2!=RomUtilities.BANK_SIZE);
 
         //update samplelength info in rom image
         int bankOffset=0x4060;

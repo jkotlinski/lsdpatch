@@ -21,16 +21,11 @@ THE SOFTWARE. */
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.prefs.Preferences;
 
-import javax.imageio.ImageIO;
 import javax.swing.UIManager;
 
-import structures.LSDJFont;
-import utils.FontIO;
+import utils.CommandLineFunctions;
 import utils.GlobalHolder;
 
 public class LSDPatcher {
@@ -60,11 +55,17 @@ public class LSDPatcher {
 		System.out.println("java -jar LSDJPatcher.jar");
 		System.out.println(" Opens the GUI.\n");
 
-		System.out.println("java -jar fnt2png <fntfile> <pngfile>");
+		System.out.println("java -jar LSDJPatcher.jar fnt2png <fntfile> <pngfile>");
 		System.out.println(" Exports the font file into a PNG\n");
 
-		System.out.println("java -jar png2fnt <font title> <pngfile> <fntfile>");
+		System.out.println("java -jar LSDJPatcher.jar png2fnt <font title> <pngfile> <fntfile>");
 		System.out.println(" Converts the PNG into a font with given name.\n");
+
+		System.out.println("java -jar LSDJPatcher.jar romfnt2png <romFile> <fontIndex>");
+		System.out.println(" Extracts the nth font from the given rom into a png named like the font.\n");
+
+		System.out.println("java -jar LSDJPatcher.jar png2romfnt <romFile> <pngfile> <index> <fontname>");
+		System.out.println(" Imports the PNG into the rom with given name.\n");
 	}
 
 	public static void main(String[] args) {
@@ -79,60 +80,33 @@ public class LSDPatcher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Preferences prefs = Preferences.userRoot().node(LSDPatcher.class.getName()); 
+		Preferences prefs = Preferences.userRoot().node(LSDPatcher.class.getName());
 		System.out.println("Using as remembered folder: " + prefs.get("path", System.getProperty("user.dir")));
 		GlobalHolder.set(prefs, Preferences.class);
 		prefs.put("path", prefs.get("path", System.getProperty("user.dir")));
-		
+
 		new LSDPatcher();
 	}
 
 	private static boolean processArguments(String[] args) {
-		String command = args[0];
-		if (command.toLowerCase().compareTo("fnt2png") == 0 && args.length == 3) {
-			fontToPng(args[1], args[2]);
+		String command = args[0].toLowerCase();
+		if (command.compareTo("fnt2png") == 0 && args.length == 3) {
+			CommandLineFunctions.fontToPng(args[1], args[2]);
 			return false;
-		} else if (command.toLowerCase().compareTo("png2fnt") == 0 && args.length == 4) {
-			pngToFont(args[1], args[2], args[3]);
+		} else if (command.compareTo("png2fnt") == 0 && args.length == 4) {
+			CommandLineFunctions.pngToFont(args[1], args[2], args[3]);
 			return false;
-		}
-		usage();
+		} else if (command.compareTo("romfnt2png") == 0 && args.length == 3) {
+			// -1 to allow 1-3 range instead of 0-2
+			CommandLineFunctions.extractFontToPng(args[1], Integer.parseInt(args[2]) - 1);
+			return false;
+		} else if (command.compareTo("png2romfnt") == 0 && args.length == 5) {
+			// -1 to allow 1-3 range instead of 0-2
+		CommandLineFunctions.loadPngToRom(args[1], args[2], Integer.parseInt(args[3]) - 1, args[4]);
 		return false;
 	}
-
-	private static void pngToFont(String name, String pngFile, String fntFile) {
-		try {
-			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
-			BufferedImage image = ImageIO.read(new File(pngFile));
-			if (image.getWidth() != LSDJFont.FONT_MAP_WIDTH && image.getHeight() != LSDJFont.FONT_MAP_HEIGHT) {
-				System.err.println("Wrong size!");
-				return;
-			}
-
-			LSDJFont font = new LSDJFont();
-			font.setRomImage(buffer);
-			font.setFontOffset(0);
-			String sub = font.readImage(name, image);
-
-			FontIO.saveFnt(new File(fntFile), sub, buffer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void fontToPng(String fntFile, String pngFile) {
-		try {
-			byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
-			@SuppressWarnings("unused")
-			String name = FontIO.loadFnt(new File(fntFile), buffer);
-			LSDJFont font = new LSDJFont();
-			font.setRomImage(buffer);
-			font.setFontOffset(0);
-			BufferedImage image = font.createImage();
-			ImageIO.write(image, "PNG", new File(pngFile));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		usage();
+		return false;
 	}
 
 }

@@ -23,10 +23,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import structures.LSDJFont;
 import utils.FontIO;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
+import utils.RomUtilities;
 
 public class FontEditor extends JFrame implements java.awt.event.ItemListener, java.awt.event.ActionListener,
 		FontMap.TileSelectListener, TileEditor.TileChangedListener {
@@ -53,9 +55,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	private int selectedFontOffset = -1;
 	private int nameOffset = -1;
 
-	private int fontCount = 3;
-	private int fontHeaderSize = 130;
-	private int fontSize = 0xe96;
 
 	private JPanel shiftButtonPanel = null;
 	BufferedImage shiftUpImage = null;
@@ -269,73 +268,10 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 			button.setText("Shift Down");		
 	}
 
-	
-	private int findFontOffset() {
-		int i = 30 * 0x4000; // Bank 30.
-		while (i < 31 * 0x4000) {
-			// Looks for the end of graphics font.
-			if (romImage[i] == 0 && romImage[i + 1] == 0 && romImage[i + 2] == 0 && romImage[i + 3] == 0
-					&& romImage[i + 4] == (byte) 0xd0 && romImage[i + 5] == (byte) 0x90 && romImage[i + 6] == 0x50
-					&& romImage[i + 7] == 0x50 && romImage[i + 8] == 0x50 && romImage[i + 9] == 0x50
-					&& romImage[i + 10] == 0x50 && romImage[i + 11] == 0x50 && romImage[i + 12] == (byte) 0xd0
-					&& romImage[i + 13] == (byte) 0x90 && romImage[i + 14] == 0 && romImage[i + 15] == 0) {
-				return i + 16;
-			}
-			++i;
-		}
-		return -1;
-	}
-
-	private int findNameOffset() {
-		// Palette names are in bank 27.
-		int i = 0x4000 * 27;
-		while (i < 0x4000 * 28) {
-			if (romImage[i] == 'G' && // gray
-					romImage[i + 1] == 'R' && romImage[i + 2] == 'A' && romImage[i + 3] == 'Y' && romImage[i + 4] == 0
-					&& romImage[i + 5] == 'I' && // inv
-					romImage[i + 6] == 'N' && romImage[i + 7] == 'V' && romImage[i + 8] == ' ' && romImage[i + 9] == 0
-					&& romImage[i + 10] == 0 && // empty
-					romImage[i + 11] == 0 && romImage[i + 12] == 0 && romImage[i + 13] == 0 && romImage[i + 14] == 0
-					&& romImage[i + 15] == 0 && // empty
-					romImage[i + 16] == 0 && romImage[i + 17] == 0 && romImage[i + 18] == 0 && romImage[i + 19] == 0
-					&& romImage[i + 20] == 0 && // empty
-					romImage[i + 21] == 0 && romImage[i + 22] == 0 && romImage[i + 23] == 0 && romImage[i + 24] == 0
-					&& romImage[i + 25] == 0 && // empty
-					romImage[i + 26] == 0 && romImage[i + 27] == 0 && romImage[i + 28] == 0 && romImage[i + 29] == 0) {
-				return i - 15;
-			}
-			++i;
-		}
-		return -1;
-	}
-
-	private String getFontName(int font) {
-		int fontNameSize = 5;
-		String s = new String();
-		s = s + (char) romImage[nameOffset + font * fontNameSize + 0];
-		s = s + (char) romImage[nameOffset + font * fontNameSize + 1];
-		s = s + (char) romImage[nameOffset + font * fontNameSize + 2];
-		s = s + (char) romImage[nameOffset + font * fontNameSize + 3];
-		return s;
-	}
-
-	private void setFontName(int fontIndex, String fontName) {
-		while (fontName.length() < 4) {
-			fontName += " ";
-		}
-		int fontNameSize = 5;
-		romImage[nameOffset + fontIndex * fontNameSize + 0] = (byte) fontName.charAt(0);
-		romImage[nameOffset + fontIndex * fontNameSize + 1] = (byte) fontName.charAt(1);
-		romImage[nameOffset + fontIndex * fontNameSize + 2] = (byte) fontName.charAt(2);
-		romImage[nameOffset + fontIndex * fontNameSize + 3] = (byte) fontName.charAt(3);
-		populateFontSelector();
-		fontSelector.setSelectedIndex(fontIndex);
-	}
-
 	private void populateFontSelector() {
 		fontSelector.removeAllItems();
-		for (int i = 0; i < fontCount; ++i) {
-			fontSelector.addItem(getFontName(i));
+		for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
+			fontSelector.addItem(RomUtilities.getFontName(romImage, i));
 		}
 	}
 
@@ -344,11 +280,11 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		fontMap.setRomImage(romImage);
 		tileEditor.setRomImage(romImage);
 
-		fontOffset = findFontOffset();
+		fontOffset = RomUtilities.findFontOffset(romImage);
 		if (fontOffset == -1) {
 			System.err.println("Could not find font offset!");
 		}
-		nameOffset = findNameOffset();
+		nameOffset = RomUtilities.findNameOffset(romImage);
 		if (nameOffset == -1) {
 			System.err.println("Could not find font name offset!");
 		}
@@ -363,7 +299,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 				if (index != -1) {
 					previousSelectedFont = index;
 					index = (index + 1) % 3; // Adjusts for fonts being defined in wrong order.
-					selectedFontOffset = fontOffset + index * fontSize + fontHeaderSize;
+					selectedFontOffset = fontOffset + index * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
 					fontMap.setFontOffset(selectedFontOffset);
 					tileEditor.setFontOffset(selectedFontOffset);
 				}
@@ -408,8 +344,9 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 			JComboBox cb = (JComboBox) e.getSource();
 			if (cb.getSelectedIndex() == -1) {
 				int index = previousSelectedFont;
-				setFontName(index, (String) cb.getSelectedItem());
+				RomUtilities.setFontName(romImage, index, (String) cb.getSelectedItem());
 				populateFontSelector();
+				fontSelector.setSelectedIndex(index);
 				cb.setSelectedIndex(index);
 			} else {
 				previousSelectedFont = cb.getSelectedIndex();
@@ -429,7 +366,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 				String fontName;
 				fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
 				tileEditor.generateShadedAndInvertedTiles();
-				setFontName(fontSelector.getSelectedIndex(), fontName);
+				RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
 				tileEditor.tileChanged();
 				tileChanged();
 			}
