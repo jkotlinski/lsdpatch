@@ -1,3 +1,4 @@
+
 /** Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,29 +21,54 @@ THE SOFTWARE. */
 
 import javax.sound.sampled.*;
 
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
+
+import sun.audio.AudioData;
+
 public class Sound {
 
-    // Plays 4-bit packed Game Boy sample. Returns unpacked data.
-    static byte[] play(byte[] gbSample) throws LineUnavailableException {
-        AudioFormat format = new AudioFormat(11468, 8, 1, false, false);
-        byte data[] = new byte[gbSample.length * 2];
-        for (int i = 0; i < gbSample.length; ++i) {
-            data[i * 2] = (byte)(0xf0 & gbSample[i]);
-            data[i * 2 + 1] = (byte)((0xf & gbSample[i]) << 4);
-        }
+	// Plays 4-bit packed Game Boy sample. Returns unpacked data.
+	static byte[] play(byte[] gbSample) throws LineUnavailableException {
+		AudioFormat upsampled_format = new AudioFormat(44000, 8, 1, false, false);
+		byte upsampled_data[] = new byte[(gbSample.length * 44000) / 11468 * 2];
+		for (int i = 0; i < upsampled_data.length / 2; ++i) {
+			double ratio = i / (upsampled_data.length / 2.);
+			if (ratio >= 1)
+				ratio = 1;
+			System.out.println(ratio);
 
-        // Emulates Game Boy sound chip bug. While changing waveform,
-        // sound is played back at zero DC. This happens every 32'nd sample.
-        byte fuzzed_data[] = data.clone();
-        for (int i = 0; i < fuzzed_data.length; i += 32) {
-            fuzzed_data[i] = 0x78;
-        }
+			
+			int sampleIndex = (int) (ratio * gbSample.length);
+			byte sample = gbSample[sampleIndex];
+			upsampled_data[i * 2] = (byte) (0xf0 & sample);
+			upsampled_data[i * 2 + 1] = (byte) ((0xf & sample) << 4);
+			
+			
+			// Emulates Game Boy sound chip bug. While changing waveform,
+			// sound is played back at zero DC. This happens every 32'nd sample.
+			if (sampleIndex % 32 == 0) {
+				upsampled_data[i*2] = 0x78;
+			}
+		}
 
-        // Play it!
-        Clip clip = AudioSystem.getClip();
-        clip.open(format, fuzzed_data, 0, fuzzed_data.length);
-        clip.start();
+		AudioFormat format = new AudioFormat(11468, 8, 1, false, false);
+		byte data[] = new byte[gbSample.length * 2];
+		for (int i = 0; i < gbSample.length; ++i) {
+			data[i * 2] = (byte) (0xf0 & gbSample[i]);
+			data[i * 2 + 1] = (byte) ((0xf & gbSample[i]) << 4);
+		}
 
-        return data;
-    }
+
+		// byte fuzzed_data[] = upsampled_data.clone();
+		// for (int i = 0; i < fuzzed_data.length; i += 32) {
+		// fuzzed_data[i] = 0x78;
+		// }
+
+		// Play it!
+		Clip clip = AudioSystem.getClip();
+		clip.open(upsampled_format, upsampled_data, 0, upsampled_data.length);
+		clip.start();
+
+		return data;
+	}
 }
