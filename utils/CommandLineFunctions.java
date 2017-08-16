@@ -46,7 +46,8 @@ public class CommandLineFunctions {
 	}
 
 	public static void extractFontToPng(String romFileName, int numFont) {
-		if (numFont < 1 || numFont > 3) {
+		if (numFont < 0 || numFont > 2) {
+			// Already -1-ed.
 			System.err.println("the font index must be comprised between 1 and 3.");
 			return;
 		}
@@ -70,7 +71,8 @@ public class CommandLineFunctions {
 	}
 
 	public static void loadPngToRom(String romFileName, String imageFileName, int numFont, String fontName) {
-		if (numFont < 1 || numFont > 3) {
+		if (numFont < 0 || numFont > 2) {
+			// Already -1-ed.
 			System.err.println("the font index must be comprised between 1 and 3.");
 			return;
 		}
