@@ -464,6 +464,7 @@ public class MainWindow extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
                     JOptionPane.INFORMATION_MESSAGE);
+            e.printStackTrace();
         }
     }
 
