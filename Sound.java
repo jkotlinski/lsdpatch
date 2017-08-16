@@ -29,40 +29,30 @@ public class Sound {
 
 	// Plays 4-bit packed Game Boy sample. Returns unpacked data.
 	static byte[] play(byte[] gbSample) throws LineUnavailableException {
-		AudioFormat upsampled_format = new AudioFormat(44000, 8, 1, false, false);
-		byte upsampled_data[] = new byte[(gbSample.length * 44000) / 11468 * 2];
-		for (int i = 0; i < upsampled_data.length / 2; ++i) {
-			double ratio = i / (upsampled_data.length / 2.);
-			if (ratio >= 1)
-				ratio = 1;
-			System.out.println(ratio);
+		AudioFormat upsampled_format = new AudioFormat(48000, 8, 1, false, false);
+		byte upsampled_data[] = new byte[(int)(gbSample.length * (48000/ 11468.))*2];
+		for (int i = 0; i < upsampled_data.length; i+=2) {
+			double ratio = i / (double)(upsampled_data.length);
 
 			
 			int sampleIndex = (int) (ratio * gbSample.length);
 			byte sample = gbSample[sampleIndex];
-			upsampled_data[i * 2] = (byte) (0xf0 & sample);
-			upsampled_data[i * 2 + 1] = (byte) ((0xf & sample) << 4);
+			upsampled_data[i] = (byte) (0xf0 & sample);
+			upsampled_data[i + 1] = (byte) ((0xf & sample) << 4);
 			
 			
 			// Emulates Game Boy sound chip bug. While changing waveform,
 			// sound is played back at zero DC. This happens every 32'nd sample.
 			if (sampleIndex % 32 == 0) {
-				upsampled_data[i*2] = 0x78;
+				upsampled_data[i] = 0x78;
 			}
 		}
 
-		AudioFormat format = new AudioFormat(11468, 8, 1, false, false);
 		byte data[] = new byte[gbSample.length * 2];
 		for (int i = 0; i < gbSample.length; ++i) {
 			data[i * 2] = (byte) (0xf0 & gbSample[i]);
 			data[i * 2 + 1] = (byte) ((0xf & gbSample[i]) << 4);
 		}
-
-
-		// byte fuzzed_data[] = upsampled_data.clone();
-		// for (int i = 0; i < fuzzed_data.length; i += 32) {
-		// fuzzed_data[i] = 0x78;
-		// }
 
 		// Play it!
 		Clip clip = AudioSystem.getClip();
