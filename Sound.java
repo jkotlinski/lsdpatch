@@ -41,14 +41,19 @@ public class Sound {
 	static byte[] play(byte[] gbSample) throws LineUnavailableException {
 		AudioFormat upsampled_format = new AudioFormat(48000, 8, 1, false, false);
 		byte upsampled_data[] = new byte[(int)(gbSample.length * (48000/ 11468.))*2];
-		for (int i = 0; i < upsampled_data.length; i+=2) {
+		for (int i = 0; i < upsampled_data.length; i++) {
 			double ratio = i / (double)(upsampled_data.length);
 
 			
 			int sampleIndex = (int) (ratio * gbSample.length);
+			int nibbleIndex = (int)(ratio * gbSample.length*2.);
+			System.out.println(sampleIndex + "<=>" + nibbleIndex);
+			int nibble = (int)(ratio * gbSample.length*2.)%2;
 			byte sample = gbSample[sampleIndex];
-			upsampled_data[i] = (byte) (0xf0 & sample);
-			upsampled_data[i + 1] = (byte) ((0xf & sample) << 4);
+			if(nibble == 0)
+				upsampled_data[i] = (byte) (0xf0 & sample);
+			else
+				upsampled_data[i] = (byte) ((0x0F & sample)<<4);
 			
 			
 			// Emulates Game Boy sound chip bug. While changing waveform,
