@@ -18,11 +18,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-import javax.sound.sampled.*;
+import java.util.ArrayList;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 
 public class Sound {
 
-    // Plays 4-bit packed Game Boy sample. Returns unpacked data.
+	private static ArrayList<Clip> previousClips = new ArrayList<Clip>();
+ // Plays 4-bit packed Game Boy sample. Returns unpacked data.
     static byte[] play(byte[] gbSample) throws LineUnavailableException {
         AudioFormat format = new AudioFormat(11468, 8, 1, false, false);
         byte data[] = new byte[gbSample.length * 2];
@@ -38,11 +44,18 @@ public class Sound {
             fuzzed_data[i] = 0x78;
         }
 
-        // Play it!
+
+		// Play it!
         Clip clip = AudioSystem.getClip();
         clip.open(format, fuzzed_data, 0, fuzzed_data.length);
         clip.start();
-
+		previousClips.add(clip);
+		for(int i = previousClips.size() - 2; i >= 0; i--) {
+			if(!previousClips.get(i).isRunning()) {
+				previousClips.get(i).close();
+				previousClips.remove(i);
+			}
+		}
         return data;
     }
 }
