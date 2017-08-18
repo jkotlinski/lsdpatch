@@ -46,8 +46,6 @@ public class Sound {
 
 			
 			int sampleIndex = (int) (ratio * gbSample.length);
-			int nibbleIndex = (int)(ratio * gbSample.length*2.);
-			System.out.println(sampleIndex + "<=>" + nibbleIndex);
 			int nibble = (int)(ratio * gbSample.length*2.)%2;
 			byte sample = gbSample[sampleIndex];
 			if(nibble == 0)
