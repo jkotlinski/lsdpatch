@@ -1,3 +1,4 @@
+package fontEditor;
 /** Copyright (C) 2017 by Johan Kotlinski
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,14 +19,19 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE. */
 
-import javax.swing.JPanel;
+import java.awt.Dimension;
 import java.awt.Graphics;
 
+import javax.swing.JPanel;
+
+import structures.LSDJFont;
+
 public class FontMap extends JPanel implements java.awt.event.MouseListener {
-    byte[] romImage = null;
+	private static final long serialVersionUID = -7745908775698863845L;
+	byte[] romImage = null;
     int fontOffset = -1;
-    int tileCount = 71;
-    int displayTileSize = 16;
+    int tileZoom = 1;
+    int displayTileSize = 8;
 
     public interface TileSelectListener {
         public void tileSelected(int tile);
@@ -43,9 +49,16 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        for (int tile = 0; tile < tileCount; ++tile) {
-            paintTile(g, tile);
+        int widthScale = getWidth()/LSDJFont.FONT_MAP_WIDTH;
+        int heightScale = getHeight()/LSDJFont.FONT_MAP_HEIGHT;
+    	tileZoom = widthScale < heightScale ? widthScale : heightScale;
+    	tileZoom = tileZoom > 1 ? tileZoom : 1;
+    	int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
+    	int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
+    	setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, LSDJFont.FONT_MAP_HEIGHT * tileZoom));
+    	
+        for (int tile = 0; tile < LSDJFont.TILE_COUNT; ++tile) {
+            paintTile(g, tile, offsetX, offsetY);
         }
     }
 
@@ -74,14 +87,15 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         return value;
     }
 
-    private void paintTile(Graphics g, int tile) {
-        int x = (tile * displayTileSize) % getWidth();
-        int y = ((tile * displayTileSize) / getWidth()) * displayTileSize;
-
+    private void paintTile(Graphics g, int tile, int offsetX, int offsetY) {
+    	displayTileSize = 8 * tileZoom;
+    	int x = (tile % 8) * displayTileSize;
+    	int y = (tile / 8) * displayTileSize;
+    	
         for (int row = 0; row < 8; ++row) {
             for (int column = 0; column < 8; ++column) {
                 switchColor(g, getColor(tile, column, row));
-                g.fillRect(x + column * 2, y + row * 2, 2, 2);
+                g.fillRect(offsetX + x + column * tileZoom, offsetY + y + row * tileZoom, tileZoom, tileZoom);
             }
         }
     }
@@ -100,51 +114,22 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     public void mouseReleased(java.awt.event.MouseEvent e) {}
     public void mousePressed(java.awt.event.MouseEvent e) {}
     public void mouseClicked(java.awt.event.MouseEvent e) {
-        int tile = (e.getY() / displayTileSize) * (getWidth() / displayTileSize) +
-            e.getX() / displayTileSize;
-        assert tile >= 0;
-        if (tileSelectedListener != null && tile < tileCount) {
+    	int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom)/2;
+    	int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT* tileZoom)/2;
+    	
+    	int realX = e.getX() - offsetX;
+    	int realY = e.getY() - offsetY;
+    	
+    	if(realX < 0 || realY < 0 || realX > LSDJFont.FONT_MAP_WIDTH * tileZoom || realY > LSDJFont.FONT_MAP_HEIGHT * tileZoom)
+    		return;
+    	
+    	int tile = (realY / displayTileSize) * LSDJFont.FONT_NUM_TILES_X +
+            realX / displayTileSize;
+    	if (tile < 0 || tile >= LSDJFont.TILE_COUNT)
+    		return;
+        if (tileSelectedListener != null && tile < LSDJFont.TILE_COUNT) {
             tileSelectedListener.tileSelected(tile);
         }
     }
 
-    // Returns font name.
-    String load(java.io.File file) {
-        String name = new String();
-        try {
-            int bytesPerTile = 16;
-            int fontSize = tileCount * bytesPerTile;
-            java.io.RandomAccessFile f = new java.io.RandomAccessFile(file, "r");
-            name += (char)f.read();
-            name += (char)f.read();
-            name += (char)f.read();
-            name += (char)f.read();
-            for (int i = fontOffset; i < fontOffset + fontSize; ++i) {
-                romImage[i] = (byte)f.read();
-            }
-            f.close();
-        } catch (java.io.IOException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Load failed!");
-        }
-        repaint();
-        return name;
-    }
-
-    void save(String path, String fontName) {
-        try {
-            java.io.FileOutputStream f = new java.io.FileOutputStream(path);
-            f.write(fontName.charAt(0));
-            f.write(fontName.charAt(1));
-            f.write(fontName.charAt(2));
-            f.write(fontName.charAt(3));
-            int bytesPerTile = 16;
-            int fontSize = tileCount * bytesPerTile;
-            for (int i = fontOffset; i < fontOffset + fontSize; ++i) {
-                f.write(romImage[i]);
-            }
-            f.close();
-        } catch (java.io.IOException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Save failed!");
-        }
-    }
 }

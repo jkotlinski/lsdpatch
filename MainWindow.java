@@ -18,16 +18,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.beans.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.RandomAccessFile;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+
+import fontEditor.FontEditor;
+import utils.JFileChooserFactory;
+import utils.JFileChooserFactory.FileOperation;
+import utils.JFileChooserFactory.FileType;
+import utils.RomUtilities;
 
 public class MainWindow extends JFrame {
-    String versionString = "LSD-Patcher v1.1.4";
+	private static final long serialVersionUID = -3993608561466542956L;
+	String versionString = "LSD-Patcher v1.1.4";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
     TitledBorder titledBorder1;
@@ -38,7 +75,6 @@ public class MainWindow extends JFrame {
     PaletteEditor paletteEditor = new PaletteEditor();
     FontEditor fontEditor = new FontEditor();
 
-    static final int BANK_COUNT = 64;
     static final int MAX_SAMPLES = 15;
 
     java.awt.event.ActionListener bankBoxListener =
@@ -73,7 +109,7 @@ public class MainWindow extends JFrame {
     GridLayout gridLayout1 = new GridLayout();
 
     JMenuBar menuBar = new JMenuBar();
-
+    
     public class SampleCanvas extends Canvas {
         byte[] buf;
 
@@ -106,10 +142,20 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public class GBFileFilter implements java.io.FilenameFilter {
+    public class GBFileFilter extends FileFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".gb");
         }
+
+		@Override
+		public boolean accept(File file) {
+            return file.getName().toLowerCase().endsWith(".gb");
+		}
+
+		@Override
+		public String getDescription() {
+			return "Game Boy ROM (*.gb)";
+		}
     }
     public class KitFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
@@ -129,7 +175,7 @@ public class MainWindow extends JFrame {
     }
 
     public MainWindow() {
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+    	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
         }
@@ -394,7 +440,7 @@ public class MainWindow extends JFrame {
     }
 
     byte[] get4BitSamples(int index) {
-        int offset = getSelectedROMBank() * 0x4000 + index * 2;
+        int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
         if (stop <= start) {
@@ -402,7 +448,7 @@ public class MainWindow extends JFrame {
         }
         byte[] arr = new byte[stop - start];
         for (int i = start; i < stop; ++i) {
-            arr[i - start] = romImage[getSelectedROMBank() * 0x4000 - 0x4000 + i];
+            arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
         }
         return arr;
     }
@@ -418,12 +464,13 @@ public class MainWindow extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
                     JOptionPane.INFORMATION_MESSAGE);
+            e.printStackTrace();
         }
     }
 
     void loadRom(File gbFile) {
         try {
-            romImage = new byte[0x4000 * BANK_COUNT];
+            romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
             setTitle(gbFile.getAbsoluteFile().toString());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
@@ -446,25 +493,27 @@ public class MainWindow extends JFrame {
     }
 
     void selectRomToLoad() {
-        FileDialog dialog = new FileDialog(this, "Load ROM Image (.gb)",
-                FileDialog.LOAD);
-        dialog.setFilenameFilter(new GBFileFilter());
-        dialog.setVisible(true);
-        String s = dialog.getFile();
-        if (dialog.getFile() != null) {
-            loadRom(new File(dialog.getDirectory(), dialog.getFile()));
-        }
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Load ROM Image", FileType.Gb, FileOperation.Load);
+    	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{
+    		File f = chooser.getSelectedFile();
+    		if (f != null) {
+    			loadRom(f);
+        		JFileChooserFactory.recordNewBaseFolder(f.getParent());
+    		}    		
+    	}
     }
 
     private boolean isKitBank ( int a_bank ) {
-        int l_offset = ( a_bank ) * 0x4000;
+        int l_offset = ( a_bank ) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
         return ( l_char_1 == 0x60 && l_char_2 == 0x40 );
     }
 
     private boolean isEmptyKitBank ( int a_bank ) {
-        int l_offset = ( a_bank ) * 0x4000;
+        int l_offset = ( a_bank ) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
         return ( l_char_1 == -1 && l_char_2 == -1 );
@@ -476,7 +525,7 @@ public class MainWindow extends JFrame {
         }
 
         byte buf[]=new byte[6];
-        int offset=(a_bank)*0x4000+0x52;
+        int offset=(a_bank)*RomUtilities.BANK_SIZE+0x52;
         for(int i=0;i<6;i++) {
             buf[i]=romImage[offset++];
         }
@@ -489,7 +538,7 @@ public class MainWindow extends JFrame {
         bankBox.removeAllItems();
 
         int l_ui_index = 0;
-        for (int bankNo=0; bankNo < BANK_COUNT; bankNo++) {
+        for (int bankNo=0; bankNo < RomUtilities.BANK_COUNT; bankNo++) {
             if (isKitBank(bankNo) || isEmptyKitBank(bankNo)) {
                 bankBox.addItem(Integer.toHexString(++l_ui_index).toUpperCase() + ". " + getKitName(bankNo));
             }
@@ -530,7 +579,7 @@ public class MainWindow extends JFrame {
     }
 
     private int getROMOffsetForSelectedBank() {
-        return getSelectedROMBank() * 0x4000;
+        return getSelectedROMBank() * RomUtilities.BANK_SIZE;
     }
 
     private void updateBankView() {
@@ -633,7 +682,7 @@ public class MainWindow extends JFrame {
             FileInputStream in = new FileInputStream ( f.getAbsolutePath() );
             while ( in.available() > 0 )
             {
-                byte[] inBuf = new byte[0x4000];
+                byte[] inBuf = new byte[RomUtilities.BANK_SIZE];
                 in.read ( inBuf );
                 if ( inBuf[0] == 0x60 && inBuf[1] == 0x40 )
                 {
@@ -643,8 +692,8 @@ public class MainWindow extends JFrame {
                     {
                         outBank++;
                     }
-                    int outPtr = outBank * 0x4000;
-                    for ( int i = 0; i < 0x4000; i++ )
+                    int outPtr = outBank * RomUtilities.BANK_SIZE;
+                    for ( int i = 0; i < RomUtilities.BANK_SIZE; i++ )
                     {
                         romImage[outPtr++] = inBuf[i];
                     }
@@ -663,78 +712,72 @@ public class MainWindow extends JFrame {
     }
 
     void importKits_actionPerformed(ActionEvent e) {
-        FileDialog dialog = new FileDialog(this, "Select ROM to import from",
-                FileDialog.LOAD);
-        dialog.setFilenameFilter(new GBFileFilter());
-        dialog.setVisible(true);
-        if (dialog.getFile() == null) {
-            return;
-        }
-        File f = new File(dialog.getDirectory(), dialog.getFile());
-
-        importKits(f);
-    }
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Select ROM to import from", FileType.Gb, FileOperation.Load);
+       	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{
+ 
+	        File f = chooser.getSelectedFile();
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
+	        if (f == null) {
+	            return;
+	        }
+	        importKits(f);
+    	}
+	}
 
     void saveROMButton_actionPerformed() {
-        FileDialog dialog = new FileDialog(this, "Save ROM Image",
-                FileDialog.SAVE);
-        dialog.setFilenameFilter(new GBFileFilter());
-        dialog.setFile(getTitle());
-        dialog.setVisible(true);
-        if (dialog.getFile() == null) {
-            return;
-        }
-        try {
-            File f = new File(dialog.getDirectory(), dialog.getFile());
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Save ROM image", FileType.Gb, FileOperation.Save);
 
-            if (!f.toString().toUpperCase().endsWith(".GB")) {
-                f = new File(f.getAbsoluteFile().toString()+".gb");
-            }
-
-            romFile = new RandomAccessFile(f,"rw");
-            romFile.write(romImage);
-            romFile.close();
-            setTitle(f.getAbsoluteFile().toString());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+       	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{ 
+	        try {
+	            File f = chooser.getSelectedFile();
+	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
+	
+	            romFile = new RandomAccessFile(f,"rw");
+	            romFile.write(romImage);
+	            romFile.close();
+	            setTitle(f.getAbsoluteFile().toString());
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+	                    JOptionPane.ERROR_MESSAGE);
+	        }
+    	}
     }
 
     void exportKitButton_actionPerformed() {
-        FileDialog dialog = new FileDialog(this, "Export kit", FileDialog.SAVE);
-        dialog.setFilenameFilter(new KitFileFilter());
-        dialog.setVisible(true);
-        String fileName = dialog.getFile();
-        if (null == fileName) {
-            return;
-        }
-        if (!fileName.toLowerCase().endsWith(".kit")) {
-            fileName = fileName + ".kit";
-        }
+    	JFileChooser chooser = JFileChooserFactory.createChooser("Export kit", FileType.Kit, FileOperation.Save);
 
-        try {
-            File f = new File(dialog.getDirectory(), fileName);
+    	int result = chooser.showOpenDialog(this);
+    	if (result == JFileChooser.APPROVE_OPTION)
+    	{
 
-            byte buf[]=new byte[0x4000];
-            int offset=getROMOffsetForSelectedBank();
-            RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
-
-            for(int i=0;i<buf.length;i++) {
-                buf[i]=romImage[offset++];
-            }
-            bankFile.write(buf);
-            bankFile.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        updateRomView();
+    		try {
+    			File f = chooser.getSelectedFile();
+        		JFileChooserFactory.recordNewBaseFolder(f.getParent());
+    			byte buf[]=new byte[RomUtilities.BANK_SIZE];
+    			int offset=getROMOffsetForSelectedBank();
+    			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
+    			
+    			for(int i=0;i<buf.length;i++) {
+    				buf[i]=romImage[offset++];
+    			}
+    			bankFile.write(buf);
+    			bankFile.close();
+    		} catch (Exception e) {
+    			JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+    					JOptionPane.ERROR_MESSAGE);
+    		}
+    		updateRomView();    		
+    	}
+    	
     }
 
     void loadKit(File kitFile) {
         try {
-            byte buf[]=new byte[0x4000];
+            byte buf[]=new byte[RomUtilities.BANK_SIZE];
             int offset=getROMOffsetForSelectedBank();
             RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
             bankFile.readFully(buf);
@@ -760,17 +803,6 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
-
     private String dropExtension(File f) {
         String ext = null;
         String s = f.getName();
@@ -785,7 +817,7 @@ public class MainWindow extends JFrame {
     void createKit() {
         //clear all bank
         int offset = getROMOffsetForSelectedBank() + 2;
-        int max_offset = getROMOffsetForSelectedBank() + 0x4000;
+        int max_offset = getROMOffsetForSelectedBank() + RomUtilities.BANK_SIZE;
         while ( offset < max_offset )
         {
             romImage[offset++] = 0;
@@ -897,7 +929,7 @@ public class MainWindow extends JFrame {
         kitSizeLabel.setText(Integer.toHexString(totSampleSize)+" bytes written");
         sbc.DITHER_VAL=ditherSlider.getValue();
 
-        byte newSamples[]=new byte[0x4000];
+        byte newSamples[]=new byte[RomUtilities.BANK_SIZE];
         int lengths[]=new int[15];
         sbc.handle(newSamples,samples,lengths);
 
@@ -919,7 +951,7 @@ public class MainWindow extends JFrame {
         int offset2=0x60;
         do {
             romImage[offset++]=newSamples[offset2++];
-        } while(offset2!=0x4000);
+        } while(offset2!=RomUtilities.BANK_SIZE);
 
         //update samplelength info in rom image
         int bankOffset=0x4060;

@@ -22,7 +22,15 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import java.awt.event.KeyEvent;
+import java.io.File;
+
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import utils.GlobalHolder;
+import utils.JFileChooserFactory;
+import utils.JFileChooserFactory.FileOperation;
+import utils.JFileChooserFactory.FileType;
+
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -116,18 +124,18 @@ public class PaletteEditor
     /**
      * Launch the application.
      */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    PaletteEditor frame = new PaletteEditor();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    public static void main(String[] args) {
+//        EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                try {
+//                    PaletteEditor frame = new PaletteEditor();
+//                    frame.setVisible(true);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     public PaletteEditor() {
         JMenuBar menuBar = new JMenuBar();
@@ -814,24 +822,22 @@ public class PaletteEditor
     }
 
     private void showOpenDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Palette", "lsdpal");
-		chooser.setFileFilter(filter);
+		JFileChooser chooser = JFileChooserFactory.createChooser("Load Palette", FileType.Lsdpal, FileOperation.Load);
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			loadPalette(chooser.getSelectedFile());
+            File f = chooser.getSelectedFile();
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
+			loadPalette(f);
 		}
     }
 
     private void showSaveDialog() {
-		JFileChooser chooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("LSDj Font", "lsdpal");
-		chooser.setFileFilter(filter);
-        String paletteName = paletteSelector.getSelectedItem().toString();
-        chooser.setSelectedFile(new java.io.File(paletteName + ".lsdpal"));
+		JFileChooser chooser = JFileChooserFactory.createChooser("Save Palette", FileType.Lsdpal, FileOperation.Save);
 		int returnVal = chooser.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String filename = chooser.getSelectedFile().toString();
+            File f = chooser.getSelectedFile();
+    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
+			String filename = f.toString();
 			if (!filename.endsWith("lsdpal")) {
 				filename += ".lsdpal";
 			}
