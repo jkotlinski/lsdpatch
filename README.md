@@ -10,9 +10,10 @@ Tutorial by Little-Scale: http://little-scale.blogspot.com/2008/11/how-to-prepar
 
 Video tutorial by 2xAA: http://www.youtube.com/watch?v=FGeVrW5Jxww
 
-## License
+#### License Information
 
-This project is released under the [LICENSE](MIT LICENSE).
+This project is released under the [MIT license](LICENSE).
 
-Filedrop.java: Copyright (C) 2007 by Robert Harder. No rights reserved.
-StretchIcon.java: Copyright (C) 2016 by Darryl Burke. No rights reserved.
+Filedrop.java, Copyright (C) 2007 by Robert Harder. No rights reserved.
+
+StretchIcon.java, Copyright (C) 2016 by Darryl Burke. No rights reserved.
