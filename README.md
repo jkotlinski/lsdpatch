@@ -12,7 +12,7 @@ Video tutorial by 2xAA: http://www.youtube.com/watch?v=FGeVrW5Jxww
 
 #### License Information
 
-This project is released under the [MIT license](LICENSE).
+This project is licensed under the [MIT license](LICENSE), except for the following files:
 
 Filedrop.java, Copyright (C) 2007 by Robert Harder. No rights reserved.
 
