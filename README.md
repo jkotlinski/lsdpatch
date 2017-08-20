@@ -12,6 +12,7 @@ Video tutorial by 2xAA: http://www.youtube.com/watch?v=FGeVrW5Jxww
 
 ## License
 
-Copyright (C) 2001-2017 by Johan Kotlinski
+This project is released under the [LICENSE](MIT LICENSE).
 
-This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for more details.
+Filedrop.java: Copyright (C) 2007 by Robert Harder. No rights reserved.
+StretchIcon.java: Copyright (C) 2016 by Darryl Burke. No rights reserved.
