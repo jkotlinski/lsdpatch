@@ -27,7 +27,7 @@ import javax.swing.border.*;
 import java.beans.*;
 
 public class MainWindow extends JFrame {
-    String versionString = "LSD-Patcher v1.1.4";
+    String versionString = "LSD-Patcher v1.1.5";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
     TitledBorder titledBorder1;
@@ -64,6 +64,7 @@ public class MainWindow extends JFrame {
     JTextArea kitTextArea = new JTextArea();
     JButton addSampleButton = new JButton();
     JButton dropSampleButton = new JButton();
+    JButton importROMButton = new JButton();
     JButton saveROMButton = new JButton();
     JLabel kitSizeLabel = new JLabel();
     JPanel jPanel2 = new JPanel();
@@ -340,18 +341,25 @@ public class MainWindow extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     dropSample();
                 }});
+        importROMButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                importKits_actionPerformed(e);
+                }});
+        importROMButton.setBounds(new Rectangle(212, 280 - 64, 170, 28));
+        importROMButton.setEnabled(false);
+        importROMButton.setText("import kits from rom");
         saveROMButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                 saveROMButton_actionPerformed();
                 }});
-        saveROMButton.setBounds(new Rectangle(212, 280 - 64, 170, 28));
+        saveROMButton.setBounds(new Rectangle(212, 280 - 32, 170, 28));
         saveROMButton.setEnabled(false);
         saveROMButton.setText("save rom");
         kitSizeLabel.setToolTipText("");
         kitSizeLabel.setText("0/3fa0 bytes used");
         kitSizeLabel.setBounds(new Rectangle(8, 346-17, 169, 22));
         jPanel2.setBorder(titledBorder3);
-        jPanel2.setBounds(new Rectangle(210, 315-64, 174, 66));
+        jPanel2.setBounds(new Rectangle(210, 315-32, 174, 66));
         jPanel2.setLayout(gridLayout1);
         ditherSlider.setMajorTickSpacing(4);
         ditherSlider.setMaximum(16);
@@ -373,10 +381,11 @@ public class MainWindow extends JFrame {
         contentPane.add(exportSampleButton, null);
         contentPane.add(addSampleButton, null);
         contentPane.add(dropSampleButton, null);
+        contentPane.add(importROMButton, null);
         contentPane.add(saveROMButton, null);
         contentPane.add(jPanel2, null);
         JLabel versionLabel = new JLabel(versionString, SwingConstants.RIGHT);
-        versionLabel.setBounds(new Rectangle(210, 335, 174, 26));
+        versionLabel.setBounds(new Rectangle(210, 335 + 12, 174, 20));
         contentPane.add(versionLabel);
         jPanel2.add(ditherSlider, null);
 
@@ -431,6 +440,7 @@ public class MainWindow extends JFrame {
             fontEditor.setRomImage(romImage);
             paletteEditor.setRomImage(romImage);
             saveROMItem.setEnabled(true);
+            importROMButton.setEnabled(true);
             saveROMButton.setEnabled(true);
             importKitsItem.setEnabled(true);
             loadKitButton.setEnabled(true);
