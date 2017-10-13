@@ -10,6 +10,10 @@ Tutorial by Little-Scale: http://little-scale.blogspot.com/2008/11/how-to-prepar
 
 Video tutorial by 2xAA: http://www.youtube.com/watch?v=FGeVrW5Jxww
 
+Fonts: https://github.com/urbster1/lsdfonts
+
+Palettes: https://github.com/urbster1/lsdpals
+
 #### License Information
 
 This project is licensed under the [MIT license](LICENSE), except for the following files:
