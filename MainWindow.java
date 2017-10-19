@@ -956,7 +956,7 @@ public class MainWindow extends JFrame {
     }
 
     private void updateChecksum() {
-		int checksumPosition = 0x14e;
+        int checksumPosition = 0x14e;
 
         romImage[checksumPosition] = 0;
         romImage[checksumPosition + 1] = 0;
