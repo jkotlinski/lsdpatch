@@ -701,6 +701,8 @@ public class MainWindow extends JFrame {
                 f = new File(f.getAbsoluteFile().toString()+".gb");
             }
 
+            updateChecksum();
+
             romFile = new RandomAccessFile(f,"rw");
             romFile.write(romImage);
             romFile.close();
@@ -951,6 +953,21 @@ public class MainWindow extends JFrame {
         // Resets forced loop data.
         romImage[getROMOffsetForSelectedBank() + 0x5c] = 0;
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
+    }
+
+    private void updateChecksum() {
+		int checksumPosition = 0x14e;
+
+        romImage[checksumPosition] = 0;
+        romImage[checksumPosition + 1] = 0;
+
+        int checksum = 0;
+        for (byte romByte : romImage) {
+            checksum += romByte & 0xff;
+        }
+
+        romImage[checksumPosition] = (byte)((checksum >> 8) & 0xff);
+        romImage[checksumPosition + 1] = (byte)(checksum & 0xff);
     }
 
     void dropSample() {
