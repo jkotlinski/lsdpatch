@@ -65,5 +65,24 @@ public class RomUtilities {
 		romImage[nameOffset + fontIndex * fontNameSize + 1] = (byte) fontName.charAt(1);
 		romImage[nameOffset + fontIndex * fontNameSize + 2] = (byte) fontName.charAt(2);
 		romImage[nameOffset + fontIndex * fontNameSize + 3] = (byte) fontName.charAt(3);
-	}	
+	}
+	
+	public static void fixChecksums(byte[] romImage) {
+		int checksum014D = 0;
+		for (int i = 0x134; i < 0x14D; ++i) {
+			checksum014D = checksum014D - romImage[i] - 1;
+		}
+		romImage[0x14D] = (byte)(checksum014D&0xFF);
+		
+		int checksum014E = 0;
+		for (int i = 0; i < romImage.length; ++i) {
+			if (i == 0x14E || i == 0x14F) {
+				continue;
+			}
+			checksum014E += romImage[i] & 0xFF;
+		}
+
+		romImage[0x14E] = (byte)((checksum014E&0xFF00)>>8);
+		romImage[0x14F] = (byte) (checksum014E&0x00FF);
+	}
 }

@@ -736,6 +736,7 @@ public class MainWindow extends JFrame {
 	            File f = chooser.getSelectedFile();
 	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
 	
+	    	    RomUtilities.fixChecksums(romImage);
 	            romFile = new RandomAccessFile(f,"rw");
 	            romFile.write(romImage);
 	            romFile.close();
