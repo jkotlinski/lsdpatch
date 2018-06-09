@@ -298,6 +298,7 @@ public class Sample {
                 unsigned[it] = (byte)((int)buf[it] + 0x80);
             }
             wavFile.write(unsigned);
+            wavFile.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);

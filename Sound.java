@@ -26,14 +26,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
-
-import sun.audio.AudioData;
-
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
-
-import sun.audio.AudioData;
-
 public class Sound {
 
 	private static ArrayList<Clip> previousClips = new ArrayList<Clip>();

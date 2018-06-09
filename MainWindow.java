@@ -676,7 +676,6 @@ public class MainWindow extends JFrame {
 
     void importKits(File f) {
         try {
-            int inBank = 0;
             int outBank = 0;
             int copiedBankCount = 0;
             FileInputStream in = new FileInputStream ( f.getAbsolutePath() );
@@ -699,12 +698,12 @@ public class MainWindow extends JFrame {
                     }
                     copiedBankCount++;
                 }
-                ++inBank;
             }
             updateRomView();
             JOptionPane.showMessageDialog(this,
                     "Imported " + copiedBankCount + " kits!",
                     "Import OK!", JOptionPane.INFORMATION_MESSAGE);
+            in.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
@@ -719,9 +718,6 @@ public class MainWindow extends JFrame {
  
 	        File f = chooser.getSelectedFile();
     		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-	        if (f == null) {
-	            return;
-	        }
 	        importKits(f);
     	}
 	}
@@ -832,7 +828,6 @@ public class MainWindow extends JFrame {
 
         //clear instrument names
         offset = getROMOffsetForSelectedBank() + 0x22;
-        byte b[]=new byte[3];
         for(int i=0;i<15;i++) {
             romImage[offset++]=0;
             romImage[offset++]='-';

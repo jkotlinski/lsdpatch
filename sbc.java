@@ -20,8 +20,6 @@ THE SOFTWARE. */
 
 // Sample bank creator.
 
-import java.io.*;
-
 class sbc {
 
     public static int DITHER_VAL=0x8;

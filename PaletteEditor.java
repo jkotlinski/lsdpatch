@@ -51,8 +51,9 @@ import javax.swing.event.ChangeEvent;
 public class PaletteEditor
     extends JFrame
     implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
+	private static final long serialVersionUID = 5286120830758415869L;
 
-    private JPanel contentPane;
+	private JPanel contentPane;
 
     private byte romImage[] = null;
     private int paletteOffset = -1;
