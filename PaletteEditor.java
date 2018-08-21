@@ -30,6 +30,7 @@ import utils.GlobalHolder;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
+import utils.RomUtilities;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
@@ -58,12 +59,6 @@ public class PaletteEditor
     private byte romImage[] = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
-
-    private int colorSetSize = 4 * 2;  // one colorset contains 4 colors
-    private int colorSetCount = 5;  // one palette contains 5 color sets
-    private int paletteSize = colorSetCount * colorSetSize;
-    private int paletteCount = 6;
-    private int paletteNameSize = 5;
 
     private JPanel preview1a;
     private JPanel preview1b;
@@ -450,11 +445,11 @@ public class PaletteEditor
 
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
-        paletteOffset = findPaletteOffset();
+        paletteOffset = RomUtilities.findPaletteOffset(romImage);
         if (paletteOffset == -1) {
             System.err.println("Could not find palette offset!");
         }
-        nameOffset = findNameOffset();
+        nameOffset = RomUtilities.findPaletteNameOffset(romImage);
         if (nameOffset == -1) {
             System.err.println("Could not find palette name offset!");
         }
@@ -464,7 +459,7 @@ public class PaletteEditor
     private int selectedPalette() {
         int palette = paletteSelector.getSelectedIndex();
         assert palette >= 0;
-        assert palette < paletteCount;
+        assert palette < RomUtilities.NUM_PALETTES;
         return palette;
     }
 
@@ -508,7 +503,7 @@ public class PaletteEditor
     }
 
     int selectedPaletteOffset() {
-        return paletteOffset + selectedPalette() * paletteSize;
+        return paletteOffset + selectedPalette() * RomUtilities.PALETTE_SIZE;
     }
 
     private void updateRomFromSpinners() {
@@ -521,33 +516,33 @@ public class PaletteEditor
 
     private java.awt.Color firstColor(int colorSet) {
         assert colorSet >= 0;
-        assert colorSet < colorSetCount;
-        int offset = selectedPaletteOffset() + colorSet * colorSetSize;
+        assert colorSet < RomUtilities.NUM_COLOR_SETS;
+        int offset = selectedPaletteOffset() + colorSet * RomUtilities.COLOR_SET_SIZE;
         return color(offset);
     }
 
     private java.awt.Color secondColor(int colorSet) {
         assert colorSet >= 0;
-        assert colorSet < colorSetCount;
-        int offset = selectedPaletteOffset() + colorSet * colorSetSize + 3 * 2;
+        assert colorSet < RomUtilities.NUM_COLOR_SETS;
+        int offset = selectedPaletteOffset() + colorSet * RomUtilities.COLOR_SET_SIZE + 3 * 2;
         return color(offset);
     }
 
     private java.awt.Color midColor(int colorSet) {
         assert colorSet >= 0;
-        assert colorSet < colorSetCount;
-        int offset = selectedPaletteOffset() + colorSet * colorSetSize + 2;
+        assert colorSet < RomUtilities.NUM_COLOR_SETS;
+        int offset = selectedPaletteOffset() + colorSet * RomUtilities.COLOR_SET_SIZE + 2;
         return color(offset);
     }
 
     private String paletteName(int palette) {
         assert palette >= 0;
-        assert palette < paletteCount;
+        assert palette < RomUtilities.NUM_PALETTES;
         String s = new String();
-        s += (char)romImage[nameOffset + palette * paletteNameSize];
-        s += (char)romImage[nameOffset + palette * paletteNameSize + 1];
-        s += (char)romImage[nameOffset + palette * paletteNameSize + 2];
-        s += (char)romImage[nameOffset + palette * paletteNameSize + 3];
+        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE];
+        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1];
+        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2];
+        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 3];
         return s;
     }
 
@@ -555,21 +550,22 @@ public class PaletteEditor
         if (name == null) {
             return;
         }
-        if (name.length() >= paletteNameSize) {
-            name = name.substring(0, paletteNameSize - 1);
-        } else while (name.length() < paletteNameSize - 1) {
+        if (name.length() >= RomUtilities.PALETTE_NAME_SIZE) {
+            name = name.substring(0, RomUtilities.PALETTE_NAME_SIZE - 1);
+        } else while (name.length() < RomUtilities.PALETTE_NAME_SIZE - 1) {
             name = name + " ";
         }
-        romImage[nameOffset + palette * paletteNameSize] = (byte)name.charAt(0);
-        romImage[nameOffset + palette * paletteNameSize + 1] = (byte)name.charAt(1);
-        romImage[nameOffset + palette * paletteNameSize + 2] = (byte)name.charAt(2);
-        romImage[nameOffset + palette * paletteNameSize + 3] = (byte)name.charAt(3);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE] = (byte)name.charAt(0);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1] = (byte)name.charAt(1);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2] = (byte)name.charAt(2);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 3] = (byte)name.charAt(3);
     }
 
     private void populatePaletteSelector() {
         populatingPaletteSelector = true;
         paletteSelector.removeAllItems();
-        for (int i = 0; i < paletteCount; ++i) {
+        // -2 to hide the GB palettes
+        for (int i = 0; i < RomUtilities.NUM_PALETTES - 2; ++i) {
             paletteSelector.addItem(paletteName(i));
         }
         populatingPaletteSelector = false;
@@ -689,82 +685,6 @@ public class PaletteEditor
         updatingSpinners = false;
     }
 
-    private int findNameOffset() {
-        // Palette names are in bank 27.
-        int i = 0x4000 * 27;
-        while (i < 0x4000 * 28) {
-            if (romImage[i] == 'G' &&  // gray
-                    romImage[i + 1] == 'R' &&
-                    romImage[i + 2] == 'A' &&
-                    romImage[i + 3] == 'Y' &&
-                    romImage[i + 4] == 0 &&
-                    romImage[i + 5] == 'I' &&  // inv
-                    romImage[i + 6] == 'N' &&
-                    romImage[i + 7] == 'V' &&
-                    romImage[i + 8] == ' ' &&
-                    romImage[i + 9] == 0 &&
-                    romImage[i + 10] == 0 &&  // empty
-                    romImage[i + 11] == 0 &&
-                    romImage[i + 12] == 0 &&
-                    romImage[i + 13] == 0 &&
-                    romImage[i + 14] == 0 &&
-                    romImage[i + 15] == 0 &&  // empty
-                    romImage[i + 16] == 0 &&
-                    romImage[i + 17] == 0 &&
-                    romImage[i + 18] == 0 &&
-                    romImage[i + 19] == 0 &&
-                    romImage[i + 20] == 0 &&  // empty
-                    romImage[i + 21] == 0 &&
-                    romImage[i + 22] == 0 &&
-                    romImage[i + 23] == 0 &&
-                    romImage[i + 24] == 0 &&
-                    romImage[i + 25] == 0 &&  // empty
-                    romImage[i + 26] == 0 &&
-                    romImage[i + 27] == 0 &&
-                    romImage[i + 28] == 0 &&
-                    romImage[i + 29] == 0) {
-                        return i + 30;
-                    }
-            ++i;
-        }
-        return -1;
-    }
-
-    private int findPaletteOffset() {
-        // Finds the palette location by searching for the screen
-        // backgrounds, which are defined directly after the palettes
-        // in bank 1.
-        int i = 0x4000;
-        while (i < 0x8000) {
-            // The first screen background start with 17 zeroes
-            // followed by three 72's.
-            if (romImage[i] == 0 &&
-                    romImage[i + 1] == 0 &&
-                    romImage[i + 2] == 0 &&
-                    romImage[i + 3] == 0 &&
-                    romImage[i + 4] == 0 &&
-                    romImage[i + 5] == 0 &&
-                    romImage[i + 6] == 0 &&
-                    romImage[i + 7] == 0 &&
-                    romImage[i + 8] == 0 &&
-                    romImage[i + 9] == 0 &&
-                    romImage[i + 10] == 0 &&
-                    romImage[i + 11] == 0 &&
-                    romImage[i + 12] == 0 &&
-                    romImage[i + 13] == 0 &&
-                    romImage[i + 14] == 0 &&
-                    romImage[i + 15] == 0 &&
-                    romImage[i + 16] == 0 &&
-                    romImage[i + 17] == 72 &&
-                    romImage[i + 18] == 72 &&
-                    romImage[i + 19] == 72) {
-                return i - paletteCount * paletteSize;
-                    }
-            ++i;
-        }
-        return -1;
-    }
-
     public void itemStateChanged(java.awt.event.ItemEvent e) {
         if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Palette changed.
@@ -792,7 +712,7 @@ public class PaletteEditor
             f.write(paletteName.charAt(1));
             f.write(paletteName.charAt(2));
             f.write(paletteName.charAt(3));
-            for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + paletteSize; ++i) {
+            for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + RomUtilities.PALETTE_SIZE; ++i) {
                 f.write(romImage[i]);
             }
             f.close();
@@ -810,7 +730,7 @@ public class PaletteEditor
             name += (char)f.read();
             name += (char)f.read();
             setPaletteName(paletteSelector.getSelectedIndex(), name);
-            for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + paletteSize; ++i) {
+            for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + RomUtilities.PALETTE_SIZE; ++i) {
                 romImage[i] = (byte)f.read();
             }
             f.close();

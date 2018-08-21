@@ -96,9 +96,18 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 				importBitmap();
 			}
 		});
-
 		mnFile.add(mntmImport);
 
+		JMenuItem mntmImportAll = new JMenuItem("Import all fonts...");
+		mntmImportAll.setMnemonic(KeyEvent.VK_G);
+		mntmImportAll.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				importAllFonts();
+			}
+		});
+		mnFile.add(mntmImportAll);
+		
 		JMenuItem mntmExport = new JMenuItem("Export bitmap...");
 		mntmExport.setMnemonic(KeyEvent.VK_E);
 		mntmExport.addActionListener(new ActionListener() {
@@ -108,6 +117,16 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 			}
 		});
 		mnFile.add(mntmExport);
+		
+		JMenuItem mntmExportAll = new JMenuItem("Export all fonts...");
+		mntmExportAll.setMnemonic(KeyEvent.VK_F);
+		mntmExportAll.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportAllFonts();
+			}
+		});
+		mnFile.add(mntmExportAll);
 
 		JMenu mnEdit = new JMenu("Edit");
 		mnEdit.setMnemonic(KeyEvent.VK_E);
@@ -284,7 +303,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 		if (fontOffset == -1) {
 			System.err.println("Could not find font offset!");
 		}
-		nameOffset = RomUtilities.findNameOffset(romImage);
+		nameOffset = RomUtilities.findFontNameOffset(romImage);
 		if (nameOffset == -1) {
 			System.err.println("Could not find font name offset!");
 		}
@@ -425,7 +444,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 	}
 
 	void exportBitmap() {
-    	JFileChooser chooser = JFileChooserFactory.createChooser("Export Font Image", FileType.Png, FileOperation.Save);
+		JFileChooser chooser = JFileChooserFactory.createChooser("Export Font " + RomUtilities.getFontName(romImage, previousSelectedFont), FileType.Png, FileOperation.Save);
 		int returnVal = chooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File f = chooser.getSelectedFile();
@@ -463,6 +482,42 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 				e.printStackTrace();
 			}
 		}
+	}
+
+	void importAllFonts() {
+		int backupFontNumber = previousSelectedFont;
+		for (int i = 0; i < LSDJFont.FONT_COUNT; ++i)
+		{
+			selectedFontOffset = fontOffset + i * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+			fontMap.setFontOffset(selectedFontOffset);
+			tileEditor.setFontOffset(selectedFontOffset);
+			fontSelector.setSelectedIndex(i);
+			importBitmap();
+		}
+		
+		selectedFontOffset = fontOffset + backupFontNumber * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+		fontMap.setFontOffset(selectedFontOffset);
+		tileEditor.setFontOffset(selectedFontOffset);
+		fontSelector.setSelectedIndex(backupFontNumber);
+			
+	}
+	
+	void exportAllFonts() {
+		int backupFontNumber = previousSelectedFont;
+		for (int i = 0; i < LSDJFont.FONT_COUNT; ++i)
+		{
+			selectedFontOffset = fontOffset + i * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+			fontMap.setFontOffset(selectedFontOffset);
+			tileEditor.setFontOffset(selectedFontOffset);
+			fontSelector.setSelectedIndex(i);
+			exportBitmap();
+		}
+		
+		selectedFontOffset = fontOffset + backupFontNumber * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+		fontMap.setFontOffset(selectedFontOffset);
+		tileEditor.setFontOffset(selectedFontOffset);
+		fontSelector.setSelectedIndex(backupFontNumber);
+		
 	}
 
 }

@@ -36,7 +36,9 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.FileSystemException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -57,6 +59,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import fontEditor.FontEditor;
+import structures.LSDJFont;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
@@ -92,6 +95,8 @@ public class MainWindow extends JFrame {
 
     JMenuItem saveROMItem;
     JMenuItem importKitsItem;
+    JMenuItem importFontsItem;
+    JMenuItem importPalettesItem;
     JButton loadKitButton = new JButton();
     JButton exportKitButton = new JButton();
     JButton exportSampleButton = new JButton();
@@ -109,7 +114,7 @@ public class MainWindow extends JFrame {
     GridLayout gridLayout1 = new GridLayout();
 
     JMenuBar menuBar = new JMenuBar();
-    
+
     public class SampleCanvas extends Canvas {
         byte[] buf;
 
@@ -212,6 +217,25 @@ public class MainWindow extends JFrame {
                 });
 
         fileMenu.add(importKitsItem);
+
+        importFontsItem = new JMenuItem("Import fonts from ROM...", KeyEvent.VK_I);
+        importFontsItem.setEnabled(false);
+        importFontsItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                importFonts_actionPerformed(e);
+                }
+                });
+        fileMenu.add(importFontsItem);
+
+        importPalettesItem = new JMenuItem("Import palettes from ROM...", KeyEvent.VK_I);
+        importPalettesItem.setEnabled(false);
+        importPalettesItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                importPalettes_actionPerformed(e);
+                }
+                });
+
+        fileMenu.add(importPalettesItem);
         fileMenu.addSeparator();
 
         saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
@@ -480,6 +504,8 @@ public class MainWindow extends JFrame {
             saveROMItem.setEnabled(true);
             saveROMButton.setEnabled(true);
             importKitsItem.setEnabled(true);
+            importFontsItem.setEnabled(true);
+            importPalettesItem.setEnabled(true);
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
             renameKitButton.setEnabled(true);
@@ -501,7 +527,7 @@ public class MainWindow extends JFrame {
     		if (f != null) {
     			loadRom(f);
         		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-    		}    		
+    		}
     	}
     }
 
@@ -674,6 +700,91 @@ public class MainWindow extends JFrame {
         }
     }
 
+    void importPalettes(File f) {
+        RandomAccessFile otherOpenRom = null ;
+        try {
+            byte[] otherRomImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
+            otherOpenRom = new RandomAccessFile(f, "r");
+
+        	otherOpenRom.readFully(otherRomImage);
+            otherOpenRom.close();
+
+            int ownPaletteOffset = RomUtilities.findPaletteOffset(romImage);
+            int ownPaletteNameOffset = RomUtilities.findPaletteNameOffset(romImage);
+
+            int otherPaletteOffset = RomUtilities.findPaletteOffset(otherRomImage);
+            int otherPaletteNameOffset = RomUtilities.findPaletteNameOffset(otherRomImage);
+
+            for (int i = 0; i < RomUtilities.PALETTE_SIZE * RomUtilities.NUM_PALETTES; ++i)
+            {
+            	romImage[i + ownPaletteOffset] = otherRomImage[i + otherPaletteOffset];
+            }
+
+            for (int i = 0; i < RomUtilities.PALETTE_NAME_SIZE * RomUtilities.NUM_PALETTES; ++i)
+            {
+            	romImage[i + ownPaletteNameOffset] = otherRomImage[i + otherPaletteNameOffset];
+            }
+
+            paletteEditor.setRomImage(romImage);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        finally {
+        	if (otherOpenRom != null)
+        	{
+        		try {
+					otherOpenRom.close();
+				} catch (IOException e) {
+		            JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
+		                    JOptionPane.ERROR_MESSAGE);
+				}
+        	}
+        }
+    }
+
+    void importFonts(File f) {
+        RandomAccessFile otherOpenRom = null ;
+        try {
+            byte[] otherRomImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
+            otherOpenRom = new RandomAccessFile(f, "r");
+
+        	otherOpenRom.readFully(otherRomImage);
+            otherOpenRom.close();
+
+            int ownFontOffset = RomUtilities.findFontOffset(romImage);
+            int otherFontOffset = RomUtilities.findFontOffset(otherRomImage);
+
+            for (int i = 0; i < LSDJFont.FONT_SIZE * LSDJFont.FONT_COUNT; ++i)
+            {
+            	romImage[i + ownFontOffset] = otherRomImage[i + otherFontOffset];
+            }
+
+            for (int i = 0; i < LSDJFont.FONT_COUNT; ++i)
+            {
+            	RomUtilities.setFontName(romImage, i, RomUtilities.getFontName(otherRomImage, i));
+            }
+
+            fontEditor.setRomImage(romImage);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        finally {
+        	if (otherOpenRom != null)
+        	{
+        		try {
+					otherOpenRom.close();
+				} catch (IOException e) {
+		            JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
+		                    JOptionPane.ERROR_MESSAGE);
+				}
+        	}
+        }
+    }
+
     void importKits(File f) {
         try {
             int outBank = 0;
@@ -710,16 +821,39 @@ public class MainWindow extends JFrame {
         }
     }
 
-    void importKits_actionPerformed(ActionEvent e) {
+
+
+    File importRomSelect() {
     	JFileChooser chooser = JFileChooserFactory.createChooser("Select ROM to import from", FileType.Gb, FileOperation.Load);
        	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
     	{
- 
+
 	        File f = chooser.getSelectedFile();
     		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-	        importKits(f);
+    		return f;
     	}
+    	return null;
+    }
+
+    void importKits_actionPerformed(ActionEvent e) {
+    	File f = importRomSelect();
+    	if (f!= null)
+    		importKits(f);
+	}
+
+    void importFonts_actionPerformed(ActionEvent e) {
+    	File f = importRomSelect();
+    	if (f!= null)
+    		importFonts(f);
+
+	}
+
+
+    void importPalettes_actionPerformed(ActionEvent e) {
+	  	File f = importRomSelect();
+	  	if (f!= null)
+	  		importPalettes(f);
 	}
 
     void saveROMButton_actionPerformed() {
@@ -727,11 +861,11 @@ public class MainWindow extends JFrame {
 
        	int result = chooser.showOpenDialog(this);
     	if (result == JFileChooser.APPROVE_OPTION)
-    	{ 
+    	{
 	        try {
 	            File f = chooser.getSelectedFile();
 	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-	
+
 	    	    RomUtilities.fixChecksums(romImage);
 	            romFile = new RandomAccessFile(f,"rw");
 	            romFile.write(romImage);
@@ -757,7 +891,7 @@ public class MainWindow extends JFrame {
     			byte buf[]=new byte[RomUtilities.BANK_SIZE];
     			int offset=getROMOffsetForSelectedBank();
     			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
-    			
+
     			for(int i=0;i<buf.length;i++) {
     				buf[i]=romImage[offset++];
     			}
@@ -767,9 +901,9 @@ public class MainWindow extends JFrame {
     			JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
     					JOptionPane.ERROR_MESSAGE);
     		}
-    		updateRomView();    		
+    		updateRomView();
     	}
-    	
+
     }
 
     void loadKit(File kitFile) {
