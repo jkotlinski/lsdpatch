@@ -565,7 +565,7 @@ public class PaletteEditor
         populatingPaletteSelector = true;
         paletteSelector.removeAllItems();
         // -2 to hide the GB palettes
-        for (int i = 0; i < RomUtilities.NUM_PALETTES - 2; ++i) {
+        for (int i = 0; i < RomUtilities.NUM_PALETTES; ++i) {
             paletteSelector.addItem(paletteName(i));
         }
         populatingPaletteSelector = false;
