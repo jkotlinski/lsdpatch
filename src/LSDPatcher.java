@@ -1,5 +1,4 @@
-
-/** Copyright (C) 2001-2011 by Johan Kotlinski
+/* Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +50,7 @@ public class LSDPatcher {
 	}
 
 	private static void usage() {
-		System.out.println("LSDJPatcher\n");
+		System.out.println("LSDJPatcher Redux\n");
 		System.out.println("java -jar LSDJPatcher.jar");
 		System.out.println(" Opens the GUI.\n");
 

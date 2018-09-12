@@ -1,10 +1,13 @@
-# lsdpatch
+# LSDPatcher Redux
 
-A tool for modifying samples and palettes on Little Sound Dj (LSDj) ROM images. Requires Java (http://www.java.com/). If you have problems running the .jar on Windows, try Jarfix (http://johann.loefflmann.net/en/software/jarfix/index.html)
+A project to clean and remake [LSDPatch](https://github.com/jkotlinski/lsdpatch/releases), originally made by Johan Kotlinski.
 
-Download: https://github.com/jkotlinski/lsdpatch/releases
+It's a tool for modifying samples and palettes on Little Sound Dj (LSDj) ROM images.
+Requires Java (http://www.java.com/). If you have problems running the .jar on Windows, try Jarfix (http://johann.loefflmann.net/en/software/jarfix/index.html)
 
-Documentation: https://github.com/jkotlinski/lsdpatch/wiki/Documentation
+Download: https://github.com/eiyeron/lsdpatch/releases
+
+Documentation: https://github.com/eiyeron/lsdpatch/wiki/Documentation
 
 Tutorial by Little-Scale: http://little-scale.blogspot.com/2008/11/how-to-prepare-samples-and-create-lsdj.html
 

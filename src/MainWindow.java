@@ -1,4 +1,4 @@
-/** Copyright (C) 2001-2011 by Johan Kotlinski
+/* Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,7 @@ import utils.RomUtilities;
 
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = -3993608561466542956L;
-	String versionString = "LSD-Patcher v1.2.3";
+	String versionString = "LSDPatcher Redux WIP";
     JPanel contentPane;
     JPanel jPanel1 = new JPanel();
     TitledBorder titledBorder1;
