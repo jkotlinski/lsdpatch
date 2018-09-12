@@ -19,20 +19,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
 import java.awt.AWTEvent;
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
-import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -61,6 +56,7 @@ import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
+import utils.SampleCanvas;
 
 public class MainWindow extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
@@ -104,41 +100,6 @@ public class MainWindow extends JFrame {
     private final GridLayout gridLayout1 = new GridLayout();
 
     private final JMenuBar menuBar = new JMenuBar();
-
-    class SampleCanvas extends Canvas {
-        byte[] buf;
-
-        public void paint(Graphics g) {
-        }
-
-        public void update(Graphics gg) {
-            Graphics2D g = (Graphics2D) gg;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int w = (int) g.getClipBounds().getWidth();
-            int h = (int) g.getClipBounds().getHeight();
-
-            if (buf == null) {
-                return;
-            }
-
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, w, h);
-
-            GeneralPath gp = new GeneralPath();
-            gp.moveTo(0, h);
-            for (int it = 0; it < buf.length; ++it) {
-                double val = buf[it];
-                if (val < 0) val += 256;
-                val /= 0xf0;
-                //noinspection IntegerDivisionInFloatingPointContext
-                gp.lineTo(it * w / buf.length, h - h * val);
-            }
-            g.setColor(Color.YELLOW);
-            g.draw(gp);
-        }
-    }
 
     class KitFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
@@ -420,7 +381,7 @@ public class MainWindow extends JFrame {
             return;
         }
         try {
-            sampleView.buf = Sound.play(nibbles);
+            sampleView.setBufferContent(Sound.play(nibbles));
             sampleView.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
