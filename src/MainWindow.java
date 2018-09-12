@@ -28,7 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,7 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.FileSystemException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -56,7 +54,6 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
 
 import fontEditor.FontEditor;
 import structures.LSDJFont;
@@ -66,66 +63,61 @@ import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
 
 public class MainWindow extends JFrame {
-	private static final long serialVersionUID = -3993608561466542956L;
-	String versionString = "LSDPatcher Redux WIP";
-    JPanel contentPane;
-    JPanel jPanel1 = new JPanel();
-    TitledBorder titledBorder1;
+    private static final long serialVersionUID = -3993608561466542956L;
+    private JPanel contentPane;
+    private final JPanel jPanel1 = new JPanel();
     //JLabel fileNameLabel = new JLabel();
-    int prevBankBoxIndex = -1;
-    JComboBox bankBox = new JComboBox();
-    JList instrList = new JList();
-    PaletteEditor paletteEditor = new PaletteEditor();
-    FontEditor fontEditor = new FontEditor();
+    private int prevBankBoxIndex = -1;
+    private final JComboBox<String> bankBox = new JComboBox<>();
+    private final JList<String> instrList = new JList<>();
+    private final PaletteEditor paletteEditor = new PaletteEditor();
+    private final FontEditor fontEditor = new FontEditor();
 
-    static final int MAX_SAMPLES = 15;
+    private static final int MAX_SAMPLES = 15;
 
-    java.awt.event.ActionListener bankBoxListener =
-        new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                bankBox_actionPerformed(e);
-            }};
+    private final java.awt.event.ActionListener bankBoxListener =
+            e -> bankBox_actionPerformed();
 
-    RandomAccessFile romFile;
-    int totSampleSize=0;
+    private RandomAccessFile romFile;
+    private int totSampleSize = 0;
 
-    byte romImage[]=null;
+    private byte[] romImage = null;
 
-    Sample samples[]= new Sample[MAX_SAMPLES];
+    private Sample[] samples = new Sample[MAX_SAMPLES];
 
-    JMenuItem saveROMItem;
-    JMenuItem importKitsItem;
-    JMenuItem importFontsItem;
-    JMenuItem importPalettesItem;
-    JButton loadKitButton = new JButton();
-    JButton exportKitButton = new JButton();
-    JButton exportSampleButton = new JButton();
-    TitledBorder titledBorder2;
-    JButton renameKitButton = new JButton();
-    JTextArea kitTextArea = new JTextArea();
-    JButton addSampleButton = new JButton();
-    JButton dropSampleButton = new JButton();
-    JButton saveROMButton = new JButton();
-    JLabel kitSizeLabel = new JLabel();
-    JPanel jPanel2 = new JPanel();
-    SampleCanvas sampleView = new SampleCanvas();
-    TitledBorder titledBorder3;
-    JSlider ditherSlider = new JSlider();
-    GridLayout gridLayout1 = new GridLayout();
+    private JMenuItem saveROMItem;
+    private JMenuItem importKitsItem;
+    private JMenuItem importFontsItem;
+    private JMenuItem importPalettesItem;
+    private final JButton loadKitButton = new JButton();
+    private final JButton exportKitButton = new JButton();
+    private final JButton exportSampleButton = new JButton();
+    private final JButton renameKitButton = new JButton();
+    private final JTextArea kitTextArea = new JTextArea();
+    private final JButton addSampleButton = new JButton();
+    private final JButton dropSampleButton = new JButton();
+    private final JButton saveROMButton = new JButton();
+    private final JLabel kitSizeLabel = new JLabel();
+    private final JPanel jPanel2 = new JPanel();
+    private final SampleCanvas sampleView = new SampleCanvas();
+    private final JSlider ditherSlider = new JSlider();
+    private final GridLayout gridLayout1 = new GridLayout();
 
-    JMenuBar menuBar = new JMenuBar();
+    private final JMenuBar menuBar = new JMenuBar();
 
-    public class SampleCanvas extends Canvas {
+    class SampleCanvas extends Canvas {
         byte[] buf;
 
-        public void paint(Graphics g) {}
+        public void paint(Graphics g) {
+        }
+
         public void update(Graphics gg) {
-            Graphics2D g = (Graphics2D)gg;
+            Graphics2D g = (Graphics2D) gg;
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int w = (int)g.getClipBounds().getWidth();
-            int h = (int)g.getClipBounds().getHeight();
+            int w = (int) g.getClipBounds().getWidth();
+            int h = (int) g.getClipBounds().getHeight();
 
             if (buf == null) {
                 return;
@@ -140,6 +132,7 @@ public class MainWindow extends JFrame {
                 double val = buf[it];
                 if (val < 0) val += 256;
                 val /= 0xf0;
+                //noinspection IntegerDivisionInFloatingPointContext
                 gp.lineTo(it * w / buf.length, h - h * val);
             }
             g.setColor(Color.YELLOW);
@@ -147,44 +140,29 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public class GBFileFilter extends FileFilter {
-        public boolean accept(java.io.File dir, String name) {
-            return name.toLowerCase().endsWith(".gb");
-        }
-
-		@Override
-		public boolean accept(File file) {
-            return file.getName().toLowerCase().endsWith(".gb");
-		}
-
-		@Override
-		public String getDescription() {
-			return "Game Boy ROM (*.gb)";
-		}
-    }
-    public class KitFileFilter implements java.io.FilenameFilter {
+    class KitFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".kit");
         }
     }
-    public class WavFileFilter implements java.io.FilenameFilter {
+
+    class WavFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".wav");
         }
     }
 
-    void emptyInstrList() {
-        String listData[]={"1.","2.","3.","4.","5.","6.","7.","8.","9.","10.","11.",
-            "12.","13.","14.","15."};
+    private void emptyInstrList() {
+        String listData[] = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.",
+                "12.", "13.", "14.", "15."};
         instrList.setListData(listData);
     }
 
-    public MainWindow() {
-    	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+    MainWindow() {
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -193,57 +171,38 @@ public class MainWindow extends JFrame {
         selectRomToLoad();
     }
 
-    private void buildMenus()
-    {
+    private void buildMenus() {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         menuBar.add(fileMenu);
 
         JMenuItem menuItem = new JMenuItem("Open ROM...", KeyEvent.VK_O);
-        menuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    selectRomToLoad();
-                }});
+        menuItem.addActionListener(e -> selectRomToLoad());
         fileMenu.add(menuItem);
 
         fileMenu.addSeparator();
 
         importKitsItem = new JMenuItem("Import kits from ROM...", KeyEvent.VK_I);
         importKitsItem.setEnabled(false);
-        importKitsItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                importKits_actionPerformed(e);
-                }
-                });
+        importKitsItem.addActionListener(e3 -> importKits_actionPerformed());
 
         fileMenu.add(importKitsItem);
 
         importFontsItem = new JMenuItem("Import fonts from ROM...", KeyEvent.VK_I);
         importFontsItem.setEnabled(false);
-        importFontsItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                importFonts_actionPerformed(e);
-                }
-                });
+        importFontsItem.addActionListener(e2 -> importFonts_actionPerformed());
         fileMenu.add(importFontsItem);
 
         importPalettesItem = new JMenuItem("Import palettes from ROM...", KeyEvent.VK_I);
         importPalettesItem.setEnabled(false);
-        importPalettesItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                importPalettes_actionPerformed(e);
-                }
-                });
+        importPalettesItem.addActionListener(e1 -> importPalettes_actionPerformed());
 
         fileMenu.add(importPalettesItem);
         fileMenu.addSeparator();
 
         saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
         saveROMItem.setEnabled(false);
-        saveROMItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                saveROMButton_actionPerformed();
-                }});
+        saveROMItem.addActionListener(e -> saveROMButton_actionPerformed());
         fileMenu.add(saveROMItem);
 
         // -----
@@ -252,20 +211,14 @@ public class MainWindow extends JFrame {
         paletteMenu.setMnemonic(KeyEvent.VK_P);
         menuBar.add(paletteMenu);
         JMenuItem editPaletteItem = new JMenuItem("Edit Palettes...", KeyEvent.VK_P);
-        editPaletteItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    paletteEditor.setVisible(true);
-                }});
+        editPaletteItem.addActionListener(e -> paletteEditor.setVisible(true));
         paletteMenu.add(editPaletteItem);
 
         JMenu fontMenu = new JMenu("Font");
         fontMenu.setMnemonic(KeyEvent.VK_O);
         menuBar.add(fontMenu);
         JMenuItem editFontItem = new JMenuItem("Edit Fonts...", KeyEvent.VK_F);
-        editFontItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    fontEditor.setVisible(true);
-                }});
+        editFontItem.addActionListener(e -> fontEditor.setVisible(true));
         fontMenu.add(editFontItem);
 
         //help menu
@@ -292,61 +245,62 @@ public class MainWindow extends JFrame {
         }
     }
 
-    /**Component initialization*/
-    private void jbInit() throws Exception  {
+    /**
+     * Component initialization
+     */
+    private void jbInit() {
         //setIconImage(Toolkit.getDefaultToolkit().createImage(Frame1.class.getResource("[Your Icon]")));
         contentPane = (JPanel) this.getContentPane();
-        titledBorder1 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white,new Color(164, 164, 159)),"ROM Image");
-        titledBorder2 = new TitledBorder(BorderFactory.createLineBorder(new Color(153, 153, 153),2),"rename kit");
-        titledBorder3 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white,new Color(164, 164, 159)),"Dithering (0-16)");
+        TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white, new Color(164, 164, 159)), "ROM Image");
+        // TitledBorder titledBorder2 = new TitledBorder(BorderFactory.createLineBorder(new Color(153, 153, 153), 2), "rename kit");
+        TitledBorder titledBorder3 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white, new Color(164, 164, 159)), "Dithering (0-16)");
         contentPane.setLayout(null);
         this.setSize(new Dimension(400, 464));
         this.setResizable(false);
         this.setTitle("LSDPatcher");
 
-        new FileDrop(contentPane, new FileDrop.Listener() {
-            public void filesDropped(java.io.File[] files) {
-                for (java.io.File file : files) {
-                    String fileName = file.getName().toLowerCase();
-                    if (fileName.endsWith(".wav")) {
-                        if (romImage == null) {
-                            JOptionPane.showMessageDialog(contentPane,
-                                "Open .gb file before adding samples.",
-                                "Can't add sample!",
-                                JOptionPane.ERROR_MESSAGE);
-                            continue;
-                        }
-                        addSample(file);
-                    } else if (fileName.endsWith(".gb")) {
-                        loadRom(file);
-                    } else if (fileName.endsWith(".kit")) {
-                        if (romImage == null) {
-                            JOptionPane.showMessageDialog(contentPane,
-                                "Open .gb file before adding samples.",
-                                "Can't add sample!",
-                                JOptionPane.ERROR_MESSAGE);
-                            continue;
-                        }
-                        loadKit(file);
-                    } else {
+        new FileDrop(contentPane, files -> {
+            for (File file : files) {
+                String fileName = file.getName().toLowerCase();
+                if (fileName.endsWith(".wav")) {
+                    if (romImage == null) {
                         JOptionPane.showMessageDialog(contentPane,
+                                "Open .gb file before adding samples.",
+                                "Can't add sample!",
+                                JOptionPane.ERROR_MESSAGE);
+                        continue;
+                    }
+                    addSample(file);
+                } else if (fileName.endsWith(".gb")) {
+                    loadRom(file);
+                } else if (fileName.endsWith(".kit")) {
+                    if (romImage == null) {
+                        JOptionPane.showMessageDialog(contentPane,
+                                "Open .gb file before adding samples.",
+                                "Can't add sample!",
+                                JOptionPane.ERROR_MESSAGE);
+                        continue;
+                    }
+                    loadKit(file);
+                } else {
+                    JOptionPane.showMessageDialog(contentPane,
                             "Unknown file type!",
                             "File error",
                             JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                    return;
                 }
-            }});
+            }
+        });
 
         jPanel1.setBorder(titledBorder1);
-        jPanel1.setBounds(new Rectangle(8, 6, 193, 375-17));
+        jPanel1.setBounds(new Rectangle(8, 6, 193, 375 - 17));
         jPanel1.setLayout(null);
         //fileNameLabel.setText("No file opened!");
         //fileNameLabel.setBounds(new Rectangle(9, 18, 174, 17));
         bankBox.setBounds(new Rectangle(8, 18, 176, 25));
         bankBox.addActionListener(bankBoxListener);
         instrList.setBorder(BorderFactory.createEtchedBorder());
-        instrList.setBounds(new Rectangle(8, 64-17, 176, 280));
+        instrList.setBounds(new Rectangle(8, 64 - 17, 176, 280));
         instrList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (romImage != null) {
@@ -359,69 +313,48 @@ public class MainWindow extends JFrame {
                     dropSampleButton.setEnabled(hasIndex);
                     exportSampleButton.setEnabled(hasIndex);
                 }
-            }});
+            }
+        });
 
         contentPane.setMinimumSize(new Dimension(1, 1));
         contentPane.setPreferredSize(new Dimension(400, 414));
         loadKitButton.setEnabled(false);
         loadKitButton.setText("load kit");
-        loadKitButton.setBounds(new Rectangle(212, 78-72, 170, 28));
-        loadKitButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                loadKitButton_actionPerformed();
-                }});
-        exportKitButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                exportKitButton_actionPerformed();
-                }});
-        exportKitButton.setBounds(new Rectangle(212, 110-72, 170, 28));
+        loadKitButton.setBounds(new Rectangle(212, 78 - 72, 170, 28));
+        loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
+        exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
+        exportKitButton.setBounds(new Rectangle(212, 110 - 72, 170, 28));
         exportKitButton.setEnabled(false);
         exportKitButton.setText("export kit");
 
         exportSampleButton.setEnabled(false);
         exportSampleButton.setText("export sample");
-        exportSampleButton.setBounds(new Rectangle(212, 184-82, 170, 28));
-        exportSampleButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    exportSample();
-                }});
+        exportSampleButton.setBounds(new Rectangle(212, 184 - 82, 170, 28));
+        exportSampleButton.addActionListener(e -> exportSample());
 
-        renameKitButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                renameKitButton_actionPerformed(e);
-                }
-                });
+        renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
         renameKitButton.setEnabled(false);
         renameKitButton.setText("rename kit");
-        renameKitButton.setBounds(new Rectangle(287, 143-72, 95, 27));
+        renameKitButton.setBounds(new Rectangle(287, 143 - 72, 95, 27));
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
-        kitTextArea.setBounds(new Rectangle(212, 146-72, 67, 21));
-        addSampleButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    selectSampleToAdd();
-                }});
-        addSampleButton.setBounds(new Rectangle(212, 216-72, 170, 28));
+        kitTextArea.setBounds(new Rectangle(212, 146 - 72, 67, 21));
+        addSampleButton.addActionListener(e -> selectSampleToAdd());
+        addSampleButton.setBounds(new Rectangle(212, 216 - 72, 170, 28));
         addSampleButton.setEnabled(false);
         addSampleButton.setText("add sample");
         dropSampleButton.setText("drop sample");
         dropSampleButton.setEnabled(false);
-        dropSampleButton.setBounds(new Rectangle(212, 248-72, 170, 28));
-        dropSampleButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dropSample();
-                }});
-        saveROMButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                saveROMButton_actionPerformed();
-                }});
+        dropSampleButton.setBounds(new Rectangle(212, 248 - 72, 170, 28));
+        dropSampleButton.addActionListener(e -> dropSample());
+        saveROMButton.addActionListener(e -> saveROMButton_actionPerformed());
         saveROMButton.setBounds(new Rectangle(212, 280 - 64, 170, 28));
         saveROMButton.setEnabled(false);
         saveROMButton.setText("save rom");
         kitSizeLabel.setToolTipText("");
         kitSizeLabel.setText("0/3fa0 bytes used");
-        kitSizeLabel.setBounds(new Rectangle(8, 346-17, 169, 22));
+        kitSizeLabel.setBounds(new Rectangle(8, 346 - 17, 169, 22));
         jPanel2.setBorder(titledBorder3);
-        jPanel2.setBounds(new Rectangle(210, 315-64, 174, 66));
+        jPanel2.setBounds(new Rectangle(210, 315 - 64, 174, 66));
         jPanel2.setLayout(gridLayout1);
         ditherSlider.setMajorTickSpacing(4);
         ditherSlider.setMaximum(16);
@@ -445,6 +378,7 @@ public class MainWindow extends JFrame {
         contentPane.add(dropSampleButton, null);
         contentPane.add(saveROMButton, null);
         contentPane.add(jPanel2, null);
+        String versionString = "LSDPatcher Redux WIP " + LSDPatcher.VERSION;
         JLabel versionLabel = new JLabel(versionString, SwingConstants.RIGHT);
         versionLabel.setBounds(new Rectangle(210, 335, 174, 26));
         contentPane.add(versionLabel);
@@ -455,7 +389,10 @@ public class MainWindow extends JFrame {
 
         buildMenus();
     }
-    /**Overridden so we can exit when window is closed*/
+
+    /**
+     * Overridden so we can exit when window is closed
+     */
     protected void processWindowEvent(WindowEvent e) {
         super.processWindowEvent(e);
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -463,7 +400,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    byte[] get4BitSamples(int index) {
+    private byte[] get4BitSamples(int index) {
         int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
@@ -477,7 +414,7 @@ public class MainWindow extends JFrame {
         return arr;
     }
 
-    void playSample(int index) {
+    private void playSample(int index) {
         byte[] nibbles = get4BitSamples(index);
         if (nibbles == null) {
             return;
@@ -492,7 +429,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    void loadRom(File gbFile) {
+    private void loadRom(File gbFile) {
         try {
             romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
             setTitle(gbFile.getAbsoluteFile().toString());
@@ -518,44 +455,43 @@ public class MainWindow extends JFrame {
         }
     }
 
-    void selectRomToLoad() {
-    	JFileChooser chooser = JFileChooserFactory.createChooser("Load ROM Image", FileType.Gb, FileOperation.Load);
-    	int result = chooser.showOpenDialog(this);
-    	if (result == JFileChooser.APPROVE_OPTION)
-    	{
-    		File f = chooser.getSelectedFile();
-    		if (f != null) {
-    			loadRom(f);
-        		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-    		}
-    	}
+    private void selectRomToLoad() {
+        JFileChooser chooser = JFileChooserFactory.createChooser("Load ROM Image", FileType.Gb, FileOperation.Load);
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File f = chooser.getSelectedFile();
+            if (f != null) {
+                loadRom(f);
+                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+            }
+        }
     }
 
-    private boolean isKitBank ( int a_bank ) {
-        int l_offset = ( a_bank ) * RomUtilities.BANK_SIZE;
+    private boolean isKitBank(int a_bank) {
+        int l_offset = (a_bank) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
-        return ( l_char_1 == 0x60 && l_char_2 == 0x40 );
+        return (l_char_1 == 0x60 && l_char_2 == 0x40);
     }
 
-    private boolean isEmptyKitBank ( int a_bank ) {
-        int l_offset = ( a_bank ) * RomUtilities.BANK_SIZE;
+    private boolean isEmptyKitBank(int a_bank) {
+        int l_offset = (a_bank) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
-        return ( l_char_1 == -1 && l_char_2 == -1 );
+        return (l_char_1 == -1 && l_char_2 == -1);
     }
 
-    private String getKitName ( int a_bank ) {
-        if ( isEmptyKitBank ( a_bank ) ) {
+    private String getKitName(int a_bank) {
+        if (isEmptyKitBank(a_bank)) {
             return "Empty";
         }
 
-        byte buf[]=new byte[6];
-        int offset=(a_bank)*RomUtilities.BANK_SIZE+0x52;
-        for(int i=0;i<6;i++) {
-            buf[i]=romImage[offset++];
+        byte buf[] = new byte[6];
+        int offset = (a_bank) * RomUtilities.BANK_SIZE + 0x52;
+        for (int i = 0; i < 6; i++) {
+            buf[i] = romImage[offset++];
         }
-        return new String ( buf );
+        return new String(buf);
     }
 
     private void updateRomView() {
@@ -564,37 +500,32 @@ public class MainWindow extends JFrame {
         bankBox.removeAllItems();
 
         int l_ui_index = 0;
-        for (int bankNo=0; bankNo < RomUtilities.BANK_COUNT; bankNo++) {
+        for (int bankNo = 0; bankNo < RomUtilities.BANK_COUNT; bankNo++) {
             if (isKitBank(bankNo) || isEmptyKitBank(bankNo)) {
                 bankBox.addItem(Integer.toHexString(++l_ui_index).toUpperCase() + ". " + getKitName(bankNo));
             }
         }
-        bankBox.setSelectedIndex(tmp==-1?0:tmp);
+        bankBox.setSelectedIndex(tmp == -1 ? 0 : tmp);
         bankBox.addActionListener(bankBoxListener);
         updateBankView();
     }
 
-    int m_selected = -1;
-    private int getSelectedUiBank()
-    {
-        if ( bankBox.getSelectedIndex() > -1 )
-        {
+    private int m_selected = -1;
+
+    private int getSelectedUiBank() {
+        if (bankBox.getSelectedIndex() > -1) {
             m_selected = bankBox.getSelectedIndex();
         }
         return m_selected;
     }
 
-    private int getSelectedROMBank ( )
-    {
+    private int getSelectedROMBank() {
         int l_rom_bank = 0;
         int l_ui_bank = 0;
 
-        for ( ;; )
-        {
-            if ( isKitBank( l_rom_bank ) || isEmptyKitBank( l_rom_bank ) )
-            {
-                if ( getSelectedUiBank() == l_ui_bank )
-                {
+        for (; ; ) {
+            if (isKitBank(l_rom_bank) || isEmptyKitBank(l_rom_bank)) {
+                if (getSelectedUiBank() == l_ui_bank) {
                     return l_rom_bank;
                 }
                 l_ui_bank++;
@@ -614,36 +545,36 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        byte buf[]=new byte[3];
-        String s[]=new String[15];
+        byte buf[] = new byte[3];
+        String s[] = new String[15];
 
-        totSampleSize=0;
+        totSampleSize = 0;
 
         int bankOffset = getROMOffsetForSelectedBank();
         instrList.removeAll();
         //do banks
 
         //update names
-        int offset=bankOffset+0x22;
+        int offset = bankOffset + 0x22;
         for (int instrNo = 0; instrNo < MAX_SAMPLES; instrNo++) {
-            boolean isNull=false;
-            for(int i=0;i<3;i++) {
-                buf[i]=romImage[offset++];
-                if(isNull) {
-                    buf[i]='-';
+            boolean isNull = false;
+            for (int i = 0; i < 3; i++) {
+                buf[i] = romImage[offset++];
+                if (isNull) {
+                    buf[i] = '-';
                 } else {
-                    if(buf[i]==0) {
-                        buf[i]='-';
-                        isNull=true;
+                    if (buf[i] == 0) {
+                        buf[i] = '-';
+                        isNull = true;
                     }
                 }
             }
-            s[instrNo]=(instrNo + 1) + ". "+new String(buf);
-            Sample f = samples[instrNo];
-            if (f != null) {
-                int flen=(int)(f.length()/2-f.length()/2%0x10);
-                totSampleSize+=flen;
-                s[instrNo] += " (" + Integer.toHexString(flen)+")";
+            s[instrNo] = (instrNo + 1) + ". " + new String(buf);
+            Sample sample = samples[instrNo];
+            if (sample != null) {
+                int sampleLength = (sample.length() / 2 - sample.length() / 2 % 0x10);
+                totSampleSize += sampleLength;
+                s[instrNo] += " (" + Integer.toHexString(sampleLength) + ")";
             }
         }
         instrList.setListData(s);
@@ -653,7 +584,7 @@ public class MainWindow extends JFrame {
         ditherSlider.setEnabled(true);  // TODO: Should be individual per sample.
     }
 
-    void updateKitSizeLabel() {
+    private void updateKitSizeLabel() {
         int sampleSize = totSampleSize;
         kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3fa0 bytes used");
         boolean tooFull = sampleSize > 0x3fa0;
@@ -663,7 +594,7 @@ public class MainWindow extends JFrame {
         instrList.setForeground(c);
     }
 
-    void bankBox_actionPerformed(ActionEvent e) {
+    private void bankBox_actionPerformed() {
         int index = bankBox.getSelectedIndex();
         if (prevBankBoxIndex == index) {
             return;
@@ -675,16 +606,16 @@ public class MainWindow extends JFrame {
         updateBankView();
     }
 
-    String getRomSampleName(int index) {
+    private String getRomSampleName(int index) {
         int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
-        String name = new String();
-        name += (char)romImage[offset++];
-        name += (char)romImage[offset++];
-        name += (char)romImage[offset];
+        String name = "";
+        name += (char) romImage[offset++];
+        name += (char) romImage[offset++];
+        name += (char) romImage[offset];
         return name;
     }
 
-    void createSamplesFromRom() {
+    private void createSamplesFromRom() {
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
             if (samples[sampleIt] != null) {
                 continue;
@@ -700,13 +631,13 @@ public class MainWindow extends JFrame {
         }
     }
 
-    void importPalettes(File f) {
-        RandomAccessFile otherOpenRom = null ;
+    private void importPalettes(File f) {
+        RandomAccessFile otherOpenRom = null;
         try {
             byte[] otherRomImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
             otherOpenRom = new RandomAccessFile(f, "r");
 
-        	otherOpenRom.readFully(otherRomImage);
+            otherOpenRom.readFully(otherRomImage);
             otherOpenRom.close();
 
             int ownPaletteOffset = RomUtilities.findPaletteOffset(romImage);
@@ -715,55 +646,43 @@ public class MainWindow extends JFrame {
             int otherPaletteOffset = RomUtilities.findPaletteOffset(otherRomImage);
             int otherPaletteNameOffset = RomUtilities.findPaletteNameOffset(otherRomImage);
 
-            for (int i = 0; i < RomUtilities.PALETTE_SIZE * RomUtilities.NUM_PALETTES; ++i)
-            {
-            	romImage[i + ownPaletteOffset] = otherRomImage[i + otherPaletteOffset];
-            }
+            System.arraycopy(otherRomImage, otherPaletteOffset, romImage, ownPaletteOffset, RomUtilities.PALETTE_SIZE * RomUtilities.NUM_PALETTES);
 
-            for (int i = 0; i < RomUtilities.PALETTE_NAME_SIZE * RomUtilities.NUM_PALETTES; ++i)
-            {
-            	romImage[i + ownPaletteNameOffset] = otherRomImage[i + otherPaletteNameOffset];
-            }
+            System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.NUM_PALETTES);
 
             paletteEditor.setRomImage(romImage);
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
-        }
-        finally {
-        	if (otherOpenRom != null)
-        	{
-        		try {
-					otherOpenRom.close();
-				} catch (IOException e) {
-		            JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
-		                    JOptionPane.ERROR_MESSAGE);
-				}
-        	}
+        } finally {
+            if (otherOpenRom != null) {
+                try {
+                    otherOpenRom.close();
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
         }
     }
 
-    void importFonts(File f) {
-        RandomAccessFile otherOpenRom = null ;
+    private void importFonts(File f) {
+        RandomAccessFile otherOpenRom = null;
         try {
             byte[] otherRomImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
             otherOpenRom = new RandomAccessFile(f, "r");
 
-        	otherOpenRom.readFully(otherRomImage);
+            otherOpenRom.readFully(otherRomImage);
             otherOpenRom.close();
 
             int ownFontOffset = RomUtilities.findFontOffset(romImage);
             int otherFontOffset = RomUtilities.findFontOffset(otherRomImage);
 
-            for (int i = 0; i < LSDJFont.FONT_SIZE * LSDJFont.FONT_COUNT; ++i)
-            {
-            	romImage[i + ownFontOffset] = otherRomImage[i + otherFontOffset];
-            }
+            System.arraycopy(otherRomImage, otherFontOffset, romImage, ownFontOffset, LSDJFont.FONT_SIZE * LSDJFont.FONT_COUNT);
 
-            for (int i = 0; i < LSDJFont.FONT_COUNT; ++i)
-            {
-            	RomUtilities.setFontName(romImage, i, RomUtilities.getFontName(otherRomImage, i));
+            for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
+                RomUtilities.setFontName(romImage, i, RomUtilities.getFontName(otherRomImage, i));
             }
 
             fontEditor.setRomImage(romImage);
@@ -771,40 +690,35 @@ public class MainWindow extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
-        }
-        finally {
-        	if (otherOpenRom != null)
-        	{
-        		try {
-					otherOpenRom.close();
-				} catch (IOException e) {
-		            JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
-		                    JOptionPane.ERROR_MESSAGE);
-				}
-        	}
+        } finally {
+            if (otherOpenRom != null) {
+                try {
+                    otherOpenRom.close();
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
         }
     }
 
-    void importKits(File f) {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void importKits(File f) {
         try {
             int outBank = 0;
             int copiedBankCount = 0;
-            FileInputStream in = new FileInputStream ( f.getAbsolutePath() );
-            while ( in.available() > 0 )
-            {
+            FileInputStream in = new FileInputStream(f.getAbsolutePath());
+            while (in.available() > 0) {
                 byte[] inBuf = new byte[RomUtilities.BANK_SIZE];
-                in.read ( inBuf );
-                if ( inBuf[0] == 0x60 && inBuf[1] == 0x40 )
-                {
+                in.read(inBuf);
+                if (inBuf[0] == 0x60 && inBuf[1] == 0x40) {
                     //is kit bank
                     outBank++;
-                    while ( !isKitBank(outBank) && !isEmptyKitBank(outBank ) )
-                    {
+                    while (!isKitBank(outBank) && !isEmptyKitBank(outBank)) {
                         outBank++;
                     }
                     int outPtr = outBank * RomUtilities.BANK_SIZE;
-                    for ( int i = 0; i < RomUtilities.BANK_SIZE; i++ )
-                    {
+                    for (int i = 0; i < RomUtilities.BANK_SIZE; i++) {
                         romImage[outPtr++] = inBuf[i];
                     }
                     copiedBankCount++;
@@ -822,99 +736,95 @@ public class MainWindow extends JFrame {
     }
 
 
+    private File importRomSelect() {
+        JFileChooser chooser = JFileChooserFactory.createChooser("Select ROM to import from", FileType.Gb, FileOperation.Load);
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
 
-    File importRomSelect() {
-    	JFileChooser chooser = JFileChooserFactory.createChooser("Select ROM to import from", FileType.Gb, FileOperation.Load);
-       	int result = chooser.showOpenDialog(this);
-    	if (result == JFileChooser.APPROVE_OPTION)
-    	{
-
-	        File f = chooser.getSelectedFile();
-    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-    		return f;
-    	}
-    	return null;
+            File f = chooser.getSelectedFile();
+            JFileChooserFactory.recordNewBaseFolder(f.getParent());
+            return f;
+        }
+        return null;
     }
 
-    void importKits_actionPerformed(ActionEvent e) {
-    	File f = importRomSelect();
-    	if (f!= null)
-    		importKits(f);
-	}
-
-    void importFonts_actionPerformed(ActionEvent e) {
-    	File f = importRomSelect();
-    	if (f!= null)
-    		importFonts(f);
-
-	}
-
-
-    void importPalettes_actionPerformed(ActionEvent e) {
-	  	File f = importRomSelect();
-	  	if (f!= null)
-	  		importPalettes(f);
-	}
-
-    void saveROMButton_actionPerformed() {
-    	JFileChooser chooser = JFileChooserFactory.createChooser("Save ROM image", FileType.Gb, FileOperation.Save);
-
-       	int result = chooser.showOpenDialog(this);
-    	if (result == JFileChooser.APPROVE_OPTION)
-    	{
-	        try {
-	            File f = chooser.getSelectedFile();
-	    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-
-	    	    RomUtilities.fixChecksums(romImage);
-	            romFile = new RandomAccessFile(f,"rw");
-	            romFile.write(romImage);
-	            romFile.close();
-	            setTitle(f.getAbsoluteFile().toString());
-	        } catch (Exception e) {
-	            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-	                    JOptionPane.ERROR_MESSAGE);
-	        }
-    	}
+    private void importKits_actionPerformed() {
+        File f = importRomSelect();
+        if (f != null)
+            importKits(f);
     }
 
-    void exportKitButton_actionPerformed() {
-    	JFileChooser chooser = JFileChooserFactory.createChooser("Export kit", FileType.Kit, FileOperation.Save);
-
-    	int result = chooser.showOpenDialog(this);
-    	if (result == JFileChooser.APPROVE_OPTION)
-    	{
-
-    		try {
-    			File f = chooser.getSelectedFile();
-        		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-    			byte buf[]=new byte[RomUtilities.BANK_SIZE];
-    			int offset=getROMOffsetForSelectedBank();
-    			RandomAccessFile bankFile=new RandomAccessFile(f,"rw");
-
-    			for(int i=0;i<buf.length;i++) {
-    				buf[i]=romImage[offset++];
-    			}
-    			bankFile.write(buf);
-    			bankFile.close();
-    		} catch (Exception e) {
-    			JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-    					JOptionPane.ERROR_MESSAGE);
-    		}
-    		updateRomView();
-    	}
+    private void importFonts_actionPerformed() {
+        File f = importRomSelect();
+        if (f != null)
+            importFonts(f);
 
     }
 
-    void loadKit(File kitFile) {
+
+    private void importPalettes_actionPerformed() {
+        File f = importRomSelect();
+        if (f != null)
+            importPalettes(f);
+    }
+
+    private void saveROMButton_actionPerformed() {
+        JFileChooser chooser = JFileChooserFactory.createChooser("Save ROM image", FileType.Gb, FileOperation.Save);
+
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try {
+                File f = chooser.getSelectedFile();
+                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+
+                RomUtilities.fixChecksum(romImage);
+                romFile = new RandomAccessFile(f, "rw");
+                romFile.write(romImage);
+                romFile.close();
+                setTitle(f.getAbsoluteFile().toString());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void exportKitButton_actionPerformed() {
+        JFileChooser chooser = JFileChooserFactory.createChooser("Export kit", FileType.Kit, FileOperation.Save);
+
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+
+            try {
+                File f = chooser.getSelectedFile();
+                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+                byte buf[] = new byte[RomUtilities.BANK_SIZE];
+                int offset = getROMOffsetForSelectedBank();
+                RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
+
+                for (int i = 0; i < buf.length; i++) {
+                    buf[i] = romImage[offset++];
+                }
+                bankFile.write(buf);
+                bankFile.close();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            updateRomView();
+        }
+
+    }
+
+    private void loadKit(File kitFile) {
         try {
-            byte buf[]=new byte[RomUtilities.BANK_SIZE];
-            int offset=getROMOffsetForSelectedBank();
+            byte buf[] = new byte[RomUtilities.BANK_SIZE];
+            int offset = getROMOffsetForSelectedBank();
             RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
             bankFile.readFully(buf);
 
-            for(int i=0;i<buf.length;i++) {
-                romImage[offset++]=buf[i];
+            for (byte aBuf : buf) {
+                romImage[offset++] = aBuf;
             }
             bankFile.close();
             flushWavFiles();
@@ -925,7 +835,7 @@ public class MainWindow extends JFrame {
         updateRomView();
     }
 
-    void loadKitButton_actionPerformed() {
+    private void loadKitButton_actionPerformed() {
         FileDialog dialog = new FileDialog(this, "Load kit", FileDialog.LOAD);
         dialog.setFilenameFilter(new KitFileFilter());
         dialog.setVisible(true);
@@ -939,33 +849,32 @@ public class MainWindow extends JFrame {
         String s = f.getName();
         int i = s.lastIndexOf('.');
 
-        if (i > 0 &&  i < s.length() - 1) {
-            ext=s.substring(0,i);
+        if (i > 0 && i < s.length() - 1) {
+            ext = s.substring(0, i);
         }
         return ext;
     }
 
-    void createKit() {
+    private void createKit() {
         //clear all bank
         int offset = getROMOffsetForSelectedBank() + 2;
         int max_offset = getROMOffsetForSelectedBank() + RomUtilities.BANK_SIZE;
-        while ( offset < max_offset )
-        {
+        while (offset < max_offset) {
             romImage[offset++] = 0;
         }
 
         //clear kit name
-        offset=getROMOffsetForSelectedBank() + 0x52;
-        for(int i=0;i<6;i++) {
-            romImage[offset++]=' ';
+        offset = getROMOffsetForSelectedBank() + 0x52;
+        for (int i = 0; i < 6; i++) {
+            romImage[offset++] = ' ';
         }
 
         //clear instrument names
         offset = getROMOffsetForSelectedBank() + 0x22;
-        for(int i=0;i<15;i++) {
-            romImage[offset++]=0;
-            romImage[offset++]='-';
-            romImage[offset++]='-';
+        for (int i = 0; i < 15; i++) {
+            romImage[offset++] = 0;
+            romImage[offset++] = '-';
+            romImage[offset++] = '-';
         }
 
         flushWavFiles();
@@ -973,25 +882,25 @@ public class MainWindow extends JFrame {
         updateRomView();
     }
 
-    void flushWavFiles() {
+    private void flushWavFiles() {
         samples = new Sample[MAX_SAMPLES];
     }
 
-    void renameKitButton_actionPerformed(ActionEvent e) {
-        int offset= getROMOffsetForSelectedBank() +0x52;
-        String s=kitTextArea.getText().toUpperCase();
-        for(int i=0;i<6;i++) {
-            if(i<s.length()) {
-                romImage[offset++]=(byte)s.charAt(i);
+    private void renameKitButton_actionPerformed() {
+        int offset = getROMOffsetForSelectedBank() + 0x52;
+        String s = kitTextArea.getText().toUpperCase();
+        for (int i = 0; i < 6; i++) {
+            if (i < s.length()) {
+                romImage[offset++] = (byte) s.charAt(i);
             } else {
-                romImage[offset++]=' ';
+                romImage[offset++] = ' ';
             }
         }
         compileKit();
         updateRomView();
     }
 
-    int firstFreeSampleSlot() {
+    private int firstFreeSampleSlot() {
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
             if (samples[sampleIt] == null) {
                 return sampleIt;
@@ -1000,34 +909,29 @@ public class MainWindow extends JFrame {
         return -1;
     }
 
-    void addSample(File wavFile) {
+    private void addSample(File wavFile) {
         if (isEmptyKitBank(getSelectedROMBank())) {
             createKit();
         }
         if (firstFreeSampleSlot() == -1) {
             JOptionPane.showMessageDialog(contentPane,
-                "Can't add sample, kit is full!",
-                "Kit full",
-                JOptionPane.ERROR_MESSAGE);
+                    "Can't add sample, kit is full!",
+                    "Kit full",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         int offset = getROMOffsetForSelectedBank() + 0x22 +
-            firstFreeSampleSlot() * 3;
+                firstFreeSampleSlot() * 3;
         String s = dropExtension(wavFile).toUpperCase();
-        if(s.length() > 0) {
-            romImage[offset++]=(byte)s.charAt(0);
-        } else {
-            romImage[offset++]='-';
-        }
-        if(s.length() > 1) {
-            romImage[offset++]=(byte)s.charAt(1);
-        } else {
-            romImage[offset++]='-';
-        }
-        if(s.length() > 2) {
-            romImage[offset++]=(byte)s.charAt(2);
-        } else {
-            romImage[offset++]='-';
+
+        for (int i = 0; i < 3; ++i) {
+            if (s.length() > 0) {
+                romImage[offset] = (byte) s.charAt(i);
+            } else {
+                romImage[offset] = '-';
+            }
+
+            offset++;
         }
 
         Sample sample = Sample.createFromWav(wavFile);
@@ -1040,7 +944,7 @@ public class MainWindow extends JFrame {
         updateRomView();
     }
 
-    void selectSampleToAdd() {
+    private void selectSampleToAdd() {
         FileDialog dialog = new FileDialog(this, "Load sample",
                 FileDialog.LOAD);
         dialog.setFilenameFilter(new WavFileFilter());
@@ -1050,18 +954,18 @@ public class MainWindow extends JFrame {
         }
     }
 
-    void compileKit() {
+    private void compileKit() {
         updateBankView();
-        if(totSampleSize>0x3fa0) {
-            kitSizeLabel.setText(Integer.toHexString(totSampleSize)+"/3fa0 bytes used");
+        if (totSampleSize > 0x3fa0) {
+            kitSizeLabel.setText(Integer.toHexString(totSampleSize) + "/3fa0 bytes used");
             return;
         }
-        kitSizeLabel.setText(Integer.toHexString(totSampleSize)+" bytes written");
-        sbc.DITHER_VAL=ditherSlider.getValue();
+        kitSizeLabel.setText(Integer.toHexString(totSampleSize) + " bytes written");
+        sbc.DITHER_VAL = ditherSlider.getValue();
 
-        byte newSamples[]=new byte[RomUtilities.BANK_SIZE];
-        int lengths[]=new int[15];
-        sbc.handle(newSamples,samples,lengths);
+        byte newSamples[] = new byte[RomUtilities.BANK_SIZE];
+        int lengths[] = new int[15];
+        sbc.handle(newSamples, samples, lengths);
 
         // Checks if at least one sample has been added.
         boolean hasAnySample = false;
@@ -1078,25 +982,25 @@ public class MainWindow extends JFrame {
 
         //copy sampledata to ROM image
         int offset = getROMOffsetForSelectedBank() + 0x60;
-        int offset2=0x60;
+        int offset2 = 0x60;
         do {
-            romImage[offset++]=newSamples[offset2++];
-        } while(offset2!=RomUtilities.BANK_SIZE);
+            romImage[offset++] = newSamples[offset2++];
+        } while (offset2 != RomUtilities.BANK_SIZE);
 
         //update samplelength info in rom image
-        int bankOffset=0x4060;
-        offset=getROMOffsetForSelectedBank();
-        romImage[offset++]=0x60;
-        romImage[offset++]=0x40;
+        int bankOffset = 0x4060;
+        offset = getROMOffsetForSelectedBank();
+        romImage[offset++] = 0x60;
+        romImage[offset++] = 0x40;
 
-        for(int i=0;i<15;i++) {
-            bankOffset+=lengths[i];
-            if(lengths[i]!=0) {
-                romImage[offset++]=(byte)(bankOffset&0xff);
-                romImage[offset++]=(byte)(bankOffset>>8);
+        for (int i = 0; i < 15; i++) {
+            bankOffset += lengths[i];
+            if (lengths[i] != 0) {
+                romImage[offset++] = (byte) (bankOffset & 0xff);
+                romImage[offset++] = (byte) (bankOffset >> 8);
             } else {
-                romImage[offset++]=0;
-                romImage[offset++]=0;
+                romImage[offset++] = 0;
+                romImage[offset++] = 0;
             }
         }
 
@@ -1105,7 +1009,7 @@ public class MainWindow extends JFrame {
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
     }
 
-    void dropSample() {
+    private void dropSample() {
         int[] indices = instrList.getSelectedIndices();
 
         for (int indexIt = 0; indexIt < indices.length; ++indexIt) {
@@ -1113,22 +1017,20 @@ public class MainWindow extends JFrame {
             int index = indices[indexIt];
 
             // Moves up samples.
-            for(int i=index;i<14;i++) {
-                samples[i]=samples[i+1];
-            }
-            samples[14]=null;
+            if (14 - index >= 0) System.arraycopy(samples, index + 1, samples, index, 14 - index);
+            samples[14] = null;
 
             // Moves up instr names.
-            int offset= getROMOffsetForSelectedBank() +0x22+index*3;
+            int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
             int i;
-            for(i=offset;i< getROMOffsetForSelectedBank() +0x22+14*3;i+=3) {
-                romImage[i]=romImage[i+3];
-                romImage[i+1]=romImage[i+4];
-                romImage[i+2]=romImage[i+5];
+            for (i = offset; i < getROMOffsetForSelectedBank() + 0x22 + 14 * 3; i += 3) {
+                romImage[i] = romImage[i + 3];
+                romImage[i + 1] = romImage[i + 4];
+                romImage[i + 2] = romImage[i + 5];
             }
-            romImage[i]=0;
-            romImage[i+1]='-';
-            romImage[i+2]='-';
+            romImage[i] = 0;
+            romImage[i + 1] = '-';
+            romImage[i + 2] = '-';
 
             // Adjusts indices.
             for (int indexIt2 = indexIt + 1; indexIt2 < indices.length; ++indexIt2) {
@@ -1140,7 +1042,7 @@ public class MainWindow extends JFrame {
         updateBankView();
     }
 
-    void exportSample() {
+    private void exportSample() {
         Sample s = samples[instrList.getSelectedIndex()];
         if (s == null) {
             return;
@@ -1155,7 +1057,7 @@ public class MainWindow extends JFrame {
         }
         File f = new File(dialog.getDirectory(), dialog.getFile());
         if (!f.toString().toUpperCase().endsWith(".WAV")) {
-            f = new File(f.getAbsoluteFile().toString()+".wav");
+            f = new File(f.getAbsoluteFile().toString() + ".wav");
         }
         s.writeToWav(f);
     }

@@ -19,14 +19,10 @@
   THE SOFTWARE. */
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import utils.GlobalHolder;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
@@ -39,10 +35,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import java.awt.GridBagLayout;
 import javax.swing.JComboBox;
-import java.awt.Panel;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JLabel;
@@ -50,64 +43,60 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
 public class PaletteEditor
-    extends JFrame
-    implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
-	private static final long serialVersionUID = 5286120830758415869L;
-
-	private JPanel contentPane;
+        extends JFrame
+        implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
+    private static final long serialVersionUID = 5286120830758415869L;
 
     private byte romImage[] = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
 
-    private JPanel preview1a;
-    private JPanel preview1b;
-    private JPanel preview2a;
-    private JPanel preview2b;
-    private JPanel preview3a;
-    private JPanel preview3b;
-    private JPanel preview4a;
-    private JPanel preview4b;
-    private JPanel preview5a;
-    private JPanel preview5b;
+    private final JPanel preview1a;
+    private final JPanel preview1b;
+    private final JPanel preview2a;
+    private final JPanel preview2b;
+    private final JPanel preview3a;
+    private final JPanel preview3b;
+    private final JPanel preview4a;
+    private final JPanel preview4b;
+    private final JPanel preview5a;
+    private final JPanel preview5b;
 
-    private JPanel previewSong;
-    private JLabel previewSongLabel;
-    private JPanel previewInstr;
-    private JLabel previewInstrLabel;
+    private final JLabel previewSongLabel;
+    private final JLabel previewInstrLabel;
 
-    private JSpinner c1r1;
-    private JSpinner c1g1;
-    private JSpinner c1b1;
-    private JSpinner c1r2;
-    private JSpinner c1g2;
-    private JSpinner c1b2;
-    private JSpinner c2r1;
-    private JSpinner c2g1;
-    private JSpinner c2b1;
-    private JSpinner c2r2;
-    private JSpinner c2g2;
-    private JSpinner c2b2;
-    private JSpinner c3r1;
-    private JSpinner c3g1;
-    private JSpinner c3b1;
-    private JSpinner c3r2;
-    private JSpinner c3g2;
-    private JSpinner c3b2;
-    private JSpinner c4r1;
-    private JSpinner c4g1;
-    private JSpinner c4b1;
-    private JSpinner c4r2;
-    private JSpinner c4g2;
-    private JSpinner c4b2;
-    private JSpinner c5r1;
-    private JSpinner c5g1;
-    private JSpinner c5b1;
-    private JSpinner c5r2;
-    private JSpinner c5g2;
-    private JSpinner c5b2;
+    private final JSpinner c1r1;
+    private final JSpinner c1g1;
+    private final JSpinner c1b1;
+    private final JSpinner c1r2;
+    private final JSpinner c1g2;
+    private final JSpinner c1b2;
+    private final JSpinner c2r1;
+    private final JSpinner c2g1;
+    private final JSpinner c2b1;
+    private final JSpinner c2r2;
+    private final JSpinner c2g2;
+    private final JSpinner c2b2;
+    private final JSpinner c3r1;
+    private final JSpinner c3g1;
+    private final JSpinner c3b1;
+    private final JSpinner c3r2;
+    private final JSpinner c3g2;
+    private final JSpinner c3b2;
+    private final JSpinner c4r1;
+    private final JSpinner c4g1;
+    private final JSpinner c4b1;
+    private final JSpinner c4r2;
+    private final JSpinner c4g2;
+    private final JSpinner c4b2;
+    private final JSpinner c5r1;
+    private final JSpinner c5g1;
+    private final JSpinner c5b1;
+    private final JSpinner c5r2;
+    private final JSpinner c5g2;
+    private final JSpinner c5b2;
 
-    private JComboBox paletteSelector;
+    private final JComboBox<String> paletteSelector;
 
     private java.awt.image.BufferedImage songImage;
     private java.awt.image.BufferedImage instrImage;
@@ -117,64 +106,49 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
-    /**
-     * Launch the application.
-     */
-//    public static void main(String[] args) {
-//        EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                try {
-//                    PaletteEditor frame = new PaletteEditor();
-//                    frame.setVisible(true);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
 
-    public PaletteEditor() {
+    PaletteEditor() {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
         JMenu mnFile = new JMenu("File");
-		mnFile.setMnemonic(KeyEvent.VK_F);
+        mnFile.setMnemonic(KeyEvent.VK_F);
         menuBar.add(mnFile);
 
-        JMenuItem mntmOpen = new JMenuItem("Open...");
-		mntmOpen.setMnemonic(KeyEvent.VK_O);
-        mntmOpen.addActionListener(this);
-        mnFile.add(mntmOpen);
+        JMenuItem openMenuItem = new JMenuItem("Open...");
+        openMenuItem.setMnemonic(KeyEvent.VK_O);
+        openMenuItem.addActionListener(this);
+        mnFile.add(openMenuItem);
 
-        JMenuItem mntmSave = new JMenuItem("Save...");
-		mntmSave.setMnemonic(KeyEvent.VK_S);
-        mntmSave.addActionListener(this);
-        mnFile.add(mntmSave);
+        JMenuItem saveMenuItem = new JMenuItem("Save...");
+        saveMenuItem.setMnemonic(KeyEvent.VK_S);
+        saveMenuItem.addActionListener(this);
+        mnFile.add(saveMenuItem);
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         setBounds(100, 100, 650, 656);
         setResizable(false);
         setTitle("Palette Editor");
-        contentPane = new JPanel();
+        JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        paletteSelector = new JComboBox();
+        paletteSelector = new JComboBox<>();
         paletteSelector.setBounds(10, 10, 140, 20);
         paletteSelector.setEditable(true);
         paletteSelector.addItemListener(this);
         paletteSelector.addActionListener(this);
         contentPane.add(paletteSelector);
 
-        previewSong = new JPanel(new BorderLayout());
+        JPanel previewSong = new JPanel(new BorderLayout());
         previewSong.setBounds(314, 10, 160 * 2, 144 * 2);
         previewSongLabel = new JLabel();
         previewSong.add(previewSongLabel);
         contentPane.add(previewSong);
 
-        previewInstr = new JPanel(new BorderLayout());
+        JPanel previewInstr = new JPanel(new BorderLayout());
         previewInstr.setBounds(314, 10 + 144 * 2 + 10, 160 * 2, 144 * 2);
         previewInstrLabel = new JLabel();
         previewInstr.add(previewInstrLabel);
@@ -356,9 +330,9 @@ public class PaletteEditor
         preview4a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
         contentPane.add(preview4a);
 
-        JLabel lblStartscroll = new JLabel("Scroll");
-        lblStartscroll.setBounds(10, 265, 65, 14);
-        contentPane.add(lblStartscroll);
+        JLabel scrollStartLabel = new JLabel("Scroll");
+        scrollStartLabel.setBounds(10, 265, 65, 14);
+        contentPane.add(scrollStartLabel);
 
         c5r1 = new JSpinner();
         c5r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
@@ -443,7 +417,7 @@ public class PaletteEditor
         c5b2.addChangeListener(this);
     }
 
-    public void setRomImage(byte[] romImage) {
+    void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         paletteOffset = RomUtilities.findPaletteOffset(romImage);
         if (paletteOffset == -1) {
@@ -473,36 +447,36 @@ public class PaletteEditor
     }
 
     private void updateRom(int offset,
-            JSpinner sr1,
-            JSpinner sg1,
-            JSpinner sb1,
-            JSpinner sr2,
-            JSpinner sg2,
-            JSpinner sb2) {
-        int r1 = (Integer)sr1.getValue();
-        int g1 = (Integer)sg1.getValue();
-        int b1 = (Integer)sb1.getValue();
+                           JSpinner sr1,
+                           JSpinner sg1,
+                           JSpinner sb1,
+                           JSpinner sr2,
+                           JSpinner sg2,
+                           JSpinner sb2) {
+        int r1 = (Integer) sr1.getValue();
+        int g1 = (Integer) sg1.getValue();
+        int b1 = (Integer) sb1.getValue();
         // gggrrrrr 0bbbbbgg
-        romImage[offset] = (byte)(r1 | (g1 << 5));
-        romImage[offset + 1] = (byte)((g1 >> 3) | (b1 << 2));
+        romImage[offset] = (byte) (r1 | (g1 << 5));
+        romImage[offset + 1] = (byte) ((g1 >> 3) | (b1 << 2));
 
-        int r2 = (Integer)sr2.getValue();
-        int g2 = (Integer)sg2.getValue();
-        int b2 = (Integer)sb2.getValue();
-        romImage[offset + 6] = (byte)(r2 | (g2 << 5));
-        romImage[offset + 7] = (byte)((g2 >> 3) | (b2 << 2));
+        int r2 = (Integer) sr2.getValue();
+        int g2 = (Integer) sg2.getValue();
+        int b2 = (Integer) sb2.getValue();
+        romImage[offset + 6] = (byte) (r2 | (g2 << 5));
+        romImage[offset + 7] = (byte) ((g2 >> 3) | (b2 << 2));
 
         // Generating antialiasing colors.
         int rMid = (r1 + r2) / 2;
         int gMid = (g1 + g2) / 2;
         int bMid = (b1 + b2) / 2;
-        romImage[offset + 2] = (byte)(rMid | (gMid << 5));
-        romImage[offset + 3] = (byte)((gMid >> 3) | (bMid << 2));
+        romImage[offset + 2] = (byte) (rMid | (gMid << 5));
+        romImage[offset + 3] = (byte) ((gMid >> 3) | (bMid << 2));
         romImage[offset + 4] = romImage[offset + 2];
         romImage[offset + 5] = romImage[offset + 3];
     }
 
-    int selectedPaletteOffset() {
+    private int selectedPaletteOffset() {
         return paletteOffset + selectedPalette() * RomUtilities.PALETTE_SIZE;
     }
 
@@ -538,11 +512,11 @@ public class PaletteEditor
     private String paletteName(int palette) {
         assert palette >= 0;
         assert palette < RomUtilities.NUM_PALETTES;
-        String s = new String();
-        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE];
-        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1];
-        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2];
-        s += (char)romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 3];
+        String s = "";
+        s += (char) romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE];
+        s += (char) romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1];
+        s += (char) romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2];
+        s += (char) romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 3];
         return s;
     }
 
@@ -552,13 +526,17 @@ public class PaletteEditor
         }
         if (name.length() >= RomUtilities.PALETTE_NAME_SIZE) {
             name = name.substring(0, RomUtilities.PALETTE_NAME_SIZE - 1);
-        } else while (name.length() < RomUtilities.PALETTE_NAME_SIZE - 1) {
-            name = name + " ";
+        } else {
+            StringBuilder nameBuilder = new StringBuilder(name);
+            while (nameBuilder.length() < RomUtilities.PALETTE_NAME_SIZE - 1) {
+                nameBuilder.append(" ");
+            }
+            name = nameBuilder.toString();
         }
-        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE] = (byte)name.charAt(0);
-        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1] = (byte)name.charAt(1);
-        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2] = (byte)name.charAt(2);
-        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 3] = (byte)name.charAt(3);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE] = (byte) name.charAt(0);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1] = (byte) name.charAt(1);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2] = (byte) name.charAt(2);
+        romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 3] = (byte) name.charAt(3);
     }
 
     private void populatePaletteSelector() {
@@ -578,8 +556,8 @@ public class PaletteEditor
 
         // Matrix conversion from Gambatte.
         return (((r * 13 + g * 2 + b) >> 1) << 16)
-            | ((g * 3 + b) << 9)
-            | ((r * 3 + g * 2 + b * 11) >> 1);
+                | ((g * 3 + b) << 9)
+                | ((r * 3 + g * 2 + b * 11) >> 1);
     }
 
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
@@ -704,7 +682,13 @@ public class PaletteEditor
     }
 
     private void savePalette(String path) {
-        String paletteName = paletteSelector.getSelectedItem().toString();
+
+        Object selectedItem = paletteSelector.getSelectedItem();
+        if (selectedItem == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Couldn't read the palette name.");
+            return;
+        }
+        String paletteName = (String) selectedItem;
         assert paletteName.length() == 4;
         try {
             java.io.FileOutputStream f = new java.io.FileOutputStream(path);
@@ -722,16 +706,16 @@ public class PaletteEditor
     }
 
     private void loadPalette(java.io.File file) {
-        String name = new String();
+        String name = "";
         try {
             java.io.RandomAccessFile f = new java.io.RandomAccessFile(file, "r");
-            name += (char)f.read();
-            name += (char)f.read();
-            name += (char)f.read();
-            name += (char)f.read();
+            name += (char) f.read();
+            name += (char) f.read();
+            name += (char) f.read();
+            name += (char) f.read();
             setPaletteName(paletteSelector.getSelectedIndex(), name);
             for (int i = selectedPaletteOffset(); i < selectedPaletteOffset() + RomUtilities.PALETTE_SIZE; ++i) {
-                romImage[i] = (byte)f.read();
+                romImage[i] = (byte) f.read();
             }
             f.close();
         } catch (java.io.IOException e) {
@@ -743,54 +727,62 @@ public class PaletteEditor
     }
 
     private void showOpenDialog() {
-		JFileChooser chooser = JFileChooserFactory.createChooser("Load Palette", FileType.Lsdpal, FileOperation.Load);
-		int returnVal = chooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+        JFileChooser chooser = JFileChooserFactory.createChooser("Load Palette", FileType.Lsdpal, FileOperation.Load);
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-			loadPalette(f);
-		}
+            JFileChooserFactory.recordNewBaseFolder(f.getParent());
+            loadPalette(f);
+        }
     }
 
     private void showSaveDialog() {
-		JFileChooser chooser = JFileChooserFactory.createChooser("Save Palette", FileType.Lsdpal, FileOperation.Save);
-		int returnVal = chooser.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+        JFileChooser chooser = JFileChooserFactory.createChooser("Save Palette", FileType.Lsdpal, FileOperation.Save);
+        int returnVal = chooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-    		JFileChooserFactory.recordNewBaseFolder(f.getParent());
-			String filename = f.toString();
-			if (!filename.endsWith("lsdpal")) {
-				filename += ".lsdpal";
-			}
-			savePalette(filename);
-		}
+            JFileChooserFactory.recordNewBaseFolder(f.getParent());
+            String filename = f.toString();
+            if (!filename.endsWith("lsdpal")) {
+                filename += ".lsdpal";
+            }
+            savePalette(filename);
+        }
     }
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
         String cmd = e.getActionCommand();
-        if (cmd == "Open...") {
-            showOpenDialog();
-        } else if (cmd == "Save...") {
-            showSaveDialog();
-        } else if (cmd == "comboBoxChanged") {
-            JComboBox cb = (JComboBox)e.getSource();
-            if (cb.getSelectedIndex() != -1) {
-                previousSelectedPalette = cb.getSelectedIndex();
-            }
-        } else if (cmd == "comboBoxEdited") {
-            // Kit name was edited.
-            JComboBox cb = (JComboBox)e.getSource();
-            if (cb.getSelectedIndex() == -1) {
-                setPaletteName(previousSelectedPalette, (String)cb.getSelectedItem());
-                if (!populatingPaletteSelector) {
-                    populatePaletteSelector();
-                    cb.setSelectedIndex(previousSelectedPalette);
+        switch (cmd) {
+            case "Open...":
+                showOpenDialog();
+                break;
+            case "Save...":
+                showSaveDialog();
+                break;
+            case "comboBoxChanged": {
+                JComboBox cb = (JComboBox) e.getSource();
+                if (cb.getSelectedIndex() != -1) {
+                    previousSelectedPalette = cb.getSelectedIndex();
                 }
-            } else {
-                previousSelectedPalette = cb.getSelectedIndex();
+                break;
             }
-        } else {
-            assert false;
+            case "comboBoxEdited": {
+                // Kit name was edited.
+                JComboBox cb = (JComboBox) e.getSource();
+                if (cb.getSelectedIndex() == -1) {
+                    setPaletteName(previousSelectedPalette, (String) cb.getSelectedItem());
+                    if (!populatingPaletteSelector) {
+                        populatePaletteSelector();
+                        cb.setSelectedIndex(previousSelectedPalette);
+                    }
+                } else {
+                    previousSelectedPalette = cb.getSelectedIndex();
+                }
+                break;
+            }
+            default:
+                assert false;
+                break;
         }
     }
 }
