@@ -85,6 +85,7 @@ public class MainWindow extends JFrame {
     private JMenuItem importKitsItem;
     private JMenuItem importFontsItem;
     private JMenuItem importPalettesItem;
+    private JMenuItem importAllItem;
     private final JButton loadKitButton = new JButton();
     private final JButton exportKitButton = new JButton();
     private final JButton exportSampleButton = new JButton();
@@ -157,12 +158,13 @@ public class MainWindow extends JFrame {
         importPalettesItem = new JMenuItem("Import palettes from ROM...", KeyEvent.VK_I);
         importPalettesItem.setEnabled(false);
         importPalettesItem.addActionListener(e1 -> importPalettes_actionPerformed());
-
-        importPalettesItem = new JMenuItem("Import all from ROM...", KeyEvent.VK_A);
-        importPalettesItem.setEnabled(false);
-        importPalettesItem.addActionListener(e1 -> importAll_actionPerformed());
-
         fileMenu.add(importPalettesItem);
+
+        importAllItem = new JMenuItem("Import all from ROM...", KeyEvent.VK_A);
+        importAllItem.setEnabled(false);
+        importAllItem.addActionListener(e1 -> importAll_actionPerformed());
+        fileMenu.add(importAllItem);
+
         fileMenu.addSeparator();
 
         saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
@@ -408,6 +410,7 @@ public class MainWindow extends JFrame {
             importKitsItem.setEnabled(true);
             importFontsItem.setEnabled(true);
             importPalettesItem.setEnabled(true);
+            importAllItem.setEnabled(true);
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
             renameKitButton.setEnabled(true);
@@ -631,9 +634,8 @@ public class MainWindow extends JFrame {
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
-
-            return isOk;
         }
+        return isOk;
     }
 
     private boolean importFonts(File f) {
@@ -669,8 +671,8 @@ public class MainWindow extends JFrame {
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
-            return isOk;
         }
+        return isOk;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
