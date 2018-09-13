@@ -337,6 +337,10 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
                 RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
                 tileEditor.tileChanged();
                 tileChanged();
+                // Refresh the name list.
+                int previousIndex = fontSelector.getSelectedIndex();
+                populateFontSelector();
+                fontSelector.setSelectedIndex(previousIndex);
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Couldn't open fnt file.\n" + e.getMessage());
