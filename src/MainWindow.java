@@ -344,7 +344,7 @@ public class MainWindow extends JFrame {
         contentPane.add(addSampleButton, null);
         contentPane.add(dropSampleButton, null);
         contentPane.add(saveROMButton, null);
-        contentPane.add(jPanel2, null);
+//        contentPane.add(jPanel2, null);
         String versionString = "LSDPatcher Redux WIP " + LSDPatcher.VERSION;
         JLabel versionLabel = new JLabel(versionString, SwingConstants.RIGHT);
         versionLabel.setBounds(new Rectangle(210, 335, 174, 26));
@@ -549,7 +549,7 @@ public class MainWindow extends JFrame {
 
         updateKitSizeLabel();
         addSampleButton.setEnabled(firstFreeSampleSlot() != -1);
-        ditherSlider.setEnabled(true);  // TODO: Should be individual per sample.
+        ditherSlider.setEnabled(false);  // TODO: Should be individual per sample.
     }
 
     private void updateKitSizeLabel() {
