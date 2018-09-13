@@ -184,7 +184,7 @@ class Sample {
                         readPos += advance;
                     }
 
-                    return new Sample(outBuf, file.getName(), true);
+                    return new Sample(outBuf, file.getName(), false);
                 } else {
                     in.skip(chunkSize);
                 }
