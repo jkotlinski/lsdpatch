@@ -1,5 +1,7 @@
-bin
-out
+# Maven
+target
+
+# IntelliJ IDEA
 .idea
 .settings
 *.iml

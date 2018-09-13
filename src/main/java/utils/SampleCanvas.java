@@ -12,8 +12,8 @@ public class SampleCanvas extends Canvas {
         setBackground(Color.black);
     }
 
+    @Override
     public void paint(Graphics gg) {
-        super.paint(gg);
         Graphics2D g = (Graphics2D) gg;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);

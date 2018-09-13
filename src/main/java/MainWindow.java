@@ -33,24 +33,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import fontEditor.FontEditor;
+import net.miginfocom.swing.MigLayout;
 import structures.LSDJFont;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
@@ -95,10 +82,10 @@ public class MainWindow extends JFrame {
     private final JButton dropSampleButton = new JButton();
     private final JButton saveROMButton = new JButton();
     private final JLabel kitSizeLabel = new JLabel();
-    private final JPanel jPanel2 = new JPanel();
     private final SampleCanvas sampleView = new SampleCanvas();
     private final JSlider ditherSlider = new JSlider();
-    private final GridLayout gridLayout1 = new GridLayout();
+
+    private final JToggleButton playSpeedToggle = new JToggleButton();
 
     private final JMenuBar menuBar = new JMenuBar();
 
@@ -188,28 +175,36 @@ public class MainWindow extends JFrame {
         editFontItem.addActionListener(e -> fontEditor.setVisible(true));
         fontMenu.add(editFontItem);
 
-        //help menu
-        /*
-        menu = new JMenu("Help");
-        menu.setMnemonic(KeyEvent.VK_H);
-        menuBar.add(menu);
-
-        menuItem = new JMenuItem("Documentation", KeyEvent.VK_D);
-        menuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                openDoc_actionPerformed(e);
-                }
-                });
-        menu.add(menuItem);
-        */
-
         setJMenuBar(menuBar);
     }
 
-    class DitherListener implements javax.swing.event.ChangeListener {
-        public void stateChanged(javax.swing.event.ChangeEvent evt) {
-            compileKit();
-        }
+    private void setListeners() {
+        bankBox.addActionListener(bankBoxListener);
+
+        instrList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (romImage != null) {
+                    int index = instrList.locationToIndex(e.getPoint());
+
+                    boolean hasIndex = (index > -1);
+                    if (hasIndex) {
+                        playSample(index);
+                    }
+                    dropSampleButton.setEnabled(hasIndex);
+                    exportSampleButton.setEnabled(hasIndex);
+                }
+            }
+        });
+
+        loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
+        exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
+        renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
+        exportSampleButton.addActionListener(e -> exportSample());
+
+        addSampleButton.addActionListener(e -> selectSampleToAdd());
+        dropSampleButton.addActionListener(e -> dropSample());
+
+        saveROMButton.addActionListener(e -> saveROMButton_actionPerformed());
     }
 
     /**
@@ -217,15 +212,74 @@ public class MainWindow extends JFrame {
      */
     private void jbInit() {
         //setIconImage(Toolkit.getDefaultToolkit().createImage(Frame1.class.getResource("[Your Icon]")));
+        setTitle("LSDPatcher Redux v" + LSDPatcher.getVersion());
         contentPane = (JPanel) this.getContentPane();
-        TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white, new Color(164, 164, 159)), "ROM Image");
-        // TitledBorder titledBorder2 = new TitledBorder(BorderFactory.createLineBorder(new Color(153, 153, 153), 2), "rename kit");
-        TitledBorder titledBorder3 = new TitledBorder(BorderFactory.createEtchedBorder(Color.white, new Color(164, 164, 159)), "Dithering (0-16)");
-        contentPane.setLayout(null);
-        this.setSize(new Dimension(400, 464));
-        this.setResizable(false);
-        this.setTitle("LSDPatcher");
+        contentPane.setLayout(new MigLayout("",
+                "[150:60%:,grow][200:40%:,fill,grow]",
+                ""));
 
+        createFileDrop();
+
+
+        instrList.setBorder(BorderFactory.createEtchedBorder());
+
+        JPanel kitContainer = new JPanel();
+        TitledBorder kitContainerBorder = new TitledBorder(BorderFactory.createEtchedBorder(), "ROM Image");
+        kitContainer.setBorder(kitContainerBorder);
+        kitContainer.setLayout(new MigLayout("", "[grow,fill]", ""));
+        kitContainer.add(bankBox, "grow,wrap");
+        kitContainer.add(instrList, "grow,wrap");
+        kitContainer.add(kitSizeLabel, "grow,wrap");
+        kitContainer.setMinimumSize(kitContainer.getPreferredSize());
+
+        loadKitButton.setEnabled(false);
+        loadKitButton.setText("Load Kit");
+
+        exportKitButton.setEnabled(false);
+        exportKitButton.setText("Export Kit");
+
+        kitTextArea.setBorder(BorderFactory.createEtchedBorder());
+
+        renameKitButton.setEnabled(false);
+        renameKitButton.setText("Rename Kit");
+
+        exportSampleButton.setEnabled(false);
+        exportSampleButton.setText("Export Sample");
+
+        addSampleButton.setEnabled(false);
+        addSampleButton.setText("Add sample");
+
+        dropSampleButton.setText("Drop sample");
+        dropSampleButton.setEnabled(false);
+
+        saveROMButton.setEnabled(false);
+        saveROMButton.setText("Save ROM");
+
+
+        contentPane.add(kitContainer, "grow, cell 0 0, spany");
+        contentPane.add(loadKitButton, "wrap");
+        contentPane.add(exportKitButton, "wrap");
+        contentPane.add(kitTextArea, "grow,split 2");
+        contentPane.add(renameKitButton, "wrap 10");
+
+        contentPane.add(exportSampleButton, "wrap");
+        contentPane.add(addSampleButton, "span 2,wrap");
+        contentPane.add(dropSampleButton, "span 2,wrap 10");
+        contentPane.add(saveROMButton, "span 2,wrap push");
+        contentPane.add(playSpeedToggle, "growy,split 2");
+        contentPane.add(new JLabel("Play half speed"), "grow, wrap");
+        contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
+
+        setMinimumSize(getPreferredSize());
+        pack();
+
+        setListeners();
+
+
+        buildMenus();
+    }
+
+    private void createFileDrop() {
         new FileDrop(contentPane, files -> {
             for (File file : files) {
                 String fileName = file.getName().toLowerCase();
@@ -258,103 +312,6 @@ public class MainWindow extends JFrame {
                 }
             }
         });
-
-        jPanel1.setBorder(titledBorder1);
-        jPanel1.setBounds(new Rectangle(8, 6, 193, 375 - 17));
-        jPanel1.setLayout(null);
-        //fileNameLabel.setText("No file opened!");
-        //fileNameLabel.setBounds(new Rectangle(9, 18, 174, 17));
-        bankBox.setBounds(new Rectangle(8, 18, 176, 25));
-        bankBox.addActionListener(bankBoxListener);
-        instrList.setBorder(BorderFactory.createEtchedBorder());
-        instrList.setBounds(new Rectangle(8, 64 - 17, 176, 280));
-        instrList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (romImage != null) {
-                    int index = instrList.locationToIndex(e.getPoint());
-
-                    boolean hasIndex = (index > -1);
-                    if (hasIndex) {
-                        playSample(index);
-                    }
-                    dropSampleButton.setEnabled(hasIndex);
-                    exportSampleButton.setEnabled(hasIndex);
-                }
-            }
-        });
-
-        contentPane.setMinimumSize(new Dimension(1, 1));
-        contentPane.setPreferredSize(new Dimension(400, 414));
-        loadKitButton.setEnabled(false);
-        loadKitButton.setText("load kit");
-        loadKitButton.setBounds(new Rectangle(212, 78 - 72, 170, 28));
-        loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
-        exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
-        exportKitButton.setBounds(new Rectangle(212, 110 - 72, 170, 28));
-        exportKitButton.setEnabled(false);
-        exportKitButton.setText("export kit");
-
-        exportSampleButton.setEnabled(false);
-        exportSampleButton.setText("export sample");
-        exportSampleButton.setBounds(new Rectangle(212, 184 - 82, 170, 28));
-        exportSampleButton.addActionListener(e -> exportSample());
-
-        renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
-        renameKitButton.setEnabled(false);
-        renameKitButton.setText("rename kit");
-        renameKitButton.setBounds(new Rectangle(287, 143 - 72, 95, 27));
-        kitTextArea.setBorder(BorderFactory.createEtchedBorder());
-        kitTextArea.setBounds(new Rectangle(212, 146 - 72, 67, 21));
-        addSampleButton.addActionListener(e -> selectSampleToAdd());
-        addSampleButton.setBounds(new Rectangle(212, 216 - 72, 170, 28));
-        addSampleButton.setEnabled(false);
-        addSampleButton.setText("add sample");
-        dropSampleButton.setText("drop sample");
-        dropSampleButton.setEnabled(false);
-        dropSampleButton.setBounds(new Rectangle(212, 248 - 72, 170, 28));
-        dropSampleButton.addActionListener(e -> dropSample());
-        saveROMButton.addActionListener(e -> saveROMButton_actionPerformed());
-        saveROMButton.setBounds(new Rectangle(212, 280 - 64, 170, 28));
-        saveROMButton.setEnabled(false);
-        saveROMButton.setText("save rom");
-        kitSizeLabel.setToolTipText("");
-        kitSizeLabel.setText("0/3fa0 bytes used");
-        kitSizeLabel.setBounds(new Rectangle(8, 346 - 17, 169, 22));
-        jPanel2.setBorder(titledBorder3);
-        jPanel2.setBounds(new Rectangle(210, 315 - 64, 174, 66));
-        jPanel2.setLayout(gridLayout1);
-        ditherSlider.setMajorTickSpacing(4);
-        ditherSlider.setMaximum(16);
-        ditherSlider.setMinorTickSpacing(1);
-        ditherSlider.setPaintLabels(true);
-        ditherSlider.setPaintTicks(true);
-        ditherSlider.setToolTipText("");
-        ditherSlider.setValue(0);
-        ditherSlider.setEnabled(false);
-        ditherSlider.addChangeListener(new DitherListener());
-        contentPane.add(jPanel1, null);
-        jPanel1.add(bankBox, null);
-        jPanel1.add(instrList, null);
-        jPanel1.add(kitSizeLabel, null);
-        contentPane.add(loadKitButton, null);
-        contentPane.add(exportKitButton, null);
-        contentPane.add(renameKitButton, null);
-        contentPane.add(kitTextArea, null);
-        contentPane.add(exportSampleButton, null);
-        contentPane.add(addSampleButton, null);
-        contentPane.add(dropSampleButton, null);
-        contentPane.add(saveROMButton, null);
-//        contentPane.add(jPanel2, null);
-        String versionString = "LSDPatcher Redux WIP " + LSDPatcher.VERSION;
-        JLabel versionLabel = new JLabel(versionString, SwingConstants.RIGHT);
-        versionLabel.setBounds(new Rectangle(210, 335, 174, 26));
-        contentPane.add(versionLabel);
-        jPanel2.add(ditherSlider, null);
-
-        sampleView.setBounds(new Rectangle(10, 370, 380, 40));
-        contentPane.add(sampleView);
-
-        buildMenus();
     }
 
     /**
@@ -367,22 +324,33 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private byte[] get4BitSamples(int index) {
+    private byte[] get4BitSamples(int index, boolean halfSpeed) {
         int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
         if (stop <= start) {
             return null;
         }
-        byte[] arr = new byte[stop - start];
-        for (int i = start; i < stop; ++i) {
-            arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
+        byte[] arr;
+        if (halfSpeed) {
+            arr = new byte[(stop - start) * 2];
+            for (int i = start; i < stop; ++i) {
+                arr[(i - start)*2] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
+                arr[(i - start)*2 + 1] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
+            }
+
+        } else {
+            arr = new byte[stop - start];
+            for (int i = start; i < stop; ++i) {
+                arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
+            }
         }
         return arr;
     }
 
     private void playSample(int index) {
-        byte[] nibbles = get4BitSamples(index);
+
+        byte[] nibbles = get4BitSamples(index, playSpeedToggle.isSelected());
         if (nibbles == null) {
             return;
         }
@@ -399,7 +367,7 @@ public class MainWindow extends JFrame {
     private void loadRom(File gbFile) {
         try {
             romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            setTitle(gbFile.getAbsoluteFile().toString());
+            setTitle(gbFile.getAbsoluteFile().toString() + " - LSDPatcher Redux v" + LSDPatcher.getVersion());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
@@ -588,7 +556,7 @@ public class MainWindow extends JFrame {
             if (samples[sampleIt] != null) {
                 continue;
             }
-            byte[] nibbles = get4BitSamples(sampleIt);
+            byte[] nibbles = get4BitSamples(sampleIt, false);
 
             if (nibbles != null) {
                 String name = getRomSampleName(sampleIt);
@@ -807,7 +775,7 @@ public class MainWindow extends JFrame {
                 romFile = new RandomAccessFile(f, "rw");
                 romFile.write(romImage);
                 romFile.close();
-                setTitle(f.getAbsoluteFile().toString());
+                setTitle(f.getAbsoluteFile().toString() + " - LSDPatcher Redux v" + LSDPatcher.getVersion());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);

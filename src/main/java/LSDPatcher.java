@@ -28,8 +28,13 @@ import utils.CommandLineFunctions;
 import utils.GlobalHolder;
 
 public class LSDPatcher {
-
-    static final String VERSION = "v1.3.0";
+    public static String getVersion() {
+        String version = GlobalHolder.class.getPackage().getImplementationVersion();
+        if (version == null) {
+            return "DEV";
+        }
+        return version;
+    }
 
     private LSDPatcher() {
         MainWindow frame = new MainWindow();
@@ -52,7 +57,7 @@ public class LSDPatcher {
     }
 
     private static void usage() {
-        System.out.printf("LSDJPatcher Redux %s\n\n", VERSION);
+        System.out.printf("LSDJPatcher Redux %s\n\n", getVersion());
         System.out.println("java -jar LSDJPatcher.jar");
         System.out.println(" Opens the GUI.\n");
 
@@ -81,11 +86,10 @@ public class LSDPatcher {
             e.printStackTrace();
         }
         Preferences prefs = Preferences.userRoot().node(LSDPatcher.class.getName());
-        System.out.println("Using as remembered folder: " + prefs.get("path", System.getProperty("user.dir")));
         GlobalHolder.set(prefs, Preferences.class);
         prefs.put("path", prefs.get("path", System.getProperty("user.dir")));
 
-        new LSDPatcher();
+        LSDPatcher entry = new LSDPatcher();
     }
 
     private static void processArguments(String[] args) {
