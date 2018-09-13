@@ -732,7 +732,7 @@ public class MainWindow extends JFrame {
     private void saveROMButton_actionPerformed() {
         JFileChooser chooser = JFileChooserFactory.createChooser("Save ROM image", FileType.Gb, FileOperation.Save);
 
-        int result = chooser.showOpenDialog(this);
+        int result = chooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 File f = chooser.getSelectedFile();

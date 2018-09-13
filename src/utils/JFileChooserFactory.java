@@ -1,11 +1,11 @@
 package utils;
 
-import java.io.File;
-import java.util.prefs.Preferences;
-
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.prefs.Preferences;
 
 public class JFileChooserFactory {
     public enum FileType {
@@ -19,8 +19,38 @@ public class JFileChooserFactory {
         Save, Load, MultipleLoad
     }
 
+    private static boolean verifyAndValidateOverwrite(JFileChooser parent)
+    {
+        File f = parent.getSelectedFile();
+        if ( f.exists() ) {
+            String msg = "The file \"{0}\" already exists!\nDo you want to overwrite it?";
+            msg = MessageFormat.format(msg, f.getName());
+            String title = parent.getDialogTitle();
+            int option = JOptionPane.showConfirmDialog(parent, msg, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            return option == JOptionPane.OK_OPTION;
+        }
+        return true;
+    }
+
     public static JFileChooser createChooser(String windowTitle, FileType type, FileOperation operation) {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser;
+        if (operation == FileOperation.Save)
+        {
+            chooser = new JFileChooser()
+            {
+                @Override
+                public void approveSelection() {
+                    if (verifyAndValidateOverwrite(this))
+                        super.approveSelection();
+                }
+            };
+            chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
+        }
+        else
+        {
+            chooser = new JFileChooser();
+            chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
+        }
         chooser.setDialogTitle(windowTitle);
         FileFilter filter;
         switch (type) {
@@ -50,11 +80,6 @@ public class JFileChooserFactory {
         chooser.setFileFilter(filter);
 
         chooser.setCurrentDirectory(new File(GlobalHolder.get(Preferences.class).get("path", System.getProperty("user.dir"))));
-
-        if (operation == FileOperation.Save)
-            chooser.setApproveButtonMnemonic(JFileChooser.SAVE_DIALOG);
-        else
-            chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
 
         chooser.setMultiSelectionEnabled(operation == FileOperation.MultipleLoad);
 
