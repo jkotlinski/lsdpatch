@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2011 by Johan Kotlinski
+package kitEditor;/* Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ class Sample {
 
     // ------------------
 
-    static Sample createFromNibbles(byte[] nibbles, String name) {
+    public static Sample createFromNibbles(byte[] nibbles, String name) {
         byte[] buf = new byte[nibbles.length * 2];
         for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
             buf[2 * nibbleIt] = (byte) (nibbles[nibbleIt] & 0xf0);
@@ -73,7 +73,7 @@ class Sample {
     // ------------------
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    static Sample createFromWav(File file) {
+    public static Sample createFromWav(File file) {
         int ch = 0;
         long sampleRate = 0;
         int bits = 0;
@@ -108,7 +108,7 @@ class Sample {
                     int compression = readEndianShort(in);
                     if (compression != 1) {
                         JOptionPane.showMessageDialog(null,
-                                "Sample is compressed. Only PCM .wav files are supported.",
+                                "kitEditor.Sample is compressed. Only PCM .wav files are supported.",
                                 "Format error",
                                 JOptionPane.ERROR_MESSAGE);
                         return null;

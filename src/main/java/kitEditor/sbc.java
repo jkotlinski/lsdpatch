@@ -1,3 +1,5 @@
+package kitEditor;
+
 /**
  * Copyright (C) 2001-2011 by Johan Kotlinski
  * <p>
@@ -27,7 +29,7 @@ class sbc {
     static int DITHER_VAL = 0x8;
 
     //outfile=dst, inSample=8bit unsigned sample 11468 kHz
-    static void handle(byte dst[], Sample samples[], int byteLength[]) {
+    public static void handle(byte dst[], Sample samples[], int byteLength[]) {
         int offset = 0x60; //don't overwrite sample bank info!
         for (int sampleIt = 0; sampleIt < samples.length; sampleIt++) {
             Sample sample = samples[sampleIt];

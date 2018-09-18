@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2011 by Johan Kotlinski
+package lsdpatch;/* Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.UIManager;
 
+import kitEditor.KitEditor;
 import utils.CommandLineFunctions;
 import utils.GlobalHolder;
 
@@ -37,7 +38,7 @@ public class LSDPatcher {
     }
 
     private LSDPatcher() {
-        MainWindow frame = new MainWindow();
+        KitEditor frame = new KitEditor();
         // Validate frames that have preset sizes
         // Pack frames that have useful preferred size info, e.g. from their layout
         frame.pack();

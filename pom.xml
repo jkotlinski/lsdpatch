@@ -46,7 +46,7 @@
                                 <manifest>
                                     <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>LSDPatcher</mainClass>
+                                    <mainClass>lsdpatch.LSDPatcher</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

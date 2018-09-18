@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 by Johan Kotlinski
+package paletteEditor;/* Copyright (C) 2017 by Johan Kotlinski
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
+import utils.StretchIcon;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
@@ -107,7 +108,7 @@ public class PaletteEditor
     private boolean populatingPaletteSelector = false;
 
 
-    PaletteEditor() {
+    public PaletteEditor() {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
@@ -417,7 +418,7 @@ public class PaletteEditor
         c5b2.addChangeListener(this);
     }
 
-    void setRomImage(byte[] romImage) {
+    public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         paletteOffset = RomUtilities.findPaletteOffset(romImage);
         if (paletteOffset == -1) {

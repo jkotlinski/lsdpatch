@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2011 by Johan Kotlinski
+package kitEditor;/* Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -18,12 +18,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
+import fontEditor.FontEditor;
+import lsdpatch.LSDPatcher;
+import net.miginfocom.swing.MigLayout;
+import paletteEditor.PaletteEditor;
+import structures.LSDJFont;
+import utils.FileDrop;
+import utils.JFileChooserFactory;
+import utils.JFileChooserFactory.FileOperation;
+import utils.JFileChooserFactory.FileType;
+import utils.RomUtilities;
+import utils.SampleCanvas;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -33,19 +42,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-
-import fontEditor.FontEditor;
-import net.miginfocom.swing.MigLayout;
-import structures.LSDJFont;
-import utils.JFileChooserFactory;
-import utils.JFileChooserFactory.FileOperation;
-import utils.JFileChooserFactory.FileType;
-import utils.RomUtilities;
-import utils.SampleCanvas;
-
-public class MainWindow extends JFrame {
+public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
     private final JPanel jPanel1 = new JPanel();
@@ -109,7 +106,7 @@ public class MainWindow extends JFrame {
         instrList.setListData(listData);
     }
 
-    MainWindow() {
+    public KitEditor() {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
@@ -214,7 +211,7 @@ public class MainWindow extends JFrame {
      */
     private void jbInit() {
         //setIconImage(Toolkit.getDefaultToolkit().createImage(Frame1.class.getResource("[Your Icon]")));
-        setTitle("LSDPatcher Redux v" + LSDPatcher.getVersion());
+        setTitle("lsdpatch.LSDPatcher Redux v" + LSDPatcher.getVersion());
         contentPane = (JPanel) this.getContentPane();
         contentPane.setLayout(new MigLayout("",
                 "[150:60%:,grow][200:40%:,fill,grow]",
@@ -379,7 +376,7 @@ public class MainWindow extends JFrame {
     private void loadRom(File gbFile) {
         try {
             romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            setTitle(gbFile.getAbsoluteFile().toString() + " - LSDPatcher Redux v" + LSDPatcher.getVersion());
+            setTitle(gbFile.getAbsoluteFile().toString() + " - lsdpatch.LSDPatcher Redux v" + LSDPatcher.getVersion());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
@@ -787,7 +784,7 @@ public class MainWindow extends JFrame {
                 romFile = new RandomAccessFile(f, "rw");
                 romFile.write(romImage);
                 romFile.close();
-                setTitle(f.getAbsoluteFile().toString() + " - LSDPatcher Redux v" + LSDPatcher.getVersion());
+                setTitle(f.getAbsoluteFile().toString() + " - lsdpatch.LSDPatcher Redux v" + LSDPatcher.getVersion());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
