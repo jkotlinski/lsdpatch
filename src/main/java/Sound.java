@@ -29,15 +29,9 @@ import javax.sound.sampled.LineUnavailableException;
 
 public class Sound {
 
-    private static final ArrayList<Clip> previousClips = new ArrayList<>();
+    private final ArrayList<Clip> previousClips = new ArrayList<>();
 
-    /**
-     * Plays 4-bit packed Game Boy sample. Returns unpacked data.
-     * @throws LineUnavailableException
-     */
-    @SuppressWarnings("JavaDoc")
-    static byte[] play(byte[] gbSample) throws LineUnavailableException {
-        AudioFormat upsampledFormat = new AudioFormat(48000, 8, 1, false, false);
+    public static byte[] preProcessNibblesIntoWaveData(byte[] gbSample) {
         byte upsampledData[] = new byte[(int) (gbSample.length * (48000 / 11468.)) * 2];
         for (int i = 0; i < upsampledData.length; i++) {
             double ratio = i / (double) (upsampledData.length);
@@ -58,7 +52,28 @@ public class Sound {
                 upsampledData[i] = 0x78;
             }
         }
+        return upsampledData;
+    }
 
+    private Clip getFirstAvailableClip() throws LineUnavailableException {
+        for (Clip clip : previousClips) {
+            if (!clip.isRunning())
+            {
+                return clip;
+            }
+        }
+        return AudioSystem.getClip();
+    }
+
+    /**
+     * Plays 4-bit packed Game Boy sample. Returns unpacked data.
+     *
+     * @throws LineUnavailableException
+     */
+    @SuppressWarnings("JavaDoc")
+    public byte[] play(byte[] gbSample) throws LineUnavailableException {
+        AudioFormat upsampledFormat = new AudioFormat(48000, 8, 1, false, false);
+        byte[] upsampledData = preProcessNibblesIntoWaveData(gbSample);
         byte data[] = new byte[gbSample.length * 2];
         for (int i = 0; i < gbSample.length; ++i) {
             data[i * 2] = (byte) (0xf0 & gbSample[i]);
@@ -66,17 +81,9 @@ public class Sound {
         }
 
         // Play it!
-        Clip clip = AudioSystem.getClip();
+        Clip clip = getFirstAvailableClip();
         clip.open(upsampledFormat, upsampledData, 0, upsampledData.length);
         clip.start();
-        previousClips.add(clip);
-        for (int i = previousClips.size() - 2; i >= 0; i--) {
-            if (!previousClips.get(i).isRunning()) {
-                previousClips.get(i).close();
-                previousClips.remove(i);
-            }
-        }
-
         return data;
     }
 }

@@ -89,6 +89,8 @@ public class MainWindow extends JFrame {
 
     private final JMenuBar menuBar = new JMenuBar();
 
+    private final Sound soundPlayer = new Sound();
+
     class KitFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".kit");
@@ -182,7 +184,7 @@ public class MainWindow extends JFrame {
         bankBox.addActionListener(bankBoxListener);
 
         instrList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed (MouseEvent e) {
                 if (romImage != null) {
                     int index = instrList.locationToIndex(e.getPoint());
 
@@ -335,8 +337,8 @@ public class MainWindow extends JFrame {
         if (halfSpeed) {
             arr = new byte[(stop - start) * 2];
             for (int i = start; i < stop; ++i) {
-                arr[(i - start)*2] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
-                arr[(i - start)*2 + 1] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
+                arr[(i - start) * 2] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
+                arr[(i - start) * 2 + 1] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
             }
 
         } else {
@@ -350,12 +352,22 @@ public class MainWindow extends JFrame {
 
     private void playSample(int index) {
 
-        byte[] nibbles = get4BitSamples(index, playSpeedToggle.isSelected());
-        if (nibbles == null) {
+        byte[] nibblesForRepaint;
+        byte[] nibblesForPlayback;
+        if (playSpeedToggle.isSelected()) {
+            nibblesForPlayback = get4BitSamples(index, true);
+            nibblesForRepaint = get4BitSamples(index, false);
+        } else {
+            nibblesForPlayback = get4BitSamples(index, false);
+            nibblesForRepaint = nibblesForPlayback;
+
+        }
+        if (nibblesForPlayback == null) {
             return;
         }
         try {
-            sampleView.setBufferContent(Sound.play(nibbles));
+            soundPlayer.play(nibblesForPlayback);
+            sampleView.setBufferContent(nibblesForRepaint);
             sampleView.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
