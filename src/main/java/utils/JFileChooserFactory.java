@@ -11,17 +11,25 @@ public class JFileChooserFactory {
     public enum FileType {
         Gb, Lsdfnt, Lsdpal, Kit,
         // Misc
-        Wav, Png
+        Wav, Png;
 
+        public String getExtension() {
+            return name().toLowerCase();
+        }
     }
 
     public enum FileOperation {
         Save, Load, MultipleLoad
     }
 
-    private static boolean verifyAndValidateOverwrite(JFileChooser parent)
+    private static boolean verifyAndValidateOverwrite(JFileChooser parent, FileType type)
     {
+        String suffix = "." + type.getExtension();
         File f = parent.getSelectedFile();
+        if(!f.getAbsolutePath().toLowerCase().endsWith(suffix)){
+            f = new File(parent.getSelectedFile() + suffix);
+            parent.setSelectedFile(f);
+        }
         if ( f.exists() ) {
             String msg = "The file \"{0}\" already exists!\nDo you want to overwrite it?";
             msg = MessageFormat.format(msg, f.getName());
@@ -40,7 +48,7 @@ public class JFileChooserFactory {
             {
                 @Override
                 public void approveSelection() {
-                    if (verifyAndValidateOverwrite(this))
+                    if (verifyAndValidateOverwrite(this, type))
                         super.approveSelection();
                 }
             };
