@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
@@ -73,6 +74,7 @@ public class KitEditor extends JFrame {
     private final JButton loadKitButton = new JButton();
     private final JButton exportKitButton = new JButton();
     private final JButton exportSampleButton = new JButton();
+    private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
     private final JTextArea kitTextArea = new JTextArea();
     private final JButton addSampleButton = new JButton();
@@ -181,7 +183,7 @@ public class KitEditor extends JFrame {
         bankBox.addActionListener(bankBoxListener);
 
         instrList.addMouseListener(new MouseAdapter() {
-            public void mousePressed (MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 if (romImage != null) {
                     int index = instrList.locationToIndex(e.getPoint());
 
@@ -199,6 +201,7 @@ public class KitEditor extends JFrame {
         exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
         renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
         exportSampleButton.addActionListener(e -> exportSample());
+        exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
 
         addSampleButton.addActionListener(e -> selectSampleToAdd());
         dropSampleButton.addActionListener(e -> dropSample());
@@ -245,6 +248,9 @@ public class KitEditor extends JFrame {
         exportSampleButton.setEnabled(false);
         exportSampleButton.setText("Export Sample");
 
+        exportAllSamplesButton.setEnabled(false);
+        exportAllSamplesButton.setText("Export all samples");
+
         addSampleButton.setEnabled(false);
         addSampleButton.setText("Add sample");
 
@@ -262,6 +268,7 @@ public class KitEditor extends JFrame {
         contentPane.add(renameKitButton, "wrap 10");
 
         contentPane.add(exportSampleButton, "wrap");
+        contentPane.add(exportAllSamplesButton, "wrap");
         contentPane.add(addSampleButton, "span 2,wrap");
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(saveROMButton, "span 2,wrap push");
@@ -390,6 +397,7 @@ public class KitEditor extends JFrame {
             importAllItem.setEnabled(true);
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
+            exportAllSamplesButton.setEnabled(true);
             renameKitButton.setEnabled(true);
             flushWavFiles();
             updateRomView();
@@ -1044,6 +1052,48 @@ public class KitEditor extends JFrame {
         compileKit();
         updateBankView();
     }
+
+    // TODO : put this in a factory eventually
+    private String selectAFolder() {
+
+        JFileChooser chooser = new JFileChooser();
+
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+
+        int returnVal = chooser.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile().toString();
+        }
+        return null;
+    }
+
+    // TODO : Overwritng warning
+    private void exportAllSamplesFromKit() {
+        String directory = selectAFolder();
+
+        int index = 0;
+        String kitName = (String)bankBox.getSelectedItem();
+        kitName = kitName.substring(kitName.indexOf(' '));
+        if (kitName.length() == 0) {
+            kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
+        }
+        for (Sample s : samples) {
+            if (s == null || s.length() == 0) {
+                continue;
+            }
+
+            String name = s.getName();
+            if (name.length() == 0) {
+                name = "[untitled]";
+            }
+            File exportedFile = new File(directory, String.format("%s - %02d - %s.wav", kitName, index, name));
+            s.writeToWav(exportedFile);
+            index++;
+        }
+    }
+
 
     private void exportSample() {
         Sample s = samples[instrList.getSelectedIndex()];
