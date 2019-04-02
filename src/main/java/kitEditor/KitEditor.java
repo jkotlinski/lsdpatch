@@ -62,7 +62,7 @@ public class KitEditor extends JFrame {
     private RandomAccessFile romFile;
     private int totSampleSize = 0;
 
-    private byte[] romImage = null;
+    private byte[] romImage;
 
     private Sample[] samples = new Sample[MAX_SAMPLES];
 
@@ -103,7 +103,7 @@ public class KitEditor extends JFrame {
     }
 
     private void emptyInstrList() {
-        String listData[] = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.",
+        String[] listData = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.",
                 "12.", "13.", "14.", "15."};
         instrList.setListData(listData);
     }
@@ -370,7 +370,7 @@ public class KitEditor extends JFrame {
             return;
         }
         try {
-            soundPlayer.play(nibblesForPlayback);
+            Sound.play(nibblesForPlayback);
             sampleView.setBufferContent(nibblesForRepaint);
             sampleView.repaint();
         } catch (Exception e) {
@@ -439,7 +439,7 @@ public class KitEditor extends JFrame {
             return "Empty";
         }
 
-        byte buf[] = new byte[6];
+        byte[] buf = new byte[6];
         int offset = (a_bank) * RomUtilities.BANK_SIZE + 0x52;
         for (int i = 0; i < 6; i++) {
             buf[i] = romImage[offset++];
@@ -498,8 +498,8 @@ public class KitEditor extends JFrame {
             return;
         }
 
-        byte buf[] = new byte[3];
-        String s[] = new String[15];
+        byte[] buf = new byte[3];
+        String[] s = new String[15];
 
         totSampleSize = 0;
 
@@ -809,7 +809,7 @@ public class KitEditor extends JFrame {
             try {
                 File f = chooser.getSelectedFile();
                 JFileChooserFactory.recordNewBaseFolder(f.getParent());
-                byte buf[] = new byte[RomUtilities.BANK_SIZE];
+                byte[] buf = new byte[RomUtilities.BANK_SIZE];
                 int offset = getROMOffsetForSelectedBank();
                 RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
 
@@ -829,7 +829,7 @@ public class KitEditor extends JFrame {
 
     private void loadKit(File kitFile) {
         try {
-            byte buf[] = new byte[RomUtilities.BANK_SIZE];
+            byte[] buf = new byte[RomUtilities.BANK_SIZE];
             int offset = getROMOffsetForSelectedBank();
             RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
             bankFile.readFully(buf);
@@ -974,8 +974,8 @@ public class KitEditor extends JFrame {
         kitSizeLabel.setText(Integer.toHexString(totSampleSize) + " bytes written");
         sbc.DITHER_VAL = ditherSlider.getValue();
 
-        byte newSamples[] = new byte[RomUtilities.BANK_SIZE];
-        int lengths[] = new int[15];
+        byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
+        int[] lengths = new int[15];
         sbc.handle(newSamples, samples, lengths);
 
         // Checks if at least one sample has been added.
