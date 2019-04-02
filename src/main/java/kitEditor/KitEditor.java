@@ -936,7 +936,7 @@ public class KitEditor extends JFrame {
         String s = dropExtension(wavFile).toUpperCase();
 
         for (int i = 0; i < 3; ++i) {
-            if (s.length() > 0) {
+            if (i < s.length()) {
                 romImage[offset] = (byte) s.charAt(i);
             } else {
                 romImage[offset] = '-';
