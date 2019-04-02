@@ -82,6 +82,8 @@ public class LSDPatcher {
         }
         try {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
+            System.setProperty("awt.useSystemAAFontSettings","on");
+            System.setProperty("swing.aatext", "true");
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
