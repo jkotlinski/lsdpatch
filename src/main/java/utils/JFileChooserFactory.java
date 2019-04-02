@@ -62,9 +62,6 @@ public class JFileChooserFactory {
         chooser.setDialogTitle(windowTitle);
         FileFilter filter;
         switch (type) {
-            case Gb:
-                filter = new FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb");
-                break;
             case Lsdfnt:
                 filter = new FileNameExtensionFilter("LSDJ Font (*.lsdfnt)", "lsdfnt");
                 break;
@@ -80,6 +77,7 @@ public class JFileChooserFactory {
             case Png:
                 filter = new FileNameExtensionFilter("PNG / Portable Network Graphics (*.png)", "png");
                 break;
+            case Gb:
             default:
                 filter = new FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb");
                 break;

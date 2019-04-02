@@ -44,7 +44,7 @@ public class GlobalHolder {
     }
 
     @SuppressWarnings("unchecked")
-    static <C> C get(Class<C> cls) {
+    public static <C> C get(Class<C> cls) {
         lazyInstantiation();
         return (C) globals.get(cls.getCanonicalName());
     }
