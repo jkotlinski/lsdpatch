@@ -85,7 +85,7 @@ public class KitEditor extends JFrame {
     private final JSlider ditherSlider = new JSlider();
     private final JSlider volumeSlider = new JSlider();
 
-    private final JToggleButton playSpeedToggle = new JToggleButton();
+    private final JCheckBox playSpeedToggle = new JCheckBox("Play half-speed");
 
     private final JMenuBar menuBar = new JMenuBar();
 
@@ -273,6 +273,7 @@ public class KitEditor extends JFrame {
         contentPane.add(addSampleButton, "span 2,wrap");
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(saveROMButton, "span 2,wrap push");
+        contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume"), "split 2");
         contentPane.add(volumeSlider, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
