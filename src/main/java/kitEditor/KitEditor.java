@@ -83,6 +83,7 @@ public class KitEditor extends JFrame {
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
     private final JSlider ditherSlider = new JSlider();
+    private final JSlider volumeSlider = new JSlider();
 
     private final JToggleButton playSpeedToggle = new JToggleButton();
 
@@ -272,8 +273,8 @@ public class KitEditor extends JFrame {
         contentPane.add(addSampleButton, "span 2,wrap");
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(saveROMButton, "span 2,wrap push");
-        contentPane.add(playSpeedToggle, "growy,split 2");
-        contentPane.add(new JLabel("Play half speed"), "grow, wrap");
+        contentPane.add(new JLabel("Volume"), "split 2");
+        contentPane.add(volumeSlider, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
 
         setMinimumSize(getPreferredSize());
@@ -370,7 +371,7 @@ public class KitEditor extends JFrame {
             return;
         }
         try {
-            Sound.play(nibblesForPlayback);
+            Sound.play(nibblesForPlayback, volumeSlider.getValue()/100.f);
             sampleView.setBufferContent(nibblesForRepaint);
             sampleView.repaint();
         } catch (Exception e) {

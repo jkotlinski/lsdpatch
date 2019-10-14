@@ -22,10 +22,7 @@ package kitEditor;/*
 
 import java.util.ArrayList;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.*;
 
 public class Sound {
 
@@ -89,7 +86,7 @@ public class Sound {
      * @throws LineUnavailableException
      */
     @SuppressWarnings("JavaDoc")
-    static void play(byte[] gbSample) throws LineUnavailableException {
+    static void play(byte[] gbSample, float volume) throws LineUnavailableException {
         AudioFormat upsampledFormat = new AudioFormat(48000, 8, 1, false, false);
         byte[] upsampledData = preProcessNibblesIntoWaveData(gbSample);
 //        byte data[] = new byte[gbSample.length * 2];
@@ -101,6 +98,9 @@ public class Sound {
         // Play it!
         Clip clip = getFirstAvailableClip();
         clip.open(upsampledFormat, upsampledData, 0, upsampledData.length);
+        FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        float result = 20f * (float) Math.log10(volume);
+        control.setValue(result);
         clip.start();
     }
 }
