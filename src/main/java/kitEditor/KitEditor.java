@@ -839,6 +839,8 @@ public class KitEditor extends JFrame {
             }
             bankFile.close();
             flushWavFiles();
+            createSamplesFromRom();
+            updateBankView();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
