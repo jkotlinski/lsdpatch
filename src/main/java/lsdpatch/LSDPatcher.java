@@ -73,6 +73,10 @@ public class LSDPatcher {
 
         System.out.println("java -jar LSDJPatcher.jar png2romfnt <romFile> <pngfile> <index> <fontname>");
         System.out.println(" Imports the PNG into the rom with given name.\n");
+
+        System.out.println("java -jar LSDJPatcher.jar clone <inRomFile> <outRomlFile>");
+        System.out.println(" Clones all customizations from a ROM file to another.\n");
+
     }
 
     public static void main(String[] args) {
@@ -108,6 +112,9 @@ public class LSDPatcher {
         } else if (command.compareTo("png2romfnt") == 0 && args.length == 5) {
             // -1 to allow 1-3 range instead of 0-2
             CommandLineFunctions.loadPngToRom(args[1], args[2], Integer.parseInt(args[3]) - 1, args[4]);
+        } else if (command.compareTo("clone") == 0 && args.length == 3) {
+            // -1 to allow 1-3 range instead of 0-2
+            CommandLineFunctions.copyAllCustomizations(args[1], args[2]);
         }
 
         usage();
