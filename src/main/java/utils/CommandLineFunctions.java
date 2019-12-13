@@ -117,22 +117,9 @@ public class CommandLineFunctions {
     // TODO replace KitEditor's own version with that
     private static void clearKitBank(int bankIndex, byte[] romImage) {
         int baseOffset = bankIndex * RomUtilities.BANK_SIZE;
-        int startOfBankData = baseOffset + 2;
         int endOfBank = (bankIndex + 1) * RomUtilities.BANK_SIZE;
 
-        Arrays.fill(romImage, startOfBankData, endOfBank, (byte)0);
-
-        //clear kit name
-        int kitNameOffset = baseOffset + 0x52;
-        Arrays.fill(romImage, kitNameOffset, kitNameOffset + 6, (byte)' ');
-
-        //clear instrument names
-        int sampleNameOffset = baseOffset + 0x22;
-        Arrays.fill(romImage, sampleNameOffset, sampleNameOffset + 15 * 3, (byte)'0');
-
-        romImage[baseOffset] = -1;
-        romImage[baseOffset + 1] = -1;
-
+        Arrays.fill(romImage, baseOffset, endOfBank, (byte)0xFF);
     }
 
     public static void copyAllCustomizations(String originFileName, String destinationFileName)
