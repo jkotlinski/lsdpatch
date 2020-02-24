@@ -24,6 +24,7 @@ public class CommandLineFunctions {
             LSDJFont font = new LSDJFont();
             font.setRomImage(buffer);
             font.setFontOffset(0);
+            font.generateShadedAndInvertedTiles();
             String sub = font.readImage(name, image);
 
             FontIO.saveFnt(new File(fntFile), sub, buffer);
@@ -87,6 +88,7 @@ public class CommandLineFunctions {
             int selectedFontOffset = RomUtilities.findFontOffset(romImage) + ((numFont + 1) % 3) * LSDJFont.FONT_SIZE
                     + LSDJFont.FONT_HEADER_SIZE;
             font.setFontOffset(selectedFontOffset);
+            font.generateShadedAndInvertedTiles();
 
             String correctedName = font.readImage(fontName, ImageIO.read(new File(imageFileName)));
             RomUtilities.setFontName(romImage, numFont, correctedName);
