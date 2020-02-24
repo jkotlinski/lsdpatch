@@ -83,7 +83,8 @@ public class KitEditor extends JFrame {
     private final JSlider ditherSlider = new JSlider();
     private final JSlider volumeSlider = new JSlider();
 
-    private final JCheckBox playSpeedToggle = new JCheckBox("Play half-speed");
+    private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
+    private final JCheckBox playSpeedToggle = new JCheckBox("Play samples in half-speed");
 
     private final JMenuBar menuBar = new JMenuBar();
 
@@ -183,6 +184,9 @@ public class KitEditor extends JFrame {
 
         instrList.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
+                if (!playSampleToggle.isSelected()) {
+                    return;
+                }
                 if (romImage != null) {
                     int index = instrList.locationToIndex(e.getPoint());
 
@@ -271,6 +275,7 @@ public class KitEditor extends JFrame {
         contentPane.add(addSampleButton, "span 2,wrap");
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(saveROMButton, "span 2,wrap push");
+        contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume"), "split 2");
         contentPane.add(volumeSlider, "grow, wrap");
