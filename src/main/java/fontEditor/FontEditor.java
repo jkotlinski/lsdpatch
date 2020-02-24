@@ -3,23 +3,14 @@ package fontEditor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import structures.LSDJFont;
 import utils.FontIO;
@@ -38,12 +29,13 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
     private final JComboBox<String> fontSelector;
 
-    private byte romImage[] = null;
+    private byte[] romImage = null;
     private int fontOffset = -1;
     private int selectedFontOffset = -1;
 
 
     private int previousSelectedFont = -1;
+
 
     public FontEditor() {
         setTitle("Font Editor");
@@ -78,6 +70,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
         fontSelector = new JComboBox<>();
         fontSelector.setEditable(true);
+        // TODO is there a way to remove the action listener implementation from this class?
         fontSelector.addItemListener(this);
         fontSelector.addActionListener(this);
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -114,31 +107,10 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         JPanel shiftButtonPanel = new JPanel();
         shiftButtonPanel.setLayout(new BoxLayout(shiftButtonPanel, BoxLayout.X_AXIS));
 
-        BufferedImage shiftUpImage = loadImage("/shift_up.png");
-        JButton shiftUp = new JButton();
-        setUpButtonIconOrText(shiftUp, shiftUpImage);
-        shiftUp.addActionListener(e -> tileEditor.shiftUp(tileEditor.getTile()));
-        shiftButtonPanel.add(shiftUp);
-
-
-        BufferedImage shiftDownImage = loadImage("/shift_down.png");
-        JButton shiftDown = new JButton();
-        setUpButtonIconOrText(shiftDown, shiftDownImage);
-        shiftDown.addActionListener(e -> tileEditor.shiftDown(tileEditor.getTile()));
-        shiftButtonPanel.add(shiftDown);
-
-
-        BufferedImage shiftLeftImage = loadImage("/shift_left.png");
-        JButton shiftLeft = new JButton();
-        setUpButtonIconOrText(shiftLeft, shiftLeftImage);
-        shiftLeft.addActionListener(e -> tileEditor.shiftLeft(tileEditor.getTile()));
-        shiftButtonPanel.add(shiftLeft);
-
-        BufferedImage shiftRightImage = loadImage("/shift_right.png");
-        JButton shiftRight = new JButton();
-        setUpButtonIconOrText(shiftRight, shiftRightImage);
-        shiftRight.addActionListener(e -> tileEditor.shiftRight(tileEditor.getTile()));
-        shiftButtonPanel.add(shiftRight);
+        addImageButtonToPanel(shiftButtonPanel, "/shift_up.png", "Rotate up", e -> tileEditor.shiftUp(tileEditor.getTile()));
+        addImageButtonToPanel(shiftButtonPanel, "/shift_down.png", "Rotate down", e -> tileEditor.shiftDown(tileEditor.getTile()));
+        addImageButtonToPanel(shiftButtonPanel, "/shift_left.png", "Rotate left", e -> tileEditor.shiftLeft(tileEditor.getTile()));
+        addImageButtonToPanel(shiftButtonPanel, "/shift_right.png", "Rotate right", e -> tileEditor.shiftRight(tileEditor.getTile()));
 
         constraints.gridx = 0;
         constraints.gridy = 3;
@@ -167,40 +139,37 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
     }
 
+    private void addImageButtonToPanel(JPanel panel, String imagePath, String altText, ActionListener event) {
+        BufferedImage buttonImage = loadImage(imagePath);
+        JButton button = new JButton();
+        setUpButtonIconOrText(button, buttonImage, altText);
+        button.addActionListener(event);
+        panel.add(button);
+    }
+
+    private int getFontDataLocation(int fontNumber) {
+        return fontOffset + fontNumber * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+    }
+
+    private void addMenuEntry(JMenu destination, String name, int key, ActionListener event) {
+        JMenuItem newMenuEntry = new JMenuItem(name);
+        newMenuEntry.setMnemonic(key);
+        newMenuEntry.addActionListener(event);
+        destination.add(newMenuEntry);
+    }
+
+
     private void createFileMenu(JMenuBar menuBar) {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         menuBar.add(fileMenu);
 
-        JMenuItem openMenuItem = new JMenuItem("Open...");
-        openMenuItem.setMnemonic(KeyEvent.VK_O);
-        openMenuItem.addActionListener(this);
-        fileMenu.add(openMenuItem);
-
-        JMenuItem saveMenuItem = new JMenuItem("Save...");
-        saveMenuItem.setMnemonic(KeyEvent.VK_S);
-        saveMenuItem.addActionListener(this);
-        fileMenu.add(saveMenuItem);
-
-        JMenuItem importBitmapMenuItem = new JMenuItem("Import bitmap...");
-        importBitmapMenuItem.setMnemonic(KeyEvent.VK_I);
-        importBitmapMenuItem.addActionListener(e -> importBitmap());
-        fileMenu.add(importBitmapMenuItem);
-
-        JMenuItem importAllMenuItem = new JMenuItem("Import all fonts...");
-        importAllMenuItem.setMnemonic(KeyEvent.VK_G);
-        importAllMenuItem.addActionListener(e -> importAllFonts());
-        fileMenu.add(importAllMenuItem);
-
-        JMenuItem exportBitmapMenuItem = new JMenuItem("Export bitmap...");
-        exportBitmapMenuItem.setMnemonic(KeyEvent.VK_E);
-        exportBitmapMenuItem.addActionListener(e -> exportBitmap());
-        fileMenu.add(exportBitmapMenuItem);
-
-        JMenuItem exportAllMenuItem = new JMenuItem("Export all fonts...");
-        exportAllMenuItem.setMnemonic(KeyEvent.VK_F);
-        exportAllMenuItem.addActionListener(e -> exportAllFonts());
-        fileMenu.add(exportAllMenuItem);
+        addMenuEntry(fileMenu, "Open...", KeyEvent.VK_O, e -> showOpenDialog());
+        addMenuEntry(fileMenu, "Save...", KeyEvent.VK_S, e -> showSaveDialog());
+        addMenuEntry(fileMenu, "Import to image...", KeyEvent.VK_I, e -> importBitmap());
+        addMenuEntry(fileMenu, "Import all fonts...", KeyEvent.VK_G, e -> importAllFonts());
+        addMenuEntry(fileMenu, "Export to image...", KeyEvent.VK_E, e -> exportBitmap());
+        addMenuEntry(fileMenu, "Export all fonts...", KeyEvent.VK_F, e -> exportAllFonts());
     }
 
     private void createEditMenu(JMenuBar menuBar) {
@@ -208,15 +177,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         editMenu.setMnemonic(KeyEvent.VK_E);
         menuBar.add(editMenu);
 
-        JMenuItem copyMenuItem = new JMenuItem("Copy Tile");
-        copyMenuItem.addActionListener(this);
-        copyMenuItem.setMnemonic(KeyEvent.VK_C);
-        editMenu.add(copyMenuItem);
-
-        JMenuItem pasteMenuItem = new JMenuItem("Paste Tile");
-        pasteMenuItem.setMnemonic(KeyEvent.VK_P);
-        pasteMenuItem.addActionListener(this);
-        editMenu.add(pasteMenuItem);
+        addMenuEntry(editMenu, "Copy Tile", KeyEvent.VK_C, e -> tileEditor.copyTile());
+        addMenuEntry(editMenu, "Paste Tile", KeyEvent.VK_V, e -> tileEditor.pasteTile());
     }
 
     private BufferedImage loadImage(String iconPath) {
@@ -228,11 +190,11 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         return null;
     }
 
-    private void setUpButtonIconOrText(JButton button, BufferedImage image) {
+    private void setUpButtonIconOrText(JButton button, BufferedImage image, String altText) {
         if (image != null)
             button.setIcon(new ImageIcon(image));
         else
-            button.setText("Shift Down");
+            button.setText(altText);
     }
 
     private void populateFontSelector() {
@@ -294,21 +256,13 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
         String cmd = e.getActionCommand();
-        if (cmd.equals("Copy Tile")) {
-            tileEditor.copyTile();
-        } else if (cmd.equals("Paste Tile")) {
-            tileEditor.pasteTile();
-        } else if (cmd.equals("Open...")) {
-            showOpenDialog();
-        } else if (cmd.equals("Save...")) {
-            showSaveDialog();
-        } else if (cmd.equals("comboBoxChanged") && e.getSource() instanceof JComboBox) {
-            JComboBox cb = (JComboBox) e.getSource();
+        if (cmd.equals("comboBoxChanged") && e.getSource() instanceof JComboBox) {
+            JComboBox<String> cb = (JComboBox<String>) e.getSource();
             if (cb.getSelectedIndex() != -1) {
                 previousSelectedFont = cb.getSelectedIndex();
             }
         } else if (cmd.equals("comboBoxEdited") && e.getSource() instanceof JComboBox) {
-            @SuppressWarnings("unchecked") JComboBox cb = (JComboBox<String>) e.getSource();
+            JComboBox<String> cb = (JComboBox<String>) e.getSource();
             String selectedItem = (String) cb.getSelectedItem();
             if (cb.getSelectedIndex() == -1 && selectedItem != null) {
                 int index = previousSelectedFont;
@@ -414,27 +368,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
                 filename += ".png";
             }
             BufferedImage image = tileEditor.createImage();
-
-            new BufferedImage(64, 72, BufferedImage.TYPE_INT_RGB);
-            for (int y = 0; y < 72; y++) {
-                for (int x = 0; x < 64; x++) {
-                    int color = tileEditor.getDirectPixel(x, y);
-                    switch (color) {
-                        case 0:
-                            image.setRGB(x, y, 0xFFFFFF);
-                            break;
-                        case 1:
-                            image.setRGB(x, y, 0x808080);
-                            break;
-                        case 3:
-                            image.setRGB(x, y, 0x000000);
-                            break;
-                        default:
-                            image.setRGB(x, y, 0xFFFFFF);
-                            break;
-                    }
-                }
-            }
             try {
                 ImageIO.write(image, "PNG", new File(filename));
             } catch (IOException e) {
@@ -445,36 +378,36 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
     }
 
     private void importAllFonts() {
-        int backupFontNumber = previousSelectedFont;
+        int previousSelectedFont = this.previousSelectedFont;
         for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
-            selectedFontOffset = fontOffset + i * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+            selectedFontOffset = getFontDataLocation(i);
             fontMap.setFontOffset(selectedFontOffset);
             tileEditor.setFontOffset(selectedFontOffset);
             fontSelector.setSelectedIndex(i);
             importBitmap();
         }
 
-        selectedFontOffset = fontOffset + backupFontNumber * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+        selectedFontOffset = getFontDataLocation(previousSelectedFont);
         fontMap.setFontOffset(selectedFontOffset);
         tileEditor.setFontOffset(selectedFontOffset);
-        fontSelector.setSelectedIndex(backupFontNumber);
+        fontSelector.setSelectedIndex(previousSelectedFont);
 
     }
 
     private void exportAllFonts() {
-        int backupFontNumber = previousSelectedFont;
+        int previousSelectedFont = this.previousSelectedFont;
         for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
-            selectedFontOffset = fontOffset + i * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+            selectedFontOffset = getFontDataLocation(i);
             fontMap.setFontOffset(selectedFontOffset);
             tileEditor.setFontOffset(selectedFontOffset);
             fontSelector.setSelectedIndex(i);
             exportBitmap();
         }
 
-        selectedFontOffset = fontOffset + backupFontNumber * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
+        selectedFontOffset = getFontDataLocation(previousSelectedFont);
         fontMap.setFontOffset(selectedFontOffset);
         tileEditor.setFontOffset(selectedFontOffset);
-        fontSelector.setSelectedIndex(backupFontNumber);
+        fontSelector.setSelectedIndex(previousSelectedFont);
 
     }
 

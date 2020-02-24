@@ -41,13 +41,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Path;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
     private final JPanel jPanel1 = new JPanel();
-    //JLabel fileNameLabel = new JLabel();
     private int prevBankBoxIndex = -1;
     private final JComboBox<String> bankBox = new JComboBox<>();
     private final JList<String> instrList = new JList<>();

@@ -28,10 +28,15 @@ public class Sound {
 
     private static final ArrayList<Clip> previousClips = new ArrayList<>();
 
+    private static final long WAV_SAMPLE_RATE = 48000L;
+    private static final long LSDJ_SAMPLE_RATE = 11468L;
+
     private static byte[] preProcessNibblesIntoWaveData(byte[] gbSample) {
-        long numSamples = ((long)gbSample.length * 48000L);
-        long upsampledTempValue = (numSamples/11468L)*2L;
-        byte[] upsampledData = new byte[(int) (upsampledTempValue * 2)];
+        long numSamples = ((long)gbSample.length * WAV_SAMPLE_RATE);
+        long numNibblePairsToWrite = (numSamples/LSDJ_SAMPLE_RATE)*2L;
+
+        byte[] upsampledData = new byte[(int) (numNibblePairsToWrite * 2L)];
+
         for (int i = 0; i < upsampledData.length/2; i++) {
             double ratio = i / (double) (upsampledData.length/2);
 

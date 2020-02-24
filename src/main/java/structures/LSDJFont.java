@@ -5,10 +5,10 @@ import java.awt.image.BufferedImage;
 
 /**
  * Helper class to access and manipulate font data.
- *
+ * This class acts as a span over data owned elsewhere and acts in it as it was its own.
  * @author Eiyeron
  */
-public class LSDJFont {
+public class LSDJFont extends ROMDataManipulator {
     public static final int FONT_NUM_TILES_X = 8;
     public static final int FONT_NUM_TILES_Y = 9;
     public static final int FONT_MAP_WIDTH = FONT_NUM_TILES_X * 8;
@@ -19,18 +19,16 @@ public class LSDJFont {
     public static final int FONT_SIZE = 0xe96;
     public static final int FONT_NAME_LENGTH = 4;
 
-    private byte romImage[] = null;
-    private int fontOffset = -1;
-
     public LSDJFont() {
     }
 
-    public void setRomImage(byte romImage[]) {
-        this.romImage = romImage;
-    }
-
-    public void setFontOffset(int fontOffset) {
-        this.fontOffset = fontOffset;
+    private int getTileDataLocation(int index) {
+        if (index < 0 || index >= TILE_COUNT)
+        {
+            // TODO exception?
+            return -1;
+        }
+        return getDataOffset() + index * 16;
     }
 
     public int getPixel(int x, int y) {
@@ -38,12 +36,17 @@ public class LSDJFont {
             return -1;
 
         int tileToRead = (y / 8) * 8 + x / 8;
-        int tileOffset = fontOffset + tileToRead * 16 + (y % 8) * 2;
+        int tileOffset = getTileDataLocation(tileToRead) + (y % 8) * 2;
         int xMask = 7 - (x % 8);
         int value = (romImage[tileOffset] >> xMask) & 1;
         value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
         return value;
     }
+
+    // - Tile data manipulation -
+    // Note : those functions only affect the normal variant tileset.
+    // In the future it might be good to either provide alternative functions
+    // or to extend them to allow editing the other variants too.
 
     public int getTilePixel(int tile, int localX, int localY) {
         return getPixel((tile % FONT_NUM_TILES_X) * 8 + (localX % 8), (tile / FONT_NUM_TILES_X) * 8 + (localY % 8));
@@ -57,7 +60,7 @@ public class LSDJFont {
         int localY = y % 8;
         int tileToEdit = (y / 8) * 8 + x / 8;
 
-        int tileOffset = fontOffset + tileToEdit * 16 + localY * 2;
+        int tileOffset = getTileDataLocation(tileToEdit) + localY * 2;
         int xMask = 0x80 >> localX;
         romImage[tileOffset] &= 0xff ^ xMask;
         romImage[tileOffset + 1] &= 0xff ^ xMask;
@@ -73,13 +76,13 @@ public class LSDJFont {
         setPixel((tile % FONT_NUM_TILES_X) * 8 + (localX % 8), (tile / FONT_NUM_TILES_X) * 8 + (localY % 8), color);
     }
 
-    public void shiftUp(int tile) {
-        int tileOffset = fontOffset + tile * 16;
+    public void rotateTileUp(int tile) {
+        int tileOffset = getTileDataLocation(tile);
         byte line0origin1 = romImage[tileOffset];
         byte line0origin2 = romImage[tileOffset + 1];
         for (int i = 0; i < 8; i++) {
-            int lineTargetOffset = fontOffset + tile * 16 + i * 2;
-            int lineOriginOffset = fontOffset + tile * 16 + (i + 1 % 8) * 2;
+            int lineTargetOffset = tileOffset + i * 2;
+            int lineOriginOffset = tileOffset + (i + 1 % 8) * 2;
             romImage[lineTargetOffset] = romImage[lineOriginOffset];
             romImage[lineTargetOffset + 1] = romImage[lineOriginOffset + 1];
         }
@@ -87,13 +90,13 @@ public class LSDJFont {
         romImage[tileOffset + 7 * 2 + 1] = line0origin2;
     }
 
-    public void shiftDown(int tile) {
-        int tileOffset = fontOffset + tile * 16;
+    public void rotateTileDown(int tile) {
+        int tileOffset = getTileDataLocation(tile);
         byte line7origin1 = romImage[tileOffset + 7 * 2];
         byte line7origin2 = romImage[tileOffset + 7 * 2 + 1];
         for (int i = 7; i > 0; i--) {
-            int lineTargetOffset = fontOffset + tile * 16 + i * 2;
-            int lineOriginOffset = fontOffset + tile * 16 + (i - 1) * 2;
+            int lineTargetOffset = tileOffset + i * 2;
+            int lineOriginOffset = tileOffset + (i - 1) * 2;
             romImage[lineTargetOffset] = romImage[lineOriginOffset];
             romImage[lineTargetOffset + 1] = romImage[lineOriginOffset + 1];
         }
@@ -101,53 +104,69 @@ public class LSDJFont {
         romImage[tileOffset + 1] = line7origin2;
     }
 
-    public void shiftRight(int tile) {
-        int tileOffset = fontOffset + tile * 16;
+    public void rotateTileRight(int tile) {
+        int tileOffset = getTileDataLocation(tile);
         for (int i = 0; i < 16; i++) {
-            romImage[tileOffset
-                    + i] = (byte) (((romImage[tileOffset + i] & 1) << 7) | (romImage[tileOffset + i] >> 1) & 0x7F);
+            byte currentByte = romImage[tileOffset + i];
+            byte shiftedByte = (byte) (((currentByte & 1) << 7) | ((currentByte >> 1) & 0x7F));
+            romImage[tileOffset + i] = shiftedByte;
         }
     }
 
-    public void shiftLeft(int tile) {
-        int tileOffset = fontOffset + tile * 16;
+    public void rotateTileLeft(int tile) {
+        int tileOffset = getTileDataLocation(tile);
         for (int i = 0; i < 16; i++) {
-            romImage[tileOffset
-                    + i] = (byte) (((romImage[tileOffset + i] & 0x80) >> 7) | (romImage[tileOffset + i] << 1));
+            byte currentByte = romImage[tileOffset + i];
+            byte shiftedByte = (byte) (((currentByte & 1) << 7) | ((currentByte >> 1) & 0x7F));
+            romImage[tileOffset + i] = shiftedByte;
         }
     }
+
 
     /**
-     * I don't know its usage, but I guess that's designed to make inverted tiles
-     * for highlight and misc.
+     * Generates the inverted and shaded font variants from the normal tileset.
      */
     public void generateShadedAndInvertedTiles() {
-        int tilesToCopy = 69;
-        for (int i = 0; i < tilesToCopy * 16; i += 2) {
-            int src = i + fontOffset + 2 * 16; // The two first tiles are not mirrored.
-            int inverted = src + 0x4d2;
-            int shaded = inverted + 0x4d2;
-
-            // Shaded.
-            romImage[shaded] = (byte) 0xff;
-            romImage[shaded + 1] = romImage[src + 1];
-
-            // Inverted.
-            // lsb 1, msb 1 => lsb 0, msb 0
-            // lsb 0, msb 0 => lsb 1, msb 1
-            // lsb 1, msb 0 => lsb 1, msb 0
-            romImage[inverted] = (byte) ~romImage[src + 1];
-            romImage[inverted + 1] = (byte) ~romImage[src];
+        for (int i = 2; i < TILE_COUNT; i++) {
+            generateShadedTileVariant(i);
+            generateInvertedTileVariant(i);
         }
     }
 
-    public String readImage(String name, BufferedImage image) {
+    public void generateInvertedTileVariant(int index) {
+        if (index < 2 || index > TILE_COUNT) {
+            // TODO exception?
+            return;
+        }
+        int sourceLocation = getTileDataLocation(index); // The two first tiles are not mirrored.
+        int invertedLocation = sourceLocation + 0x4d2;
+        for (int i = 0; i < 16; i += 2) {
+            romImage[invertedLocation + i] = (byte) ~romImage[sourceLocation + i + 1];
+            romImage[invertedLocation + i + 1] = (byte) ~romImage[sourceLocation + i];
+        }
+    }
+
+
+    public void generateShadedTileVariant(int index) {
+        if (index < 2 || index > TILE_COUNT) {
+            // TODO exception?
+            return;
+        }
+        int sourceLocation = getTileDataLocation(index); // The two first tiles are not mirrored.
+        int shadedLocation = sourceLocation + 0x4d2 * 2;
+        for (int i = 0; i < 16; i += 2) {
+            romImage[shadedLocation + i] = (byte) 0xff;
+            romImage[shadedLocation + i + 1] = romImage[sourceLocation + i + 1];
+        }
+    }
+
+    public String loadImageData(String name, BufferedImage image) {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int currentTileIndex = (y / 8) * 8 + x / 8;
                 if (currentTileIndex >= LSDJFont.TILE_COUNT) break;
                 int rgb = image.getRGB(x, y);
-                float color[] = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
+                float[] color = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
                 int lum = (int) (color[2] * 255);
 
                 int col = 0;
@@ -170,19 +189,16 @@ public class LSDJFont {
         return sub.toString();
     }
 
-    public BufferedImage createImage() {
+    public BufferedImage saveDataToImage() {
         BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, LSDJFont.FONT_MAP_HEIGHT,
                 BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < LSDJFont.FONT_MAP_HEIGHT; y++) {
             for (int x = 0; x < LSDJFont.FONT_MAP_WIDTH; x++) {
                 int tileToRead = (y / 8) * 8 + x / 8;
-                if (tileToRead >= 71)
+                if (tileToRead >= TILE_COUNT)
                     break;
                 int color = getPixel(x, y);
                 switch (color) {
-                    case 0:
-                        image.setRGB(x, y, 0xFFFFFF);
-                        break;
                     case 1:
                         image.setRGB(x, y, 0x808080);
                         break;

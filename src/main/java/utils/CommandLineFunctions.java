@@ -14,7 +14,7 @@ import structures.LSDJFont;
 public class CommandLineFunctions {
     public static void pngToFont(String name, String pngFile, String fntFile) {
         try {
-            byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
+            byte[] buffer = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
             BufferedImage image = ImageIO.read(new File(pngFile));
             if (image.getWidth() != LSDJFont.FONT_MAP_WIDTH && image.getHeight() != LSDJFont.FONT_MAP_HEIGHT) {
                 System.err.println("Wrong size!");
@@ -23,9 +23,9 @@ public class CommandLineFunctions {
 
             LSDJFont font = new LSDJFont();
             font.setRomImage(buffer);
-            font.setFontOffset(0);
+            font.setDataOffset(0);
             font.generateShadedAndInvertedTiles();
-            String sub = font.readImage(name, image);
+            String sub = font.loadImageData(name, image);
 
             FontIO.saveFnt(new File(fntFile), sub, buffer);
         } catch (IOException e) {
@@ -35,12 +35,12 @@ public class CommandLineFunctions {
 
     public static void fontToPng(String fntFile, String pngFile) {
         try {
-            byte buffer[] = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
+            byte[] buffer = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
             FontIO.loadFnt(new File(fntFile), buffer);
             LSDJFont font = new LSDJFont();
             font.setRomImage(buffer);
-            font.setFontOffset(0);
-            BufferedImage image = font.createImage();
+            font.setDataOffset(0);
+            BufferedImage image = font.saveDataToImage();
             ImageIO.write(image, "PNG", new File(pngFile));
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,8 +63,8 @@ public class CommandLineFunctions {
             font.setRomImage(romImage);
             int selectedFontOffset = RomUtilities.findFontOffset(romImage) + ((numFont + 1) % 3) * LSDJFont.FONT_SIZE
                     + LSDJFont.FONT_HEADER_SIZE;
-            font.setFontOffset(selectedFontOffset);
-            BufferedImage image = font.createImage();
+            font.setDataOffset(selectedFontOffset);
+            BufferedImage image = font.saveDataToImage();
             ImageIO.write(image, "PNG", new File(RomUtilities.getFontName(romImage, numFont) + ".png"));
 
         } catch (IOException e) {
@@ -87,10 +87,10 @@ public class CommandLineFunctions {
             font.setRomImage(romImage);
             int selectedFontOffset = RomUtilities.findFontOffset(romImage) + ((numFont + 1) % 3) * LSDJFont.FONT_SIZE
                     + LSDJFont.FONT_HEADER_SIZE;
-            font.setFontOffset(selectedFontOffset);
+            font.setDataOffset(selectedFontOffset);
             font.generateShadedAndInvertedTiles();
 
-            String correctedName = font.readImage(fontName, ImageIO.read(new File(imageFileName)));
+            String correctedName = font.loadImageData(fontName, ImageIO.read(new File(imageFileName)));
             RomUtilities.setFontName(romImage, numFont, correctedName);
             romFile.seek(0);
             romFile.write(romImage);

@@ -57,7 +57,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void setFontOffset(int offset) {
-        font.setFontOffset(offset);
+        font.setDataOffset(offset);
         repaint();
     }
 
@@ -71,22 +71,22 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void shiftUp(int tile) {
-        font.shiftUp(tile);
+        font.rotateTileUp(tile);
         tileChanged();
     }
 
     void shiftDown(int tile) {
-        font.shiftDown(tile);
+        font.rotateTileDown(tile);
         tileChanged();
     }
 
     void shiftRight(int tile) {
-        font.shiftRight(tile);
+        font.rotateTileRight(tile);
         tileChanged();
     }
 
     void shiftLeft(int tile) {
-        font.shiftLeft(tile);
+        font.rotateTileLeft(tile);
         tileChanged();
     }
 
@@ -249,11 +249,11 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     void readImage(String name, BufferedImage image) {
-        font.readImage(name, image);
+        font.loadImageData(name, image);
 
     }
 
     BufferedImage createImage() {
-        return font.createImage();
+        return font.saveDataToImage();
     }
 }

@@ -25,20 +25,14 @@ class Sample {
     private final String name;
     private final byte[] buf;
     private int readPos;
-    private final boolean mayDither;
 
-    private Sample(byte[] iBuf, String iName, boolean iMayDither) {
+    private Sample(byte[] iBuf, String iName) {
         buf = iBuf;
         name = iName;
-        mayDither = iMayDither;
     }
 
     String getName() {
         return name;
-    }
-
-    boolean mayDither() {
-        return mayDither;
     }
 
     int length() {
@@ -67,7 +61,7 @@ class Sample {
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
             buf[bufIt] -= 0x80;
         }
-        return new Sample(buf, name, false);
+        return new Sample(buf, name);
     }
 
     // ------------------
@@ -184,7 +178,7 @@ class Sample {
                         readPos += advance;
                     }
 
-                    return new Sample(outBuf, file.getName(), false);
+                    return new Sample(outBuf, file.getName());
                 } else {
                     in.skip(chunkSize);
                 }

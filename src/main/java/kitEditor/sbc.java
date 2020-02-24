@@ -48,9 +48,9 @@ class sbc {
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
                 outputBuffer[outputCounter] = sample.read();
-                if (sample.mayDither()) {
-                    outputBuffer[outputCounter] += Math.random() * DITHER_VAL - DITHER_VAL / 2;
-                }
+//                if (sample.mayDither()) {
+//                    outputBuffer[outputCounter] += Math.random() * DITHER_VAL - DITHER_VAL / 2;
+//                }
                 //outputBuffer[outputCounter]+=outputCounter%2*DITHER_VAL-DITHER_VAL/2;
                 //throw away 4 LSB
                 outputBuffer[outputCounter] /= 16;
