@@ -19,10 +19,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
 import java.util.prefs.Preferences;
 
-import javax.swing.UIManager;
+import javax.swing.*;
 
 import kitEditor.KitEditor;
 import utils.CommandLineFunctions;
@@ -85,10 +88,15 @@ public class LSDPatcher {
             return;
         }
         try {
+            // Use the system's UI look when applicable
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             System.setProperty("apple.laf.useScreenMenuBar", "true");
+
+            // Use font anti-aliasing when applicable
             System.setProperty("awt.useSystemAAFontSettings","on");
             System.setProperty("swing.aatext", "true");
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            useJLabelFontForMenus();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,6 +105,19 @@ public class LSDPatcher {
         prefs.put("path", prefs.get("path", System.getProperty("user.dir")));
 
         LSDPatcher entry = new LSDPatcher();
+    }
+
+    private static void useJLabelFontForMenus() {
+        // On some systems, the default font given to menus is a bit wonky with anti-aliasing. Using the one given
+        // to JLabels will give a better result.
+        Font systemFont = new JLabel().getFont();
+        HashMap<TextAttribute, Object> attributes = new HashMap<>(systemFont.getAttributes());
+        attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
+        attributes.put(TextAttribute.SIZE, systemFont.getSize());
+        Font selectedFont = Font.getFont(attributes);
+        UIManager.put("Menu.font", selectedFont);
+        UIManager.put("MenuBar.font", selectedFont);
+        UIManager.put("MenuItem.font", selectedFont);
     }
 
     private static void processArguments(String[] args) {
