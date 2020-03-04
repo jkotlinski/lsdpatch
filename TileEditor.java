@@ -172,7 +172,12 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
             int shaded = inverted + 0x4d2;
 
             // Shaded.
-            romImage[shaded] = (byte)0xff;
+
+            if (i % 4 == 2) {
+                romImage[shaded] = (byte)(romImage[src] | 0xaa);
+            } else {
+                romImage[shaded] = (byte)(romImage[src] | 0x55);
+            }
             romImage[shaded + 1] = romImage[src + 1];
 
             // Inverted.
