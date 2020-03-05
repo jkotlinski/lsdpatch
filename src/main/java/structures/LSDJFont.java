@@ -155,7 +155,12 @@ public class LSDJFont extends ROMDataManipulator {
         int sourceLocation = getTileDataLocation(index); // The two first tiles are not mirrored.
         int shadedLocation = sourceLocation + 0x4d2 * 2;
         for (int i = 0; i < 16; i += 2) {
-            romImage[shadedLocation + i] = (byte) 0xff;
+            int sourceByte = romImage[sourceLocation + i];
+            if (i % 4 == 2) {
+                romImage[shadedLocation + i] = (byte)(sourceByte | 0xaa);
+            } else {
+                romImage[shadedLocation + i] = (byte)(sourceByte | 0x55);
+            }
             romImage[shadedLocation + i + 1] = romImage[sourceLocation + i + 1];
         }
     }
