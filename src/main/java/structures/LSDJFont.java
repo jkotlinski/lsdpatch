@@ -117,7 +117,7 @@ public class LSDJFont extends ROMDataManipulator {
         int tileOffset = getTileDataLocation(tile);
         for (int i = 0; i < 16; i++) {
             byte currentByte = romImage[tileOffset + i];
-            byte shiftedByte = (byte) (((currentByte & 1) << 7) | ((currentByte >> 1) & 0x7F));
+            byte shiftedByte = (byte) (((currentByte & 0x80) >> 7) | (currentByte << 1));
             romImage[tileOffset + i] = shiftedByte;
         }
     }
