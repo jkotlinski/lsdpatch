@@ -754,8 +754,8 @@ public class KitEditor extends JFrame {
 
     private void importAll_actionPerformed() {
         File f = importRomSelect();
-        boolean isOk = true;
-        if (f != null) {
+        boolean isOk = f != null;
+        if (isOk) {
             // TODO : factorize message dialogs.
             if (importKits(f) == 0) {
                 JOptionPane.showMessageDialog(this,
