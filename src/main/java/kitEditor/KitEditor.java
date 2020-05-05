@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
@@ -71,6 +72,7 @@ public class KitEditor extends JFrame {
     private JMenuItem importAllItem;
     private final JButton loadKitButton = new JButton();
     private final JButton exportKitButton = new JButton();
+    private final JButton eraseKitButton = new JButton();
     private final JButton exportSampleButton = new JButton();
     private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
@@ -202,6 +204,7 @@ public class KitEditor extends JFrame {
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
         exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
+        eraseKitButton.addActionListener(e -> eraseKitButton_actionPerformed());
         renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
@@ -243,6 +246,9 @@ public class KitEditor extends JFrame {
         exportKitButton.setEnabled(false);
         exportKitButton.setText("Export Kit");
 
+        eraseKitButton.setEnabled(false);
+        eraseKitButton.setText("Erase Kit");
+
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
 
         renameKitButton.setEnabled(false);
@@ -267,6 +273,7 @@ public class KitEditor extends JFrame {
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
         contentPane.add(exportKitButton, "wrap");
+        contentPane.add(eraseKitButton, "wrap");
         contentPane.add(kitTextArea, "grow,split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
@@ -402,6 +409,7 @@ public class KitEditor extends JFrame {
             importAllItem.setEnabled(true);
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
+            eraseKitButton.setEnabled(true);
             exportAllSamplesButton.setEnabled(true);
             renameKitButton.setEnabled(true);
             flushWavFiles();
@@ -832,6 +840,14 @@ public class KitEditor extends JFrame {
 
     }
 
+    private void eraseKitButton_actionPerformed() {
+        int romOffset = getROMOffsetForSelectedBank();
+        Arrays.fill(romImage,  romOffset, romOffset + RomUtilities.BANK_SIZE, (byte) -1);
+        updateBankView();
+        updateRomView();
+    }
+
+
     private void loadKit(File kitFile) {
         try {
             byte[] buf = new byte[RomUtilities.BANK_SIZE];
@@ -1015,29 +1031,29 @@ public class KitEditor extends JFrame {
         int[] indices = instrList.getSelectedIndices();
 
         for (int indexIt = 0; indexIt < indices.length; ++indexIt) {
-            // Assumes that indices are sorted...
-            int index = indices[indexIt];
+                // Assumes that indices are sorted...
+                int index = indices[indexIt];
 
-            // Moves up samples.
-            if (14 - index >= 0) System.arraycopy(samples, index + 1, samples, index, 14 - index);
-            samples[14] = null;
+                // Moves up samples.
+                if (14 - index >= 0) System.arraycopy(samples, index + 1, samples, index, 14 - index);
+                samples[14] = null;
 
-            // Moves up instr names.
-            int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
-            int i;
-            for (i = offset; i < getROMOffsetForSelectedBank() + 0x22 + 14 * 3; i += 3) {
-                romImage[i] = romImage[i + 3];
-                romImage[i + 1] = romImage[i + 4];
-                romImage[i + 2] = romImage[i + 5];
-            }
-            romImage[i] = 0;
-            romImage[i + 1] = '-';
-            romImage[i + 2] = '-';
+                // Moves up instr names.
+                int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
+                int i;
+                for (i = offset; i < getROMOffsetForSelectedBank() + 0x22 + 14 * 3; i += 3) {
+                    romImage[i] = romImage[i + 3];
+                    romImage[i + 1] = romImage[i + 4];
+                    romImage[i + 2] = romImage[i + 5];
+                }
+                romImage[i] = 0;
+                romImage[i + 1] = '-';
+                romImage[i + 2] = '-';
 
-            // Adjusts indices.
-            for (int indexIt2 = indexIt + 1; indexIt2 < indices.length; ++indexIt2) {
-                --indices[indexIt2];
-            }
+                // Adjusts indices.
+                for (int indexIt2 = indexIt + 1; indexIt2 < indices.length; ++indexIt2) {
+                    --indices[indexIt2];
+                }
         }
 
         compileKit();
