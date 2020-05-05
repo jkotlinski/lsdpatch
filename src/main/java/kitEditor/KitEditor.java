@@ -41,6 +41,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
@@ -985,32 +987,16 @@ public class KitEditor extends JFrame {
         int[] lengths = new int[15];
         sbc.handle(newSamples, samples, lengths);
 
-        // Checks if at least one sample has been added.
-        boolean hasAnySample = false;
-        for (int i = 0; i < 15; ++i) {
-            if (lengths[i] > 0) {
-                hasAnySample = true;
-                break;
-            }
-        }
-        if (!hasAnySample) {
-            // Not allowed to create kits without samples!
-            return;
-        }
-
         //copy sampledata to ROM image
         int offset = getROMOffsetForSelectedBank() + 0x60;
         int offset2 = 0x60;
-        do {
-            romImage[offset++] = newSamples[offset2++];
-        } while (offset2 != RomUtilities.BANK_SIZE);
+        System.arraycopy(newSamples, offset2, romImage, offset, RomUtilities.BANK_SIZE - offset2);
 
         //update samplelength info in rom image
         int bankOffset = 0x4060;
         offset = getROMOffsetForSelectedBank();
         romImage[offset++] = 0x60;
         romImage[offset++] = 0x40;
-
         for (int i = 0; i < 15; i++) {
             bankOffset += lengths[i];
             if (lengths[i] != 0) {
