@@ -41,8 +41,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
