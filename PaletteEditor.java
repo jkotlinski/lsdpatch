@@ -49,11 +49,11 @@ public class PaletteEditor
     private byte romImage[] = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
+    private int paletteCount = -1;
 
     private int colorSetSize = 4 * 2;  // one colorset contains 4 colors
     private int colorSetCount = 5;  // one palette contains 5 color sets
     private int paletteSize = colorSetCount * colorSetSize;
-    private int paletteCount = 6;
     private int paletteNameSize = 5;
 
     private JPanel preview1a;
@@ -441,13 +441,16 @@ public class PaletteEditor
 
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
+        findNameOffsetAndPaletteCount();
+        if (nameOffset == -1) {
+            System.err.println("Could not find palette name offset!");
+        }
+        if (paletteCount < 0) {
+            System.err.println("Could not find palette count!");
+        }
         paletteOffset = findPaletteOffset();
         if (paletteOffset == -1) {
             System.err.println("Could not find palette offset!");
-        }
-        nameOffset = findNameOffset();
-        if (nameOffset == -1) {
-            System.err.println("Could not find palette name offset!");
         }
         populatePaletteSelector();
     }
@@ -680,7 +683,7 @@ public class PaletteEditor
         updatingSpinners = false;
     }
 
-    private int findNameOffset() {
+    private void findNameOffsetAndPaletteCount() {
         // Palette names are in bank 27.
         int i = 0x4000 * 27;
         while (i < 0x4000 * 28) {
@@ -714,11 +717,19 @@ public class PaletteEditor
                     romImage[i + 27] == 0 &&
                     romImage[i + 28] == 0 &&
                     romImage[i + 29] == 0) {
-                        return i + 30;
+			    nameOffset = i;
+			    paletteCount = 0;
+			    int j = i + 4;
+			    while (romImage[j] == 0) {
+				    ++paletteCount;
+				    j += 5;
+			    }
+			    paletteCount /= 2;
+			    nameOffset = i + 5 * paletteCount;
+			    return;
                     }
             ++i;
         }
-        return -1;
     }
 
     private int findPaletteOffset() {

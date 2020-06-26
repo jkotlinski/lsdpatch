@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2020-06-27
+### Added
+
+ - Allow variable number of palettes. Some LSDj versions have 6 palettes, others 7.
+
 ## [1.2.0] - 2020-03-05
 ### Changed
 
