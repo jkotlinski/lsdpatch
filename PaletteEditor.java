@@ -113,9 +113,9 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
-    /**
-     * Launch the application.
-     */
+    private javax.swing.JCheckBox desaturateButton;
+    private boolean desaturate = false;
+
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -386,6 +386,11 @@ public class PaletteEditor
         c5b2.setBounds(251, 290, 36, 20);
         contentPane.add(c5b2);
 
+        desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
+        desaturateButton.setBounds(10, 330, 146, 24);
+        desaturateButton.addItemListener(this);
+        contentPane.add(desaturateButton);
+
         preview5b = new JPanel();
         preview5b.setBounds(159, 265, 43, 14);
         preview5b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
@@ -575,9 +580,18 @@ public class PaletteEditor
         int b = ((c.getBlue() >> 3) * 255) / 0xf8;
 
         // Matrix conversion from Gambatte.
-        return (((r * 13 + g * 2 + b) >> 1) << 16)
+        int rgb = (((r * 13 + g * 2 + b) >> 1) << 16)
             | ((g * 3 + b) << 9)
             | ((r * 3 + g * 2 + b * 11) >> 1);
+
+	if (this.desaturate) {
+		float[] hsb = new float[3];
+		hsb = java.awt.Color.RGBtoHSB(rgb >> 16, (rgb >> 8) & 0xff, rgb & 0xff, hsb);
+		b = (int)(hsb[2] * 255);
+		rgb = b | (b << 8) | (b << 16);
+	}
+
+	return rgb;
     }
 
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
@@ -768,13 +782,17 @@ public class PaletteEditor
     }
 
     public void itemStateChanged(java.awt.event.ItemEvent e) {
-        if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+	Object source = e.getItemSelectable();
+	if (source == paletteSelector && e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Palette changed.
             if (paletteSelector.getSelectedIndex() != -1) {
                 updatePreviewPanes();
                 updateSpinners();
             }
-        }
+        } else if (source == desaturateButton) {
+	    this.desaturate = e.getStateChange() == java.awt.event.ItemEvent.SELECTED;
+	    updatePreviewPanes();
+	}
     }
 
     public void stateChanged(ChangeEvent e) {
