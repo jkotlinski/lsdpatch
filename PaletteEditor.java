@@ -897,9 +897,23 @@ public class PaletteEditor
 	    mntmPaste.setEnabled(true);
     }
 
-    private void pastePalette() {
-	    loadPalette(clipboard);
-    }
+	private void pastePalette() {
+		int paletteIndex = paletteSelector.getSelectedIndex();
+		loadPalette(clipboard);
+		/* Adds a number to the palette name, so that it is possible to tell the
+		 * original and new palette apart. */
+		char[] name = paletteSelector.getSelectedItem().toString().toCharArray();
+		char lastChar = name[name.length - 1];
+		if (Character.isDigit(lastChar)) {
+			++lastChar;
+		} else {
+			lastChar = '1';
+		}
+		name[name.length - 1] = lastChar;
+		setPaletteName(paletteIndex, new String(name));
+		populatePaletteSelector();
+		paletteSelector.setSelectedIndex(paletteIndex);
+	}
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
         String cmd = e.getActionCommand();
