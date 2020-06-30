@@ -597,21 +597,12 @@ public class PaletteEditor
         int b = ((c.getBlue() >> 3) * 255) / 0xf8;
 
         // Matrix conversion from Gambatte.
-        int rgb = (((r * 13 + g * 2 + b) >> 1) << 16)
+        return (((r * 13 + g * 2 + b) >> 1) << 16)
             | ((g * 3 + b) << 9)
             | ((r * 3 + g * 2 + b * 11) >> 1);
-
-	if (this.desaturate) {
-		float[] hsb = new float[3];
-		hsb = java.awt.Color.RGBtoHSB(rgb >> 16, (rgb >> 8) & 0xff, rgb & 0xff, hsb);
-		b = (int)(hsb[2] * 255);
-		rgb = b | (b << 8) | (b << 16);
-	}
-
-	return rgb;
     }
 
-    private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
+    private java.awt.Image modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
         int w = srcImage.getWidth();
         int h = srcImage.getHeight();
         java.awt.image.BufferedImage dstImage = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -656,6 +647,9 @@ public class PaletteEditor
                 dstImage.setRGB(x, y, colorCorrect(c));
             }
         }
+	if (desaturate) {
+		return new java.awt.image.ColorConvertOp(java.awt.color.ColorSpace.getInstance(java.awt.color.ColorSpace.CS_GRAY), null).filter(dstImage, dstImage);
+	}
         return dstImage;
     }
 
