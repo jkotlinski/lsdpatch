@@ -105,6 +105,8 @@ public class PaletteEditor
 
     private JComboBox paletteSelector;
 
+    JMenuItem mntmPaste;
+
     private java.awt.image.BufferedImage songImage;
     private java.awt.image.BufferedImage instrImage;
 
@@ -146,6 +148,21 @@ public class PaletteEditor
 		mntmSave.setMnemonic(KeyEvent.VK_S);
         mntmSave.addActionListener(this);
         mnFile.add(mntmSave);
+
+        JMenu mnEdit = new JMenu("Edit");
+        mnEdit.setMnemonic(KeyEvent.VK_E);
+        menuBar.add(mnEdit);
+
+        JMenuItem mntmCopy = new JMenuItem("Copy Palette");
+        mntmCopy.addActionListener(this);
+        mntmCopy.setMnemonic(KeyEvent.VK_C);
+        mnEdit.add(mntmCopy);
+
+        mntmPaste = new JMenuItem("Paste Palette");
+        mntmPaste.setMnemonic(KeyEvent.VK_P);
+        mntmPaste.addActionListener(this);
+        mntmPaste.setEnabled(false);
+        mnEdit.add(mntmPaste);
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -868,6 +885,22 @@ public class PaletteEditor
 		}
     }
 
+    java.io.File clipboard;
+
+    private void copyPalette() {
+	    try {
+		    clipboard = java.io.File.createTempFile("lsdpatcher", "palette");
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }
+	    savePalette(clipboard.getAbsolutePath());
+	    mntmPaste.setEnabled(true);
+    }
+
+    private void pastePalette() {
+	    loadPalette(clipboard);
+    }
+
     public void actionPerformed(java.awt.event.ActionEvent e) {
         String cmd = e.getActionCommand();
         if (cmd == "Open...") {
@@ -891,6 +924,10 @@ public class PaletteEditor
             } else {
                 previousSelectedPalette = cb.getSelectedIndex();
             }
+        } else if (cmd == "Copy Palette") {
+		copyPalette();
+        } else if (cmd == "Paste Palette") {
+		pastePalette();
         } else {
             assert false;
         }

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
  - Palette editor "Desaturate preview" toggle.
+ - Palette editor copy/paste.
 
 ## [1.3.0] - 2020-06-27
 ### Added
