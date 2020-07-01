@@ -891,20 +891,35 @@ public class PaletteEditor
 	    mntmPaste.setEnabled(true);
     }
 
+    private boolean areDuplicateNames() {
+	    for (int i = 0; i < paletteCount; ++i) {
+		    for (int j = i + 1; j < paletteCount; ++j) {
+			    if (paletteName(i).equals(paletteName(j))) {
+				    return true;
+			    }
+		    }
+	    }
+	    return false;
+    }
+
+    private void addNumberToPaletteName(int paletteIndex) {
+	    char[] name = paletteName(paletteIndex).toCharArray();
+	    char lastChar = name[name.length - 1];
+	    if (Character.isDigit(lastChar)) {
+		    ++lastChar;
+	    } else {
+		    lastChar = '1';
+	    }
+	    name[name.length - 1] = lastChar;
+	    setPaletteName(paletteIndex, new String(name));
+    }
+
 	private void pastePalette() {
 		int paletteIndex = paletteSelector.getSelectedIndex();
 		loadPalette(clipboard);
-		/* Adds a number to the palette name, so that it is possible to tell the
-		 * original and new palette apart. */
-		char[] name = paletteSelector.getSelectedItem().toString().toCharArray();
-		char lastChar = name[name.length - 1];
-		if (Character.isDigit(lastChar)) {
-			++lastChar;
-		} else {
-			lastChar = '1';
+		while (areDuplicateNames()) {
+			addNumberToPaletteName(paletteIndex);
 		}
-		name[name.length - 1] = lastChar;
-		setPaletteName(paletteIndex, new String(name));
 		populatePaletteSelector();
 		paletteSelector.setSelectedIndex(paletteIndex);
 	}
