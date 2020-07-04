@@ -711,50 +711,45 @@ public class PaletteEditor
     private void findNameOffsetAndPaletteCount() {
         // Palette names are in bank 27.
         int i = 0x4000 * 27;
-        while (i < 0x4000 * 28) {
-            if (romImage[i] == 'G' &&  // gray
-                    romImage[i + 1] == 'R' &&
-                    romImage[i + 2] == 'A' &&
-                    romImage[i + 3] == 'Y' &&
-                    romImage[i + 4] == 0 &&
-                    romImage[i + 5] == 'I' &&  // inv
-                    romImage[i + 6] == 'N' &&
-                    romImage[i + 7] == 'V' &&
-                    romImage[i + 8] == ' ' &&
-                    romImage[i + 9] == 0 &&
-                    romImage[i + 10] == 0 &&  // empty
-                    romImage[i + 11] == 0 &&
-                    romImage[i + 12] == 0 &&
-                    romImage[i + 13] == 0 &&
-                    romImage[i + 14] == 0 &&
-                    romImage[i + 15] == 0 &&  // empty
-                    romImage[i + 16] == 0 &&
-                    romImage[i + 17] == 0 &&
-                    romImage[i + 18] == 0 &&
-                    romImage[i + 19] == 0 &&
-                    romImage[i + 20] == 0 &&  // empty
-                    romImage[i + 21] == 0 &&
-                    romImage[i + 22] == 0 &&
-                    romImage[i + 23] == 0 &&
-                    romImage[i + 24] == 0 &&
-                    romImage[i + 25] == 0 &&  // empty
-                    romImage[i + 26] == 0 &&
-                    romImage[i + 27] == 0 &&
-                    romImage[i + 28] == 0 &&
-                    romImage[i + 29] == 0) {
-			    nameOffset = i;
-			    paletteCount = 0;
-			    int j = i + 4;
-			    while (romImage[j] == 0) {
-				    ++paletteCount;
-				    j += 5;
-			    }
-			    paletteCount /= 2;
-			    nameOffset = i + 5 * paletteCount;
-			    return;
-                    }
-            ++i;
-        }
+	while (i < 0x4000 * 28) {
+		// Pre 8.7.4
+		if (romImage[i] == 'G' &&  // gray
+				romImage[i + 1] == 'R' &&
+				romImage[i + 2] == 'A' &&
+				romImage[i + 3] == 'Y' &&
+				romImage[i + 4] == 0 &&
+				romImage[i + 5] == 'I' &&  // inv
+				romImage[i + 6] == 'N' &&
+				romImage[i + 7] == 'V' &&
+				romImage[i + 8] == ' ' &&
+				romImage[i + 9] == 0) {
+			break;
+		}
+		// 8.7.4+
+		if (romImage[i] == 'P' &&  // pale
+				romImage[i + 1] == 'A' &&
+				romImage[i + 2] == 'L' &&
+				romImage[i + 3] == 'E' &&
+				romImage[i + 4] == 0 &&
+				romImage[i + 5] == 'I' &&  // invp
+				romImage[i + 6] == 'N' &&
+				romImage[i + 7] == 'V' &&
+				romImage[i + 8] == 'P' &&
+				romImage[i + 9] == 0) {
+			break;
+		}
+		++i;
+	}
+	nameOffset = i;
+	paletteCount = 0;
+	int j = i + 4;
+	while (romImage[j] == 0) {
+		++paletteCount;
+		j += 5;
+	}
+	paletteCount /= 2;
+	nameOffset = i + 5 * paletteCount;
+	return;
     }
 
     private int findPaletteOffset() {
