@@ -9,17 +9,48 @@ public class RomUtilities {
     public static final int COLOR_SET_SIZE = 4 * 2;  // one color set contains 4 colors
     public static final int NUM_COLOR_SETS = 5;  // one palette contains 5 color sets
     public static final int PALETTE_SIZE = COLOR_SET_SIZE * NUM_COLOR_SETS;
-    public static final int NUM_PALETTES = 6;
     public static final int PALETTE_NAME_SIZE = 5;
 
-    public static int findPaletteOffset(byte[] romImage) {
-        // Finds the palette location by searching for the screen
-        // backgrounds, which are defined directly after the palettes
-        // in bank 1.
-        int i = 0x4000;
-        while (i < 0x8000) {
-            // The first screen background start with 17 zeroes
-            // followed by three 72's.
+    private static int findGrayscalePaletteNames(byte[] romImage)
+    {
+        for (int i = 0x4000 * 27;i < 0x4000 * 28; ++i) {
+            if (romImage[i] == 'G' &&  // gray
+                    romImage[i + 1] == 'R' &&
+                    romImage[i + 2] == 'A' &&
+                    romImage[i + 3] == 'Y' &&
+                    romImage[i + 4] == 0 &&
+                    romImage[i + 5] == 'I' &&  // inv
+                    romImage[i + 6] == 'N' &&
+                    romImage[i + 7] == 'V' &&
+                    romImage[i + 8] == ' '&&
+                    romImage[i + 9] == 0) {
+                return i;
+            }
+            if (romImage[i] == 'P' &&  // gray
+                    romImage[i + 1] == 'A' &&
+                    romImage[i + 2] == 'L' &&
+                    romImage[i + 3] == 'E' &&
+                    romImage[i + 4] == 0 &&
+                    romImage[i + 5] == 'I' &&  // inv
+                    romImage[i + 6] == 'N' &&
+                    romImage[i + 7] == 'V' &&
+                    romImage[i + 8] == 'P' &&
+                    romImage[i + 9] == 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int findScreenBackgroundData(byte[] romImage)
+    {
+        int numPalettes = getNumberOfPalettes(romImage);
+        if (numPalettes == -1)
+        {
+            return -1;
+        }
+        for (int i = 0x4000; i < 0x8000; ++i)
+        {
             if (romImage[i] == 0 &&
                     romImage[i + 1] == 0 &&
                     romImage[i + 2] == 0 &&
@@ -39,53 +70,52 @@ public class RomUtilities {
                     romImage[i + 16] == 0 &&
                     romImage[i + 17] == 72 &&
                     romImage[i + 18] == 72 &&
-                    romImage[i + 19] == 72) {
-                return i - RomUtilities.NUM_PALETTES * RomUtilities.PALETTE_SIZE;
+                    romImage[i + 19] == 72)
+            {
+                return i;
             }
-            ++i;
         }
         return -1;
     }
 
+    public static int getNumberOfPalettes(byte[] romImage)
+    {
+        int baseOffset = findGrayscalePaletteNames(romImage);
+        if (baseOffset == -1)
+        {
+            return -1;
+        }
+
+        int numPalettes = 0;
+        for (int j = baseOffset + 4; romImage[j] == 0; j +=5)
+        {
+            ++numPalettes;
+        }
+        return numPalettes/2;
+    }
+
+    public static int findPaletteOffset(byte[] romImage) {
+        // Finds the palette location by searching for the screen
+        // backgrounds, which are defined directly after the palettes
+        // in bank 1.
+        int baseOffset = findScreenBackgroundData(romImage);
+        if (baseOffset == 1)
+        {
+            return -1;
+        }
+        return baseOffset - getNumberOfPalettes(romImage) * PALETTE_SIZE;
+    }
+
     public static int findPaletteNameOffset(byte[] romImage) {
         // Palette names are in bank 27.
-        int i = 0x4000 * 27;
-        while (i < 0x4000 * 28) {
-            if (romImage[i] == 'G' &&  // gray
-                    romImage[i + 1] == 'R' &&
-                    romImage[i + 2] == 'A' &&
-                    romImage[i + 3] == 'Y' &&
-                    romImage[i + 4] == 0 &&
-                    romImage[i + 5] == 'I' &&  // inv
-                    romImage[i + 6] == 'N' &&
-                    romImage[i + 7] == 'V' &&
-                    romImage[i + 8] == ' ' &&
-                    romImage[i + 9] == 0 &&
-                    romImage[i + 10] == 0 &&  // empty
-                    romImage[i + 11] == 0 &&
-                    romImage[i + 12] == 0 &&
-                    romImage[i + 13] == 0 &&
-                    romImage[i + 14] == 0 &&
-                    romImage[i + 15] == 0 &&  // empty
-                    romImage[i + 16] == 0 &&
-                    romImage[i + 17] == 0 &&
-                    romImage[i + 18] == 0 &&
-                    romImage[i + 19] == 0 &&
-                    romImage[i + 20] == 0 &&  // empty
-                    romImage[i + 21] == 0 &&
-                    romImage[i + 22] == 0 &&
-                    romImage[i + 23] == 0 &&
-                    romImage[i + 24] == 0 &&
-                    romImage[i + 25] == 0 &&  // empty
-                    romImage[i + 26] == 0 &&
-                    romImage[i + 27] == 0 &&
-                    romImage[i + 28] == 0 &&
-                    romImage[i + 29] == 0) {
-                return i + 30;
-            }
-            ++i;
+        int baseOffset = findGrayscalePaletteNames(romImage);
+        if (baseOffset == -1)
+        {
+            return -1;
         }
-        return -1;
+
+        return baseOffset + 5 * getNumberOfPalettes(romImage);
+
     }
 
     public static int findFontOffset(byte[] romImage) {
@@ -106,25 +136,12 @@ public class RomUtilities {
 
     public static int findFontNameOffset(byte[] romImage) {
         // Palette names are in bank 27.
-        int i = 0x4000 * 27;
-        while (i < 0x4000 * 28) {
-            if (romImage[i] == 'G' && // gray
-                    romImage[i + 1] == 'R' && romImage[i + 2] == 'A' && romImage[i + 3] == 'Y' && romImage[i + 4] == 0
-                    && romImage[i + 5] == 'I' && // inv
-                    romImage[i + 6] == 'N' && romImage[i + 7] == 'V' && romImage[i + 8] == ' ' && romImage[i + 9] == 0
-                    && romImage[i + 10] == 0 && // empty
-                    romImage[i + 11] == 0 && romImage[i + 12] == 0 && romImage[i + 13] == 0 && romImage[i + 14] == 0
-                    && romImage[i + 15] == 0 && // empty
-                    romImage[i + 16] == 0 && romImage[i + 17] == 0 && romImage[i + 18] == 0 && romImage[i + 19] == 0
-                    && romImage[i + 20] == 0 && // empty
-                    romImage[i + 21] == 0 && romImage[i + 22] == 0 && romImage[i + 23] == 0 && romImage[i + 24] == 0
-                    && romImage[i + 25] == 0 && // empty
-                    romImage[i + 26] == 0 && romImage[i + 27] == 0 && romImage[i + 28] == 0 && romImage[i + 29] == 0) {
-                return i - 15;
-            }
-            ++i;
+        int baseOffset = findGrayscalePaletteNames(romImage);
+        if (baseOffset == -1)
+        {
+            return -1;
         }
-        return -1;
+        return baseOffset - 15;
     }
 
     public static String getFontName(byte[] romImage, int font) {

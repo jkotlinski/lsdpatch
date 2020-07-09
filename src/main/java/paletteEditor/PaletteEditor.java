@@ -434,7 +434,7 @@ public class PaletteEditor
     private int selectedPalette() {
         int palette = paletteSelector.getSelectedIndex();
         assert palette >= 0;
-        assert palette < RomUtilities.NUM_PALETTES;
+        assert palette < RomUtilities.getNumberOfPalettes(romImage);
         return palette;
     }
 
@@ -512,7 +512,7 @@ public class PaletteEditor
 
     private String paletteName(int palette) {
         assert palette >= 0;
-        assert palette < RomUtilities.NUM_PALETTES;
+        assert palette < RomUtilities.getNumberOfPalettes(romImage);
         String s = "";
         s += (char) romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE];
         s += (char) romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1];
@@ -544,7 +544,7 @@ public class PaletteEditor
         populatingPaletteSelector = true;
         paletteSelector.removeAllItems();
         // -2 to hide the GB palettes
-        for (int i = 0; i < RomUtilities.NUM_PALETTES; ++i) {
+        for (int i = 0; i < RomUtilities.getNumberOfPalettes(romImage); ++i) {
             paletteSelector.addItem(paletteName(i));
         }
         populatingPaletteSelector = false;

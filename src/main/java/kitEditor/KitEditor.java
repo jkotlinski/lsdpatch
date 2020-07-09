@@ -30,6 +30,7 @@ import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
 import utils.SampleCanvas;
 
+import javax.management.RuntimeErrorException;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -613,9 +614,16 @@ public class KitEditor extends JFrame {
             int otherPaletteOffset = RomUtilities.findPaletteOffset(otherRomImage);
             int otherPaletteNameOffset = RomUtilities.findPaletteNameOffset(otherRomImage);
 
-            System.arraycopy(otherRomImage, otherPaletteOffset, romImage, ownPaletteOffset, RomUtilities.PALETTE_SIZE * RomUtilities.NUM_PALETTES);
 
-            System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.NUM_PALETTES);
+            if (RomUtilities.getNumberOfPalettes(otherRomImage) != RomUtilities.getNumberOfPalettes(romImage))
+            {
+                throw new Exception("Both files don't have the same number of palettes. Aborting.");
+            }
+
+
+            System.arraycopy(otherRomImage, otherPaletteOffset, romImage, ownPaletteOffset, RomUtilities.PALETTE_SIZE * RomUtilities.getNumberOfPalettes(romImage));
+
+            System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(romImage));
 
             paletteEditor.setRomImage(romImage);
 

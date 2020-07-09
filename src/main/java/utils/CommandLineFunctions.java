@@ -135,6 +135,14 @@ public class CommandLineFunctions {
             RandomAccessFile destinationFile = new RandomAccessFile(new File(destinationFileName), "rw");
             destinationFile.readFully(destinationRomFile);
 
+
+            if (RomUtilities.getNumberOfPalettes(originRomFile) != RomUtilities.getNumberOfPalettes(destinationRomFile))
+            {
+                System.err.printf("Both files don't have the same number of palettes. Aborting.");
+                return;
+            }
+
+
             {
                 int inBaseFontOffset = RomUtilities.findFontOffset(originRomFile);
                 int outBaseFontOffset = RomUtilities.findFontOffset(destinationRomFile);
@@ -153,12 +161,12 @@ public class CommandLineFunctions {
                 int inPaletteOffset = RomUtilities.findPaletteOffset(originRomFile);
                 int outPaletteOffset = RomUtilities.findPaletteOffset(destinationRomFile);
                 System.arraycopy(originRomFile, inPaletteOffset, destinationRomFile, outPaletteOffset,
-                        RomUtilities.PALETTE_SIZE * RomUtilities.NUM_PALETTES);
+                        RomUtilities.PALETTE_SIZE * RomUtilities.getNumberOfPalettes(originRomFile));
 
                 int inPaletteNameOffset = RomUtilities.findPaletteNameOffset(originRomFile);
                 int outPaletteNameOffset = RomUtilities.findPaletteNameOffset(destinationRomFile);
                 System.arraycopy(originRomFile, inPaletteNameOffset, destinationRomFile, outPaletteNameOffset,
-                        RomUtilities.PALETTE_NAME_SIZE * RomUtilities.NUM_PALETTES);
+                        RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(originRomFile));
             }
 
             Vector<Integer> inKitsToCopy = new Vector<>();
