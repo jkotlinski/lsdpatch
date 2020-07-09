@@ -136,9 +136,9 @@ public class CommandLineFunctions {
             destinationFile.readFully(destinationRomFile);
 
 
-            if (RomUtilities.getNumberOfPalettes(originRomFile) != RomUtilities.getNumberOfPalettes(destinationRomFile))
+            if (RomUtilities.getNumberOfPalettes(originRomFile) > RomUtilities.getNumberOfPalettes(destinationRomFile))
             {
-                System.err.printf("Both files don't have the same number of palettes. Aborting.");
+                System.err.printf("Destination file doesn't have enough palettes slots to import all from the origin rom. Aborting.");
                 return;
             }
 

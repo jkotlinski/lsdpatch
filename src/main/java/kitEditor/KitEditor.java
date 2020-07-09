@@ -615,15 +615,15 @@ public class KitEditor extends JFrame {
             int otherPaletteNameOffset = RomUtilities.findPaletteNameOffset(otherRomImage);
 
 
-            if (RomUtilities.getNumberOfPalettes(otherRomImage) != RomUtilities.getNumberOfPalettes(romImage))
+            if (RomUtilities.getNumberOfPalettes(otherRomImage) > RomUtilities.getNumberOfPalettes(romImage))
             {
-                throw new Exception("Both files don't have the same number of palettes. Aborting.");
+                throw new Exception("Current file doesn't have enough palette slots to get the palettes imported to.");
             }
 
 
-            System.arraycopy(otherRomImage, otherPaletteOffset, romImage, ownPaletteOffset, RomUtilities.PALETTE_SIZE * RomUtilities.getNumberOfPalettes(romImage));
+            System.arraycopy(otherRomImage, otherPaletteOffset, romImage, ownPaletteOffset, RomUtilities.PALETTE_SIZE * RomUtilities.getNumberOfPalettes(otherRomImage));
 
-            System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(romImage));
+            System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(otherRomImage));
 
             paletteEditor.setRomImage(romImage);
 
