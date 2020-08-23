@@ -14,29 +14,23 @@ public class RomUtilities {
     private static int findGrayscalePaletteNames(byte[] romImage)
     {
         for (int i = 0x4000 * 27;i < 0x4000 * 28; ++i) {
-            if (romImage[i] == 'G' &&  // gray
-                    romImage[i + 1] == 'R' &&
-                    romImage[i + 2] == 'A' &&
-                    romImage[i + 3] == 'Y' &&
+            if (romImage[i] != 0 &&
+                    romImage[i + 1] != 0 &&
+                    romImage[i + 2] != 0 &&
+                    romImage[i + 3] != 0 &&
                     romImage[i + 4] == 0 &&
-                    romImage[i + 5] == 'I' &&  // inv
-                    romImage[i + 6] == 'N' &&
-                    romImage[i + 7] == 'V' &&
-                    romImage[i + 8] == ' '&&
-                    romImage[i + 9] == 0) {
-                return i;
-            }
-            if (romImage[i] == 'P' &&  // gray
-                    romImage[i + 1] == 'A' &&
-                    romImage[i + 2] == 'L' &&
-                    romImage[i + 3] == 'E' &&
-                    romImage[i + 4] == 0 &&
-                    romImage[i + 5] == 'I' &&  // inv
-                    romImage[i + 6] == 'N' &&
-                    romImage[i + 7] == 'V' &&
-                    romImage[i + 8] == 'P' &&
-                    romImage[i + 9] == 0) {
-                return i;
+                    romImage[i + 5] != 0 &&
+                    romImage[i + 6] != 0 &&
+                    romImage[i + 7] != 0 &&
+                    romImage[i + 8] != 0 &&
+                    romImage[i + 9] == 0 &&
+                    romImage[i + 10] != 0 &&
+                    romImage[i + 11] != 0 &&
+                    romImage[i + 12] != 0 &&
+                    romImage[i + 13] != 0 &&
+                    romImage[i + 14] == 0)
+            {
+                return i + 15;
             }
         }
         return -1;
