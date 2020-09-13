@@ -1,4 +1,4 @@
-/** Copyright (C) 2001-2011 by Johan Kotlinski
+package kitEditor;/* Copyright (C) 2001-2011 by Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,35 +21,29 @@ THE SOFTWARE. */
 import java.io.*;
 import javax.swing.*;
 
-public class Sample {
-    private String name;
-    private byte[] buf;
+class Sample {
+    private final String name;
+    private final byte[] buf;
     private int readPos;
-    private boolean mayDither;
 
-    public Sample(byte[] iBuf, String iName, boolean iMayDither) {
+    private Sample(byte[] iBuf, String iName) {
         buf = iBuf;
         name = iName;
-        mayDither = iMayDither;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public boolean mayDither() {
-        return mayDither;
-    }
-
-    public int length() {
+    int length() {
         return buf.length;
     }
 
-    public void seekStart() {
+    void seekStart() {
         readPos = 0;
     }
 
-    public int read() {
+    int read() {
         int val = buf[readPos++];
         // Converts from signed to unsigned 8-bit.
         val += 0x80;
@@ -61,31 +55,32 @@ public class Sample {
     static Sample createFromNibbles(byte[] nibbles, String name) {
         byte[] buf = new byte[nibbles.length * 2];
         for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
-            buf[2 * nibbleIt] = (byte)(nibbles[nibbleIt] & 0xf0);
-            buf[2 * nibbleIt + 1] = (byte)((nibbles[nibbleIt] & 0xf) << 4);
+            buf[2 * nibbleIt] = (byte) (nibbles[nibbleIt] & 0xf0);
+            buf[2 * nibbleIt + 1] = (byte) ((nibbles[nibbleIt] & 0xf) << 4);
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
             buf[bufIt] -= 0x80;
         }
-        return new Sample(buf, name, false);
+        return new Sample(buf, name);
     }
 
     // ------------------
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     static Sample createFromWav(File file) {
         int ch = 0;
         long sampleRate = 0;
         int bits = 0;
 
         try {
-            FileInputStream in = new FileInputStream( file.getAbsolutePath() );
+            FileInputStream in = new FileInputStream(file.getAbsolutePath());
 
             long riffId = readWord(in);
             if (riffId != 1380533830) {
                 JOptionPane.showMessageDialog(null,
-                "Missing RIFF id!",
-                "Format error",
-                JOptionPane.ERROR_MESSAGE);
+                        "Missing RIFF id!",
+                        "Format error",
+                        JOptionPane.ERROR_MESSAGE);
             }
 
             readWord(in); //skip file size
@@ -98,17 +93,16 @@ public class Sample {
                         JOptionPane.ERROR_MESSAGE);
             }
 
-            while ( in.available() != 0 )
-            {
+            while (in.available() != 0) {
                 long chunkId = readWord(in);
                 long chunkSize = readEndianWord(in);
 
-                if ( chunkId == 0x666D7420 ) // fmt
+                if (chunkId == 0x666D7420) // fmt
                 {
                     int compression = readEndianShort(in);
                     if (compression != 1) {
                         JOptionPane.showMessageDialog(null,
-                                "Sample is compressed. Only PCM .wav files are supported.",
+                                "kitEditor.Sample is compressed. Only PCM .wav files are supported.",
                                 "Format error",
                                 JOptionPane.ERROR_MESSAGE);
                         return null;
@@ -132,22 +126,21 @@ public class Sample {
                                 JOptionPane.ERROR_MESSAGE);
                         return null;
                     }
-                }
-                else if ( chunkId == 0x64617461 ) // data
+                } else if (chunkId == 0x64617461) // data
                 {
-                    byte[] buf = new byte[(int)chunkSize];
+                    byte[] buf = new byte[(int) chunkSize];
                     in.read(buf);
 
                     if (ch == 2) {
                         int inIt = 0;
                         int outIt = 0;
-                        while ( inIt < chunkSize )
-                        {
+                        while (inIt < chunkSize) {
                             buf[outIt++] = buf[inIt++];
                             buf[outIt++] = buf[inIt++];
                             inIt += 2;
                         }
                         chunkSize /= 2;
+                        //noinspection UnusedAssignment
                         ch = 1;
                     }
 
@@ -157,10 +150,10 @@ public class Sample {
                         int inIt = 1;
                         int outIt = 0;
 
-                        while ( inIt < chunkSize ) {
+                        while (inIt < chunkSize) {
                             buf[outIt] = buf[inIt];
                             outIt++;
-                            inIt+=2;
+                            inIt += 2;
                         }
                         chunkSize /= 2;
                     } else if (bits == 8) {
@@ -171,25 +164,22 @@ public class Sample {
                     }
 
                     int outFreq = 11468;
-                    int outFrames = (int)((outFreq * chunkSize) / sampleRate);
+                    int outFrames = (int) ((outFreq * chunkSize) / sampleRate);
 
                     double readPos = 0.0;
-                    double advance = (double)sampleRate / (double)outFreq;
+                    double advance = (double) sampleRate / (double) outFreq;
 
                     byte[] outBuf = new byte[outFrames];
                     int writePos = 0;
 
-                    while ( writePos < outFrames )
-                    {
-                        byte val = buf[(int)readPos];
+                    while (writePos < outFrames) {
+                        byte val = buf[(int) readPos];
                         outBuf[writePos++] = val;
                         readPos += advance;
                     }
 
-                    return new Sample(outBuf, file.getName(), true);
-                }
-                else
-                {
+                    return new Sample(outBuf, file.getName());
+                } else {
                     in.skip(chunkSize);
                 }
             }
@@ -200,10 +190,11 @@ public class Sample {
         return null;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     static private long readWord(FileInputStream in) throws IOException {
         long ret = 0;
         byte[] word = new byte[4];
-        in.read ( word );
+        in.read(word);
 
         ret += word[0];
         ret <<= 8;
@@ -219,10 +210,11 @@ public class Sample {
         return ret;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     static private int readEndianShort(FileInputStream in) throws IOException {
         int ret = 0;
         byte[] word = new byte[2];
-        in.read ( word );
+        in.read(word);
 
         ret += signedToUnsigned(word[1]);
         ret <<= 8;
@@ -232,16 +224,17 @@ public class Sample {
     }
 
     static private int signedToUnsigned(byte b) {
-        if ( b >= 0 ) {
+        if (b >= 0) {
             return b;
         }
         return 0x100 + b;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     static private long readEndianWord(FileInputStream in) throws IOException {
         long ret = 0;
         byte[] word = new byte[4];
-        in.read ( word );
+        in.read(word);
 
         ret += signedToUnsigned(word[3]);
         ret <<= 8;
@@ -259,7 +252,7 @@ public class Sample {
 
     // ------------------
 
-    public void writeToWav(File f) {
+    void writeToWav(File f) {
         try {
             RandomAccessFile wavFile = new RandomAccessFile(f, "rw");
 
@@ -268,38 +261,39 @@ public class Sample {
             int waveSize = fileSize - 8;
 
             byte[] header = {
-                0x52, 0x49, 0x46, 0x46,  // RIFF
-                (byte)waveSize,
-                (byte)(waveSize >> 8),
-                (byte)(waveSize >> 16),
-                (byte)(waveSize >> 24),
-                0x57, 0x41, 0x56, 0x45,  // WAVE
-                // --- fmt chunk
-                0x66, 0x6D, 0x74, 0x20,  // fmt
-                16, 0, 0, 0,  // fmt size
-                1, 0,  // pcm
-                1, 0,  // channel count
-                (byte)0xcc, 0x2c, 0, 0,  // freq (11468 hz)
-                (byte)0xcc, 0x2c, 0, 0,  // avg. bytes/sec
-                1, 0,  // block align
-                8, 0,  // bits per sample
-                // --- data chunk
-                0x64, 0x61, 0x74, 0x61,  // data
-                (byte)payloadSize,
-                (byte)(payloadSize >> 8),
-                (byte)(payloadSize >> 16),
-                (byte)(payloadSize >> 24)
+                    0x52, 0x49, 0x46, 0x46,  // RIFF
+                    (byte) waveSize,
+                    (byte) (waveSize >> 8),
+                    (byte) (waveSize >> 16),
+                    (byte) (waveSize >> 24),
+                    0x57, 0x41, 0x56, 0x45,  // WAVE
+                    // --- fmt chunk
+                    0x66, 0x6D, 0x74, 0x20,  // fmt
+                    16, 0, 0, 0,  // fmt size
+                    1, 0,  // pcm
+                    1, 0,  // channel count
+                    (byte) 0xcc, 0x2c, 0, 0,  // freq (11468 hz)
+                    (byte) 0xcc, 0x2c, 0, 0,  // avg. bytes/sec
+                    1, 0,  // block align
+                    8, 0,  // bits per sample
+                    // --- data chunk
+                    0x64, 0x61, 0x74, 0x61,  // data
+                    (byte) payloadSize,
+                    (byte) (payloadSize >> 8),
+                    (byte) (payloadSize >> 16),
+                    (byte) (payloadSize >> 24)
             };
 
             wavFile.write(header);
 
             byte[] unsigned = new byte[buf.length];
             for (int it = 0; it < buf.length; ++it) {
-                unsigned[it] = (byte)((int)buf[it] + 0x80);
+                unsigned[it] = (byte) ((int) buf[it] + 0x80);
             }
             wavFile.write(unsigned);
+            wavFile.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "File error",
+            JOptionPane.showMessageDialog(null, e.getMessage(), "File error : " +e.getCause(),
                     JOptionPane.ERROR_MESSAGE);
         }
     }

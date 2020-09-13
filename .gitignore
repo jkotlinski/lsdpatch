@@ -1,0 +1,7 @@
+# Maven
+target
+
+# IntelliJ IDEA
+.idea
+.settings
+*.iml

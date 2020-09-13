@@ -1,3 +1,5 @@
+package utils;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;
@@ -17,7 +19,7 @@ import javax.swing.ImageIcon;
  * <P>
  * The class is a drop-in replacement for <CODE>ImageIcon</CODE>, except that the no-argument constructor is not supported.
  * <P>
- * As the size of the Icon is determined by the size of the component in which it is displayed, <CODE>StretchIcon</CODE> must only be used
+ * As the size of the Icon is determined by the size of the component in which it is displayed, <CODE>utils.StretchIcon</CODE> must only be used
  * in conjunction with a component and layout that does not depend on the size of the component's Icon.
  *
  * @version 1.1 01/15/2016
@@ -36,7 +38,7 @@ public class StretchIcon extends ImageIcon
     protected boolean         proportionate    = true;
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from an array of bytes.
+     * Creates a <CODE>utils.StretchIcon</CODE> from an array of bytes.
      *
      * @param imageData an array of pixels in an image format supported by the AWT Toolkit, such as GIF, JPEG, or (as of 1.3) PNG
      *
@@ -48,7 +50,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from an array of bytes with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from an array of bytes with the specified behavior.
      *
      * @param imageData an array of pixels in an image format supported by the AWT Toolkit, such as GIF, JPEG, or (as of 1.3) PNG
      * @param proportionate <code>true</code> to retain the image's aspect ratio, <code>false</code> to allow distortion of the image to
@@ -63,7 +65,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from an array of bytes.
+     * Creates a <CODE>utils.StretchIcon</CODE> from an array of bytes.
      *
      * @param imageData an array of pixels in an image format supported by the AWT Toolkit, such as GIF, JPEG, or (as of 1.3) PNG
      * @param description a brief textual description of the image
@@ -76,7 +78,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from an array of bytes with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from an array of bytes with the specified behavior.
      *
      * @see ImageIcon#ImageIcon(byte[])
      * @param imageData an array of pixels in an image format supported by the AWT Toolkit, such as GIF, JPEG, or (as of 1.3) PNG
@@ -93,7 +95,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the image.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the image.
      *
      * @param image the image
      *
@@ -105,7 +107,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the image with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the image with the specified behavior.
      *
      * @param image the image
      * @param proportionate <code>true</code> to retain the image's aspect ratio, <code>false</code> to allow distortion of the image to
@@ -120,7 +122,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the image.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the image.
      *
      * @param image the image
      * @param description a brief textual description of the image
@@ -133,7 +135,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the image with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the image with the specified behavior.
      *
      * @param image the image
      * @param description a brief textual description of the image
@@ -149,7 +151,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified file.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified file.
      *
      * @param filename a String specifying a filename or path
      *
@@ -161,7 +163,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified file with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified file with the specified behavior.
      *
      * @param filename a String specifying a filename or path
      * @param proportionate <code>true</code> to retain the image's aspect ratio, <code>false</code> to allow distortion of the image to
@@ -176,7 +178,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified file.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified file.
      *
      * @param filename a String specifying a filename or path
      * @param description a brief textual description of the image
@@ -189,7 +191,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified file with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified file with the specified behavior.
      *
      * @param filename a String specifying a filename or path
      * @param description a brief textual description of the image
@@ -205,7 +207,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified URL.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified URL.
      *
      * @param location the URL for the image
      *
@@ -217,7 +219,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified URL with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified URL with the specified behavior.
      *
      * @param location the URL for the image
      * @param proportionate <code>true</code> to retain the image's aspect ratio, <code>false</code> to allow distortion of the image to
@@ -232,7 +234,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified URL.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified URL.
      *
      * @param location the URL for the image
      * @param description a brief textual description of the image
@@ -245,7 +247,7 @@ public class StretchIcon extends ImageIcon
     }
 
     /**
-     * Creates a <CODE>StretchIcon</CODE> from the specified URL with the specified behavior.
+     * Creates a <CODE>utils.StretchIcon</CODE> from the specified URL with the specified behavior.
      *
      * @param location the URL for the image
      * @param description a brief textual description of the image
