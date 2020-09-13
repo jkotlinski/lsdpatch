@@ -13,3 +13,7 @@ Video tutorial by 2xAA: http://www.youtube.com/watch?v=FGeVrW5Jxww
 Fonts: https://github.com/urbster1/lsdfonts
 
 Palettes: https://github.com/urbster1/lsdpals
+
+### Building
+
+Build using [Maven](https://maven.apache.org/): `mvn package`
