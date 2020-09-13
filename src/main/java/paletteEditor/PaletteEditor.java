@@ -99,6 +99,8 @@ public class PaletteEditor
 
     private final JComboBox<String> paletteSelector;
 
+    JMenuItem mntmPaste;
+
     private java.awt.image.BufferedImage songImage;
     private java.awt.image.BufferedImage instrImage;
 
@@ -107,6 +109,8 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
+    private javax.swing.JCheckBox desaturateButton;
+    private boolean desaturate = false;
 
     public PaletteEditor() {
         JMenuBar menuBar = new JMenuBar();
@@ -125,6 +129,21 @@ public class PaletteEditor
         saveMenuItem.setMnemonic(KeyEvent.VK_S);
         saveMenuItem.addActionListener(this);
         mnFile.add(saveMenuItem);
+
+        JMenu mnEdit = new JMenu("Edit");
+        mnEdit.setMnemonic(KeyEvent.VK_E);
+        menuBar.add(mnEdit);
+
+        JMenuItem mntmCopy = new JMenuItem("Copy Palette");
+        mntmCopy.addActionListener(this);
+        mntmCopy.setMnemonic(KeyEvent.VK_C);
+        mnEdit.add(mntmCopy);
+
+        mntmPaste = new JMenuItem("Paste Palette");
+        mntmPaste.setMnemonic(KeyEvent.VK_P);
+        mntmPaste.addActionListener(this);
+        mntmPaste.setEnabled(false);
+        mnEdit.add(mntmPaste);
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -364,6 +383,11 @@ public class PaletteEditor
         c5b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
         c5b2.setBounds(251, 290, 36, 20);
         contentPane.add(c5b2);
+
+        desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
+        desaturateButton.setBounds(10, 330, 146, 24);
+        desaturateButton.addItemListener(this);
+        contentPane.add(desaturateButton);
 
         preview5b = new JPanel();
         preview5b.setBounds(159, 265, 43, 14);
@@ -606,6 +630,9 @@ public class PaletteEditor
                 dstImage.setRGB(x, y, colorCorrect(c));
             }
         }
+	if (desaturate) {
+		return new java.awt.image.ColorConvertOp(java.awt.color.ColorSpace.getInstance(java.awt.color.ColorSpace.CS_GRAY), null).filter(dstImage, dstImage);
+	}
         return dstImage;
     }
 
@@ -665,13 +692,17 @@ public class PaletteEditor
     }
 
     public void itemStateChanged(java.awt.event.ItemEvent e) {
-        if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+	Object source = e.getItemSelectable();
+	if (source == paletteSelector && e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Palette changed.
             if (paletteSelector.getSelectedIndex() != -1) {
                 updatePreviewPanes();
                 updateSpinners();
             }
-        }
+        } else if (source == desaturateButton) {
+	    this.desaturate = e.getStateChange() == java.awt.event.ItemEvent.SELECTED;
+	    updatePreviewPanes();
+	}
     }
 
     public void stateChanged(ChangeEvent e) {
@@ -751,6 +782,52 @@ public class PaletteEditor
         }
     }
 
+    java.io.File clipboard;
+
+    private void copyPalette() {
+	    try {
+		    clipboard = java.io.File.createTempFile("lsdpatcher", "palette");
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }
+	    savePalette(clipboard.getAbsolutePath());
+	    mntmPaste.setEnabled(true);
+    }
+
+    private boolean areDuplicateNames() {
+	    int paletteCount = RomUtilities.getNumberOfPalettes(romImage);
+	    for (int i = 0; i < paletteCount; ++i) {
+		    for (int j = i + 1; j < paletteCount; ++j) {
+			    if (paletteName(i).equals(paletteName(j))) {
+				    return true;
+			    }
+		    }
+	    }
+	    return false;
+    }
+
+    private void addNumberToPaletteName(int paletteIndex) {
+	    char[] name = paletteName(paletteIndex).toCharArray();
+	    char lastChar = name[name.length - 1];
+	    if (Character.isDigit(lastChar)) {
+		    ++lastChar;
+	    } else {
+		    lastChar = '1';
+	    }
+	    name[name.length - 1] = lastChar;
+	    setPaletteName(paletteIndex, new String(name));
+    }
+
+	private void pastePalette() {
+		int paletteIndex = paletteSelector.getSelectedIndex();
+		loadPalette(clipboard);
+		while (areDuplicateNames()) {
+			addNumberToPaletteName(paletteIndex);
+		}
+		populatePaletteSelector();
+		paletteSelector.setSelectedIndex(paletteIndex);
+	}
+
     public void actionPerformed(java.awt.event.ActionEvent e) {
         String cmd = e.getActionCommand();
         switch (cmd) {
@@ -781,9 +858,14 @@ public class PaletteEditor
                 }
                 break;
             }
-            default:
-                assert false;
-                break;
+	    case "Copy Palette":
+		copyPalette();
+		break;
+	    case "Paste Palette":
+		pastePalette();
+		break;
+	    default:
+		assert false;
         }
     }
 }
