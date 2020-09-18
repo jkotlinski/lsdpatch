@@ -61,7 +61,7 @@ public class LSDPatcher {
     }
 
     private static void usage() {
-        System.out.printf("LSDJPatcher Redux %s\n\n", getVersion());
+        System.out.printf("LSDJPatcher v%s\n\n", getVersion());
         System.out.println("java -jar LSDJPatcher.jar");
         System.out.println(" Opens the GUI.\n");
 

@@ -223,7 +223,7 @@ public class KitEditor extends JFrame {
      */
     private void jbInit() {
         //setIconImage(Toolkit.getDefaultToolkit().createImage(Frame1.class.getResource("[Your Icon]")));
-        setTitle("lsdpatch.LSDPatcher Redux v" + LSDPatcher.getVersion());
+        setTitle("LSDPatcher v" + LSDPatcher.getVersion());
         contentPane = (JPanel) this.getContentPane();
         contentPane.setLayout(new MigLayout("",
                 "[150:60%:,grow][200:40%:,fill,grow]",
@@ -401,7 +401,7 @@ public class KitEditor extends JFrame {
     private void loadRom(File gbFile) {
         try {
             romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            setTitle(gbFile.getAbsoluteFile().toString() + " - lsdpatch.LSDPatcher Redux v" + LSDPatcher.getVersion());
+            setTitle(gbFile.getAbsoluteFile().toString() + " - LSDPatcher v" + LSDPatcher.getVersion());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
@@ -819,7 +819,7 @@ public class KitEditor extends JFrame {
                 romFile = new RandomAccessFile(f, "rw");
                 romFile.write(romImage);
                 romFile.close();
-                setTitle(f.getAbsoluteFile().toString() + " - lsdpatch.LSDPatcher Redux v" + LSDPatcher.getVersion());
+                setTitle(f.getAbsoluteFile().toString() + " - LSDPatcher v" + LSDPatcher.getVersion());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
