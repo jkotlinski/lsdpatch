@@ -36,7 +36,8 @@ public class MainMenu extends JFrame {
         panel.add(new JSeparator(), "span 5");
 
         upgradeRomButton.setEnabled(false);
-        panel.add(upgradeRomButton);
+        // panel.add(upgradeRomButton); TODO
+
         songManagerButton.setEnabled(false);
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
