@@ -1,22 +1,4 @@
-package kitEditor;/* Copyright (C) 2001-2011 by Johan Kotlinski
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. */
+package kitEditor;
 
 import fontEditor.FontEditor;
 import lsdpatch.LSDPatcher;
@@ -30,7 +12,6 @@ import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
 import utils.SampleCanvas;
 
-import javax.management.RuntimeErrorException;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -47,7 +28,6 @@ import java.util.Arrays;
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
-    private final JPanel jPanel1 = new JPanel();
     private int prevBankBoxIndex = -1;
     private final JComboBox<String> bankBox = new JComboBox<>();
     private final JList<String> instrList = new JList<>();
@@ -92,15 +72,13 @@ public class KitEditor extends JFrame {
 
     private final JMenuBar menuBar = new JMenuBar();
 
-    private final Sound soundPlayer = new Sound();
-
-    class KitFileFilter implements java.io.FilenameFilter {
+    static class KitFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".kit");
         }
     }
 
-    class WavFileFilter implements java.io.FilenameFilter {
+    static class WavFileFilter implements java.io.FilenameFilter {
         public boolean accept(java.io.File dir, String name) {
             return name.toLowerCase().endsWith(".wav");
         }
@@ -1090,12 +1068,13 @@ public class KitEditor extends JFrame {
         return null;
     }
 
-    // TODO : Overwritng warning
+    // TODO : Overwrite warning
     private void exportAllSamplesFromKit() {
         String directory = selectAFolder();
 
         int index = 0;
         String kitName = (String)bankBox.getSelectedItem();
+        assert kitName != null;
         kitName = kitName.substring(kitName.indexOf(' '));
         if (kitName.length() == 0) {
             kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
