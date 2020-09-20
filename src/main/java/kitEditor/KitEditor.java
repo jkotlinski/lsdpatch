@@ -284,16 +284,6 @@ public class KitEditor extends JFrame {
         });
     }
 
-    /**
-     * Overridden so we can exit when window is closed
-     */
-    protected void processWindowEvent(WindowEvent e) {
-        super.processWindowEvent(e);
-        if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-            System.exit(0);
-        }
-    }
-
     private byte[] get4BitSamples(int index, boolean halfSpeed) {
         int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
