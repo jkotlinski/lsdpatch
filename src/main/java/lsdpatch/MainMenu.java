@@ -3,6 +3,7 @@ package lsdpatch;
 import fontEditor.FontEditor;
 import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
+import paletteEditor.PaletteEditor;
 import utils.JFileChooserFactory;
 import utils.RomUtilities;
 
@@ -43,29 +44,50 @@ public class MainMenu extends JFrame {
         });
         editKitsButton.setEnabled(false);
         panel.add(editKitsButton);
-        editFontsButton.addActionListener(e -> {
-            FontEditor fontEditor = new FontEditor();
-            fontEditor.setLocationRelativeTo(this);
-            byte[] romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-
-            try {
-                RandomAccessFile romFile = new RandomAccessFile(romTextField.getText(), "r");
-                romFile.readFully(romImage);
-                romFile.close();
-            } catch (IOException ioe) {
-                JOptionPane.showMessageDialog(this,
-                        ioe.getLocalizedMessage(),
-                        "Could not read .gb file",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            fontEditor.setRomImage(romImage);
-            fontEditor.setVisible(true);
-        });
+        editFontsButton.addActionListener(e -> openKitEditor());
         editFontsButton.setEnabled(false);
         panel.add(editFontsButton);
 
+        editPalettesButton.addActionListener(e -> openPaletteEditor());
         editPalettesButton.setEnabled(false);
         panel.add(editPalettesButton, "grow x");
+    }
+
+    class RomImageException extends Exception {
+
+    }
+
+    private void openPaletteEditor() {
+        PaletteEditor editor = new PaletteEditor();
+        editor.setLocationRelativeTo(this);
+        editor.setRomImage(romImage);
+        editor.setVisible(true);
+    }
+
+    private void openKitEditor() {
+        FontEditor fontEditor = new FontEditor();
+        fontEditor.setLocationRelativeTo(this);
+        fontEditor.setRomImage(romImage);
+        fontEditor.setVisible(true);
+    }
+
+    byte[] romImage;
+
+    boolean loadRomImage() {
+        romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
+        try {
+            RandomAccessFile romFile = new RandomAccessFile(romTextField.getText(), "r");
+            romFile.readFully(romImage);
+            romFile.close();
+        } catch (IOException ioe)
+        {
+            JOptionPane.showMessageDialog(this,
+                    ioe.getLocalizedMessage(),
+                    "Could not read .gb file",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     private void addSelectors(JPanel panel) {
@@ -130,7 +152,7 @@ public class MainMenu extends JFrame {
         String romPath = romTextField.getText();
         String savPath = savTextField.getText();
 
-        boolean romPathOk = romPath.endsWith(".gb") && new File(romPath).exists();
+        boolean romPathOk = romPath.endsWith(".gb") && new File(romPath).exists() && loadRomImage();
         boolean savPathOk = savPath.endsWith(".sav") && new File(savPath).exists();
 
         romTextField.setBackground(romPathOk ? Color.white : Color.pink);
@@ -138,5 +160,6 @@ public class MainMenu extends JFrame {
 
         editKitsButton.setEnabled(romPathOk);
         editFontsButton.setEnabled(romPathOk);
+        editPalettesButton.setEnabled(romPathOk);
     }
 }
