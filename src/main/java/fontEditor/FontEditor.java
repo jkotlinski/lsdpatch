@@ -7,11 +7,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import lsdpatch.LSDPatcher;
 import structures.LSDJFont;
 import utils.FontIO;
 import utils.JFileChooserFactory;
@@ -32,10 +35,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
     private byte[] romImage = null;
     private int fontOffset = -1;
     private int selectedFontOffset = -1;
-
-
     private int previousSelectedFont = -1;
-
 
     public FontEditor() {
         setTitle("Font Editor");
@@ -119,8 +119,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         constraints.fill = GridBagConstraints.NONE;
         contentPane.add(shiftButtonPanel, constraints);
 
-
         fontMap = new FontMap();
+        fontMap.setRomImage(romImage);
         fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setPreferredSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setTileSelectListener(this);
@@ -136,7 +136,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         contentPane.add(fontMap, constraints);
 
         setMinimumSize(layout.preferredLayoutSize(contentPane));
-
+        pack();
     }
 
     private void addImageButtonToPanel(JPanel panel, String imagePath, String altText, ActionListener event) {
@@ -157,7 +157,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         newMenuEntry.addActionListener(event);
         destination.add(newMenuEntry);
     }
-
 
     private void createFileMenu(JMenuBar menuBar) {
         JMenu fileMenu = new JMenu("File");
@@ -391,7 +390,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         fontMap.setFontOffset(selectedFontOffset);
         tileEditor.setFontOffset(selectedFontOffset);
         fontSelector.setSelectedIndex(previousSelectedFont);
-
     }
 
     private void exportAllFonts() {

@@ -1,9 +1,7 @@
 package kitEditor;
 
-import fontEditor.FontEditor;
 import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
-import paletteEditor.PaletteEditor;
 import structures.LSDJFont;
 import utils.FileDrop;
 import utils.JFileChooserFactory;
@@ -31,8 +29,6 @@ public class KitEditor extends JFrame {
     private int prevBankBoxIndex = -1;
     private final JComboBox<String> bankBox = new JComboBox<>();
     private final JList<String> instrList = new JList<>();
-    private final PaletteEditor paletteEditor = new PaletteEditor();
-    private final FontEditor fontEditor = new FontEditor();
 
     private static final int MAX_SAMPLES = 15;
 
@@ -137,22 +133,6 @@ public class KitEditor extends JFrame {
         saveROMItem.setEnabled(false);
         saveROMItem.addActionListener(e -> saveROMButton_actionPerformed());
         fileMenu.add(saveROMItem);
-
-        // -----
-
-        JMenu paletteMenu = new JMenu("Palette");
-        paletteMenu.setMnemonic(KeyEvent.VK_P);
-        menuBar.add(paletteMenu);
-        JMenuItem editPaletteItem = new JMenuItem("Edit Palettes...", KeyEvent.VK_P);
-        editPaletteItem.addActionListener(e -> paletteEditor.setVisible(true));
-        paletteMenu.add(editPaletteItem);
-
-        JMenu fontMenu = new JMenu("Font");
-        fontMenu.setMnemonic(KeyEvent.VK_O);
-        menuBar.add(fontMenu);
-        JMenuItem editFontItem = new JMenuItem("Edit Fonts...", KeyEvent.VK_F);
-        editFontItem.addActionListener(e -> fontEditor.setVisible(true));
-        fontMenu.add(editFontItem);
 
         setJMenuBar(menuBar);
     }
@@ -371,8 +351,6 @@ public class KitEditor extends JFrame {
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
-            fontEditor.setRomImage(romImage);
-            paletteEditor.setRomImage(romImage);
             saveROMItem.setEnabled(true);
             saveROMButton.setEnabled(true);
             importAllButton.setEnabled(true);
@@ -597,8 +575,6 @@ public class KitEditor extends JFrame {
 
             System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(otherRomImage));
 
-            paletteEditor.setRomImage(romImage);
-
             isOk = true;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
@@ -635,7 +611,6 @@ public class KitEditor extends JFrame {
                 RomUtilities.setFontName(romImage, i, RomUtilities.getFontName(otherRomImage, i));
             }
 
-            fontEditor.setRomImage(romImage);
             isOk = true;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
