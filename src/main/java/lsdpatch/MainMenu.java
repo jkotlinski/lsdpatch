@@ -4,6 +4,7 @@ import fontEditor.FontEditor;
 import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
 import paletteEditor.PaletteEditor;
+import songManager.SongManager;
 import utils.JFileChooserFactory;
 import utils.RomUtilities;
 
@@ -37,6 +38,7 @@ public class MainMenu extends JFrame {
         upgradeRomButton.setEnabled(false);
         panel.add(upgradeRomButton);
         songManagerButton.setEnabled(false);
+        songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
         editKitsButton.addActionListener(e -> {
@@ -53,8 +55,10 @@ public class MainMenu extends JFrame {
         panel.add(editPalettesButton, "grow x");
     }
 
-    class RomImageException extends Exception {
-
+    private void openSongManager() {
+        SongManager savManager = new SongManager(savTextField.getText());
+        savManager.setLocationRelativeTo(this);
+        savManager.setVisible(true);
     }
 
     private void openPaletteEditor() {
@@ -161,5 +165,6 @@ public class MainMenu extends JFrame {
         editKitsButton.setEnabled(romPathOk);
         editFontsButton.setEnabled(romPathOk);
         editPalettesButton.setEnabled(romPathOk);
+        songManagerButton.setEnabled(savPathOk);
     }
 }

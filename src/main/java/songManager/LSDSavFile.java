@@ -1,5 +1,6 @@
-package savManager;
+package songManager;
 
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import javax.swing.*;
 
@@ -218,19 +219,18 @@ public class LSDSavFile
         return freeBlockCount;
     }
 
-    public boolean loadFromSav(String filePath)
-    {
+    public boolean loadFromSav(String filePath) {
         RandomAccessFile savFile;
         int readBytes;
 
-        try
-        {
+        try {
             savFile = new RandomAccessFile(filePath, "r");
             readBytes = savFile.read(workRam);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+        } catch(IOException e) {
+            JOptionPane.showMessageDialog(null,
+                    e.getLocalizedMessage(),
+                    "Could not load .sav file",
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
 

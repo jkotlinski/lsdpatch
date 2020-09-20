@@ -1,4 +1,4 @@
-package savManager;
+package songManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.*;
 import java.util.prefs.*;
 
-public class SavManager extends JFrame implements ListSelectionListener {
+public class SongManager extends JFrame implements ListSelectionListener {
     
     LSDSavFile file;
     String latestSavPath = "\\";
@@ -36,21 +36,13 @@ public class SavManager extends JFrame implements ListSelectionListener {
     private static final String LATEST_SNG_PATH = "latest_sng_path";
     private static final long serialVersionUID = 1279298060794170168L;
 
-    public SavManager() {
+    public SongManager(String savPath) {
         file = new LSDSavFile();
 
-        preferences = Preferences.userNodeForPackage(SavManager.class);
+        preferences = Preferences.userNodeForPackage(SongManager.class);
         latestSavPath = preferences.get(LATEST_SAV_PATH, latestSavPath);
         latestSngPath = preferences.get(LATEST_SNG_PATH, latestSngPath);
-        
-        try {
-            jbInit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 
-    private void jbInit() {
         addLsdSngButton.setEnabled(false);
         addLsdSngButton.setToolTipText(
                 "Add compressed .lsdsng to file memory");
@@ -76,9 +68,8 @@ public class SavManager extends JFrame implements ListSelectionListener {
         jRamUsageIndicator.setString("");
         jRamUsageIndicator.setStringPainted(true);
 
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setTitle("LSDManager");
+        this.setTitle("Song Manager");
 
         importV2SavButton.setEnabled(false);
         importV2SavButton.setToolTipText(
@@ -110,7 +101,7 @@ public class SavManager extends JFrame implements ListSelectionListener {
         panel.add(clearSlotButton, "cell 1 6 1 1, growx, gaptop 10");
 
         pack();
-        setLocation(200,200);
+        loadSav(savPath);
         setVisible(true);
     }
 
@@ -151,8 +142,11 @@ public class SavManager extends JFrame implements ListSelectionListener {
         if (latestSngPath.equals("\\")) {
             latestSngPath = latestSavPath;
         }
+        loadSav(latestSavPath + fileName);
+    }
 
-        if (this.file.loadFromSav(latestSavPath + fileName)) {
+    private void loadSav(String savPath) {
+        if (file.loadFromSav(savPath)) {
             file.populateSlotList(songList);
             workMemLabel.setText("Loaded work+file memory.");
             enableAllButtons();
