@@ -16,33 +16,33 @@ public class MainMenu extends JFrame {
     JTextField romTextField = new JTextField();
     JTextField savTextField = new JTextField();
 
-    JButton editKitsButton = new JButton("Edit Kits");
-    JButton editSongsButton = new JButton("Edit Songs");
-    JButton editFontsButton = new JButton("Edit Fonts");
-    JButton editPalettesButton = new JButton("Edit Palettes");
+    JButton upgradeRomButton = new JButton("Upgrade ROM");
+    JButton songManagerButton = new JButton("Songs");
+    JButton editKitsButton = new JButton("Sample Kits");
+    JButton editFontsButton = new JButton("Fonts");
+    JButton editPalettesButton = new JButton("Palettes");
 
     MainMenu() {
         setTitle("LSDPatcher v" + LSDPatcher.getVersion());
-        JPanel rootPanel = new JPanel();
-        getContentPane().add(rootPanel);
-        MigLayout rootLayout = new MigLayout("wrap");
-        rootPanel.setLayout(rootLayout);
-
-        rootPanel.add(selectorPanel());
-
-        rootPanel.add(editPanel());
-    }
-
-    private JPanel editPanel() {
         JPanel panel = new JPanel();
-        panel.setLayout(new MigLayout());
+        getContentPane().add(panel);
+        MigLayout rootLayout = new MigLayout("wrap 5");
+        panel.setLayout(rootLayout);
+
+        addSelectors(panel);
+
+        panel.add(new JSeparator(), "span 5");
+
+        upgradeRomButton.setEnabled(false);
+        panel.add(upgradeRomButton);
+        songManagerButton.setEnabled(false);
+        panel.add(songManagerButton);
 
         editKitsButton.addActionListener(e -> {
             new KitEditor(romTextField.getText()).setLocationRelativeTo(this);
         });
         editKitsButton.setEnabled(false);
         panel.add(editKitsButton);
-
         editFontsButton.addActionListener(e -> {
             FontEditor fontEditor = new FontEditor();
             fontEditor.setLocationRelativeTo(this);
@@ -64,36 +64,30 @@ public class MainMenu extends JFrame {
         editFontsButton.setEnabled(false);
         panel.add(editFontsButton);
 
-        return panel;
+        editPalettesButton.setEnabled(false);
+        panel.add(editPalettesButton, "grow x");
     }
 
-    private JPanel selectorPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new MigLayout("wrap 3"));
-
-        panel.add(new JLabel("ROM:"));
-
+    private void addSelectors(JPanel panel) {
         romTextField.setMinimumSize(new Dimension(300, 0));
         romTextField.addActionListener(e -> updateButtonsFromTextFields());
+        romTextField.setText("Select LSDj ROM file --->");
         romTextField.setEditable(false);
-        panel.add(romTextField, "growx");
+        panel.add(romTextField, "span 4, grow x");
 
         JButton browseRomButton = new JButton("Browse...");
         browseRomButton.addActionListener(e -> onBrowseRomButtonPress());
         panel.add(browseRomButton);
 
-        panel.add(new JLabel("SAV:"));
-
         savTextField.setMinimumSize(new Dimension(300, 0));
         savTextField.addActionListener(e -> updateButtonsFromTextFields());
         savTextField.setEditable(false);
-        panel.add(savTextField, "growx");
+        savTextField.setText("Select LSDj save file --->");
+        panel.add(savTextField, "span 4, grow x");
 
         JButton browseSavButton = new JButton("Browse...");
         browseSavButton.addActionListener(e -> onBrowseSavButtonPress());
         panel.add(browseSavButton);
-
-        return panel;
     }
 
     private void onBrowseRomButtonPress() {
