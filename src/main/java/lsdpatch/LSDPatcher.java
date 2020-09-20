@@ -18,18 +18,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
+import utils.CommandLineFunctions;
+import utils.GlobalHolder;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.util.HashMap;
 import java.util.prefs.Preferences;
-
-import javax.swing.*;
-
-import kitEditor.KitEditor;
-import utils.CommandLineFunctions;
-import utils.GlobalHolder;
 
 public class LSDPatcher {
     public static String getVersion() {
@@ -40,8 +36,8 @@ public class LSDPatcher {
         return version;
     }
 
-    private LSDPatcher() {
-        KitEditor frame = new KitEditor();
+    private static void initUi() {
+        JFrame frame = new MainMenu();
         // Validate frames that have preset sizes
         // Pack frames that have useful preferred size info, e.g. from their layout
         frame.pack();
@@ -100,11 +96,11 @@ public class LSDPatcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Preferences prefs = Preferences.userRoot().node(LSDPatcher.class.getName());
-        GlobalHolder.set(prefs, Preferences.class);
-        prefs.put("path", prefs.get("path", System.getProperty("user.dir")));
+        Preferences preferences = Preferences.userRoot().node(LSDPatcher.class.getName());
+        GlobalHolder.set(preferences, Preferences.class);
+        preferences.put("path", preferences.get("path", System.getProperty("user.dir")));
 
-        LSDPatcher entry = new LSDPatcher();
+        initUi();
     }
 
     private static void useJLabelFontForMenus() {

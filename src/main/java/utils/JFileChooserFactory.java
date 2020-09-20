@@ -92,7 +92,11 @@ public class JFileChooserFactory {
         return chooser;
     }
 
-    public static void recordNewBaseFolder(String newPath) {
+    public static String baseFolder() {
+        return GlobalHolder.get(Preferences.class).get("path", null);
+    }
+
+    public static void setBaseFolder(String newPath) {
         GlobalHolder.get(Preferences.class).put("path", newPath);
     }
 }

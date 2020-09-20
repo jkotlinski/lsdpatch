@@ -284,7 +284,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
             int returnVal = chooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+                JFileChooserFactory.setBaseFolder(f.getParent());
                 String fontName;
                 fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
                 tileEditor.generateShadedAndInvertedTiles();
@@ -315,7 +315,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
             int returnVal = chooser.showSaveDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+                JFileChooserFactory.setBaseFolder(f.getParent());
                 String filename = f.toString();
                 if (!filename.endsWith("lsdfnt")) {
                     //noinspection UnusedAssignment
@@ -336,7 +336,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File bitmap = chooser.getSelectedFile();
-            JFileChooserFactory.recordNewBaseFolder(bitmap.getParent());
+            JFileChooserFactory.setBaseFolder(bitmap.getParent());
             try {
                 BufferedImage image = ImageIO.read(bitmap);
                 if (image.getWidth() != 64 && image.getHeight() != 72) {
@@ -362,7 +362,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-            JFileChooserFactory.recordNewBaseFolder(f.getParent());
+            JFileChooserFactory.setBaseFolder(f.getParent());
             String filename = f.toString();
             if (!filename.endsWith("png")) {
                 filename += ".png";

@@ -90,17 +90,13 @@ public class KitEditor extends JFrame {
         instrList.setListData(listData);
     }
 
-    public KitEditor() {
+    public KitEditor(String romPath) {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        jbInit();
         emptyInstrList();
-
-        selectRomToLoad();
+        loadRom(new File(romPath));
+        pack();
+        setVisible(true);
     }
 
     private void buildMenus() {
@@ -196,11 +192,7 @@ public class KitEditor extends JFrame {
         importAllButton.addActionListener(e -> importAll_actionPerformed());
     }
 
-    /**
-     * Component initialization
-     */
     private void jbInit() {
-        //setIconImage(Toolkit.getDefaultToolkit().createImage(Frame1.class.getResource("[Your Icon]")));
         setTitle("LSDPatcher v" + LSDPatcher.getVersion());
         contentPane = (JPanel) this.getContentPane();
         contentPane.setLayout(new MigLayout("",
@@ -208,7 +200,6 @@ public class KitEditor extends JFrame {
                 ""));
 
         createFileDrop();
-
 
         instrList.setBorder(BorderFactory.createEtchedBorder());
 
@@ -274,10 +265,7 @@ public class KitEditor extends JFrame {
 
         setMinimumSize(getPreferredSize());
         pack();
-
         setListeners();
-
-
         buildMenus();
     }
 
@@ -413,7 +401,7 @@ public class KitEditor extends JFrame {
             File f = chooser.getSelectedFile();
             if (f != null) {
                 loadRom(f);
-                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+                JFileChooserFactory.setBaseFolder(f.getParent());
             }
         }
     }
@@ -704,7 +692,7 @@ public class KitEditor extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
 
             File f = chooser.getSelectedFile();
-            JFileChooserFactory.recordNewBaseFolder(f.getParent());
+            JFileChooserFactory.setBaseFolder(f.getParent());
             return f;
         }
         return null;
@@ -791,7 +779,7 @@ public class KitEditor extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+                JFileChooserFactory.setBaseFolder(f.getParent());
 
                 RomUtilities.fixChecksum(romImage);
                 romFile = new RandomAccessFile(f, "rw");
@@ -813,7 +801,7 @@ public class KitEditor extends JFrame {
 
             try {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.recordNewBaseFolder(f.getParent());
+                JFileChooserFactory.setBaseFolder(f.getParent());
                 byte[] buf = new byte[RomUtilities.BANK_SIZE];
                 int offset = getROMOffsetForSelectedBank();
                 RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
