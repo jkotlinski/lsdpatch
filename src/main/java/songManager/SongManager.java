@@ -340,6 +340,11 @@ public class SongManager extends JFrame implements ListSelectionListener {
     public void valueChanged(ListSelectionEvent e) {
         boolean enable = !songList.isSelectionEmpty();
         clearSlotButton.setEnabled(enable);
+
+        int[] slots = songList.getSelectedIndices();
+        if (slots.length == 1) {
+            enable = file.isValid(slots[0]);
+        }
         exportLsdSngButton.setEnabled(enable);
     }
 }

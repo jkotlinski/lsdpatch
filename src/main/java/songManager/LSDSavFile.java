@@ -472,7 +472,7 @@ public class LSDSavFile
         }
     }
 
-    private boolean isValid(int slot) {
+    public boolean isValid(int slot) {
         byte[] tmpWorkRam = new byte[0x8000];
         return unpackSlot(slot, tmpWorkRam);
     }
