@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
  - Startup dialog to choose ROM+SAV and edit action.
- - Song manager (added LSDManager)
+ - Song manager (from LSDManager project).
+ - Song manager now shows warning sign next to corrupted songs.
 
 ## [1.5.0] - 2020-09-13
 ### Changed

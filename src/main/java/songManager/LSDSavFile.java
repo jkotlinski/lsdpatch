@@ -256,6 +256,9 @@ public class LSDSavFile
                 slotString += getFileName(slot);
                 slotString += "." + version(slot);
                 slotString += " " + blocksUsed;
+                if (!isValid(slot)) {
+                    slotString += " \u26a0"; // warning sign
+                }
             }
 
             slotStringList[slot] = slotString;
@@ -357,6 +360,121 @@ public class LSDSavFile
         {
             e.printStackTrace();
         }
+    }
+
+    private boolean unpackSlot(int slot, byte[] dstBuffer) {
+        assert(dstBuffer.length == 0x8000);
+        int dstPos = 0;
+
+        int blockId = 0;
+        int blockAllocTablePtr = blockAllocTableStartPtr;
+
+        while (blockId < totalBlockCount())
+        {
+            if (slot == workRam[blockAllocTablePtr++])
+            {
+                break;
+            }
+            blockId++;
+        }
+
+        int srcPtr = blockStartPtr + blockSize * blockId;
+
+        try {
+            while (true) {
+                switch (workRam[srcPtr]) {
+                    case (byte) 0xc0:
+                        srcPtr++;
+                        if (workRam[srcPtr] == (byte) 0xc0) {
+                            srcPtr++;
+                            dstBuffer[dstPos++] = (byte) 0xc0;
+                        } else {
+                            // rle
+                            byte b = workRam[srcPtr++];
+                            byte count = workRam[srcPtr++];
+                            while (count-- != 0) {
+                                dstBuffer[dstPos++] = b;
+                            }
+                        }
+                        break;
+
+                    case (byte) 0xe0:
+                        byte count;
+                        srcPtr++;
+                        switch (workRam[srcPtr]) {
+                            case (byte) 0xe0: // e0
+                                srcPtr++;
+                                dstBuffer[dstPos++] = (byte) 0xe0;
+                                break;
+
+                            case (byte) 0xff: // done!
+                                return dstPos == 0x8000;
+
+                            case (byte) 0xf0: //wave
+                                srcPtr++;
+                                count = workRam[srcPtr++];
+                                while (count-- != 0) {
+                                    dstBuffer[dstPos++] = (byte) 0x8e;
+                                    dstBuffer[dstPos++] = (byte) 0xcd;
+                                    dstBuffer[dstPos++] = (byte) 0xcc;
+                                    dstBuffer[dstPos++] = (byte) 0xbb;
+                                    dstBuffer[dstPos++] = (byte) 0xaa;
+                                    dstBuffer[dstPos++] = (byte) 0xa9;
+                                    dstBuffer[dstPos++] = (byte) 0x99;
+                                    dstBuffer[dstPos++] = (byte) 0x88;
+                                    dstBuffer[dstPos++] = (byte) 0x87;
+                                    dstBuffer[dstPos++] = (byte) 0x76;
+                                    dstBuffer[dstPos++] = (byte) 0x66;
+                                    dstBuffer[dstPos++] = (byte) 0x55;
+                                    dstBuffer[dstPos++] = (byte) 0x54;
+                                    dstBuffer[dstPos++] = (byte) 0x43;
+                                    dstBuffer[dstPos++] = (byte) 0x32;
+                                    dstBuffer[dstPos++] = (byte) 0x31;
+                                }
+                                break;
+
+                            case (byte) 0xf1: //instr
+                                srcPtr++;
+                                count = workRam[srcPtr++];
+                                while (count-- != 0) {
+                                    dstBuffer[dstPos++] = (byte) 0xa8;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = (byte) 0xff;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 3;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = (byte) 0xd0;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = (byte) 0xf3;
+                                    dstBuffer[dstPos++] = 0;
+                                    dstBuffer[dstPos++] = 0;
+                                }
+                                break;
+
+                            default: // block switch
+                                byte block = workRam[srcPtr];
+                                srcPtr = 0x8000 + blockSize * block;
+                                break;
+                        }
+                        break;
+
+                    default:
+                        dstBuffer[dstPos++] = workRam[srcPtr++];
+                }
+            }
+        } catch(ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+
+    private boolean isValid(int slot) {
+        byte[] tmpWorkRam = new byte[0x8000];
+        return unpackSlot(slot, tmpWorkRam);
     }
 
     public boolean addSongFromFile(String filePath)
