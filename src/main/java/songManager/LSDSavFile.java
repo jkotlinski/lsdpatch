@@ -362,8 +362,9 @@ public class LSDSavFile
         }
     }
 
-    private boolean unpackSlot(int slot, byte[] dstBuffer) {
-        assert(dstBuffer.length == 0x8000);
+    /** Decodes a song. Returns 32 kB with decoded song data, or null on failure. */
+    private byte[] unpackSong(int songId) {
+        byte[] dstBuffer = new byte[0x8000];
         int dstPos = 0;
 
         int blockId = 0;
@@ -371,7 +372,7 @@ public class LSDSavFile
 
         while (blockId < totalBlockCount())
         {
-            if (slot == workRam[blockAllocTablePtr++])
+            if (songId == workRam[blockAllocTablePtr++])
             {
                 break;
             }
@@ -408,7 +409,7 @@ public class LSDSavFile
                                 break;
 
                             case (byte) 0xff: // done!
-                                return dstPos == 0x8000;
+                                return dstPos == 0x8000 ? dstBuffer : null;
 
                             case (byte) 0xf0: //wave
                                 srcPtr++;
@@ -468,13 +469,12 @@ public class LSDSavFile
                 }
             }
         } catch(ArrayIndexOutOfBoundsException e) {
-            return false;
+            return null;
         }
     }
 
-    public boolean isValid(int slot) {
-        byte[] tmpWorkRam = new byte[0x8000];
-        return unpackSlot(slot, tmpWorkRam);
+    public boolean isValid(int songId) {
+        return unpackSong(songId) != null;
     }
 
     public boolean addSongFromFile(String filePath)
