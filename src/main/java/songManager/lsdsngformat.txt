@@ -1,9 +1,0 @@
-LSDSNG v2 format
-
-Byte 0-7: 'lsdsngv2'
-Byte 8-15: Song name
-Byte 16: Song version
-Byte 17: Length of song data / 512
-Byte 18-X: Song data
-
-...followed by kits used, ordered by kit number.

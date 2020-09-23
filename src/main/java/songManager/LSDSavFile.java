@@ -322,15 +322,10 @@ public class LSDSavFile
     {
         assert(songId >= 0 && songId < 0x20);
 
-        byte[] unpackedSong = unpackSong(songId);
-        assert(unpackedSong != null);
-
         RandomAccessFile file;
         try
         {
             file = new RandomAccessFile(filePath, "rw");
-
-            file.writeBytes("lsdsngv2");
 
             int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
             file.writeByte(workRam[fileNamePtr++]);
@@ -345,35 +340,8 @@ public class LSDSavFile
             int fileVersionPtr = fileVersionStartPtr + songId;
             file.writeByte(workRam[fileVersionPtr]);
 
-            // Write lsdsng.
-            ArrayList<Byte> lsdSngBytes = lsdSngBytes(songId);
-            file.writeByte(lsdSngBytes.size() / blockSize);
-            for (Byte lsdSngByte : lsdSngBytes) {
-                file.write(lsdSngByte);
-            }
-
-            // Write kits.
-            TreeSet<Integer> kitsToWrite = usedKits(unpackedSong);
-            while (true) {
-                Integer kit = kitsToWrite.pollFirst();
-                if (kit == null) {
-                    break;
-                }
-                /* write kit contents.
-                 * because legacy:
-                 * tr-606 is in bank 8
-                 * speech kit 2 in bank 26
-                 * speech kit 3 in bank 32
-                 */
-                kit += 8;
-                if (kit > 26) {
-                    kit += 5;
-                }
-                int kitOffset = kit * 0x4000;
-                for (int i = 0; i < 0x4000; ++i) {
-                    file.writeByte(romImage[kitOffset + i]);
-                }
-            }
+            writeSongBlocks(songId, file);
+            writeKits(romImage, songId, file);
 
             file.close();
         }
@@ -386,9 +354,30 @@ public class LSDSavFile
         }
     }
 
-    TreeSet<Integer> usedKits(byte[] unpackedSong) {
-        TreeSet<Integer> kits = new TreeSet<>();
+    private void writeKits(byte[] romImage, int songId, RandomAccessFile file) throws IOException {
+        TreeSet<Integer> kitsToWrite = usedKits(songId);
+        while (true) {
+            Integer kit = kitsToWrite.pollFirst();
+            if (kit == null) {
+                break;
+            }
+            // because legacy, kits are in banks 8-26, 32-63.
+            kit += 8;
+            if (kit > 26) {
+                kit += 5;
+            }
+            int kitOffset = kit * 0x4000;
+            for (int i = 0; i < 0x4000; ++i) {
+                file.writeByte(romImage[kitOffset + i]);
+            }
+        }
+    }
+
+    TreeSet<Integer> usedKits(int songId) {
+        byte[] unpackedSong = unpackSong(songId);
         assert(unpackedSong.length == 0x8000);
+
+        TreeSet<Integer> kits = new TreeSet<>();
         for (int instr = 0; instr < 0x40; ++instr) {
             int instrPtr = 0x3080 + instr * 0x10;
             if (unpackedSong[instrPtr] != 2) {
@@ -400,9 +389,7 @@ public class LSDSavFile
         return kits;
     }
 
-    ArrayList<Byte> lsdSngBytes(int songId) {
-        ArrayList<Byte> lsdSngBytes = new ArrayList<>();
-
+    void writeSongBlocks(int songId, RandomAccessFile file) throws IOException {
         int blockId = 0;
         int blockAllocTablePtr = blockAllocTableStartPtr;
 
@@ -410,12 +397,11 @@ public class LSDSavFile
             if (songId == workRam[blockAllocTablePtr++]) {
                 int blockPtr = blockStartPtr + blockId * blockSize;
                 for (int byteIndex = 0; byteIndex < blockSize; byteIndex++) {
-                    lsdSngBytes.add(workRam[blockPtr++]);
+                    file.writeByte(workRam[blockPtr++]);
                 }
             }
             blockId++;
         }
-        return lsdSngBytes;
     }
 
     /** Decodes a song. Returns 32 kB with decoded song data, or null on failure. */
