@@ -118,6 +118,10 @@ public class SongManager extends JFrame implements ListSelectionListener {
             f.close();
         } catch (IOException e) {
             romImage = null;
+            JOptionPane.showMessageDialog(this,
+                    e.getLocalizedMessage(),
+                    "ROM read failed!",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

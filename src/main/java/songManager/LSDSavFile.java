@@ -377,9 +377,12 @@ public class LSDSavFile
 
             file.close();
         }
-        catch (Exception e)
+        catch (IOException e)
         {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    e.getLocalizedMessage(),
+                    "Song export failed!",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
