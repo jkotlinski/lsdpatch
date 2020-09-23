@@ -2,6 +2,8 @@ package songManager;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.TreeSet;
 import javax.swing.*;
 
 public class LSDSavFile
@@ -316,17 +318,21 @@ public class LSDSavFile
         return version.substring(Math.max(version.length() - 2, 0)).toUpperCase();
     }
 
-    public void exportSongToFile(int slot, String filePath)
+    public void exportSongToFile(int songId, String filePath, byte[] romImage)
     {
-        if (slot < 0 || slot > 0x1f) {
-            return;
-        }
+        assert(songId >= 0 && songId < 0x20);
+
+        byte[] unpackedSong = unpackSong(songId);
+        assert(unpackedSong != null);
+
         RandomAccessFile file;
         try
         {
             file = new RandomAccessFile(filePath, "rw");
 
-            int fileNamePtr = fileNameStartPtr + slot * fileNameLength;
+            file.writeBytes("lsdsngv2");
+
+            int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
             file.writeByte(workRam[fileNamePtr++]);
             file.writeByte(workRam[fileNamePtr++]);
             file.writeByte(workRam[fileNamePtr++]);
@@ -336,30 +342,78 @@ public class LSDSavFile
             file.writeByte(workRam[fileNamePtr++]);
             file.writeByte(workRam[fileNamePtr]);
 
-            int fileVersionPtr = fileVersionStartPtr + slot;
+            int fileVersionPtr = fileVersionStartPtr + songId;
             file.writeByte(workRam[fileVersionPtr]);
 
-            int blockId = 0;
-            int blockAllocTablePtr = blockAllocTableStartPtr;
-
-            while (blockId < totalBlockCount())
-            {
-                if (slot == workRam[blockAllocTablePtr++])
-                {
-                    int blockPtr = blockStartPtr + blockId * blockSize;
-                    for (int byteIndex = 0; byteIndex < blockSize; byteIndex++)
-                    {
-                        file.writeByte(workRam[blockPtr++]);
-                    }
-                }
-                blockId++;
+            // Write lsdsng.
+            ArrayList<Byte> lsdSngBytes = lsdSngBytes(songId);
+            file.writeByte(lsdSngBytes.size() / blockSize);
+            for (Byte lsdSngByte : lsdSngBytes) {
+                file.write(lsdSngByte);
             }
+
+            // Write kits.
+            TreeSet<Integer> kitsToWrite = usedKits(unpackedSong);
+            while (true) {
+                Integer kit = kitsToWrite.pollFirst();
+                if (kit == null) {
+                    break;
+                }
+                file.writeByte(kit);
+                /* write kit contents.
+                 * because legacy:
+                 * tr-606 is in bank 8
+                 * speech kit 2 in bank 26
+                 * speech kit 3 in bank 32
+                 */
+                kit += 8;
+                if (kit > 26) {
+                    kit += 5;
+                }
+                int kitOffset = kit * 0x4000;
+                for (int i = 0; i < 0x4000; ++i) {
+                    file.writeByte(romImage[kitOffset + i]);
+                }
+            }
+
             file.close();
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    TreeSet<Integer> usedKits(byte[] unpackedSong) {
+        TreeSet<Integer> kits = new TreeSet<>();
+        assert(unpackedSong.length == 0x8000);
+        for (int instr = 0; instr < 0x40; ++instr) {
+            int instrPtr = 0x3080 + instr * 0x10;
+            if (unpackedSong[instrPtr] != 2) {
+                continue; // Not kit instrument.
+            }
+            kits.add(unpackedSong[instrPtr + 2] & 0x3f);
+            kits.add(unpackedSong[instrPtr + 9] & 0x3f);
+        }
+        return kits;
+    }
+
+    ArrayList<Byte> lsdSngBytes(int songId) {
+        ArrayList<Byte> lsdSngBytes = new ArrayList<>();
+
+        int blockId = 0;
+        int blockAllocTablePtr = blockAllocTableStartPtr;
+
+        while (blockId < totalBlockCount()) {
+            if (songId == workRam[blockAllocTablePtr++]) {
+                int blockPtr = blockStartPtr + blockId * blockSize;
+                for (int byteIndex = 0; byteIndex < blockSize; byteIndex++) {
+                    lsdSngBytes.add(workRam[blockPtr++]);
+                }
+            }
+            blockId++;
+        }
+        return lsdSngBytes;
     }
 
     /** Decodes a song. Returns 32 kB with decoded song data, or null on failure. */

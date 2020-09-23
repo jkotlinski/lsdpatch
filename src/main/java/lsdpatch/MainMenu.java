@@ -57,7 +57,7 @@ public class MainMenu extends JFrame {
     }
 
     private void openSongManager() {
-        SongManager savManager = new SongManager(savTextField.getText());
+        SongManager savManager = new SongManager(romTextField.getText(), savTextField.getText());
         savManager.setLocationRelativeTo(this);
         savManager.setVisible(true);
     }

@@ -11,6 +11,8 @@ import java.io.File;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.prefs.*;
 
 public class SongManager extends JFrame implements ListSelectionListener {
@@ -30,13 +32,15 @@ public class SongManager extends JFrame implements ListSelectionListener {
     JButton importV2SavButton = new JButton();
     JButton exportV2SavButton = new JButton();
     JLabel workMemLabel = new JLabel();
+
+    byte[] romImage;
     
     Preferences preferences;
     private static final String LATEST_SAV_PATH = "latest_sav_path";
     private static final String LATEST_SNG_PATH = "latest_sng_path";
     private static final long serialVersionUID = 1279298060794170168L;
 
-    public SongManager(String savPath) {
+    public SongManager(String romPath, String savPath) {
         file = new LSDSavFile();
 
         preferences = Preferences.userNodeForPackage(SongManager.class);
@@ -102,7 +106,19 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
         pack();
         loadSav(savPath);
+        loadRom(romPath);
         setVisible(true);
+    }
+
+    private void loadRom(String romPath) {
+        romImage = new byte[0x100000];
+        try {
+            RandomAccessFile f = new RandomAccessFile(romPath, "r");
+            f.readFully(romImage);
+            f.close();
+        } catch (IOException e) {
+            romImage = null;
+        }
     }
 
     private void saveButton_actionPerformed() {
@@ -214,7 +230,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             if (!filePath.toUpperCase().endsWith(".LSDSNG")) {
                 filePath += ".lsdsng";
             }
-            file.exportSongToFile(slots[0], filePath);
+            file.exportSongToFile(slots[0], filePath, romImage);
             savePreferences();
         } else if (slots.length > 1) {
             JFileChooser fileChooser = new JFileChooser(latestSngPath);
@@ -262,7 +278,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
                             return;
                     }
                     if (file.getBlocksUsed(slot) > 0) {
-                        file.exportSongToFile(slot, path);
+                        file.exportSongToFile(slot, path, romImage);
                     }
                 }
             }
