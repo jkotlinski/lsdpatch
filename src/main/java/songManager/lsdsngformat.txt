@@ -6,7 +6,4 @@ Byte 16: Song version
 Byte 17: Length of song data / 512
 Byte 18-X: Song data
 
-...followed by any number of kits:
-
-Byte 0: kit index (start at 0)
-Byte 1-0x4000: kit data
+...followed by kits used, ordered by kit number.

@@ -359,7 +359,6 @@ public class LSDSavFile
                 if (kit == null) {
                     break;
                 }
-                file.writeByte(kit);
                 /* write kit contents.
                  * because legacy:
                  * tr-606 is in bank 8
