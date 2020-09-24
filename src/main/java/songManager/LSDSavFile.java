@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeSet;
 import javax.swing.*;
 
@@ -531,11 +533,97 @@ public class LSDSavFile {
         }
 
         addMissingKits(romImage, lsdSngKits, newKits);
+        adjustInstruments(songId, newKits);
+    }
 
-        // Now we need to patch the song, so that it uses the right kits.
-        byte[] unpackedSong = unpackSong(songId);
-        assert (unpackedSong != null);
-        assert (unpackedSong.length == 0x8000);
+    private List<Integer> instrumentKitLocations(int songId) {
+        int songPos = 0;
+        int blockId = 0;
+        int blockAllocTablePtr = blockAllocTableStartPtr;
+        List<Integer> instrumentKitLocations = new LinkedList<>();
+
+        while (blockId < totalBlockCount()) {
+            if (songId == workRam[blockAllocTablePtr++]) {
+                break;
+            }
+            blockId++;
+        }
+
+        int srcPtr = blockStartPtr + blockSize * blockId;
+        boolean isKit = false;
+
+        try {
+            while (true) {
+                switch (workRam[srcPtr]) {
+                    case (byte) 0xc0:
+                        srcPtr++;
+                        if (workRam[srcPtr] == (byte) 0xc0) {
+                            srcPtr++;
+                            songPos++;
+                        } else {
+                            srcPtr++;
+                            byte count = workRam[srcPtr++];
+                            while (count-- != 0) {
+                                songPos++;
+                            }
+                        }
+                        break;
+
+                    case (byte) 0xe0:
+                        byte count;
+                        srcPtr++;
+                        switch (workRam[srcPtr]) {
+                            case (byte) 0xe0: // e0
+                                srcPtr++;
+                                songPos++;
+                                break;
+
+                            case (byte) 0xff: // done!
+                                return instrumentKitLocations;
+
+                            case (byte) 0xf0: //wave
+                            case (byte) 0xf1: //instr
+                                srcPtr++;
+                                count = workRam[srcPtr++];
+                                while (count-- != 0) {
+                                    songPos += 16;
+                                }
+                                break;
+
+                            default: // block switch
+                                byte block = workRam[srcPtr];
+                                srcPtr = 0x8000 + blockSize * block;
+                                break;
+                        }
+                        break;
+
+                    default:
+                        // Regular byte write.
+                        boolean isInstrumentWrite = songPos >= 0x3080 && songPos < 0x3480;
+                        if (isInstrumentWrite) {
+                            switch (songPos % 16) {
+                                case 0:
+                                    isKit = workRam[srcPtr] == 2;
+                                    break;
+                                case 2:
+                                case 9:
+                                    if (isKit) {
+                                        instrumentKitLocations.add(srcPtr);
+                                    }
+                                    break;
+                            }
+                        }
+                        ++songPos;
+                        ++srcPtr;
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    private void adjustInstruments(int songId, int[] newKits) {
+        List<Integer> instrumentKitLocations = instrumentKitLocations(songId);
     }
 
     private void addMissingKits(byte[] romImage, ArrayList<byte[]> lsdSngKits, int[] newKits) throws AddSongException {
