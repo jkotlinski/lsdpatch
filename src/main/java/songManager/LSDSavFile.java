@@ -472,21 +472,21 @@ public class LSDSavFile {
             throw new AddSongException("Out of song slots!");
         }
 
-        try (FileInputStream fis = new FileInputStream(filePath)) {
-            writeFileNameAndVersion(songId, fis);
-            copySongToWorkRam(fis, songId);
-            patchKits(fis, songId, romImage);
+        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+            writeFileNameAndVersion(fileInputStream, songId);
+            copySongToWorkRam(fileInputStream, songId);
+            patchKits(fileInputStream, songId, romImage);
         } catch (Exception e) {
             clearSong(songId);
             throw e;
         }
     }
 
-    private void writeFileNameAndVersion(byte songId, FileInputStream fis) throws IOException {
+    private void writeFileNameAndVersion(FileInputStream fileInputStream, byte songId) throws IOException {
         byte[] fileName = new byte[8];
-        int read = fis.read(fileName);
+        int read = fileInputStream.read(fileName);
         assert(read == fileName.length);
-        byte fileVersion = (byte)fis.read();
+        byte fileVersion = (byte)fileInputStream.read();
 
         int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
         for (int i = 0; i < 8; ++i) {
@@ -497,13 +497,13 @@ public class LSDSavFile {
         workRam[fileVersionPtr] = fileVersion;
     }
 
-    private void patchKits(FileInputStream fis,
+    private void patchKits(FileInputStream fileInputStream,
                            byte songId,
                            byte[] romImage) throws IOException, AddSongException {
         ArrayList<byte[]> lsdSngKits = new ArrayList<>();
         while (true) {
             byte[] kit = new byte[0x4000];
-            if (fis.read(kit) != kit.length) {
+            if (fileInputStream.read(kit) != kit.length) {
                 break;
             }
             lsdSngKits.add(kit);
@@ -569,7 +569,7 @@ public class LSDSavFile {
         return -1;
     }
 
-    private void copySongToWorkRam(FileInputStream fis, byte songId) throws IOException, AddSongException {
+    private void copySongToWorkRam(FileInputStream fileInputStream, byte songId) throws IOException, AddSongException {
         int nextBlockIdPtr = 0;
         while (true) {
             int blockId = getBlockIdOfFirstFreeBlock();
@@ -584,7 +584,7 @@ public class LSDSavFile {
             workRam[blockAllocTableStartPtr + blockId] = songId;
             int blockPtr = blockStartPtr + blockId * blockSize;
             for (int i = 0; i < blockSize; ++i) {
-                workRam[blockPtr++] = (byte)fis.read();
+                workRam[blockPtr++] = (byte)fileInputStream.read();
             }
             nextBlockIdPtr = getNextBlockIdPtr(blockId);
             if (nextBlockIdPtr == -1) {
