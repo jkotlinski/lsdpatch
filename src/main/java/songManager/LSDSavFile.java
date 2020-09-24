@@ -10,7 +10,7 @@ public class LSDSavFile {
     final int bankSize = 0x8000;
     final int bankCount = 4;
     final int savFileSize = bankSize * bankCount;
-    final int slotCount = 0x20;
+    final int songCount = 0x20;
     final int fileNameLength = 8;
 
     final int fileNameStartPtr = 0x8000;
@@ -74,7 +74,7 @@ public class LSDSavFile {
         }
     }
 
-    public void clearSlot(int index) {
+    public void clearSong(int index) {
         int ramPtr = blockAllocTableStartPtr;
         int block = 0;
 
@@ -121,7 +121,7 @@ public class LSDSavFile {
     }
 
     private byte getNewSongId() {
-        for (byte slot = 0; slot < slotCount; slot++) {
+        for (byte slot = 0; slot < songCount; slot++) {
             if (0 == getBlocksUsed(slot)) {
                 return slot;
             }
@@ -198,27 +198,27 @@ public class LSDSavFile {
         return true;
     }
 
-    public void populateSlotList(JList<String> slotList) {
-        String[] slotStringList = new String[slotCount];
-        slotList.removeAll();
+    public void populateSongList(JList<String> songList) {
+        String[] songStringList = new String[songCount];
+        songList.removeAll();
 
-        for (int slot = 0; slot < slotCount; slot++) {
-            int blocksUsed = getBlocksUsed(slot);
-            String slotString = slot + 1 + ". ";
+        for (int song = 0; song < songCount; song++) {
+            int blocksUsed = getBlocksUsed(song);
+            String songString = song + 1 + ". ";
 
             if (blocksUsed > 0) {
-                slotString += getFileName(slot);
-                slotString += "." + version(slot);
-                slotString += " " + blocksUsed;
-                if (!isValid(slot)) {
-                    slotString += " \u26a0"; // warning sign
+                songString += getFileName(song);
+                songString += "." + version(song);
+                songString += " " + blocksUsed;
+                if (!isValid(song)) {
+                    songString += " \u26a0"; // warning sign
                 }
             }
 
-            slotStringList[slot] = slotString;
+            songStringList[song] = songString;
         }
 
-        slotList.setListData(slotStringList);
+        songList.setListData(songStringList);
     }
 
     private static int convertLsdCharToAscii(int ch) {
@@ -459,18 +459,17 @@ public class LSDSavFile {
     }
 
     public boolean addSongFromFile(String filePath) {
-        RandomAccessFile file;
-        try {
-            final byte songId = getNewSongId();
-            if (songId == -1) {
-                JOptionPane.showMessageDialog(null,
-                        "Out of song slots!",
-                        "Error adding song!",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
+        final byte songId = getNewSongId();
+        if (songId == -1) {
+            JOptionPane.showMessageDialog(null,
+                    "Out of song slots!",
+                    "Error adding song!",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
 
-            file = new RandomAccessFile(filePath, "r");
+        try {
+            RandomAccessFile file = new RandomAccessFile(filePath, "r");
 
             byte[] fileName = new byte[8];
             file.read(fileName);
@@ -489,48 +488,58 @@ public class LSDSavFile {
             int fileVersionPtr = fileVersionStartPtr + songId;
             workRam[fileVersionPtr] = fileVersion;
 
-            int nextBlockIdPtr = 0;
-            while (true) {
-                int blockId = getBlockIdOfFirstFreeBlock();
-                if (blockId == -1) {
-                    JOptionPane.showMessageDialog(null,
-                            "Out of blocks!",
-                            "Song load failed!",
-                            JOptionPane.ERROR_MESSAGE);
-                    clearSlot(songId);
-                    file.close();
-                    return false;
-                }
-
-                if (0 != nextBlockIdPtr) {
-                    //add one to compensate for unused FAT block
-                    workRam[nextBlockIdPtr] = (byte) (blockId + 1);
-                }
-                workRam[blockAllocTableStartPtr + blockId] = songId;
-                int blockPtr = blockStartPtr + blockId * blockSize;
-                for (int i = 0; i < blockSize; ++i) {
-                    workRam[blockPtr++] = file.readByte();
-                }
-                nextBlockIdPtr = getNextBlockIdPtr(blockId);
-                if (nextBlockIdPtr == SONG_END) {
-                    break;
-                } else if (nextBlockIdPtr == SONG_CORRUPTED) {
-                    JOptionPane.showMessageDialog(null,
-                            "Song corrupted.",
-                            "Song load failed!",
-                            JOptionPane.ERROR_MESSAGE);
-                    clearSlot(songId);
-                    file.close();
-                    return false;
-                }
+            if (!copySongToWorkRam(file, songId)) {
+                clearSong(songId);
+                file.close();
+                return false;
             }
+
+            // All good so far. The song is now added to .sav memory.
+            // Now it's time to patch the kits in the .lsdsng.
+
             file.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
                     e.getLocalizedMessage(),
                     "File open failed!",
                     JOptionPane.ERROR_MESSAGE);
+            clearSong(songId);
             return false;
+        }
+        return true;
+    }
+
+    private boolean copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException {
+        int nextBlockIdPtr = 0;
+        while (true) {
+            int blockId = getBlockIdOfFirstFreeBlock();
+            if (blockId == -1) {
+                JOptionPane.showMessageDialog(null,
+                        "Out of blocks!",
+                        "Song load failed!",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            if (0 != nextBlockIdPtr) {
+                //add one to compensate for unused FAT block
+                workRam[nextBlockIdPtr] = (byte) (blockId + 1);
+            }
+            workRam[blockAllocTableStartPtr + blockId] = songId;
+            int blockPtr = blockStartPtr + blockId * blockSize;
+            for (int i = 0; i < blockSize; ++i) {
+                workRam[blockPtr++] = file.readByte();
+            }
+            nextBlockIdPtr = getNextBlockIdPtr(blockId);
+            if (nextBlockIdPtr == SONG_END) {
+                break;
+            } else if (nextBlockIdPtr == SONG_CORRUPTED) {
+                JOptionPane.showMessageDialog(null,
+                        "Song corrupted.",
+                        "Song load failed!",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
         }
         return true;
     }

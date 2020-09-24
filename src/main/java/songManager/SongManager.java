@@ -167,7 +167,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
     private void loadSav(String savPath) {
         if (file.loadFromSav(savPath)) {
-            file.populateSlotList(songList);
+            file.populateSongList(songList);
             workMemLabel.setText("Loaded work+file memory.");
             enableAllButtons();
             savePreferences();
@@ -196,8 +196,8 @@ public class SongManager extends JFrame implements ListSelectionListener {
         int[] slots = songList.getSelectedIndices();
         
         for (int slot : slots)
-            file.clearSlot(slot);
-        file.populateSlotList(songList);
+            file.clearSong(slot);
+        file.populateSongList(songList);
         updateRamUsageIndicator();
     }
 
@@ -307,7 +307,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         for (File f : files) {
             if (f.getName().toLowerCase().endsWith(".lsdsng")) {
                 success &= file.addSongFromFile(f.getAbsoluteFile().toString());
-                file.populateSlotList(songList);
+                file.populateSongList(songList);
             }
         }
         latestSngPath = files[0].getAbsoluteFile().getParent();
