@@ -1,7 +1,9 @@
 package songManager;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.TreeSet;
 import javax.swing.*;
 
@@ -496,6 +498,7 @@ public class LSDSavFile {
 
             // All good so far. The song is now added to .sav memory.
             // Now it's time to patch the kits in the .lsdsng.
+            patchKits(file, songId);
 
             file.close();
         } catch (IOException e) {
@@ -507,6 +510,19 @@ public class LSDSavFile {
             return false;
         }
         return true;
+    }
+
+    private void patchKits(RandomAccessFile file, byte songId) throws IOException {
+        ArrayList<byte[]> kits = new ArrayList<byte[]>();
+        try {
+            while (true) {
+                byte[] kit = new byte[0x4000];
+                file.readFully(kit);
+                kits.add(kit);
+            }
+        } catch (EOFException e) {
+            System.out.println(kits.size());
+        }
     }
 
     private boolean copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException {
