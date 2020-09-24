@@ -576,6 +576,7 @@ public class LSDSavFile {
                                 break;
 
                             case (byte) 0xff: // done!
+                                assert(songPos == 0x8000);
                                 return instrumentKitLocations;
 
                             case (byte) 0xf0: //wave
