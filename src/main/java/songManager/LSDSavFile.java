@@ -511,7 +511,7 @@ public class LSDSavFile {
         return true;
     }
 
-    private void patchKits(RandomAccessFile file,
+    private boolean patchKits(RandomAccessFile file,
                            byte songId,
                            byte[] romImage) throws IOException {
         ArrayList<byte[]> lsdSngKits = new ArrayList<>();
@@ -524,9 +524,10 @@ public class LSDSavFile {
         }
 
         if (lsdSngKits.size() == 0) {
-            return;
+            return true;
         }
 
+        // Check if kits are already in ROM. If so, they should be reused.
         int[] newKits = new int[lsdSngKits.size()];
         for (int romKit = 0; romKit < romImage.length / 0x4000; ++romKit) {
             for (int kit = 0; kit < lsdSngKits.size(); ++kit) {
@@ -543,9 +544,53 @@ public class LSDSavFile {
             }
         }
 
+        if (!addMissingKits(romImage, lsdSngKits, newKits)) {
+            return false;
+        }
+
+        // Now we need to patch the song, so that it uses the right kits.
         byte[] unpackedSong = unpackSong(songId);
         assert(unpackedSong != null);
         assert(unpackedSong.length == 0x8000);
+        return true;
+    }
+
+    private boolean addMissingKits(byte[] romImage, ArrayList<byte[]> lsdSngKits, int[] newKits) {
+        for (int kit = 0; kit < newKits.length; ++kit) {
+            if (newKits[kit] != 0) {
+                continue;
+            }
+            int newKit = findFreeKit(romImage);
+            if (newKit == -1) {
+                JOptionPane.showMessageDialog(null,
+                        "Not enough space for kits! Remove some and try again!",
+                        "Song add failed",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            newKits[kit] = newKit;
+            // Copy kit.
+            for (int i = 0; i < 0x4000; ++i) {
+                romImage[newKit * 0x4000 + i] = lsdSngKits.get(kit)[i];
+            }
+        }
+        return true;
+    }
+
+    private int findFreeKit(byte[] romImage) {
+        for (int i = 0; i < romImage.length / 0x4000; ++i) {
+            boolean empty = true;
+            for (int j = 0; j < 0x4000; ++j) {
+                if (romImage[i * 0x4000 + j] != 0) {
+                    empty = false;
+                    break;
+                }
+            }
+            if (empty) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private boolean copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException {
