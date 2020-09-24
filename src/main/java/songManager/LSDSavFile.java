@@ -1,6 +1,5 @@
 package songManager;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -460,7 +459,7 @@ public class LSDSavFile {
         return unpackSong(songId) != null;
     }
 
-    public boolean addSongFromFile(String filePath) {
+    public boolean addSongFromFile(String filePath, byte[] romImage) {
         final byte songId = getNewSongId();
         if (songId == -1) {
             JOptionPane.showMessageDialog(null,
@@ -498,7 +497,7 @@ public class LSDSavFile {
 
             // All good so far. The song is now added to .sav memory.
             // Now it's time to patch the kits in the .lsdsng.
-            patchKits(file, songId);
+            patchKits(file, songId, romImage);
 
             file.close();
         } catch (IOException e) {
@@ -512,18 +511,36 @@ public class LSDSavFile {
         return true;
     }
 
-    private void patchKits(RandomAccessFile file, byte songId) throws IOException {
-        ArrayList<byte[]> kits = new ArrayList<>();
+    private void patchKits(RandomAccessFile file,
+                           byte songId,
+                           byte[] romImage) throws IOException {
+        ArrayList<byte[]> lsdSngKits = new ArrayList<>();
         while (true) {
             byte[] kit = new byte[0x4000];
             if (file.read(kit) != kit.length) {
                 break;
             }
-            kits.add(kit);
+            lsdSngKits.add(kit);
         }
 
-        if (kits.size() == 0) {
+        if (lsdSngKits.size() == 0) {
             return;
+        }
+
+        int[] newKits = new int[lsdSngKits.size()];
+        for (int romKit = 0; romKit < romImage.length / 0x4000; ++romKit) {
+            for (int kit = 0; kit < lsdSngKits.size(); ++kit) {
+                boolean kitsAreEqual = true;
+                for (int i = 0; i < 0x4000; ++i) {
+                    if (lsdSngKits.get(kit)[i] != romImage[romKit * 0x4000 + i]) {
+                        kitsAreEqual = false;
+                        break;
+                    }
+                }
+                if (kitsAreEqual) {
+                    newKits[kit] = romKit;
+                }
+            }
         }
 
         byte[] unpackedSong = unpackSong(songId);
