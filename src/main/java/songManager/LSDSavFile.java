@@ -3,10 +3,7 @@ package songManager;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import javax.swing.*;
 
 public class LSDSavFile {
@@ -624,6 +621,29 @@ public class LSDSavFile {
 
     private void adjustInstruments(int songId, int[] newKits) {
         List<Integer> instrumentKitLocations = instrumentKitLocations(songId);
+
+        TreeSet<Integer> lsdSngKits = new TreeSet<>();
+        for (Integer instrumentKitLocation : instrumentKitLocations) {
+            int kitId = workRam[instrumentKitLocation] & 0x3f;
+            lsdSngKits.add(kitId);
+        }
+
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < newKits.length; ++i) {
+            int oldKitValue = lsdSngKits.pollFirst();
+            int newKitValue = newKits[i];
+            if (newKitValue > 26) {
+                newKitValue -= 5;
+            }
+            newKitValue -= 8;
+            map.put(oldKitValue, newKitValue);
+        }
+
+        for (Integer instrumentKitLocation : instrumentKitLocations) {
+            int value = workRam[instrumentKitLocation];
+            int newValue = (value & ~0x3f) | map.get(value & 0x3f);
+            workRam[instrumentKitLocation] = (byte)newValue;
+        }
     }
 
     private void addMissingKits(byte[] romImage, ArrayList<byte[]> lsdSngKits, int[] newKits) throws AddSongException {
