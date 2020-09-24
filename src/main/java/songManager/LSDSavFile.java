@@ -513,16 +513,22 @@ public class LSDSavFile {
     }
 
     private void patchKits(RandomAccessFile file, byte songId) throws IOException {
-        ArrayList<byte[]> kits = new ArrayList<byte[]>();
-        try {
-            while (true) {
-                byte[] kit = new byte[0x4000];
-                file.readFully(kit);
-                kits.add(kit);
+        ArrayList<byte[]> kits = new ArrayList<>();
+        while (true) {
+            byte[] kit = new byte[0x4000];
+            if (file.read(kit) != kit.length) {
+                break;
             }
-        } catch (EOFException e) {
-            System.out.println(kits.size());
+            kits.add(kit);
         }
+
+        if (kits.size() == 0) {
+            return;
+        }
+
+        byte[] unpackedSong = unpackSong(songId);
+        assert(unpackedSong != null);
+        assert(unpackedSong.length == 0x8000);
     }
 
     private boolean copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException {
