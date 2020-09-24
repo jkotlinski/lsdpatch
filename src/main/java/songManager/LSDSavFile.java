@@ -2,7 +2,6 @@ package songManager;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.TreeSet;
 import javax.swing.*;
 
@@ -146,28 +145,13 @@ public class LSDSavFile
         return totalBlockCount() - freeBlockCount();
     }
 
-    public boolean has_free_slot()
-    {
-        int fileNamePtr = fileNameStartPtr;
-        for (int slot = 0; slot < slotCount; slot++ )
-        {
-            if (0 == workRam[fileNamePtr])
-            {
-                return true;
-            }
-            fileNamePtr += fileNameLength;
-        }
-        System.out.println("no free slot:(");
-        return false;
-    }
-
-    public byte get_free_slot() throws Exception {
+    private byte getNewSongId() {
         for (byte slot = 0; slot < slotCount; slot++) {
             if (0 == getBlocksUsed(slot)) {
                 return slot;
             }
         }
-        throw new Exception("No free slot found");
+        return -1;
     }
 
     public int getBlockIdOfFirstFreeBlock() throws Exception
@@ -375,6 +359,7 @@ public class LSDSavFile
 
     TreeSet<Integer> usedKits(int songId) {
         byte[] unpackedSong = unpackSong(songId);
+        assert(unpackedSong != null);
         assert(unpackedSong.length == 0x8000);
 
         TreeSet<Integer> kits = new TreeSet<>();
@@ -519,8 +504,7 @@ public class LSDSavFile
         return unpackSong(songId) != null;
     }
 
-    public boolean addSongFromFile(String filePath)
-    {
+    public boolean addSongFromFile(String filePath) {
         RandomAccessFile file;
         try
         {
@@ -537,17 +521,24 @@ public class LSDSavFile
                 return false;
             }
 
-            if (blocksRead > freeBlockCount() || !has_free_slot())
-            {
+            if (blocksRead > freeBlockCount()) {
                 JOptionPane.showMessageDialog(null,
-                        "Not enough free blocks or song slots!",
-                        "Error adding song(s)!",
+                        "Out of song space!",
+                        "Error adding song!",
                         JOptionPane.ERROR_MESSAGE);
                 return false;
             }
 
-            byte freeSlot = get_free_slot();
-            int fileNamePtr = fileNameStartPtr + freeSlot * fileNameLength;
+            byte songId = getNewSongId();
+            if (songId == -1) {
+                JOptionPane.showMessageDialog(null,
+                        "Out of song slots!",
+                        "Error adding song!",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
             workRam[fileNamePtr++] = fileName[0];
             workRam[fileNamePtr++] = fileName[1];
             workRam[fileNamePtr++] = fileName[2];
@@ -557,7 +548,7 @@ public class LSDSavFile
             workRam[fileNamePtr++] = fileName[6];
             workRam[fileNamePtr] = fileName[7];
 
-            int fileVersionPtr = fileVersionStartPtr + freeSlot;
+            int fileVersionPtr = fileVersionStartPtr + songId;
             workRam[fileVersionPtr] = fileVersion;
 
             int blocksToWrite = blocksRead;
@@ -573,7 +564,7 @@ public class LSDSavFile
                     //add one to compensate for unused FAT block
                     workRam[nextBlockIdPtr] = (byte)(blockId+1);
                 }
-                workRam[blockAllocTableStartPtr + blockId] = freeSlot;
+                workRam[blockAllocTableStartPtr + blockId] = songId;
                 int blockPtr = blockStartPtr + blockId * blockSize;
                 for (int block = 0; block < blockSize; block++)
                 {
@@ -589,7 +580,7 @@ public class LSDSavFile
                             "Song load failed!",
                             JOptionPane.ERROR_MESSAGE);
                     file.close();
-                    clearSlot(freeSlot);
+                    clearSlot(songId);
                     return false;
                 }
             }
