@@ -306,10 +306,18 @@ public class SongManager extends JFrame implements ListSelectionListener {
         boolean success = true;
         for (File f : files) {
             if (f.getName().toLowerCase().endsWith(".lsdsng")) {
-                success &= file.addSongFromFile(f.getAbsoluteFile().toString(), romImage);
-                file.populateSongList(songList);
+                try {
+                    file.addSongFromFile(f.getAbsoluteFile().toString(), romImage);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this,
+                            e.getLocalizedMessage(),
+                            "Song add failed",
+                            JOptionPane.ERROR_MESSAGE);
+                    success = false;
+                }
             }
         }
+        file.populateSongList(songList);
         latestSngPath = files[0].getAbsoluteFile().getParent();
         updateRamUsageIndicator();
         if (success) {

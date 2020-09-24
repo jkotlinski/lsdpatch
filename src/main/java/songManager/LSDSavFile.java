@@ -459,14 +459,16 @@ public class LSDSavFile {
         return unpackSong(songId) != null;
     }
 
-    public boolean addSongFromFile(String filePath, byte[] romImage) {
+    static class AddSongException extends Exception {
+        AddSongException(String message) {
+            super(message);
+        }
+    }
+
+    public void addSongFromFile(String filePath, byte[] romImage) throws Exception {
         final byte songId = getNewSongId();
         if (songId == -1) {
-            JOptionPane.showMessageDialog(null,
-                    "Out of song slots!",
-                    "Error adding song!",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
+            throw new AddSongException("Out of song slots!");
         }
 
         try {
@@ -489,10 +491,12 @@ public class LSDSavFile {
             int fileVersionPtr = fileVersionStartPtr + songId;
             workRam[fileVersionPtr] = fileVersion;
 
-            if (!copySongToWorkRam(file, songId)) {
+            try {
+                copySongToWorkRam(file, songId);
+            } catch (AddSongException e) {
                 clearSong(songId);
                 file.close();
-                return false;
+                throw e;
             }
 
             // All good so far. The song is now added to .sav memory.
@@ -500,20 +504,15 @@ public class LSDSavFile {
             patchKits(file, songId, romImage);
 
             file.close();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null,
-                    e.getLocalizedMessage(),
-                    "File open failed!",
-                    JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
             clearSong(songId);
-            return false;
+            throw e;
         }
-        return true;
     }
 
-    private boolean patchKits(RandomAccessFile file,
+    private void patchKits(RandomAccessFile file,
                            byte songId,
-                           byte[] romImage) throws IOException {
+                           byte[] romImage) throws IOException, AddSongException {
         ArrayList<byte[]> lsdSngKits = new ArrayList<>();
         while (true) {
             byte[] kit = new byte[0x4000];
@@ -524,7 +523,7 @@ public class LSDSavFile {
         }
 
         if (lsdSngKits.size() == 0) {
-            return true;
+            return;
         }
 
         // Check if kits are already in ROM. If so, they should be reused.
@@ -544,37 +543,27 @@ public class LSDSavFile {
             }
         }
 
-        if (!addMissingKits(romImage, lsdSngKits, newKits)) {
-            return false;
-        }
+        addMissingKits(romImage, lsdSngKits, newKits);
 
         // Now we need to patch the song, so that it uses the right kits.
         byte[] unpackedSong = unpackSong(songId);
         assert(unpackedSong != null);
         assert(unpackedSong.length == 0x8000);
-        return true;
     }
 
-    private boolean addMissingKits(byte[] romImage, ArrayList<byte[]> lsdSngKits, int[] newKits) {
+    private void addMissingKits(byte[] romImage, ArrayList<byte[]> lsdSngKits, int[] newKits) throws AddSongException {
         for (int kit = 0; kit < newKits.length; ++kit) {
             if (newKits[kit] != 0) {
                 continue;
             }
             int newKit = findFreeKit(romImage);
             if (newKit == -1) {
-                JOptionPane.showMessageDialog(null,
-                        "Not enough space for kits! Remove some and try again!",
-                        "Song add failed",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
+                throw new AddSongException("Not enough space for kits! Remove some and try again!");
             }
             newKits[kit] = newKit;
             // Copy kit.
-            for (int i = 0; i < 0x4000; ++i) {
-                romImage[newKit * 0x4000 + i] = lsdSngKits.get(kit)[i];
-            }
+            System.arraycopy(lsdSngKits.get(kit), 0, romImage, newKit * 0x4000, 0x4000);
         }
-        return true;
     }
 
     private int findFreeKit(byte[] romImage) {
@@ -593,16 +582,12 @@ public class LSDSavFile {
         return -1;
     }
 
-    private boolean copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException {
+    private void copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException, AddSongException {
         int nextBlockIdPtr = 0;
         while (true) {
             int blockId = getBlockIdOfFirstFreeBlock();
             if (blockId == -1) {
-                JOptionPane.showMessageDialog(null,
-                        "Out of blocks!",
-                        "Song load failed!",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
+                throw new AddSongException("Out of blocks!");
             }
 
             if (0 != nextBlockIdPtr) {
@@ -615,17 +600,10 @@ public class LSDSavFile {
                 workRam[blockPtr++] = file.readByte();
             }
             nextBlockIdPtr = getNextBlockIdPtr(blockId);
-            if (nextBlockIdPtr == SONG_END) {
-                break;
-            } else if (nextBlockIdPtr == SONG_CORRUPTED) {
-                JOptionPane.showMessageDialog(null,
-                        "Song corrupted.",
-                        "Song load failed!",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
+            if (nextBlockIdPtr == -1) {
+                return;
             }
         }
-        return true;
     }
 
     private void clearActiveFileSlot() {
@@ -636,13 +614,10 @@ public class LSDSavFile {
         return workRam[activeFileSlot];
     }
 
-    final int SONG_END = -1;
-    final int SONG_CORRUPTED = 0;
-
     /* Returns address of next block id pointer (E0 XX), if one exists in block.
-     * If there is none, return SONG_END or SONG_CORRUPTED.
+     * If there is none, return -1.
      */
-    private int getNextBlockIdPtr(int block) {
+    private int getNextBlockIdPtr(int block) throws AddSongException {
         int ramPtr = blockStartPtr + blockSize * block;
         int byteCounter = 0;
 
@@ -662,7 +637,7 @@ public class LSDSavFile {
                         byteCounter++;
                         break;
                     case (byte) 0xff:
-                        return SONG_END;
+                        return -1;
                     case (byte) 0xf0: //wave
                     case (byte) 0xf1: //instr
                         ramPtr += 2;
@@ -677,7 +652,7 @@ public class LSDSavFile {
         }
         // If the pointer to next block is missing, and this is not the last
         // block of a song, the song is most likely corrupted.
-        return SONG_CORRUPTED;
+        throw new AddSongException("Song corrupted!");
     }
 
     public void import32KbSavToWorkRam(String a_file_path) {
