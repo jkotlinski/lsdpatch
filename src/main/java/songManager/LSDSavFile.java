@@ -5,8 +5,7 @@ import java.io.RandomAccessFile;
 import java.util.TreeSet;
 import javax.swing.*;
 
-public class LSDSavFile
-{
+public class LSDSavFile {
     final int blockSize = 0x200;
     final int bankSize = 0x8000;
     final int bankCount = 4;
@@ -27,20 +26,16 @@ public class LSDSavFile
     byte[] workRam;
     boolean fileIsLoaded = false;
 
-    public LSDSavFile()
-    {
+    public LSDSavFile() {
         workRam = new byte[savFileSize];
     }
 
-    private boolean isSixtyFourKbRam()
-    {
+    private boolean isSixtyFourKbRam() {
         if (!fileIsLoaded) return false;
         if (is64kbHasBeenSet) return is64kb;
 
-        for (int i = 0; i < 0x10000; ++i)
-        {
-            if (workRam[i] != workRam[0x10000 + i])
-            {
+        for (int i = 0; i < 0x10000; ++i) {
+            if (workRam[i] != workRam[0x10000 + i]) {
                 is64kb = false;
                 is64kbHasBeenSet = true;
                 return false;
@@ -51,54 +46,41 @@ public class LSDSavFile
         return true;
     }
 
-    public int totalBlockCount()
-    {
+    public int totalBlockCount() {
         // FAT takes one block.
         return isSixtyFourKbRam() ? 0xbf - 0x80 : 0xbf;
     }
 
-    public void saveAs(String filePath )
-    {
-        try
-        {
+    public void saveAs(String filePath) {
+        try {
             RandomAccessFile file = new RandomAccessFile(filePath, "rw");
-            if (isSixtyFourKbRam())
-            {
+            if (isSixtyFourKbRam()) {
                 System.arraycopy(workRam, 0, workRam, 65536, 0x10000);
             }
             file.write(workRam);
             file.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void saveWorkMemoryAs(String filePath)
-    {
-        try
-        {
+    public void saveWorkMemoryAs(String filePath) {
+        try {
             RandomAccessFile file = new RandomAccessFile(filePath, "rw");
             file.write(workRam, 0, bankSize);
             file.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void clearSlot(int index)
-    {
+    public void clearSlot(int index) {
         int ramPtr = blockAllocTableStartPtr;
         int block = 0;
 
-        while (block < totalBlockCount() )
-        {
+        while (block < totalBlockCount()) {
             int tableValue = workRam[ramPtr];
-            if (index == tableValue)
-            {
+            if (index == tableValue) {
                 workRam[ramPtr] = (byte) emptySlotValue;
             }
             ramPtr++;
@@ -108,40 +90,33 @@ public class LSDSavFile
         clearFileName(index);
         clearFileVersion(index);
 
-        if (index == getActiveFileSlot())
-        {
+        if (index == getActiveFileSlot()) {
             clearActiveFileSlot();
         }
     }
 
-    public int getBlocksUsed(int slot)
-    {
+    public int getBlocksUsed(int slot) {
         int ramPtr = blockAllocTableStartPtr;
         int block = 0;
         int blockCount = 0;
 
-        while (block++ < totalBlockCount())
-        {
-            if (slot == workRam[ramPtr++])
-            {
+        while (block++ < totalBlockCount()) {
+            if (slot == workRam[ramPtr++]) {
                 blockCount++;
             }
         }
         return blockCount;
     }
 
-    private void clearFileName(int index)
-    {
+    private void clearFileName(int index) {
         workRam[fileNameStartPtr + fileNameLength * index] = (byte) 0;
     }
 
-    private void clearFileVersion(int index)
-    {
+    private void clearFileVersion(int index) {
         workRam[fileVersionStartPtr + index] = (byte) 0;
     }
 
-    public int usedBlockCount()
-    {
+    public int usedBlockCount() {
         return totalBlockCount() - freeBlockCount();
     }
 
@@ -154,16 +129,13 @@ public class LSDSavFile
         return -1;
     }
 
-    public int getBlockIdOfFirstFreeBlock() throws Exception
-    {
+    public int getBlockIdOfFirstFreeBlock() throws Exception {
         int blockAllocTableStartPtr = this.blockAllocTableStartPtr;
         int block = 0;
 
-        while (block < totalBlockCount())
-        {
+        while (block < totalBlockCount()) {
             int tableValue = workRam[blockAllocTableStartPtr++];
-            if (tableValue < 0 || tableValue > 0x1f)
-            {
+            if (tableValue < 0 || tableValue > 0x1f) {
                 return block;
             }
             block++;
@@ -187,17 +159,14 @@ public class LSDSavFile
     }
     */
 
-    public int freeBlockCount()
-    {
+    public int freeBlockCount() {
         int ramPtr = blockAllocTableStartPtr;
         int block = 0;
         int freeBlockCount = 0;
 
-        while (block < totalBlockCount())
-        {
+        while (block < totalBlockCount()) {
             int tableValue = workRam[ramPtr++];
-            if (tableValue < 0 || tableValue > 0x1f)
-            {
+            if (tableValue < 0 || tableValue > 0x1f) {
                 freeBlockCount++;
             }
             block++;
@@ -212,7 +181,7 @@ public class LSDSavFile
         try {
             savFile = new RandomAccessFile(filePath, "r");
             readBytes = savFile.read(workRam);
-        } catch(IOException e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
                     e.getLocalizedMessage(),
                     "Could not load .sav file",
@@ -220,8 +189,7 @@ public class LSDSavFile
             return false;
         }
 
-        if (readBytes > savFileSize)
-        {
+        if (readBytes > savFileSize) {
             return false;
         }
 
@@ -253,40 +221,31 @@ public class LSDSavFile
         slotList.setListData(slotStringList);
     }
 
-    private static int convertLsdCharToAscii(int ch)
-    {
-        if (ch >= 65 && ch <= (65+25))
-        {
+    private static int convertLsdCharToAscii(int ch) {
+        if (ch >= 65 && ch <= (65 + 25)) {
             //char
             return 'A' + ch - 65;
         }
-        if (ch >= 48 && ch < 58)
-        {
+        if (ch >= 48 && ch < 58) {
             //decimal number
             return '0' + ch - 48;
         }
         return 0 == ch ? 0 : ' ';
     }
 
-    public String getFileName(int slot)
-    {
+    public String getFileName(int slot) {
         StringBuilder sb = new StringBuilder();
         int ramPtr = fileNameStartPtr + fileNameLength * slot;
         boolean endOfFileName = false;
         for (int fileNamePos = 0;
-                fileNamePos < 8;
-                fileNamePos++)
-        {
-            if (!endOfFileName)
-            {
+             fileNamePos < 8;
+             fileNamePos++) {
+            if (!endOfFileName) {
                 char ch = (char) convertLsdCharToAscii((char)
                         workRam[ramPtr]);
-                if (0 == ch)
-                {
+                if (0 == ch) {
                     endOfFileName = true;
-                }
-                else
-                {
+                } else {
                     sb.append(ch);
                 }
             }
@@ -295,20 +254,17 @@ public class LSDSavFile
         return sb.toString();
     }
 
-    public String version(int slot)
-    {
+    public String version(int slot) {
         int ramPtr = fileVersionStartPtr + slot;
         String version = Integer.toHexString(workRam[ramPtr]);
         return version.substring(Math.max(version.length() - 2, 0)).toUpperCase();
     }
 
-    public void exportSongToFile(int songId, String filePath, byte[] romImage)
-    {
-        assert(songId >= 0 && songId < 0x20);
+    public void exportSongToFile(int songId, String filePath, byte[] romImage) {
+        assert (songId >= 0 && songId < 0x20);
 
         RandomAccessFile file;
-        try
-        {
+        try {
             file = new RandomAccessFile(filePath, "rw");
 
             int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
@@ -328,9 +284,7 @@ public class LSDSavFile
             writeKits(romImage, songId, file);
 
             file.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
                     e.getLocalizedMessage(),
                     "Song export failed!",
@@ -359,8 +313,8 @@ public class LSDSavFile
 
     TreeSet<Integer> usedKits(int songId) {
         byte[] unpackedSong = unpackSong(songId);
-        assert(unpackedSong != null);
-        assert(unpackedSong.length == 0x8000);
+        assert (unpackedSong != null);
+        assert (unpackedSong.length == 0x8000);
 
         TreeSet<Integer> kits = new TreeSet<>();
         for (int instr = 0; instr < 0x40; ++instr) {
@@ -389,7 +343,9 @@ public class LSDSavFile
         }
     }
 
-    /** Decodes a song. Returns 32 kB with decoded song data, or null on failure. */
+    /**
+     * Decodes a song. Returns 32 kB with decoded song data, or null on failure.
+     */
     private byte[] unpackSong(int songId) {
         byte[] dstBuffer = new byte[0x8000];
         int dstPos = 0;
@@ -397,10 +353,8 @@ public class LSDSavFile
         int blockId = 0;
         int blockAllocTablePtr = blockAllocTableStartPtr;
 
-        while (blockId < totalBlockCount())
-        {
-            if (songId == workRam[blockAllocTablePtr++])
-            {
+        while (blockId < totalBlockCount()) {
+            if (songId == workRam[blockAllocTablePtr++]) {
                 break;
             }
             blockId++;
@@ -495,7 +449,7 @@ public class LSDSavFile
                         dstBuffer[dstPos++] = workRam[srcPtr++];
                 }
             }
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             return null;
         }
     }
@@ -506,15 +460,14 @@ public class LSDSavFile
 
     public boolean addSongFromFile(String filePath) {
         RandomAccessFile file;
-        try
-        {
+        try {
             file = new RandomAccessFile(filePath, "r");
 
             byte[] fileName = new byte[8];
             file.read(fileName);
             byte fileVersion = file.readByte();
 
-            byte[] buffer = new byte[0x8000*4];
+            byte[] buffer = new byte[0x8000 * 4];
             int bytesRead = file.read(buffer);
             int blocksRead = bytesRead / blockSize;
             if (blocksRead == 0) {
@@ -555,19 +508,16 @@ public class LSDSavFile
             int bufferIndex = 0;
 
             int nextBlockIdPtr = 0;
-            while (true)
-            {
+            while (true) {
                 int blockId = getBlockIdOfFirstFreeBlock();
 
-                if (0 != nextBlockIdPtr)
-                {
+                if (0 != nextBlockIdPtr) {
                     //add one to compensate for unused FAT block
-                    workRam[nextBlockIdPtr] = (byte)(blockId+1);
+                    workRam[nextBlockIdPtr] = (byte) (blockId + 1);
                 }
                 workRam[blockAllocTableStartPtr + blockId] = songId;
                 int blockPtr = blockStartPtr + blockId * blockSize;
-                for (int block = 0; block < blockSize; block++)
-                {
+                for (int block = 0; block < blockSize; block++) {
                     workRam[blockPtr++] = buffer[bufferIndex++];
                 }
                 if (--blocksToWrite == 0) {
@@ -585,9 +535,7 @@ public class LSDSavFile
                 }
             }
             file.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
                     e.getLocalizedMessage(),
                     "File open failed!",
@@ -597,25 +545,20 @@ public class LSDSavFile
         return true;
     }
 
-    private void clearActiveFileSlot()
-    {
-        workRam[activeFileSlot] = (byte)0xff;
+    private void clearActiveFileSlot() {
+        workRam[activeFileSlot] = (byte) 0xff;
     }
 
-    private byte getActiveFileSlot()
-    {
+    private byte getActiveFileSlot() {
         return workRam[activeFileSlot];
     }
 
-    private int getNextBlockIdPtr(int block)
-    {
+    private int getNextBlockIdPtr(int block) {
         int ramPtr = blockStartPtr + blockSize * block;
         int byteCounter = 0;
 
-        while (byteCounter < blockSize)
-        {
-            if (workRam[ramPtr] == (byte)0xc0)
-            {
+        while (byteCounter < blockSize) {
+            if (workRam[ramPtr] == (byte) 0xc0) {
                 ramPtr++;
                 byteCounter++;
                 if (workRam[ramPtr] != (byte) 0xc0) {
@@ -623,18 +566,15 @@ public class LSDSavFile
                     ramPtr++;
                     byteCounter++;
                 }
-            }
-            else if (workRam[ramPtr] == (byte)0xe0)
-            {
-                switch (workRam[ramPtr + 1])
-                {
-                    case (byte)0xe0:
-                    case (byte)0xff:
+            } else if (workRam[ramPtr] == (byte) 0xe0) {
+                switch (workRam[ramPtr + 1]) {
+                    case (byte) 0xe0:
+                    case (byte) 0xff:
                         ramPtr++;
                         byteCounter++;
                         break;
-                    case (byte)0xf0: //wave
-                    case (byte)0xf1: //instr
+                    case (byte) 0xf0: //wave
+                    case (byte) 0xf1: //instr
                         ramPtr += 2;
                         byteCounter += 2;
                         break;
@@ -650,27 +590,22 @@ public class LSDSavFile
         return 0;
     }
 
-    public void import32KbSavToWorkRam(String a_file_path)
-    {
+    public void import32KbSavToWorkRam(String a_file_path) {
         RandomAccessFile file;
-        try
-        {
+        try {
             file = new RandomAccessFile(a_file_path, "r");
 
             int bytesRead = file.read(workRam, 0, bankSize);
 
-            if (bytesRead < bankSize)
-            {
+            if (bytesRead < bankSize) {
                 return;
             }
             file.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
         clearActiveFileSlot();
     }
-    
+
 }
