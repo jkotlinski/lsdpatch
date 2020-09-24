@@ -129,7 +129,7 @@ public class LSDSavFile {
         return -1;
     }
 
-    public int getBlockIdOfFirstFreeBlock() throws Exception {
+    private int getBlockIdOfFirstFreeBlock() {
         int blockAllocTableStartPtr = this.blockAllocTableStartPtr;
         int block = 0;
 
@@ -140,7 +140,7 @@ public class LSDSavFile {
             }
             block++;
         }
-        throw new Exception("No free block found");
+        return -1;
     }
 
     /*
@@ -461,28 +461,7 @@ public class LSDSavFile {
     public boolean addSongFromFile(String filePath) {
         RandomAccessFile file;
         try {
-            file = new RandomAccessFile(filePath, "r");
-
-            byte[] fileName = new byte[8];
-            file.read(fileName);
-            byte fileVersion = file.readByte();
-
-            byte[] buffer = new byte[0x8000 * 4];
-            int bytesRead = file.read(buffer);
-            int blocksRead = bytesRead / blockSize;
-            if (blocksRead == 0) {
-                return false;
-            }
-
-            if (blocksRead > freeBlockCount()) {
-                JOptionPane.showMessageDialog(null,
-                        "Out of song space!",
-                        "Error adding song!",
-                        JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-
-            byte songId = getNewSongId();
+            final byte songId = getNewSongId();
             if (songId == -1) {
                 JOptionPane.showMessageDialog(null,
                         "Out of song slots!",
@@ -490,6 +469,12 @@ public class LSDSavFile {
                         JOptionPane.ERROR_MESSAGE);
                 return false;
             }
+
+            file = new RandomAccessFile(filePath, "r");
+
+            byte[] fileName = new byte[8];
+            file.read(fileName);
+            byte fileVersion = file.readByte();
 
             int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
             workRam[fileNamePtr++] = fileName[0];
@@ -504,12 +489,18 @@ public class LSDSavFile {
             int fileVersionPtr = fileVersionStartPtr + songId;
             workRam[fileVersionPtr] = fileVersion;
 
-            int blocksToWrite = blocksRead;
-            int bufferIndex = 0;
-
             int nextBlockIdPtr = 0;
             while (true) {
                 int blockId = getBlockIdOfFirstFreeBlock();
+                if (blockId == -1) {
+                    JOptionPane.showMessageDialog(null,
+                            "Out of blocks!",
+                            "Song load failed!",
+                            JOptionPane.ERROR_MESSAGE);
+                    clearSlot(songId);
+                    file.close();
+                    return false;
+                }
 
                 if (0 != nextBlockIdPtr) {
                     //add one to compensate for unused FAT block
@@ -517,20 +508,19 @@ public class LSDSavFile {
                 }
                 workRam[blockAllocTableStartPtr + blockId] = songId;
                 int blockPtr = blockStartPtr + blockId * blockSize;
-                for (int block = 0; block < blockSize; block++) {
-                    workRam[blockPtr++] = buffer[bufferIndex++];
-                }
-                if (--blocksToWrite == 0) {
-                    break;
+                for (int i = 0; i < blockSize; ++i) {
+                    workRam[blockPtr++] = file.readByte();
                 }
                 nextBlockIdPtr = getNextBlockIdPtr(blockId);
-                if (nextBlockIdPtr == 0) {
+                if (nextBlockIdPtr == SONG_END) {
+                    break;
+                } else if (nextBlockIdPtr == SONG_CORRUPTED) {
                     JOptionPane.showMessageDialog(null,
                             "Song corrupted.",
                             "Song load failed!",
                             JOptionPane.ERROR_MESSAGE);
-                    file.close();
                     clearSlot(songId);
+                    file.close();
                     return false;
                 }
             }
@@ -553,6 +543,12 @@ public class LSDSavFile {
         return workRam[activeFileSlot];
     }
 
+    final int SONG_END = -1;
+    final int SONG_CORRUPTED = 0;
+
+    /* Returns address of next block id pointer (E0 XX), if one exists in block.
+     * If there is none, return SONG_END or SONG_CORRUPTED.
+     */
     private int getNextBlockIdPtr(int block) {
         int ramPtr = blockStartPtr + blockSize * block;
         int byteCounter = 0;
@@ -569,10 +565,11 @@ public class LSDSavFile {
             } else if (workRam[ramPtr] == (byte) 0xe0) {
                 switch (workRam[ramPtr + 1]) {
                     case (byte) 0xe0:
-                    case (byte) 0xff:
                         ramPtr++;
                         byteCounter++;
                         break;
+                    case (byte) 0xff:
+                        return SONG_END;
                     case (byte) 0xf0: //wave
                     case (byte) 0xf1: //instr
                         ramPtr += 2;
@@ -587,7 +584,7 @@ public class LSDSavFile {
         }
         // If the pointer to next block is missing, and this is not the last
         // block of a song, the song is most likely corrupted.
-        return 0;
+        return SONG_CORRUPTED;
     }
 
     public void import32KbSavToWorkRam(String a_file_path) {
