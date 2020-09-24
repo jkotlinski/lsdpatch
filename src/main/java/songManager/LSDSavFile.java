@@ -665,7 +665,7 @@ public class LSDSavFile {
         for (int i = 0; i < romImage.length / 0x4000; ++i) {
             boolean empty = true;
             for (int j = 0; j < 0x4000; ++j) {
-                if (romImage[i * 0x4000 + j] != 0) {
+                if (romImage[i * 0x4000 + j] != -1) {
                     empty = false;
                     break;
                 }
