@@ -622,6 +622,7 @@ public class LSDSavFile {
 
     private void adjustInstruments(int songId, int[] newKits) {
         List<Integer> instrumentKitLocations = instrumentKitLocations(songId);
+        assert(instrumentKitLocations != null);
 
         TreeSet<Integer> lsdSngKits = new TreeSet<>();
         for (Integer instrumentKitLocation : instrumentKitLocations) {
@@ -629,20 +630,19 @@ public class LSDSavFile {
             lsdSngKits.add(kitId);
         }
 
-        HashMap<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < newKits.length; ++i) {
-            int oldKitValue = lsdSngKits.pollFirst();
-            int newKitValue = newKits[i];
-            if (newKitValue > 26) {
-                newKitValue -= 5;
+        HashMap<Integer, Integer> kitMap = new HashMap<>();
+        for (int newKit : newKits) {
+            int oldKit = lsdSngKits.pollFirst();
+            if (newKit > 26) {
+                newKit -= 5;
             }
-            newKitValue -= 8;
-            map.put(oldKitValue, newKitValue);
+            newKit -= 8;
+            kitMap.put(oldKit, newKit);
         }
 
         for (Integer instrumentKitLocation : instrumentKitLocations) {
             int value = workRam[instrumentKitLocation];
-            int newValue = (value & ~0x3f) | map.get(value & 0x3f);
+            int newValue = (value & ~0x3f) | kitMap.get(value & 0x3f);
             workRam[instrumentKitLocation] = (byte)newValue;
         }
     }
