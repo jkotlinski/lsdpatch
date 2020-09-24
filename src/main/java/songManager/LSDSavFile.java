@@ -1,5 +1,6 @@
 package songManager;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -471,52 +472,38 @@ public class LSDSavFile {
             throw new AddSongException("Out of song slots!");
         }
 
-        try {
-            RandomAccessFile file = new RandomAccessFile(filePath, "r");
-
-            byte[] fileName = new byte[8];
-            file.read(fileName);
-            byte fileVersion = file.readByte();
-
-            int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
-            workRam[fileNamePtr++] = fileName[0];
-            workRam[fileNamePtr++] = fileName[1];
-            workRam[fileNamePtr++] = fileName[2];
-            workRam[fileNamePtr++] = fileName[3];
-            workRam[fileNamePtr++] = fileName[4];
-            workRam[fileNamePtr++] = fileName[5];
-            workRam[fileNamePtr++] = fileName[6];
-            workRam[fileNamePtr] = fileName[7];
-
-            int fileVersionPtr = fileVersionStartPtr + songId;
-            workRam[fileVersionPtr] = fileVersion;
-
-            try {
-                copySongToWorkRam(file, songId);
-            } catch (AddSongException e) {
-                clearSong(songId);
-                file.close();
-                throw e;
-            }
-
-            // All good so far. The song is now added to .sav memory.
-            // Now it's time to patch the kits in the .lsdsng.
-            patchKits(file, songId, romImage);
-
-            file.close();
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            writeFileNameAndVersion(songId, fis);
+            copySongToWorkRam(fis, songId);
+            patchKits(fis, songId, romImage);
         } catch (Exception e) {
             clearSong(songId);
             throw e;
         }
     }
 
-    private void patchKits(RandomAccessFile file,
+    private void writeFileNameAndVersion(byte songId, FileInputStream fis) throws IOException {
+        byte[] fileName = new byte[8];
+        int read = fis.read(fileName);
+        assert(read == fileName.length);
+        byte fileVersion = (byte)fis.read();
+
+        int fileNamePtr = fileNameStartPtr + songId * fileNameLength;
+        for (int i = 0; i < 8; ++i) {
+            workRam[fileNamePtr++] = fileName[i];
+        }
+
+        int fileVersionPtr = fileVersionStartPtr + songId;
+        workRam[fileVersionPtr] = fileVersion;
+    }
+
+    private void patchKits(FileInputStream fis,
                            byte songId,
                            byte[] romImage) throws IOException, AddSongException {
         ArrayList<byte[]> lsdSngKits = new ArrayList<>();
         while (true) {
             byte[] kit = new byte[0x4000];
-            if (file.read(kit) != kit.length) {
+            if (fis.read(kit) != kit.length) {
                 break;
             }
             lsdSngKits.add(kit);
@@ -547,8 +534,8 @@ public class LSDSavFile {
 
         // Now we need to patch the song, so that it uses the right kits.
         byte[] unpackedSong = unpackSong(songId);
-        assert(unpackedSong != null);
-        assert(unpackedSong.length == 0x8000);
+        assert (unpackedSong != null);
+        assert (unpackedSong.length == 0x8000);
     }
 
     private void addMissingKits(byte[] romImage, ArrayList<byte[]> lsdSngKits, int[] newKits) throws AddSongException {
@@ -582,7 +569,7 @@ public class LSDSavFile {
         return -1;
     }
 
-    private void copySongToWorkRam(RandomAccessFile file, byte songId) throws IOException, AddSongException {
+    private void copySongToWorkRam(FileInputStream fis, byte songId) throws IOException, AddSongException {
         int nextBlockIdPtr = 0;
         while (true) {
             int blockId = getBlockIdOfFirstFreeBlock();
@@ -597,7 +584,7 @@ public class LSDSavFile {
             workRam[blockAllocTableStartPtr + blockId] = songId;
             int blockPtr = blockStartPtr + blockId * blockSize;
             for (int i = 0; i < blockSize; ++i) {
-                workRam[blockPtr++] = file.readByte();
+                workRam[blockPtr++] = (byte)fis.read();
             }
             nextBlockIdPtr = getNextBlockIdPtr(blockId);
             if (nextBlockIdPtr == -1) {
