@@ -5,7 +5,6 @@ import utils.GlobalHolder;
 
 import java.awt.*;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import java.io.*;
 import java.util.prefs.Preferences;
@@ -31,7 +30,6 @@ public class SongManager extends JFrame implements ListSelectionListener {
         savFile = new LSDSavFile();
 
         addLsdSngButton.setEnabled(false);
-        addLsdSngButton.setToolTipText("Add compressed .lsdsng to file memory");
         addLsdSngButton.setText("Add .lsdsng...");
         addLsdSngButton.addActionListener(e -> addLsdSngButton_actionPerformed());
         clearSlotButton.setEnabled(false);
@@ -40,7 +38,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         clearSlotButton.addActionListener(e -> clearSlotButton_actionPerformed());
         exportLsdSngButton.setEnabled(false);
         exportLsdSngButton.setToolTipText("Export compressed .lsdsng from file memory");
-        exportLsdSngButton.setText("Export .lsdsng...");
+        exportLsdSngButton.setText("Export .lsdsng2...");
         exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
 
@@ -174,29 +172,25 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
         if (slots.length == 1) {
             FileDialog fileDialog = new FileDialog(this,
-                    "Export selected slot to .lsdsng",
+                    "Export selected slot to .lsdsng2",
                     FileDialog.SAVE);
             fileDialog.setDirectory(savePath());
-            fileDialog.setFile("*.lsdsng");
+            fileDialog.setFile("*.lsdsng2");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
             if (fileName == null) {
                 return;
             }
-            if (!fileName.toLowerCase().endsWith(".lsdsng")) {
-                fileName += ".lsdsng";
-            }
-
             String filePath = fileDialog.getDirectory() + fileName;
-            if (!filePath.toUpperCase().endsWith(".LSDSNG")) {
-                filePath += ".lsdsng";
+            if (!filePath.toUpperCase().endsWith(".LSDSNG2")) {
+                filePath += ".lsdsng2";
             }
             savFile.exportSongToFile(slots[0], filePath, romImage);
         } else if (slots.length > 1) {
             JFileChooser fileChooser = new JFileChooser(savePath());
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
-                    "Batch export selected slots to compressed .lsdsng files");
+                    "Batch export selected songs to .lsdsng2 files");
             int ret_val = fileChooser.showDialog(null, "Choose Directory");
             
             if (JFileChooser.APPROVE_OPTION == ret_val) {
@@ -204,7 +198,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
                 for (int slot : slots) {
                     String filename = savFile.getFileName(slot).toLowerCase()
-                            + "-" + savFile.version(slot) + ".lsdsng";
+                            + "-" + savFile.version(slot) + ".lsdsng2";
                     String path = directory + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
                     File f = new File(path);
@@ -248,7 +242,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
                 "Add .lsdsng to file memory",
                 FileDialog.LOAD);
         fileDialog.setDirectory(savePath());
-        fileDialog.setFile("*.lsdsng");
+        fileDialog.setFile("*.lsdsng?");
         fileDialog.setMultipleMode(true);
         fileDialog.setVisible(true);
 
