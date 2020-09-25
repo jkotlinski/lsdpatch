@@ -26,7 +26,7 @@ import javax.sound.sampled.*;
 
 public class Sound {
 
-    private static final ArrayList<Clip> previousClips = new ArrayList<>();
+    private static final ArrayList<Clip> clipPool = new ArrayList<>();
 
     private static final long WAV_SAMPLE_RATE = 48000L;
     private static final long LSDJ_SAMPLE_RATE = 11468L;
@@ -40,7 +40,6 @@ public class Sound {
         for (int i = 0; i < upsampledData.length/2; i++) {
             double ratio = i / (double) (upsampledData.length/2);
 
-
             int sampleIndex = (int) (ratio * gbSample.length);
             int nibble = (int) (ratio * gbSample.length * 2.) % 2;
             byte sample = gbSample[sampleIndex];
@@ -48,7 +47,6 @@ public class Sound {
                 upsampledData[i] = (byte) (0xf0 & sample);
             else
                 upsampledData[i] = (byte) ((0x0F & sample) << 4);
-
 
             // Emulates Game Boy sound chip bug. While changing waveform,
             // sound is played back at zero DC. This happens every 32'nd sample.
@@ -62,26 +60,15 @@ public class Sound {
         return upsampledData;
     }
 
-    private static Clip getFirstAvailableClip() throws LineUnavailableException {
-        boolean found = false;
-        Clip selected = null;
-        for (Clip clip : previousClips) {
-            if (!clip.isRunning() && !found)
-            {
-                clip.stop();
-                clip.flush();
+    private static Clip getClip() throws LineUnavailableException {
+        for (Clip clip : clipPool) {
+            if (!clip.isRunning()) {
                 clip.close();
-                selected = clip;
-                found = true;
-            }
-            else if (clip.getLongFramePosition() > clip.getFrameLength()/2) {
-                clip.stop();
-                clip.flush();
-                clip.close();
+                return clip;
             }
         }
-        Clip newClip = selected == null ? AudioSystem.getClip() : selected;
-        previousClips.add(newClip);
+        Clip newClip = AudioSystem.getClip();
+        clipPool.add(newClip);
         return newClip;
     }
 
@@ -94,14 +81,9 @@ public class Sound {
     static void play(byte[] gbSample, float volume) throws LineUnavailableException {
         AudioFormat upsampledFormat = new AudioFormat(48000, 8, 1, false, false);
         byte[] upsampledData = preProcessNibblesIntoWaveData(gbSample);
-//        byte data[] = new byte[gbSample.length * 2];
-//        for (int i = 0; i < gbSample.length; ++i) {
-//            data[i * 2] = (byte) (0xf0 & gbSample[i]);
-//            data[i * 2 + 1] = (byte) ((0xf & gbSample[i]) << 4);
-//        }
 
         // Play it!
-        Clip clip = getFirstAvailableClip();
+        Clip clip = getClip();
         clip.open(upsampledFormat, upsampledData, 0, upsampledData.length);
         FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
         float result = 20f * (float) Math.log10(volume);
