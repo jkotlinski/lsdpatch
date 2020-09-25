@@ -36,7 +36,7 @@ public class MainMenu extends JFrame {
         panel.add(new JSeparator(), "span 5");
 
         upgradeRomButton.setEnabled(false);
-        // panel.add(upgradeRomButton); TODO
+        panel.add(upgradeRomButton);
 
         songManagerButton.setEnabled(false);
         songManagerButton.addActionListener(e -> openSongManager());
@@ -168,6 +168,7 @@ public class MainMenu extends JFrame {
         editKitsButton.setEnabled(romPathOk);
         editFontsButton.setEnabled(romPathOk);
         editPalettesButton.setEnabled(romPathOk);
-        songManagerButton.setEnabled(savPathOk);
+        upgradeRomButton.setEnabled(romPathOk);
+        songManagerButton.setEnabled(savPathOk && romPathOk);
     }
 }
