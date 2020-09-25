@@ -36,6 +36,7 @@ public class MainMenu extends JFrame {
         panel.add(new JSeparator(), "span 5");
 
         upgradeRomButton.setEnabled(false);
+        upgradeRomButton.addActionListener(e -> openRomUpgradeTool());
         panel.add(upgradeRomButton);
 
         songManagerButton.setEnabled(false);
@@ -56,6 +57,19 @@ public class MainMenu extends JFrame {
         panel.add(editPalettesButton, "grow x");
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
+
+    private void openRomUpgradeTool() {
+        try {
+            RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romTextField.getText());
+            romUpgradeTool.setLocationRelativeTo(this);
+            romUpgradeTool.setVisible(true);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getLocalizedMessage(),
+                    "Could not download new version information!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void openSongManager() {
