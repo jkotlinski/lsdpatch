@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
- - Startup dialog to choose ROM, SAV and what to do.
- - Song manager from LSDManager project. A change from LSDManager is that corrupted songs will now be listed with a warning sign and cannot be exported to .lsdsng.
+ - Startup dialog to choose ROM, SAV and sub-tool.
+ - Added song manager from LSDManager project.
+ - Song manager will now detect corrupted songs and display them with a warning sign.
+ - Song manager now exports songs to new .lsdsng2 format, which contains both song and sample kits.
 
 ## [1.5.0] - 2020-09-13
 ### Changed

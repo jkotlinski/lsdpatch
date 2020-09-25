@@ -37,7 +37,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         clearSlotButton.setText("Clear Slot");
         clearSlotButton.addActionListener(e -> clearSlotButton_actionPerformed());
         exportLsdSngButton.setEnabled(false);
-        exportLsdSngButton.setToolTipText("Export compressed .lsdsng from file memory");
+        exportLsdSngButton.setToolTipText("Export song to .lsdsng2");
         exportLsdSngButton.setText("Export .lsdsng2...");
         exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
@@ -172,7 +172,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
         if (slots.length == 1) {
             FileDialog fileDialog = new FileDialog(this,
-                    "Export selected slot to .lsdsng2",
+                    "Export song to .lsdsng2",
                     FileDialog.SAVE);
             fileDialog.setDirectory(savePath());
             fileDialog.setFile("*.lsdsng2");
@@ -239,7 +239,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
     public void addLsdSngButton_actionPerformed() {
         FileDialog fileDialog = new FileDialog(this,
-                "Add .lsdsng to file memory",
+                "Add .lsdsng to ROM+SAV",
                 FileDialog.LOAD);
         fileDialog.setDirectory(savePath());
         fileDialog.setFile("*.lsdsng?");
