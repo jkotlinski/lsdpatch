@@ -782,7 +782,6 @@ public class KitEditor extends JFrame {
             }
             updateRomView();
         }
-
     }
 
     private void eraseKitButton_actionPerformed() {
