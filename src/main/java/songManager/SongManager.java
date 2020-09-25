@@ -1,24 +1,22 @@
 package songManager;
 
 import net.miginfocom.swing.MigLayout;
+import utils.GlobalHolder;
 
 import java.awt.*;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import java.io.*;
+import java.util.prefs.Preferences;
 
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.*;
-import java.util.prefs.*;
 
 public class SongManager extends JFrame implements ListSelectionListener {
-    
     LSDSavFile savFile;
-    String latestSavPath = "\\";
-    String latestSngPath = "\\";
-    
+
     JButton addLsdSngButton = new JButton();
     JButton clearSlotButton = new JButton();
     JButton exportLsdSngButton = new JButton();
@@ -26,25 +24,14 @@ public class SongManager extends JFrame implements ListSelectionListener {
     JProgressBar jRamUsageIndicator = new JProgressBar();
     JList<String> songList = new JList<>( new String[] { " " } );
     JScrollPane songs = new JScrollPane(songList);
-    JLabel workMemLabel = new JLabel();
 
     byte[] romImage;
     
-    Preferences preferences;
-    private static final String LATEST_SAV_PATH = "latest_sav_path";
-    private static final String LATEST_SNG_PATH = "latest_sng_path";
-    private static final long serialVersionUID = 1279298060794170168L;
-
     public SongManager(String romPath, String savPath) {
         savFile = new LSDSavFile();
 
-        preferences = Preferences.userNodeForPackage(SongManager.class);
-        latestSavPath = preferences.get(LATEST_SAV_PATH, latestSavPath);
-        latestSngPath = preferences.get(LATEST_SNG_PATH, latestSngPath);
-
         addLsdSngButton.setEnabled(false);
-        addLsdSngButton.setToolTipText(
-                "Add compressed .lsdsng to file memory");
+        addLsdSngButton.setToolTipText("Add compressed .lsdsng to file memory");
         addLsdSngButton.setText("Add .lsdsng...");
         addLsdSngButton.addActionListener(e -> addLsdSngButton_actionPerformed());
         clearSlotButton.setEnabled(false);
@@ -67,14 +54,12 @@ public class SongManager extends JFrame implements ListSelectionListener {
         this.setResizable(false);
         this.setTitle("Song Manager");
 
-        workMemLabel.setText("Work memory empty.");
         songs.setMinimumSize(new Dimension(0, 180));
 
         java.awt.Container panel = this.getContentPane();
         MigLayout layout = new MigLayout("wrap", "[]8[]");
         panel.setLayout(layout);
-        panel.add(workMemLabel, "cell 0 0 1 1");
-        panel.add(songs, "cell 0 1 1 5, growx, growy");
+        panel.add(songs, "cell 0 0 1 6, growx, growy");
         panel.add(jRamUsageIndicator, "cell 0 6 1 1, growx");
         panel.add(saveButton, "cell 1 1 1 1, growx");
         panel.add(addLsdSngButton, "cell 1 2 1 1, growx, gaptop 10");
@@ -85,6 +70,10 @@ public class SongManager extends JFrame implements ListSelectionListener {
         loadSav(savPath);
         loadRom(romPath);
         setVisible(true);
+    }
+
+    private String savePath() {
+        return GlobalHolder.get(Preferences.class).get("path", System.getProperty("user.dir"));
     }
 
     private void loadRom(String romPath) {
@@ -106,12 +95,12 @@ public class SongManager extends JFrame implements ListSelectionListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Save .gb file",
                 FileDialog.SAVE);
-        fileDialog.setDirectory(latestSavPath);
+        fileDialog.setDirectory(savePath());
         fileDialog.setFile("*.gb");
         fileDialog.setVisible(true);
 
         String fileName = fileDialog.getFile();
-        if (fileName == null || !fileName.toLowerCase().endsWith(".gb")) {
+        if (fileName == null) {
             return;
         }
 
@@ -123,7 +112,6 @@ public class SongManager extends JFrame implements ListSelectionListener {
         try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
             fileOutputStream.write(romImage);
             fileOutputStream.close();
-
             savFile.saveAs(fileName.replace(".gb", ".sav"));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
@@ -134,13 +122,15 @@ public class SongManager extends JFrame implements ListSelectionListener {
     }
 
     private void loadSav(String savPath) {
-        if (savFile.loadFromSav(savPath)) {
+        try {
+            savFile.loadFromSav(savPath);
             savFile.populateSongList(songList);
-            workMemLabel.setText("Loaded .gb and .sav files.");
             enableAllButtons();
-            savePreferences();
-        } else {
-            workMemLabel.setText(".sav file is not valid 128kB .sav!");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getLocalizedMessage(),
+                    ".sav load failed!",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -186,7 +176,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             FileDialog fileDialog = new FileDialog(this,
                     "Export selected slot to .lsdsng",
                     FileDialog.SAVE);
-            fileDialog.setDirectory(latestSngPath);
+            fileDialog.setDirectory(savePath());
             fileDialog.setFile("*.lsdsng");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
@@ -194,29 +184,25 @@ public class SongManager extends JFrame implements ListSelectionListener {
                 return;
             }
 
-            latestSngPath = fileDialog.getDirectory();
-            String filePath = latestSngPath + fileName;
+            String filePath = fileDialog.getDirectory() + fileName;
             if (!filePath.toUpperCase().endsWith(".LSDSNG")) {
                 filePath += ".lsdsng";
             }
             savFile.exportSongToFile(slots[0], filePath, romImage);
-            savePreferences();
         } else if (slots.length > 1) {
-            JFileChooser fileChooser = new JFileChooser(latestSngPath);
+            JFileChooser fileChooser = new JFileChooser(savePath());
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
                     "Batch export selected slots to compressed .lsdsng files");
             int ret_val = fileChooser.showDialog(null, "Choose Directory");
             
             if (JFileChooser.APPROVE_OPTION == ret_val) {
-                latestSngPath = fileChooser.getSelectedFile()
-                        .getAbsolutePath();
-                savePreferences();
+                String directory = fileChooser.getSelectedFile().getAbsolutePath();
 
                 for (int slot : slots) {
                     String filename = savFile.getFileName(slot).toLowerCase()
                             + "-" + savFile.version(slot) + ".lsdsng";
-                    String path = latestSngPath + File.separator + filename;
+                    String path = directory + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
                     File f = new File(path);
                     if (f.exists()) {
@@ -258,7 +244,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Add .lsdsng to file memory",
                 FileDialog.LOAD);
-        fileDialog.setDirectory(latestSngPath);
+        fileDialog.setDirectory(savePath());
         fileDialog.setFile("*.lsdsng");
         fileDialog.setMultipleMode(true);
         fileDialog.setVisible(true);
@@ -268,7 +254,6 @@ public class SongManager extends JFrame implements ListSelectionListener {
             return;
         }
 
-        boolean success = true;
         for (File f : files) {
             if (f.getName().toLowerCase().endsWith(".lsdsng")) {
                 try {
@@ -278,21 +263,11 @@ public class SongManager extends JFrame implements ListSelectionListener {
                             e.getLocalizedMessage(),
                             "Song add failed",
                             JOptionPane.ERROR_MESSAGE);
-                    success = false;
                 }
             }
         }
         savFile.populateSongList(songList);
-        latestSngPath = files[0].getAbsoluteFile().getParent();
         updateRamUsageIndicator();
-        if (success) {
-            savePreferences();
-        }
-    }
-
-    public void savePreferences() {
-        preferences.put(LATEST_SAV_PATH, latestSavPath);
-        preferences.put(LATEST_SNG_PATH, latestSngPath);
     }
 
     @Override

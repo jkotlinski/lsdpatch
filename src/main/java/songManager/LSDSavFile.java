@@ -159,28 +159,13 @@ public class LSDSavFile {
         return freeBlockCount;
     }
 
-    public boolean loadFromSav(String filePath) {
-        RandomAccessFile savFile;
-        int readBytes;
-
-        try {
-            savFile = new RandomAccessFile(filePath, "r");
-            readBytes = savFile.read(workRam);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null,
-                    e.getLocalizedMessage(),
-                    "Could not load .sav file",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
-        if (readBytes > savFileSize) {
-            return false;
-        }
+    public void loadFromSav(String filePath) throws IOException {
+        RandomAccessFile savFile = new RandomAccessFile(filePath, "r");
+        savFile.readFully(workRam);
+        savFile.close();
 
         is64kbHasBeenSet = false;
         fileIsLoaded = true;
-        return true;
     }
 
     public void populateSongList(JList<String> songList) {
