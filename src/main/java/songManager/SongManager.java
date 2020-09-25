@@ -24,13 +24,10 @@ public class SongManager extends JFrame implements ListSelectionListener {
     JButton addLsdSngButton = new JButton();
     JButton clearSlotButton = new JButton();
     JButton exportLsdSngButton = new JButton();
-    JButton openSavButton = new JButton();
     JButton saveButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
     JList<String> songList = new JList<>( new String[] { " " } );
     JScrollPane songs = new JScrollPane(songList);
-    JButton importV2SavButton = new JButton();
-    JButton exportV2SavButton = new JButton();
     JLabel workMemLabel = new JLabel();
 
     byte[] romImage;
@@ -62,11 +59,8 @@ public class SongManager extends JFrame implements ListSelectionListener {
         exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
 
-        openSavButton.setText("Open V3+ .SAV...");
-        openSavButton.addActionListener(e -> openSavButton_actionPerformed());
-
         saveButton.setEnabled(false);
-        saveButton.setText("Save V3+ .SAV as...");
+        saveButton.setText("Save ROM+SAV...");
         saveButton.addActionListener(e -> saveButton_actionPerformed());
 
         jRamUsageIndicator.setString("");
@@ -75,34 +69,19 @@ public class SongManager extends JFrame implements ListSelectionListener {
         this.setResizable(false);
         this.setTitle("Song Manager");
 
-        importV2SavButton.setEnabled(false);
-        importV2SavButton.setToolTipText(
-                "Import 32 kByte V2 .SAV file to work memory "
-                        + "(will overwrite what's already there!!)");
-        importV2SavButton.setActionCommand("Import V2 SAV...");
-        importV2SavButton.setText("Import V2 .SAV...");
-        importV2SavButton.addActionListener(e -> importV2SavButton_actionPerformed());
-        exportV2SavButton.setEnabled(false);
-        exportV2SavButton.setToolTipText(
-                "Export work memory to 32 kByte V2 .SAV");
-        exportV2SavButton.setActionCommand("Export to V2 SAV...");
-        exportV2SavButton.setText("Export V2 .SAV...");
-        exportV2SavButton.addActionListener(e -> exportV2SavButton_actionPerformed());
         workMemLabel.setText("Work memory empty.");
+        songs.setMinimumSize(new Dimension(0, 180));
 
         java.awt.Container panel = this.getContentPane();
         MigLayout layout = new MigLayout("wrap", "[]8[]");
         panel.setLayout(layout);
         panel.add(workMemLabel, "cell 0 0 1 1");
-        panel.add(songs, "cell 0 1 1 8, growx, growy");
-        panel.add(jRamUsageIndicator, "cell 0 9 1 1, growx");
-        panel.add(openSavButton, "cell 1 0 1 1, growx");
+        panel.add(songs, "cell 0 1 1 5, growx, growy");
+        panel.add(jRamUsageIndicator, "cell 0 6 1 1, growx");
         panel.add(saveButton, "cell 1 1 1 1, growx");
         panel.add(addLsdSngButton, "cell 1 2 1 1, growx, gaptop 10");
         panel.add(exportLsdSngButton, "cell 1 3 1 1, growx");
-        panel.add(importV2SavButton, "cell 1 4 1 1, growx, gaptop 10");
-        panel.add(exportV2SavButton, "cell 1 5 1 1, growx");
-        panel.add(clearSlotButton, "cell 1 6 1 1, growx, gaptop 10");
+        panel.add(clearSlotButton, "cell 1 4 1 1, growx, gaptop 10, aligny top");
 
         pack();
         loadSav(savPath);
@@ -145,43 +124,20 @@ public class SongManager extends JFrame implements ListSelectionListener {
         file.saveAs(fileName);
     }
 
-    public void openSavButton_actionPerformed() {
-        FileDialog fileDialog = new FileDialog(this,
-                "Open 128kByte V3+ .sav",
-                FileDialog.LOAD);
-        fileDialog.setDirectory(latestSavPath);
-        fileDialog.setFile("*.sav");
-        fileDialog.setVisible(true);
-
-        String fileName = fileDialog.getFile();
-        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
-            return;
-        }
-
-        latestSavPath = fileDialog.getDirectory();
-        if (latestSngPath.equals("\\")) {
-            latestSngPath = latestSavPath;
-        }
-        loadSav(latestSavPath + fileName);
-    }
-
     private void loadSav(String savPath) {
         if (file.loadFromSav(savPath)) {
             file.populateSongList(songList);
-            workMemLabel.setText("Loaded work+file memory.");
+            workMemLabel.setText("Loaded .gb and .sav files.");
             enableAllButtons();
             savePreferences();
         } else {
-            workMemLabel.setText("File is not valid 128kB .SAV!");
+            workMemLabel.setText(".sav file is not valid 128kB .sav!");
         }
     }
 
     private void enableAllButtons() {
-        exportV2SavButton.setEnabled(true);
-        openSavButton.setEnabled(true);
         saveButton.setEnabled(true);
         addLsdSngButton.setEnabled(true);
-        importV2SavButton.setEnabled(true);
 
         updateRamUsageIndicator();
     }
@@ -323,40 +279,6 @@ public class SongManager extends JFrame implements ListSelectionListener {
         if (success) {
             savePreferences();
         }
-    }
-
-    public void importV2SavButton_actionPerformed() {
-        FileDialog fileDialog = new FileDialog(this,
-                "Import 32kByte .sav file to work memory",
-                FileDialog.LOAD);
-        fileDialog.setDirectory(latestSavPath);
-        fileDialog.setFile("*.sav");
-        fileDialog.setVisible(true);
-        String fileName = fileDialog.getFile();
-        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
-            return;
-        }
-
-        file.import32KbSavToWorkRam(fileDialog.getDirectory() + fileName);
-        workMemLabel.setText("Work memory updated.");
-    }
-
-    public void exportV2SavButton_actionPerformed() {
-        FileDialog fileDialog = new FileDialog(this,
-            "Export work memory to 32kByte v2 .sav file",
-            FileDialog.SAVE);
-        fileDialog.setDirectory(latestSavPath);
-        fileDialog.setFile("*.sav");
-        fileDialog.setVisible(true);
-        String fileName = fileDialog.getFile();
-        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
-            return;
-        }
-        String filePath = fileDialog.getDirectory() + fileName;
-        if (!filePath.toUpperCase().endsWith(".SAV")) {
-            filePath += ".sav";
-        }
-        file.saveWorkMemoryAs(filePath);
     }
 
     public void savePreferences() {
