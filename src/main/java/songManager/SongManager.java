@@ -180,8 +180,11 @@ public class SongManager extends JFrame implements ListSelectionListener {
             fileDialog.setFile("*.lsdsng");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
-            if (fileName == null || !fileName.toLowerCase().endsWith(".lsdsng")) {
+            if (fileName == null) {
                 return;
+            }
+            if (!fileName.toLowerCase().endsWith(".lsdsng")) {
+                fileName += ".lsdsng";
             }
 
             String filePath = fileDialog.getDirectory() + fileName;
