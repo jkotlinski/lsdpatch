@@ -252,7 +252,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         }
 
         for (File f : files) {
-            if (f.getName().toLowerCase().endsWith(".lsdsng")) {
+            if (f.getName().toLowerCase().contains(".lsdsng")) {
                 try {
                     savFile.addSongFromFile(f.getAbsoluteFile().toString(), romImage);
                 } catch (Exception e) {
