@@ -1,5 +1,7 @@
 package songManager;
 
+import utils.RomUtilities;
+
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
@@ -628,6 +630,7 @@ public class LSDSavFile {
             newKits[kit] = newKit;
             // Copy kit.
             System.arraycopy(lsdSngKits.get(kit), 0, romImage, newKit * 0x4000, 0x4000);
+            RomUtilities.fixChecksum(romImage);
         }
     }
 
