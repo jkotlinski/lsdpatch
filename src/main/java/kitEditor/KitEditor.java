@@ -56,7 +56,6 @@ public class KitEditor extends JFrame {
     private final JTextArea kitTextArea = new JTextArea();
     private final JButton addSampleButton = new JButton();
     private final JButton dropSampleButton = new JButton();
-    private final JButton importAllButton = new JButton();
     private final JButton saveROMButton = new JButton();
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
@@ -169,7 +168,6 @@ public class KitEditor extends JFrame {
         dropSampleButton.addActionListener(e -> dropSample());
 
         saveROMButton.addActionListener(e -> saveROMButton_actionPerformed());
-        importAllButton.addActionListener(e -> importAll_actionPerformed());
     }
 
     private void jbInit() {
@@ -190,7 +188,6 @@ public class KitEditor extends JFrame {
         kitContainer.add(bankBox, "grow,wrap");
         kitContainer.add(instrList, "grow,wrap");
         kitContainer.add(kitSizeLabel, "grow,wrap");
-        kitContainer.add(sampleView, "grow, span 2,wmin 10, hmin 64");
         kitContainer.setMinimumSize(kitContainer.getPreferredSize());
 
         loadKitButton.setEnabled(false);
@@ -222,8 +219,6 @@ public class KitEditor extends JFrame {
         saveROMButton.setEnabled(false);
         saveROMButton.setText("Save ROM");
 
-        importAllButton.setEnabled(false);
-        importAllButton.setText("Import All from ROM...");
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
@@ -236,12 +231,12 @@ public class KitEditor extends JFrame {
         contentPane.add(exportAllSamplesButton, "wrap");
         contentPane.add(addSampleButton, "span 2,wrap");
         contentPane.add(dropSampleButton, "span 2,wrap 10");
-        contentPane.add(importAllButton, "wrap");
         contentPane.add(saveROMButton, "span 2,wrap push");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume"), "split 2");
         contentPane.add(volumeSlider, "grow, wrap");
+        contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
 
         setMinimumSize(getPreferredSize());
         pack();
@@ -343,7 +338,6 @@ public class KitEditor extends JFrame {
             romFile.close();
             saveROMItem.setEnabled(true);
             saveROMButton.setEnabled(true);
-            importAllButton.setEnabled(true);
             importKitsItem.setEnabled(true);
             importFontsItem.setEnabled(true);
             importPalettesItem.setEnabled(true);
