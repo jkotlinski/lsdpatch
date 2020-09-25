@@ -54,6 +54,8 @@ public class MainMenu extends JFrame {
         editPalettesButton.addActionListener(e -> openPaletteEditor());
         editPalettesButton.setEnabled(false);
         panel.add(editPalettesButton, "grow x");
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     private void openSongManager() {
