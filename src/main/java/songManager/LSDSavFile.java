@@ -1,8 +1,6 @@
 package songManager;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.*;
 import javax.swing.*;
 
@@ -52,26 +50,12 @@ public class LSDSavFile {
         return isSixtyFourKbRam() ? 0xbf - 0x80 : 0xbf;
     }
 
-    public void saveAs(String filePath) {
-        try {
-            RandomAccessFile file = new RandomAccessFile(filePath, "rw");
+    public void saveAs(String filePath) throws Exception {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
             if (isSixtyFourKbRam()) {
                 System.arraycopy(workRam, 0, workRam, 65536, 0x10000);
             }
-            file.write(workRam);
-            file.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void saveWorkMemoryAs(String filePath) {
-        try {
-            RandomAccessFile file = new RandomAccessFile(filePath, "rw");
-            file.write(workRam, 0, bankSize);
-            file.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            fileOutputStream.write(workRam);
         }
     }
 
@@ -632,7 +616,7 @@ public class LSDSavFile {
 
         HashMap<Integer, Integer> kitMap = new HashMap<>();
         for (int newKit : newKits) {
-            int oldKit = lsdSngKits.pollFirst();
+            Integer oldKit = lsdSngKits.pollFirst();
             if (newKit > 26) {
                 newKit -= 5;
             }
@@ -749,24 +733,6 @@ public class LSDSavFile {
         // If the pointer to next block is missing, and this is not the last
         // block of a song, the song is most likely corrupted.
         throw new AddSongException("Song corrupted!");
-    }
-
-    public void import32KbSavToWorkRam(String a_file_path) {
-        RandomAccessFile file;
-        try {
-            file = new RandomAccessFile(a_file_path, "r");
-
-            int bytesRead = file.read(workRam, 0, bankSize);
-
-            if (bytesRead < bankSize) {
-                return;
-            }
-            file.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        clearActiveFileSlot();
     }
 
 }
