@@ -60,8 +60,11 @@ public class MainMenu extends JFrame {
     }
 
     private void openRomUpgradeTool() {
+        if (!loadRomImage()) {
+            return;
+        }
         try {
-            RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romTextField.getText());
+            RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romImage);
             romUpgradeTool.setLocationRelativeTo(this);
             romUpgradeTool.setVisible(true);
         } catch (IOException e) {

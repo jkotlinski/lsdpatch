@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -16,10 +15,26 @@ public class RomUpgradeTool extends JFrame {
     final String stablePath = "https://www.littlesounddj.com/lsd/latest/rom_images/stable/";
     final String arduinoBoyPath = "https://www.littlesounddj.com/lsd/latest/rom_images/arduinoboy/";
 
-    RomUpgradeTool(String romPath) throws IOException {
+    RomUpgradeTool(byte[] romImage) throws IOException {
+        String currentRomVersion = version(romImage);
         String stableVersion = fetchVersion(stablePath);
         String developVersion = fetchVersion(developPath);
         String arduinoBoyVersion = fetchVersion(arduinoBoyPath);
+    }
+
+    private String version(byte[] romImage) {
+        for (int i = 0; i < romImage.length; ++i) {
+            if (romImage[i] == 'V' && romImage[i + 2] == '.' && romImage[i + 4] == '.') {
+                String s = "";
+                s += (char)romImage[i + 1];
+                s += (char)romImage[i + 2];
+                s += (char)romImage[i + 3];
+                s += (char)romImage[i + 4];
+                s += (char)romImage[i + 5];
+                return s;
+            }
+        }
+        return null;
     }
 
     private String fetchVersion(String basePath) throws IOException {
@@ -35,18 +50,18 @@ public class RomUpgradeTool extends JFrame {
     }
 
     private String fetchVersion(URL url) throws IOException {
-        InputStream is = null;
+        InputStream is;
         BufferedReader br;
         String line;
-        String lines = new String();
+        StringBuilder lines = new StringBuilder();
 
         is = url.openStream();  // throws an IOException
         br = new BufferedReader(new InputStreamReader(is));
 
         while ((line = br.readLine()) != null) {
-            lines = lines + line;
+            lines.append(line);
         }
         is.close();
-        return lines;
+        return lines.toString();
     }
 }
