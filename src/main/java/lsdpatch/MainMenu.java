@@ -1,3 +1,5 @@
+// Copyright (C) 2020, Johan Kotlinski
+
 package lsdpatch;
 
 import fontEditor.FontEditor;
