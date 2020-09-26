@@ -30,15 +30,14 @@ public class SongManager extends JFrame implements ListSelectionListener {
         savFile = new LSDSavFile();
 
         addLsdSngButton.setEnabled(false);
-        addLsdSngButton.setText("Add .lsdsng...");
+        addLsdSngButton.setText("Add songs...");
         addLsdSngButton.addActionListener(e -> addLsdSngButton_actionPerformed());
         clearSlotButton.setEnabled(false);
-        clearSlotButton.setToolTipText("Clear file memory slot");
-        clearSlotButton.setText("Clear Slot");
+        clearSlotButton.setText("Remove songs");
         clearSlotButton.addActionListener(e -> clearSlotButton_actionPerformed());
         exportLsdSngButton.setEnabled(false);
-        exportLsdSngButton.setToolTipText("Export song to .lsdsng2");
-        exportLsdSngButton.setText("Export .lsdsng2...");
+        exportLsdSngButton.setToolTipText("Export song to .lsf");
+        exportLsdSngButton.setText("Export songs...");
         exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
 
@@ -146,10 +145,10 @@ public class SongManager extends JFrame implements ListSelectionListener {
                     "No song selected!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        int[] slots = songList.getSelectedIndices();
+        int[] songs = songList.getSelectedIndices();
         
-        for (int slot : slots)
-            savFile.clearSong(slot);
+        for (int song : songs)
+            savFile.clearSong(song);
         savFile.populateSongList(songList);
         updateRamUsageIndicator();
     }
@@ -168,37 +167,37 @@ public class SongManager extends JFrame implements ListSelectionListener {
             return;
         }
         
-        int[] slots = songList.getSelectedIndices();
+        int[] songs = songList.getSelectedIndices();
 
-        if (slots.length == 1) {
+        if (songs.length == 1) {
             FileDialog fileDialog = new FileDialog(this,
-                    "Export song to .lsdsng2",
+                    "Export song to .lsf",
                     FileDialog.SAVE);
             fileDialog.setDirectory(savePath());
-            fileDialog.setFile("*.lsdsng2");
+            fileDialog.setFile("*.lsf");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
             if (fileName == null) {
                 return;
             }
             String filePath = fileDialog.getDirectory() + fileName;
-            if (!filePath.toUpperCase().endsWith(".LSDSNG2")) {
-                filePath += ".lsdsng2";
+            if (!filePath.toUpperCase().endsWith(".LSF")) {
+                filePath += ".lsf";
             }
-            savFile.exportSongToFile(slots[0], filePath, romImage);
-        } else if (slots.length > 1) {
+            savFile.exportSongToFile(songs[0], filePath, romImage);
+        } else if (songs.length > 1) {
             JFileChooser fileChooser = new JFileChooser(savePath());
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
-                    "Batch export selected songs to .lsdsng2 files");
+                    "Batch export selected songs to .lsf files");
             int ret_val = fileChooser.showDialog(null, "Choose Directory");
             
             if (JFileChooser.APPROVE_OPTION == ret_val) {
                 String directory = fileChooser.getSelectedFile().getAbsolutePath();
 
-                for (int slot : slots) {
-                    String filename = savFile.getFileName(slot).toLowerCase()
-                            + "-" + savFile.version(slot) + ".lsdsng2";
+                for (int song : songs) {
+                    String filename = savFile.getFileName(song).toLowerCase()
+                            + "-" + savFile.version(song) + ".lsf";
                     String path = directory + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
                     File f = new File(path);
@@ -229,8 +228,8 @@ public class SongManager extends JFrame implements ListSelectionListener {
                         } else if (overWrite == JOptionPane.CANCEL_OPTION)
                             return;
                     }
-                    if (savFile.getBlocksUsed(slot) > 0) {
-                        savFile.exportSongToFile(slot, path, romImage);
+                    if (savFile.getBlocksUsed(song) > 0) {
+                        savFile.exportSongToFile(song, path, romImage);
                     }
                 }
             }
@@ -239,10 +238,10 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
     public void addLsdSngButton_actionPerformed() {
         FileDialog fileDialog = new FileDialog(this,
-                "Add .lsdsng to ROM+SAV",
+                "Add song(s)...",
                 FileDialog.LOAD);
         fileDialog.setDirectory(savePath());
-        fileDialog.setFile("*.lsdsng?");
+        fileDialog.setFile("*.lsdsng;*.lsf");
         fileDialog.setMultipleMode(true);
         fileDialog.setVisible(true);
 
@@ -251,17 +250,23 @@ public class SongManager extends JFrame implements ListSelectionListener {
             return;
         }
 
-        for (File f : files) {
-            if (f.getName().toLowerCase().contains(".lsdsng")) {
-                try {
+        try {
+            for (File f : files) {
+                if (f.getName().toLowerCase().endsWith(".lsdsng") ||
+                        f.getName().toLowerCase().endsWith(".lsf")) {
                     savFile.addSongFromFile(f.getAbsoluteFile().toString(), romImage);
-                } catch (Exception e) {
+                } else {
                     JOptionPane.showMessageDialog(this,
-                            e.getLocalizedMessage(),
+                            "Unknown file extension: " + f.getName(),
                             "Song add failed",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getLocalizedMessage(),
+                    "Song add failed",
+                    JOptionPane.ERROR_MESSAGE);
         }
         savFile.populateSongList(songList);
         updateRamUsageIndicator();
@@ -272,9 +277,9 @@ public class SongManager extends JFrame implements ListSelectionListener {
         boolean enable = !songList.isSelectionEmpty();
         clearSlotButton.setEnabled(enable);
 
-        int[] slots = songList.getSelectedIndices();
-        if (slots.length == 1) {
-            enable = savFile.isValid(slots[0]);
+        int[] songs = songList.getSelectedIndices();
+        if (songs.length == 1) {
+            enable = savFile.isValid(songs[0]);
         }
         exportLsdSngButton.setEnabled(enable);
     }
