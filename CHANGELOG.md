@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Startup dialog to choose ROM, SAV and sub-tool.
  - Added song manager from LSDManager project.
  - Song manager will now detect corrupted songs and display them with a warning sign.
- - Song manager now exports songs to new .lsf format, which contains both song and sample kits.
-   (.lsf - Little Song Format)
+ - Song manager now saves to new LSDj Song Format (.lsf), which contains both song and sample kits.
 
 ### Fixed
  - Kit sample playback got stuck at times.
