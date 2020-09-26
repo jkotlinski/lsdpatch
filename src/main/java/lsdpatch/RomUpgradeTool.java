@@ -66,11 +66,32 @@ public class RomUpgradeTool extends JFrame {
         }
     }
 
+    private boolean versionCompare(String localVersion, String remoteVersion) {
+        assert(remoteVersion.startsWith("lsdj"));
+        remoteVersion = remoteVersion.substring(4, 9).replace('_', '.');
+        return remoteVersion.compareTo(localVersion) > 0;
+    }
+
     private void upgrade(String basePath) {
         try {
+            String localVersion = localVersion();
             String remoteVersion = fetchLatestRemoteVersion(basePath);
+            if (localVersion == null || remoteVersion == null) {
+                JOptionPane.showMessageDialog(null,
+                        "Version information not found!",
+                        "Update failed!",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (!versionCompare(localVersion, remoteVersion)) {
+                JOptionPane.showMessageDialog(this,
+                        localRomFile.getName() + " is already updated.",
+                        "No updates found!",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             int reply = JOptionPane.showConfirmDialog(this,
-                    "Current ROM version: " + version(localRomImage) + '\n' +
+                    "Current ROM version: " + localVersion() + '\n' +
                             "Upgrade to " + remoteVersion + '?',
                     "Upgrade?",
                     JOptionPane.YES_NO_OPTION);
@@ -92,7 +113,8 @@ public class RomUpgradeTool extends JFrame {
         }
     }
 
-    private String version(byte[] romImage) {
+    private String localVersion() {
+        byte[] romImage = localRomImage;
         for (int i = 0; i < romImage.length; ++i) {
             if (romImage[i] == 'V' && romImage[i + 2] == '.' && romImage[i + 4] == '.') {
                 String s = "";
