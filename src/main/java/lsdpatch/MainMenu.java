@@ -7,6 +7,7 @@ import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
+import utils.GlobalHolder;
 import utils.JFileChooserFactory;
 import utils.RomUtilities;
 
@@ -15,6 +16,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.prefs.Preferences;
 
 public class MainMenu extends JFrame {
     JTextField romTextField = new JTextField();
@@ -96,6 +98,8 @@ public class MainMenu extends JFrame {
             RandomAccessFile romFile = new RandomAccessFile(romTextField.getText(), "r");
             romFile.readFully(romImage);
             romFile.close();
+
+            GlobalHolder.get(Preferences.class).put("path", new File(romTextField.getText()).getAbsolutePath());
         } catch (IOException ioe)
         {
             JOptionPane.showMessageDialog(this,
