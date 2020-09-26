@@ -65,13 +65,15 @@ public class KitEditor extends JFrame {
         instrList.setListData(listData);
     }
 
-    public KitEditor(String romPath) {
+    public KitEditor(byte[] romImage) {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
         emptyInstrList();
-        loadRom(new File(romPath));
+        this.romImage = romImage;
         pack();
         setVisible(true);
+        setTitle("Kit Editor");
+        updateRomView();
     }
 
     private void buildMenus() {
@@ -84,7 +86,6 @@ public class KitEditor extends JFrame {
         fileMenu.add(menuItem);
 
         saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
-        saveROMItem.setEnabled(false);
         saveROMItem.addActionListener(e -> saveROMButton_actionPerformed());
         fileMenu.add(saveROMItem);
 
@@ -145,24 +146,17 @@ public class KitEditor extends JFrame {
         kitContainer.add(kitSizeLabel, "grow,wrap");
         kitContainer.setMinimumSize(kitContainer.getPreferredSize());
 
-        loadKitButton.setEnabled(false);
         loadKitButton.setText("Load Kit");
-
-        exportKitButton.setEnabled(false);
         exportKitButton.setText("Export Kit");
-
-        eraseKitButton.setEnabled(false);
         eraseKitButton.setText("Erase Kit");
 
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
 
-        renameKitButton.setEnabled(false);
         renameKitButton.setText("Rename Kit");
 
         exportSampleButton.setEnabled(false);
         exportSampleButton.setText("Export Sample");
 
-        exportAllSamplesButton.setEnabled(false);
         exportAllSamplesButton.setText("Export all samples");
 
         addSampleButton.setEnabled(false);
@@ -171,9 +165,7 @@ public class KitEditor extends JFrame {
         dropSampleButton.setText("Drop sample");
         dropSampleButton.setEnabled(false);
 
-        saveROMButton.setEnabled(false);
         saveROMButton.setText("Save ROM");
-
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
@@ -287,17 +279,9 @@ public class KitEditor extends JFrame {
     private void loadRom(File gbFile) {
         try {
             romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            setTitle(gbFile.getAbsoluteFile().toString() + " - LSDPatcher v" + LSDPatcher.getVersion());
             romFile = new RandomAccessFile(gbFile, "r");
             romFile.readFully(romImage);
             romFile.close();
-            saveROMItem.setEnabled(true);
-            saveROMButton.setEnabled(true);
-            loadKitButton.setEnabled(true);
-            exportKitButton.setEnabled(true);
-            eraseKitButton.setEnabled(true);
-            exportAllSamplesButton.setEnabled(true);
-            renameKitButton.setEnabled(true);
             flushWavFiles();
             updateRomView();
             bankBox.setSelectedIndex(0);
