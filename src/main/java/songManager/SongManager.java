@@ -36,7 +36,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         clearSlotButton.setText("Remove songs");
         clearSlotButton.addActionListener(e -> clearSlotButton_actionPerformed());
         exportLsdSngButton.setEnabled(false);
-        exportLsdSngButton.setToolTipText("Export song to .lsf");
+        exportLsdSngButton.setToolTipText("Export song to .lsdprj");
         exportLsdSngButton.setText("Export songs...");
         exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
@@ -171,25 +171,25 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
         if (songs.length == 1) {
             FileDialog fileDialog = new FileDialog(this,
-                    "Export song to .lsf",
+                    "Export song to .lsdprj",
                     FileDialog.SAVE);
             fileDialog.setDirectory(savePath());
-            fileDialog.setFile("*.lsf");
+            fileDialog.setFile("*.lsdprj");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
             if (fileName == null) {
                 return;
             }
             String filePath = fileDialog.getDirectory() + fileName;
-            if (!filePath.toUpperCase().endsWith(".LSF")) {
-                filePath += ".lsf";
+            if (!filePath.toUpperCase().endsWith(".LSDPRJ")) {
+                filePath += ".lsdprj";
             }
             savFile.exportSongToFile(songs[0], filePath, romImage);
         } else if (songs.length > 1) {
             JFileChooser fileChooser = new JFileChooser(savePath());
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
-                    "Batch export selected songs to .lsf files");
+                    "Batch export selected songs to .lsdprj files");
             int ret_val = fileChooser.showDialog(null, "Choose Directory");
             
             if (JFileChooser.APPROVE_OPTION == ret_val) {
@@ -197,7 +197,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
                 for (int song : songs) {
                     String filename = savFile.getFileName(song).toLowerCase()
-                            + "-" + savFile.version(song) + ".lsf";
+                            + "-" + savFile.version(song) + ".lsdprj";
                     String path = directory + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
                     File f = new File(path);
@@ -241,7 +241,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
                 "Add song(s)...",
                 FileDialog.LOAD);
         fileDialog.setDirectory(savePath());
-        fileDialog.setFile("*.lsdsng;*.lsf");
+        fileDialog.setFile("*.lsdsng;*.lsdprj");
         fileDialog.setMultipleMode(true);
         fileDialog.setVisible(true);
 
@@ -253,7 +253,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         try {
             for (File f : files) {
                 if (f.getName().toLowerCase().endsWith(".lsdsng") ||
-                        f.getName().toLowerCase().endsWith(".lsf")) {
+                        f.getName().toLowerCase().endsWith(".lsdprj")) {
                     savFile.addSongFromFile(f.getAbsoluteFile().toString(), romImage);
                 } else {
                     JOptionPane.showMessageDialog(this,
