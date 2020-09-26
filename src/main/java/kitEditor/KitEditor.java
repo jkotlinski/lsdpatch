@@ -59,18 +59,6 @@ public class KitEditor extends JFrame {
 
     private final JMenuBar menuBar = new JMenuBar();
 
-    static class KitFileFilter implements java.io.FilenameFilter {
-        public boolean accept(java.io.File dir, String name) {
-            return name.toLowerCase().endsWith(".kit");
-        }
-    }
-
-    static class WavFileFilter implements java.io.FilenameFilter {
-        public boolean accept(java.io.File dir, String name) {
-            return name.toLowerCase().endsWith(".wav");
-        }
-    }
-
     private void emptyInstrList() {
         String[] listData = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.",
                 "12.", "13.", "14.", "15."};
@@ -573,7 +561,7 @@ public class KitEditor extends JFrame {
 
     private void loadKitButton_actionPerformed() {
         FileDialog dialog = new FileDialog(this, "Load kit", FileDialog.LOAD);
-        dialog.setFilenameFilter(new KitFileFilter());
+        dialog.setFile("*.kit");
         dialog.setVisible(true);
         if (dialog.getFile() != null) {
             loadKit(new File(dialog.getDirectory(), dialog.getFile()));
@@ -681,9 +669,8 @@ public class KitEditor extends JFrame {
     }
 
     private void selectSampleToAdd() {
-        FileDialog dialog = new FileDialog(this, "Load sample",
-                FileDialog.LOAD);
-        dialog.setFilenameFilter(new WavFileFilter());
+        FileDialog dialog = new FileDialog(this, "Load sample", FileDialog.LOAD);
+        dialog.setFile("*.wav");
         dialog.setVisible(true);
         if (dialog.getFile() != null) {
             addSample(new File(dialog.getDirectory(), dialog.getFile()));
@@ -810,9 +797,7 @@ public class KitEditor extends JFrame {
         if (s == null) {
             return;
         }
-        FileDialog dialog = new FileDialog(this, "Save sample as .wav",
-                FileDialog.SAVE);
-        dialog.setFilenameFilter(new WavFileFilter());
+        FileDialog dialog = new FileDialog(this, "Save sample as .wav", FileDialog.SAVE);
         dialog.setFile(s.getName() + ".wav");
         dialog.setVisible(true);
         if (dialog.getFile() == null) {
