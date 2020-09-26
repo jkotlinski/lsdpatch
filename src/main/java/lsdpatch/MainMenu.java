@@ -45,9 +45,7 @@ public class MainMenu extends JFrame {
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
-        editKitsButton.addActionListener(e -> {
-            new KitEditor(romTextField.getText()).setLocationRelativeTo(this);
-        });
+        editKitsButton.addActionListener(e -> new KitEditor(romTextField.getText()).setLocationRelativeTo(this));
         editKitsButton.setEnabled(false);
         panel.add(editKitsButton);
         editFontsButton.addActionListener(e -> openKitEditor());

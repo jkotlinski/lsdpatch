@@ -280,7 +280,8 @@ public class RomUpgradeTool extends JFrame {
             FileInputStream in = new FileInputStream(localRomFile.getAbsolutePath());
             while (in.available() > 0) {
                 byte[] inBuf = new byte[RomUtilities.BANK_SIZE];
-                in.read(inBuf);
+                int readBytes = in.read(inBuf);
+                assert(readBytes == inBuf.length);
                 if (inBuf[0] == 0x60 && inBuf[1] == 0x40) {
                     //is kit bank
                     outBank++;
