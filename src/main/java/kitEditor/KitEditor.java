@@ -2,7 +2,6 @@ package kitEditor;
 
 import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
-import structures.LSDJFont;
 import utils.FileDrop;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
@@ -16,10 +15,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
@@ -43,10 +39,6 @@ public class KitEditor extends JFrame {
     private Sample[] samples = new Sample[MAX_SAMPLES];
 
     private JMenuItem saveROMItem;
-    private JMenuItem importKitsItem;
-    private JMenuItem importFontsItem;
-    private JMenuItem importPalettesItem;
-    private JMenuItem importAllItem;
     private final JButton loadKitButton = new JButton();
     private final JButton exportKitButton = new JButton();
     private final JButton eraseKitButton = new JButton();
@@ -102,31 +94,6 @@ public class KitEditor extends JFrame {
         JMenuItem menuItem = new JMenuItem("Open ROM...", KeyEvent.VK_O);
         menuItem.addActionListener(e -> selectRomToLoad());
         fileMenu.add(menuItem);
-
-        fileMenu.addSeparator();
-
-        importKitsItem = new JMenuItem("Import kits from ROM...", KeyEvent.VK_I);
-        importKitsItem.setEnabled(false);
-        importKitsItem.addActionListener(e3 -> importKits_actionPerformed());
-
-        fileMenu.add(importKitsItem);
-
-        importFontsItem = new JMenuItem("Import fonts from ROM...", KeyEvent.VK_I);
-        importFontsItem.setEnabled(false);
-        importFontsItem.addActionListener(e2 -> importFonts_actionPerformed());
-        fileMenu.add(importFontsItem);
-
-        importPalettesItem = new JMenuItem("Import palettes from ROM...", KeyEvent.VK_I);
-        importPalettesItem.setEnabled(false);
-        importPalettesItem.addActionListener(e1 -> importPalettes_actionPerformed());
-        fileMenu.add(importPalettesItem);
-
-        importAllItem = new JMenuItem("Import all from ROM...", KeyEvent.VK_A);
-        importAllItem.setEnabled(false);
-        importAllItem.addActionListener(e1 -> importAll_actionPerformed());
-        fileMenu.add(importAllItem);
-
-        fileMenu.addSeparator();
 
         saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
         saveROMItem.setEnabled(false);
@@ -338,10 +305,6 @@ public class KitEditor extends JFrame {
             romFile.close();
             saveROMItem.setEnabled(true);
             saveROMButton.setEnabled(true);
-            importKitsItem.setEnabled(true);
-            importFontsItem.setEnabled(true);
-            importPalettesItem.setEnabled(true);
-            importAllItem.setEnabled(true);
             loadKitButton.setEnabled(true);
             exportKitButton.setEnabled(true);
             eraseKitButton.setEnabled(true);
@@ -529,205 +492,6 @@ public class KitEditor extends JFrame {
             } else {
                 samples[sampleIt] = null;
             }
-        }
-    }
-
-    private boolean importPalettes(File f) {
-        boolean isOk = false;
-        RandomAccessFile otherOpenRom = null;
-        try {
-            byte[] otherRomImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            otherOpenRom = new RandomAccessFile(f, "r");
-
-            otherOpenRom.readFully(otherRomImage);
-            otherOpenRom.close();
-
-            int ownPaletteOffset = RomUtilities.findPaletteOffset(romImage);
-            int ownPaletteNameOffset = RomUtilities.findPaletteNameOffset(romImage);
-
-            int otherPaletteOffset = RomUtilities.findPaletteOffset(otherRomImage);
-            int otherPaletteNameOffset = RomUtilities.findPaletteNameOffset(otherRomImage);
-
-
-            if (RomUtilities.getNumberOfPalettes(otherRomImage) > RomUtilities.getNumberOfPalettes(romImage))
-            {
-                throw new Exception("Current file doesn't have enough palette slots to get the palettes imported to.");
-            }
-
-
-            System.arraycopy(otherRomImage, otherPaletteOffset, romImage, ownPaletteOffset, RomUtilities.PALETTE_SIZE * RomUtilities.getNumberOfPalettes(otherRomImage));
-
-            System.arraycopy(otherRomImage, otherPaletteNameOffset, romImage, ownPaletteNameOffset, RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(otherRomImage));
-
-            isOk = true;
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        } finally {
-            if (otherOpenRom != null) {
-                try {
-                    otherOpenRom.close();
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
-        return isOk;
-    }
-
-    private boolean importFonts(File f) {
-        boolean isOk = false;
-        RandomAccessFile otherOpenRom = null;
-        try {
-            byte[] otherRomImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            otherOpenRom = new RandomAccessFile(f, "r");
-
-            otherOpenRom.readFully(otherRomImage);
-            otherOpenRom.close();
-
-            int ownFontOffset = RomUtilities.findFontOffset(romImage);
-            int otherFontOffset = RomUtilities.findFontOffset(otherRomImage);
-
-            System.arraycopy(otherRomImage, otherFontOffset, romImage, ownFontOffset, LSDJFont.FONT_SIZE * LSDJFont.FONT_COUNT);
-
-            for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
-                RomUtilities.setFontName(romImage, i, RomUtilities.getFontName(otherRomImage, i));
-            }
-
-            isOk = true;
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        } finally {
-            if (otherOpenRom != null) {
-                try {
-                    otherOpenRom.close();
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(this, e.getMessage(), "File error (wth)",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
-        return isOk;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private int importKits(File f) {
-        try {
-            int outBank = 0;
-            int copiedBankCount = 0;
-            FileInputStream in = new FileInputStream(f.getAbsolutePath());
-            while (in.available() > 0) {
-                byte[] inBuf = new byte[RomUtilities.BANK_SIZE];
-                in.read(inBuf);
-                if (inBuf[0] == 0x60 && inBuf[1] == 0x40) {
-                    //is kit bank
-                    outBank++;
-                    while (!isKitBank(outBank) && !isEmptyKitBank(outBank)) {
-                        outBank++;
-                    }
-                    int outPtr = outBank * RomUtilities.BANK_SIZE;
-                    for (int i = 0; i < RomUtilities.BANK_SIZE; i++) {
-                        romImage[outPtr++] = inBuf[i];
-                    }
-                    copiedBankCount++;
-                }
-            }
-            updateRomView();
-            in.close();
-            return copiedBankCount;
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        return 0;
-    }
-
-
-    private File importRomSelect() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Select ROM to import from", FileType.Gb, FileOperation.Load);
-        int result = chooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-
-            File f = chooser.getSelectedFile();
-            JFileChooserFactory.setBaseFolder(f.getParent());
-            return f;
-        }
-        return null;
-    }
-
-    private void importKits_actionPerformed() {
-        File f = importRomSelect();
-        if (f != null) {
-            int amountOfCopiedKits = importKits(f);
-            JOptionPane.showMessageDialog(this,
-                    "Imported " + amountOfCopiedKits + " kits!",
-                    "Kit import result.", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    private void importFonts_actionPerformed() {
-        File f = importRomSelect();
-        if (f != null) {
-            if (importFonts(f)) {
-                JOptionPane.showMessageDialog(this,
-                        "Font copied!",
-                        "Font import result.", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Font copy error.",
-                        "Font import result.", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
-
-    }
-
-    private void importPalettes_actionPerformed() {
-        File f = importRomSelect();
-        if (f != null) {
-            if (importPalettes(f)) {
-                JOptionPane.showMessageDialog(this,
-                        "Palettes copied!",
-                        "Palette import result.", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Palette copy error.",
-                        "Palette import result.", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
-    }
-
-
-    private void importAll_actionPerformed() {
-        File f = importRomSelect();
-        boolean isOk = f != null;
-        if (isOk) {
-            // TODO : factorize message dialogs.
-            if (importKits(f) == 0) {
-                JOptionPane.showMessageDialog(this,
-                        "Palette copy error.",
-                        "Palette import result.", JOptionPane.INFORMATION_MESSAGE);
-                isOk = false;
-            }
-            if (!importFonts(f)) {
-                JOptionPane.showMessageDialog(this,
-                        "Font copy error.",
-                        "Font import result.", JOptionPane.INFORMATION_MESSAGE);
-                isOk = false;
-            }
-            if (!importPalettes(f)) {
-                JOptionPane.showMessageDialog(this,
-                        "Palette copy error.",
-                        "Palette import result.", JOptionPane.INFORMATION_MESSAGE);
-                isOk = false;
-            }
-        }
-
-        if (isOk) {
-            JOptionPane.showMessageDialog(this,
-                    "Everything copied!",
-                    "All import result.", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

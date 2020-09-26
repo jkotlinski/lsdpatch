@@ -65,7 +65,7 @@ public class MainMenu extends JFrame {
         if (!loadRomImage()) {
             return;
         }
-        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romImage);
+        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romTextField.getText(), romImage);
         romUpgradeTool.setLocationRelativeTo(this);
         romUpgradeTool.setVisible(true);
     }
