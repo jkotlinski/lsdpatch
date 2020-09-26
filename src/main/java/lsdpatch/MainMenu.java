@@ -65,16 +65,9 @@ public class MainMenu extends JFrame {
         if (!loadRomImage()) {
             return;
         }
-        try {
-            RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romImage);
-            romUpgradeTool.setLocationRelativeTo(this);
-            romUpgradeTool.setVisible(true);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
-                    "Could not download new version information!",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romImage);
+        romUpgradeTool.setLocationRelativeTo(this);
+        romUpgradeTool.setVisible(true);
     }
 
     private void openSongManager() {
