@@ -1,22 +1,4 @@
-package paletteEditor;/* Copyright (C) 2017 by Johan Kotlinski
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE. */
+package paletteEditor;
 
 import java.awt.BorderLayout;
 
@@ -48,7 +30,7 @@ public class PaletteEditor
         implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
     private static final long serialVersionUID = 5286120830758415869L;
 
-    private byte romImage[] = null;
+    private byte[] romImage = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
 
@@ -109,7 +91,7 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
-    private javax.swing.JCheckBox desaturateButton;
+    private final javax.swing.JCheckBox desaturateButton;
     private boolean desaturate = false;
 
     public PaletteEditor() {
@@ -624,7 +606,7 @@ public class PaletteEditor
                 } else if (rgb == 0xff002119) {
                     c = secondColor(4);
                 } else {
-                    System.err.println(String.format("%x", rgb));
+                    System.err.printf("%x%n", rgb);
                     c = new java.awt.Color(255, 0, 255);
                 }
                 dstImage.setRGB(x, y, colorCorrect(c));
@@ -838,23 +820,20 @@ public class PaletteEditor
                 showSaveDialog();
                 break;
             case "comboBoxChanged": {
-                JComboBox cb = (JComboBox) e.getSource();
-                if (cb.getSelectedIndex() != -1) {
-                    previousSelectedPalette = cb.getSelectedIndex();
+                if (paletteSelector.getSelectedIndex() != -1) {
+                    previousSelectedPalette = paletteSelector.getSelectedIndex();
                 }
                 break;
             }
             case "comboBoxEdited": {
-                // Kit name was edited.
-                JComboBox cb = (JComboBox) e.getSource();
-                if (cb.getSelectedIndex() == -1) {
-                    setPaletteName(previousSelectedPalette, (String) cb.getSelectedItem());
+                if (paletteSelector.getSelectedIndex() == -1) {
+                    setPaletteName(previousSelectedPalette, (String)paletteSelector.getSelectedItem());
                     if (!populatingPaletteSelector) {
                         populatePaletteSelector();
-                        cb.setSelectedIndex(previousSelectedPalette);
+                        paletteSelector.setSelectedIndex(previousSelectedPalette);
                     }
                 } else {
-                    previousSelectedPalette = cb.getSelectedIndex();
+                    previousSelectedPalette = paletteSelector.getSelectedIndex();
                 }
                 break;
             }
