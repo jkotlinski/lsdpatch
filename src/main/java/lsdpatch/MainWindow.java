@@ -15,7 +15,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 
 public class MainWindow extends JFrame implements IDocumentListener {
     JTextField romTextField = new JTextField();
@@ -127,9 +126,16 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     private void onBrowseRomButtonPress() {
+        if (document.isDirty() && JOptionPane.showConfirmDialog(null,
+                "Load new ROM without saving changes?",
+                "Unsaved changes",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+            return;
+        }
         FileDialog fileDialog = new FileDialog(this,
-                "Select LSDj ROM Image",
-                FileDialog.LOAD);
+            "Select LSDj ROM Image",
+            FileDialog.LOAD);
         fileDialog.setDirectory(JFileChooserFactory.baseFolder());
         fileDialog.setFile("*.gb");
         fileDialog.setVisible(true);
@@ -148,6 +154,13 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     private void onBrowseSavButtonPress() {
+        if (document.isSavDirty() && JOptionPane.showConfirmDialog(null,
+                "Load new .sav without saving changes?",
+                "Unsaved changes",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+            return;
+        }
         FileDialog fileDialog = new FileDialog(this,
                 "Select LSDj .sav file",
                 FileDialog.LOAD);

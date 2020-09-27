@@ -96,6 +96,10 @@ public class Document {
         setSavDirty(true);
     }
 
+    public boolean isSavDirty() {
+        return savDirty;
+    }
+
     public boolean isDirty() {
         return romDirty || savDirty;
     }
