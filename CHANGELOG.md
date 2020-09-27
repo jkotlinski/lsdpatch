@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added song manager from LSDManager project.
  - Song manager warning on corrupted songs.
  - Song manager now saves LSDj Project files (.lsdprj) which contains both song and sample kits.
- - Upgrade ROM functionality, which downloads the latest ROM images from https://www.littlesounddj.com
+ - Upgrade ROM functionality, which downloads the latest ROM images from https://www.littlesounddj.com. The upgrade preserves custom kits, fonts and palettes.
 
 ### Fixed
  - Kit sample playback got stuck at times.
