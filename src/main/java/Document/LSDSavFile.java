@@ -1,4 +1,4 @@
-package songManager;
+package Document;
 
 import utils.RomUtilities;
 
@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 
-public class LSDSavFile {
+public class LSDSavFile implements Cloneable {
     final int blockSize = 0x200;
     final int bankSize = 0x8000;
     final int bankCount = 4;
@@ -25,14 +25,24 @@ public class LSDSavFile {
     boolean is64kbHasBeenSet = false;
 
     byte[] workRam;
-    boolean fileIsLoaded = false;
 
     public LSDSavFile() {
         workRam = new byte[savFileSize];
     }
 
+    public LSDSavFile clone() throws CloneNotSupportedException {
+        LSDSavFile copy = (LSDSavFile)super.clone();
+        copy.is64kb = is64kb;
+        copy.is64kbHasBeenSet = is64kbHasBeenSet;
+        copy.workRam = workRam.clone();
+        return copy;
+    }
+
+    public boolean equals(LSDSavFile rhs) {
+        return Arrays.equals(workRam, rhs.workRam);
+    }
+
     private boolean isSixtyFourKbRam() {
-        if (!fileIsLoaded) return false;
         if (is64kbHasBeenSet) return is64kb;
 
         for (int i = 0; i < 0x10000; ++i) {
@@ -167,7 +177,6 @@ public class LSDSavFile {
         savFile.close();
 
         is64kbHasBeenSet = false;
-        fileIsLoaded = true;
     }
 
     public void populateSongList(JList<String> songList) {

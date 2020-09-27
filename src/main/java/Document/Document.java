@@ -16,7 +16,10 @@ public class Document {
     private byte[] romImage;
     private File romFile;
 
-    private final List<IDocumentListener> documentListeners = new LinkedList<IDocumentListener>();
+    private boolean savDirty;
+    private LSDSavFile savFile = new LSDSavFile();
+
+    private final List<IDocumentListener> documentListeners = new LinkedList<>();
 
     public void subscribe(IDocumentListener documentListener) {
         documentListeners.add(documentListener);
@@ -30,6 +33,13 @@ public class Document {
         romDirty = dirty;
         for (IDocumentListener documentListener : documentListeners) {
             documentListener.onRomDirty(dirty);
+        }
+    }
+
+    private void setSavDirty(boolean dirty) {
+        savDirty = dirty;
+        for (IDocumentListener documentListener : documentListeners) {
+            documentListener.onSavDirty(dirty);
         }
     }
 
@@ -60,11 +70,33 @@ public class Document {
         setRomDirty(false);
     }
 
-    public boolean isRomDirty() {
-        return romDirty;
+    public void loadSavFile(String savPath) {
+        try {
+            savFile = new LSDSavFile();
+            savFile.loadFromSav(savPath);
+        } catch (IOException e) {
+            savFile = null;
+        }
+        savDirty = false;
+    }
+
+    public LSDSavFile savFile() {
+        try {
+            return savFile.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+
+    public void setSavFile(LSDSavFile savFile) {
+        if (savFile.equals(this.savFile)) {
+            return;
+        }
+        this.savFile = savFile;
+        setSavDirty(true);
     }
 
     public boolean isDirty() {
-        return romDirty;
+        return romDirty || savDirty;
     }
 }

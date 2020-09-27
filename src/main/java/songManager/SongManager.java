@@ -1,11 +1,15 @@
 package songManager;
 
+import Document.Document;
+import Document.LSDSavFile;
 import net.miginfocom.swing.MigLayout;
 import utils.GlobalHolder;
 
 import java.awt.*;
 import javax.swing.JButton;
 import javax.swing.JList;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.prefs.Preferences;
 
@@ -14,22 +18,21 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.*;
 
 public class SongManager extends JFrame implements ListSelectionListener {
-    LSDSavFile savFile;
-
     JButton addLsdSngButton = new JButton();
     JButton clearSlotButton = new JButton();
     JButton exportLsdSngButton = new JButton();
-    JButton saveButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
     JList<String> songList = new JList<>( new String[] { " " } );
     JScrollPane songs = new JScrollPane(songList);
 
     byte[] romImage;
-    
-    public SongManager(String romPath, String savPath) {
-        savFile = new LSDSavFile();
 
-        addLsdSngButton.setEnabled(false);
+    LSDSavFile savFile;
+    
+    public SongManager(Document document) {
+        romImage = document.romImage();
+        savFile = document.savFile();
+
         addLsdSngButton.setText("Add songs...");
         addLsdSngButton.addActionListener(e -> addLsdSngButton_actionPerformed());
         clearSlotButton.setEnabled(false);
@@ -40,10 +43,6 @@ public class SongManager extends JFrame implements ListSelectionListener {
         exportLsdSngButton.setText("Export songs...");
         exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
-
-        saveButton.setEnabled(false);
-        saveButton.setText("Save ROM+SAV...");
-        saveButton.addActionListener(e -> saveButton_actionPerformed());
 
         jRamUsageIndicator.setString("");
         jRamUsageIndicator.setStringPainted(true);
@@ -57,89 +56,31 @@ public class SongManager extends JFrame implements ListSelectionListener {
         MigLayout layout = new MigLayout("wrap", "[]8[]");
         panel.setLayout(layout);
         panel.add(songs, "cell 0 0 1 6, growx, growy");
-        panel.add(jRamUsageIndicator, "cell 0 6 1 1, growx");
-        panel.add(saveButton, "cell 1 1 1 1, growx");
-        panel.add(addLsdSngButton, "cell 1 2 1 1, growx, gaptop 10");
-        panel.add(exportLsdSngButton, "cell 1 3 1 1, growx");
-        panel.add(clearSlotButton, "cell 1 4 1 1, growx, gaptop 10, aligny top");
+        panel.add(jRamUsageIndicator, "cell 0 3 1 1, growx");
+        panel.add(addLsdSngButton, "cell 1 0 1 1, growx");
+        panel.add(exportLsdSngButton, "cell 1 1 1 1, growx");
+        panel.add(clearSlotButton, "cell 1 2 1 1, growx, gaptop 10, aligny top");
 
         pack();
-        loadSav(savPath);
-        loadRom(romPath);
         setVisible(true);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                document.setSavFile(savFile);
+            }
+        });
+
+        savFile.populateSongList(songList);
+        updateRamUsageIndicator();
     }
 
     private String savePath() {
         return GlobalHolder.get(Preferences.class).get("path", System.getProperty("user.dir"));
     }
 
-    private void loadRom(String romPath) {
-        romImage = new byte[0x100000];
-        try {
-            RandomAccessFile f = new RandomAccessFile(romPath, "r");
-            f.readFully(romImage);
-            f.close();
-        } catch (IOException e) {
-            romImage = null;
-            JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
-                    "ROM read failed!",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void saveButton_actionPerformed() {
-        FileDialog fileDialog = new FileDialog(this,
-                "Save .gb file",
-                FileDialog.SAVE);
-        fileDialog.setDirectory(savePath());
-        fileDialog.setFile("*.gb");
-        fileDialog.setVisible(true);
-
-        String fileName = fileDialog.getFile();
-        if (fileName == null) {
-            return;
-        }
-
-        fileName = fileDialog.getDirectory() + fileName;
-        if (!fileName.toUpperCase().endsWith(".GB")) {
-            fileName += ".gb";
-        }
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
-            fileOutputStream.write(romImage);
-            fileOutputStream.close();
-            savFile.saveAs(fileName.replace(".gb", ".sav"));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
-                    "File save failed!",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void loadSav(String savPath) {
-        try {
-            savFile.loadFromSav(savPath);
-            savFile.populateSongList(songList);
-            enableAllButtons();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
-                    ".sav load failed!",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void enableAllButtons() {
-        saveButton.setEnabled(true);
-        addLsdSngButton.setEnabled(true);
-
-        updateRamUsageIndicator();
-    }
-
     public void clearSlotButton_actionPerformed() {
-
         if (songList.isSelectionEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a song!",
                     "No song selected!", JOptionPane.ERROR_MESSAGE);

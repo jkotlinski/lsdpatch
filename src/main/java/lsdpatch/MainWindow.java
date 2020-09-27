@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 
 public class MainWindow extends JFrame implements IDocumentListener {
     JTextField romTextField = new JTextField();
@@ -82,7 +83,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     private void openSongManager() {
-        SongManager savManager = new SongManager(romTextField.getText(), savTextField.getText());
+        SongManager savManager = new SongManager(document);
         savManager.setLocationRelativeTo(this);
         savManager.setVisible(true);
     }
@@ -141,6 +142,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         romTextField.setText(romPath);
         document.loadRomImage(romPath);
         String savPath = romPath.replaceFirst(".gb", ".sav");
+        document.loadSavFile(savPath);
         savTextField.setText(savPath);
         updateButtonsFromTextFields();
     }
@@ -195,7 +197,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         String title = "LSDPatcher v" + LSDPatcher.getVersion();
         if (document.romImage() != null) {
             title = title + " - " + document.romFile().getName();
-            if (document.isRomDirty()) {
+            if (document.isDirty()) {
                 title = title + '*';
             }
         }
