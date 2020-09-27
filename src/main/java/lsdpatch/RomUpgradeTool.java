@@ -27,7 +27,7 @@ public class RomUpgradeTool extends JFrame {
     final String arduinoBoyPath = "https://www.littlesounddj.com/lsd/latest/rom_images/arduinoboy/";
 
     private final File localRomFile;
-    private final byte[] localRomImage;
+    private byte[] localRomImage;
     private final byte[] remoteRomImage;
     private final Document document;
 
@@ -182,11 +182,13 @@ public class RomUpgradeTool extends JFrame {
 
         RomUtilities.fixChecksum(remoteRomImage);
 
-        JOptionPane.showMessageDialog(this,
-                "Save your new ROM to keep the changes!",
-                "ROM upgrade OK!", JOptionPane.INFORMATION_MESSAGE);
-
         document.setRomImage(remoteRomImage);
+        localRomImage = remoteRomImage;
+
+        JOptionPane.showMessageDialog(this,
+                "Upgraded to " + localVersion() + " successfully!",
+                "ROM upgrade OK!",
+                JOptionPane.INFORMATION_MESSAGE);
 
         dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
