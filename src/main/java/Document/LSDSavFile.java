@@ -62,6 +62,15 @@ public class LSDSavFile implements Cloneable {
         return isSixtyFourKbRam() ? 0xbf - 0x80 : 0xbf;
     }
 
+    public void saveAs(String filePath) throws Exception {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
+            if (isSixtyFourKbRam()) {
+                System.arraycopy(workRam, 0, workRam, 65536, 0x10000);
+            }
+            fileOutputStream.write(workRam);
+        }
+    }
+
     public void clearSong(int index) {
         int ramPtr = blockAllocTableStartPtr;
         int block = 0;

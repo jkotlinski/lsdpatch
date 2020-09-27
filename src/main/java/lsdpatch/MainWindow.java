@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 
 public class MainWindow extends JFrame implements IDocumentListener {
     JTextField romTextField = new JTextField();
@@ -218,7 +219,33 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     private void onSave() {
-        // TODO
-    }
+        FileDialog fileDialog = new FileDialog(this,
+                "Save .gb file",
+                FileDialog.SAVE);
+        fileDialog.setDirectory(JFileChooserFactory.baseFolder());
+        fileDialog.setFile("*.gb");
+        fileDialog.setVisible(true);
 
+        String fileName = fileDialog.getFile();
+        if (fileName == null) {
+            return;
+        }
+
+        fileName = fileDialog.getDirectory() + fileName;
+        if (!fileName.toUpperCase().endsWith(".GB")) {
+            fileName += ".gb";
+        }
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+            fileOutputStream.write(document.romImage());
+            fileOutputStream.close();
+            document.savFile().saveAs(fileName.replace(".gb", ".sav"));
+            document.clearDirty();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getLocalizedMessage(),
+                    "File save failed!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

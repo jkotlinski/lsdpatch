@@ -103,4 +103,9 @@ public class Document {
     public boolean isDirty() {
         return romDirty || savDirty;
     }
+
+    public void clearDirty() {
+        romDirty = false;
+        savDirty = false;
+    }
 }
