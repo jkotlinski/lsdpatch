@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.prefs.Preferences;
 
-public class MainMenu extends JFrame {
+public class MainWindow extends JFrame {
     JTextField romTextField = new JTextField();
     JTextField savTextField = new JTextField();
 
@@ -28,7 +28,7 @@ public class MainMenu extends JFrame {
     JButton editFontsButton = new JButton("Fonts");
     JButton editPalettesButton = new JButton("Palettes");
 
-    MainMenu() {
+    MainWindow() {
         setTitle("LSDPatcher v" + LSDPatcher.getVersion());
         JPanel panel = new JPanel();
         getContentPane().add(panel);

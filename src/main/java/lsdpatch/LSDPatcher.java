@@ -21,7 +21,7 @@ public class LSDPatcher {
     }
 
     private static void initUi() {
-        JFrame frame = new MainMenu();
+        JFrame frame = new MainWindow();
         // Validate frames that have preset sizes
         // Pack frames that have useful preferred size info, e.g. from their layout
         frame.pack();
