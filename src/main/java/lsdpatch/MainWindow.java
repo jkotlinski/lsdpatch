@@ -231,15 +231,18 @@ public class MainWindow extends JFrame implements IDocumentListener {
             return;
         }
 
-        fileName = fileDialog.getDirectory() + fileName;
-        if (!fileName.toUpperCase().endsWith(".GB")) {
-            fileName += ".gb";
+        String romPath = fileDialog.getDirectory() + fileName;
+        if (!romPath.toUpperCase().endsWith(".GB")) {
+            romPath += ".gb";
         }
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(romPath)) {
             fileOutputStream.write(document.romImage());
             fileOutputStream.close();
-            document.savFile().saveAs(fileName.replace(".gb", ".sav"));
+            String savPath = romPath.replace(".gb", ".sav");
+            document.savFile().saveAs(savPath);
+            romTextField.setText(romPath);
+            savTextField.setText(savPath);
             document.clearDirty();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
