@@ -12,6 +12,8 @@ import utils.JFileChooserFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 
 public class MainWindow extends JFrame implements IDocumentListener {
@@ -57,7 +59,20 @@ public class MainWindow extends JFrame implements IDocumentListener {
         editPalettesButton.setEnabled(false);
         panel.add(editPalettesButton, "grow x");
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (!document.isDirty() || JOptionPane.showConfirmDialog(null,
+                        "Quit without saving changes?",
+                        "Unsaved changes",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+                    setDefaultCloseOperation(EXIT_ON_CLOSE);
+                }
+                super.windowClosing(e);
+            }
+        });
     }
 
     private void openRomUpgradeTool() {

@@ -63,4 +63,8 @@ public class Document {
     public boolean isRomDirty() {
         return romDirty;
     }
+
+    public boolean isDirty() {
+        return romDirty;
+    }
 }
