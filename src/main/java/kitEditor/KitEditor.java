@@ -26,13 +26,11 @@ public class KitEditor extends JFrame {
 
     private static final int MAX_SAMPLES = 15;
 
-    private final java.awt.event.ActionListener bankBoxListener =
-            e -> bankBox_actionPerformed();
+    private final java.awt.event.ActionListener bankBoxListener = e -> bankBox_actionPerformed();
 
-    private RandomAccessFile romFile;
     private int totSampleSize = 0;
 
-    private byte[] romImage;
+    private final byte[] romImage;
 
     private Sample[] samples = new Sample[MAX_SAMPLES];
 
@@ -44,7 +42,6 @@ public class KitEditor extends JFrame {
     private final JTextArea kitTextArea = new JTextArea();
     private final JButton addSampleButton = new JButton();
     private final JButton dropSampleButton = new JButton();
-    private final JButton saveROMButton = new JButton();
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
     private final JSlider ditherSlider = new JSlider();
@@ -52,8 +49,6 @@ public class KitEditor extends JFrame {
 
     private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
     private final JCheckBox playSpeedToggle = new JCheckBox("Play samples in half-speed");
-
-    private final JMenuBar menuBar = new JMenuBar();
 
     private void emptyInstrList() {
         String[] listData = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.",
@@ -78,22 +73,6 @@ public class KitEditor extends JFrame {
                 document.setRomImage(romImage);
             }
         });
-    }
-
-    private void buildMenus() {
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.setMnemonic(KeyEvent.VK_F);
-        menuBar.add(fileMenu);
-
-        JMenuItem menuItem = new JMenuItem("Open ROM...", KeyEvent.VK_O);
-        menuItem.addActionListener(e -> selectRomToLoad());
-        fileMenu.add(menuItem);
-
-        JMenuItem saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
-        saveROMItem.addActionListener(e -> saveROMButton_actionPerformed());
-        fileMenu.add(saveROMItem);
-
-        setJMenuBar(menuBar);
     }
 
     private void setListeners() {
@@ -125,8 +104,6 @@ public class KitEditor extends JFrame {
 
         addSampleButton.addActionListener(e -> selectSampleToAdd());
         dropSampleButton.addActionListener(e -> dropSample());
-
-        saveROMButton.addActionListener(e -> saveROMButton_actionPerformed());
     }
 
     private void jbInit() {
@@ -167,8 +144,6 @@ public class KitEditor extends JFrame {
         dropSampleButton.setText("Drop sample");
         dropSampleButton.setEnabled(false);
 
-        saveROMButton.setText("Save ROM");
-
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
         contentPane.add(exportKitButton, "wrap");
@@ -179,7 +154,6 @@ public class KitEditor extends JFrame {
         contentPane.add(exportAllSamplesButton, "wrap");
         contentPane.add(addSampleButton, "span 2,wrap");
         contentPane.add(dropSampleButton, "span 2,wrap 10");
-        contentPane.add(saveROMButton, "span 2,wrap push");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume"), "split 2");
@@ -189,7 +163,6 @@ public class KitEditor extends JFrame {
         setMinimumSize(getPreferredSize());
         pack();
         setListeners();
-        buildMenus();
     }
 
     private void createFileDrop() {
@@ -205,8 +178,6 @@ public class KitEditor extends JFrame {
                         continue;
                     }
                     addSample(file);
-                } else if (fileName.endsWith(".gb")) {
-                    loadRom(file);
                 } else if (fileName.endsWith(".kit")) {
                     if (romImage == null) {
                         JOptionPane.showMessageDialog(contentPane,
@@ -274,33 +245,6 @@ public class KitEditor extends JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
                     JOptionPane.INFORMATION_MESSAGE);
             e.printStackTrace();
-        }
-    }
-
-    private void loadRom(File gbFile) {
-        try {
-            romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-            romFile = new RandomAccessFile(gbFile, "r");
-            romFile.readFully(romImage);
-            romFile.close();
-            flushWavFiles();
-            updateRomView();
-            bankBox.setSelectedIndex(0);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void selectRomToLoad() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Load ROM Image", FileType.Gb, FileOperation.Load);
-        int result = chooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File f = chooser.getSelectedFile();
-            if (f != null) {
-                loadRom(f);
-                JFileChooserFactory.setBaseFolder(f.getParent());
-            }
         }
     }
 
@@ -464,27 +408,6 @@ public class KitEditor extends JFrame {
                 samples[sampleIt] = Sample.createFromNibbles(nibbles, name);
             } else {
                 samples[sampleIt] = null;
-            }
-        }
-    }
-
-    private void saveROMButton_actionPerformed() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Save ROM image", FileType.Gb, FileOperation.Save);
-
-        int result = chooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            try {
-                File f = chooser.getSelectedFile();
-                JFileChooserFactory.setBaseFolder(f.getParent());
-
-                RomUtilities.fixChecksum(romImage);
-                romFile = new RandomAccessFile(f, "rw");
-                romFile.write(romImage);
-                romFile.close();
-                setTitle(f.getAbsoluteFile().toString() + " - LSDPatcher v" + LSDPatcher.getVersion());
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
