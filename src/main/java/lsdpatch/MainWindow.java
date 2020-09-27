@@ -23,6 +23,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
     JButton editKitsButton = new JButton("Sample Kits");
     JButton editFontsButton = new JButton("Fonts");
     JButton editPalettesButton = new JButton("Palettes");
+    JButton saveButton = new JButton("Save...");
 
     MainWindow() {
         document.subscribe(this);
@@ -30,7 +31,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         updateTitle();
         JPanel panel = new JPanel();
         getContentPane().add(panel);
-        MigLayout rootLayout = new MigLayout("wrap 5");
+        MigLayout rootLayout = new MigLayout("wrap 6");
         panel.setLayout(rootLayout);
 
         addSelectors(panel);
@@ -95,6 +96,10 @@ public class MainWindow extends JFrame implements IDocumentListener {
         browseRomButton.addActionListener(e -> onBrowseRomButtonPress());
         panel.add(browseRomButton);
 
+        saveButton.setEnabled(false);
+        saveButton.addActionListener(e -> onSave());
+        panel.add(saveButton, "span 1 4, grow y");
+
         savTextField.setMinimumSize(new Dimension(300, 0));
         savTextField.setEditable(false);
         savTextField.setText("Select LSDj save file --->");
@@ -158,13 +163,17 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     public void onRomDirty(boolean dirty) {
-        // TODO enable/disable save button
         updateTitle();
+        if (dirty) {
+            saveButton.setEnabled(true);
+        }
     }
 
     public void onSavDirty(boolean dirty) {
-        // TODO enable/disable save button
         updateTitle();
+        if (dirty) {
+            saveButton.setEnabled(true);
+        }
     }
 
     private void updateTitle() {
@@ -177,4 +186,9 @@ public class MainWindow extends JFrame implements IDocumentListener {
         }
         setTitle(title);
     }
+
+    private void onSave() {
+        // TODO
+    }
+
 }
