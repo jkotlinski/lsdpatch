@@ -2,12 +2,14 @@
 
 package lsdpatch;
 
+import Document.Document;
 import net.miginfocom.swing.MigLayout;
 import structures.LSDJFont;
 import utils.RomUtilities;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,11 +29,12 @@ public class RomUpgradeTool extends JFrame {
     private final File localRomFile;
     private final byte[] localRomImage;
     private final byte[] remoteRomImage;
+    private final Document document;
 
-    RomUpgradeTool(String romPath, byte[] romImage) {
-        assert (romImage != null);
-        localRomFile = new File(romPath);
-        localRomImage = romImage;
+    RomUpgradeTool(Document document) {
+        this.document = document;
+        localRomFile = document.romFile();
+        localRomImage = document.romImage();
         remoteRomImage = new byte[localRomImage.length];
 
         JPanel panel = new JPanel();
@@ -179,27 +182,13 @@ public class RomUpgradeTool extends JFrame {
 
         RomUtilities.fixChecksum(remoteRomImage);
 
-        FileDialog fileDialog = new FileDialog(this,
-                "Save upgraded .gb file",
-                FileDialog.SAVE);
-        fileDialog.setDirectory(localRomFile.getAbsolutePath());
-        fileDialog.setFile(localRomFile.getName());
-        fileDialog.setVisible(true);
-        String fileName = fileDialog.getFile();
-        if (fileName == null) {
-            return;
-        }
-        if (!fileName.endsWith(".gb")) {
-            fileName = fileName + ".gb";
-        }
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileDialog.getDirectory() + fileName)) {
-            fileOutputStream.write(remoteRomImage);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
-                    "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        JOptionPane.showMessageDialog(this,
+                "Save your new ROM to keep the changes!",
+                "ROM upgrade OK!", JOptionPane.INFORMATION_MESSAGE);
+
+        document.setRomImage(remoteRomImage);
+
+        dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
 
     private boolean importPalettes() {

@@ -5,6 +5,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,6 +16,7 @@ import java.io.RandomAccessFile;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import Document.Document;
 import lsdpatch.LSDPatcher;
 import structures.LSDJFont;
 import utils.FontIO;
@@ -37,7 +40,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
     private int selectedFontOffset = -1;
     private int previousSelectedFont = -1;
 
-    public FontEditor() {
+    public FontEditor(Document document) {
         setTitle("Font Editor");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setBounds(100, 100, 800, 600);
@@ -120,7 +123,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         contentPane.add(shiftButtonPanel, constraints);
 
         fontMap = new FontMap();
-        fontMap.setRomImage(romImage);
         fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setPreferredSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setTileSelectListener(this);
@@ -137,6 +139,16 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
         setMinimumSize(layout.preferredLayoutSize(contentPane));
         pack();
+
+        setRomImage(document.romImage());
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                document.setRomImage(fontMap.romImage());
+            }
+        });
     }
 
     private void addImageButtonToPanel(JPanel panel, String imagePath, String altText, ActionListener event) {

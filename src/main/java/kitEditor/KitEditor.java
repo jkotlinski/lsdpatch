@@ -1,5 +1,6 @@
 package kitEditor;
 
+import Document.Document;
 import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
 import utils.FileDrop;
@@ -12,9 +13,7 @@ import utils.SampleCanvas;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.RandomAccessFile;
 
@@ -62,15 +61,23 @@ public class KitEditor extends JFrame {
         instrList.setListData(listData);
     }
 
-    public KitEditor(byte[] romImage) {
+    public KitEditor(Document document) {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
         emptyInstrList();
-        this.romImage = romImage;
+        romImage = document.romImage();
         pack();
         setVisible(true);
         setTitle("Kit Editor");
         updateRomView();
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                document.setRomImage(romImage);
+            }
+        });
     }
 
     private void buildMenus() {

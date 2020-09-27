@@ -2,23 +2,19 @@
 
 package lsdpatch;
 
+import Document.*;
 import fontEditor.FontEditor;
 import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
-import utils.GlobalHolder;
 import utils.JFileChooserFactory;
-import utils.RomUtilities;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.prefs.Preferences;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements IDocumentListener {
     JTextField romTextField = new JTextField();
     JTextField savTextField = new JTextField();
 
@@ -29,7 +25,9 @@ public class MainWindow extends JFrame {
     JButton editPalettesButton = new JButton("Palettes");
 
     MainWindow() {
-        setTitle("LSDPatcher v" + LSDPatcher.getVersion());
+        document.subscribe(this);
+
+        updateTitle();
         JPanel panel = new JPanel();
         getContentPane().add(panel);
         MigLayout rootLayout = new MigLayout("wrap 5");
@@ -47,7 +45,7 @@ public class MainWindow extends JFrame {
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
-        editKitsButton.addActionListener(e -> new KitEditor(romImage).setLocationRelativeTo(this));
+        editKitsButton.addActionListener(e -> new KitEditor(document).setLocationRelativeTo(this));
         editKitsButton.setEnabled(false);
         panel.add(editKitsButton);
         editFontsButton.addActionListener(e -> openKitEditor());
@@ -62,7 +60,7 @@ public class MainWindow extends JFrame {
     }
 
     private void openRomUpgradeTool() {
-        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(romTextField.getText(), romImage);
+        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(document);
         romUpgradeTool.setLocationRelativeTo(this);
         romUpgradeTool.setVisible(true);
     }
@@ -74,43 +72,21 @@ public class MainWindow extends JFrame {
     }
 
     private void openPaletteEditor() {
-        PaletteEditor editor = new PaletteEditor();
+        PaletteEditor editor = new PaletteEditor(document);
         editor.setLocationRelativeTo(this);
-        editor.setRomImage(romImage);
         editor.setVisible(true);
     }
 
     private void openKitEditor() {
-        FontEditor fontEditor = new FontEditor();
+        FontEditor fontEditor = new FontEditor(document);
         fontEditor.setLocationRelativeTo(this);
-        fontEditor.setRomImage(romImage);
         fontEditor.setVisible(true);
     }
 
-    byte[] romImage;
-
-    boolean loadRomImage() {
-        romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
-        try {
-            RandomAccessFile romFile = new RandomAccessFile(romTextField.getText(), "r");
-            romFile.readFully(romImage);
-            romFile.close();
-
-            GlobalHolder.get(Preferences.class).put("path", new File(romTextField.getText()).getAbsolutePath());
-        } catch (IOException ioe)
-        {
-            JOptionPane.showMessageDialog(this,
-                    ioe.getLocalizedMessage(),
-                    "Could not read .gb file",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        return true;
-    }
+    final Document document = new Document();
 
     private void addSelectors(JPanel panel) {
         romTextField.setMinimumSize(new Dimension(300, 0));
-        romTextField.addActionListener(e -> updateButtonsFromTextFields());
         romTextField.setText("Select LSDj ROM file --->");
         romTextField.setEditable(false);
         panel.add(romTextField, "span 4, grow x");
@@ -120,7 +96,6 @@ public class MainWindow extends JFrame {
         panel.add(browseRomButton);
 
         savTextField.setMinimumSize(new Dimension(300, 0));
-        savTextField.addActionListener(e -> updateButtonsFromTextFields());
         savTextField.setEditable(false);
         savTextField.setText("Select LSDj save file --->");
         panel.add(savTextField, "span 4, grow x");
@@ -144,6 +119,7 @@ public class MainWindow extends JFrame {
 
         String romPath = fileDialog.getDirectory() + fileName;
         romTextField.setText(romPath);
+        document.loadRomImage(romPath);
         String savPath = romPath.replaceFirst(".gb", ".sav");
         savTextField.setText(savPath);
         updateButtonsFromTextFields();
@@ -167,19 +143,38 @@ public class MainWindow extends JFrame {
     }
 
     void updateButtonsFromTextFields() {
-        String romPath = romTextField.getText();
+        boolean romOk = document.romImage() != null;
         String savPath = savTextField.getText();
-
-        boolean romPathOk = romPath.endsWith(".gb") && new File(romPath).exists() && loadRomImage();
         boolean savPathOk = savPath.endsWith(".sav") && new File(savPath).exists();
 
-        romTextField.setBackground(romPathOk ? Color.white : Color.pink);
+        romTextField.setBackground(romOk ? Color.white : Color.pink);
         savTextField.setBackground(savPathOk ? Color.white : Color.pink);
 
-        editKitsButton.setEnabled(romPathOk);
-        editFontsButton.setEnabled(romPathOk);
-        editPalettesButton.setEnabled(romPathOk);
-        upgradeRomButton.setEnabled(romPathOk);
-        songManagerButton.setEnabled(savPathOk && romPathOk);
+        editKitsButton.setEnabled(romOk);
+        editFontsButton.setEnabled(romOk);
+        editPalettesButton.setEnabled(romOk);
+        upgradeRomButton.setEnabled(romOk);
+        songManagerButton.setEnabled(savPathOk && romOk);
+    }
+
+    public void onRomDirty(boolean dirty) {
+        // TODO enable/disable save button
+        updateTitle();
+    }
+
+    public void onSavDirty(boolean dirty) {
+        // TODO enable/disable save button
+        updateTitle();
+    }
+
+    private void updateTitle() {
+        String title = "LSDPatcher v" + LSDPatcher.getVersion();
+        if (document.romImage() != null) {
+            title = title + " - " + document.romFile().getName();
+            if (document.isRomDirty()) {
+                title = title + '*';
+            }
+        }
+        setTitle(title);
     }
 }

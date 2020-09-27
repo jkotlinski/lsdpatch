@@ -3,8 +3,11 @@ package paletteEditor;
 import java.awt.BorderLayout;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 
+import Document.Document;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
@@ -94,7 +97,7 @@ public class PaletteEditor
     private final javax.swing.JCheckBox desaturateButton;
     private boolean desaturate = false;
 
-    public PaletteEditor() {
+    public PaletteEditor(Document document) {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
@@ -389,6 +392,15 @@ public class PaletteEditor
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
+
+        setRomImage(document.romImage());
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                document.setRomImage(romImage);
+            }
+        });
     }
 
     private void listenToSpinners() {
@@ -424,7 +436,7 @@ public class PaletteEditor
         c5b2.addChangeListener(this);
     }
 
-    public void setRomImage(byte[] romImage) {
+    private void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         paletteOffset = RomUtilities.findPaletteOffset(romImage);
         if (paletteOffset == -1) {
