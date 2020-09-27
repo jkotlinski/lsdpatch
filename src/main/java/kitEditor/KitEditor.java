@@ -17,7 +17,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
@@ -38,10 +37,8 @@ public class KitEditor extends JFrame {
 
     private Sample[] samples = new Sample[MAX_SAMPLES];
 
-    private JMenuItem saveROMItem;
     private final JButton loadKitButton = new JButton();
     private final JButton exportKitButton = new JButton();
-    private final JButton eraseKitButton = new JButton();
     private final JButton exportSampleButton = new JButton();
     private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
@@ -85,7 +82,7 @@ public class KitEditor extends JFrame {
         menuItem.addActionListener(e -> selectRomToLoad());
         fileMenu.add(menuItem);
 
-        saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
+        JMenuItem saveROMItem = new JMenuItem("Save ROM...", KeyEvent.VK_S);
         saveROMItem.addActionListener(e -> saveROMButton_actionPerformed());
         fileMenu.add(saveROMItem);
 
@@ -115,7 +112,6 @@ public class KitEditor extends JFrame {
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
         exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
-        eraseKitButton.addActionListener(e -> eraseKitButton_actionPerformed());
         renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
@@ -148,7 +144,6 @@ public class KitEditor extends JFrame {
 
         loadKitButton.setText("Load Kit");
         exportKitButton.setText("Export Kit");
-        eraseKitButton.setText("Erase Kit");
 
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
 
@@ -170,7 +165,6 @@ public class KitEditor extends JFrame {
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
         contentPane.add(exportKitButton, "wrap");
-        contentPane.add(eraseKitButton, "wrap");
         contentPane.add(kitTextArea, "grow,split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
@@ -513,14 +507,6 @@ public class KitEditor extends JFrame {
             updateRomView();
         }
     }
-
-    private void eraseKitButton_actionPerformed() {
-        int romOffset = getROMOffsetForSelectedBank();
-        Arrays.fill(romImage,  romOffset, romOffset + RomUtilities.BANK_SIZE, (byte) -1);
-        updateBankView();
-        updateRomView();
-    }
-
 
     private void loadKit(File kitFile) {
         try {
