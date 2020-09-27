@@ -105,7 +105,7 @@ public class Document {
     }
 
     public void clearDirty() {
-        romDirty = false;
-        savDirty = false;
+        setRomDirty(false);
+        setSavDirty(false);
     }
 }
