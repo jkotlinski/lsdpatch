@@ -69,6 +69,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 document.setSavFile(savFile);
+                document.setRomImage(romImage);
             }
         });
 

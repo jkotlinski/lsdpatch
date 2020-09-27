@@ -243,6 +243,8 @@ public class MainWindow extends JFrame implements IDocumentListener {
             document.savFile().saveAs(savPath);
             romTextField.setText(romPath);
             savTextField.setText(savPath);
+            document.setRomFile(new File(romPath));
+            document.loadSavFile(savPath);
             document.clearDirty();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
