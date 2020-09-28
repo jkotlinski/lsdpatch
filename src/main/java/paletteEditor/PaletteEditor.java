@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 
 import Document.Document;
 import net.miginfocom.swing.MigLayout;
@@ -68,6 +69,7 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
+    private final JButton randomizeButton = new JButton("Randomize colors");
     private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
 
     private void createSpinners(JSpinner[] spinners) {
@@ -174,7 +176,10 @@ public class PaletteEditor
         createPreviews(scrollbarPreview);
         addSpinnerEntry(contentPane, "Scrollbar", scrollbarBackgroundSpinners, scrollbarForegroundSpinners, scrollbarPreview);
 
-        desaturateButton.setBounds(10, 330, 146, 24);
+        randomizeButton.addActionListener((e) -> randomizeColors());
+
+        contentPane.add(randomizeButton, "span, grow, wrap");
+
         desaturateButton.addItemListener(this);
         contentPane.add(desaturateButton, "span, grow, wrap");
 
@@ -255,6 +260,29 @@ public class PaletteEditor
         int g = ((romImage[offset + 1] & 3) << 6) | ((romImage[offset] & 0xe0) >> 2);
         int b = (romImage[offset + 1] << 1) & 0xf8;
         return new java.awt.Color(r, g, b);
+    }
+
+    private void randomizeSpinnerGroup(Random rand, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
+        for(JSpinner spinner : backgroundSpinners) {
+            spinner.setValue(rand.nextInt(32));
+        }
+        for(JSpinner spinner : foregroundSpinners) {
+            spinner.setValue(rand.nextInt(32));
+        }
+
+    }
+
+    // Shoutout to Defense Mechanism
+    private void randomizeColors() {
+        updatingSpinners = true;
+        Random rand = new Random();
+        randomizeSpinnerGroup(rand, normalBackgroundSpinners, normalForegroundSpinners);
+        randomizeSpinnerGroup(rand, shadedBackgroundSpinners, shadedForegroundSpinners);
+        randomizeSpinnerGroup(rand, alternativeBackgroundSpinners, alternativeForegroundSpinners);
+        randomizeSpinnerGroup(rand, selectionBackgroundSpinners, selectionForegroundSpinners);
+        randomizeSpinnerGroup(rand, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
+        updatingSpinners = false;
+        stateChanged(null);
     }
 
     private void updateRom(int offset, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
