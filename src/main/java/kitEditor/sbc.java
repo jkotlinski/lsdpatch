@@ -26,8 +26,6 @@ package kitEditor;
 
 class sbc {
 
-    static int DITHER_VAL = 0x8;
-
     //outfile=dst, inSample=8bit unsigned sample 11468 kHz
     public static void handle(byte dst[], Sample samples[], int byteLength[]) {
         int offset = 0x60; //don't overwrite sample bank info!
@@ -48,10 +46,6 @@ class sbc {
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
                 outputBuffer[outputCounter] = sample.read();
-//                if (sample.mayDither()) {
-//                    outputBuffer[outputCounter] += Math.random() * DITHER_VAL - DITHER_VAL / 2;
-//                }
-                //outputBuffer[outputCounter]+=outputCounter%2*DITHER_VAL-DITHER_VAL/2;
                 //throw away 4 LSB
                 outputBuffer[outputCounter] /= 16;
 

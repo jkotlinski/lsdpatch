@@ -14,6 +14,19 @@ Fonts: https://github.com/urbster1/lsdfonts
 
 Palettes: https://github.com/urbster1/lsdpals
 
-### Building
+## Building
 
 Build using [Maven](https://maven.apache.org/): `mvn package`
+
+## Sample dithering
+
+Sample dithering was a feature of previous versions but since has been removed after concerns around the UI workflow.
+
+To add dithering to your samples before adding them in a kit, you can use tools like [sox] to pre-convert your sample to
+11468Hz and 8-bit and adding a dithering pass over it in a single command (courtesy of @urbster1).
+
+```shell
+sox.exe raw_sample.wav --rate 11468 -c 1 -b 8 converted_sample.wav --norm=0 dither -p 5
+```
+
+[sox]: http://sox.sourceforge.net/
