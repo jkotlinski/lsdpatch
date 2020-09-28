@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Kit sample playback got stuck at times.
+ - Old LSDj ROMs (like, v3) would not open.
 
 ## [1.5.0] - 2020-09-13
 ### Changed
