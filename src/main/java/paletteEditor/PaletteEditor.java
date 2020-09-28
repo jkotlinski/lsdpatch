@@ -1,30 +1,24 @@
 package paletteEditor;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 import Document.Document;
+import net.miginfocom.swing.MigLayout;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
 import utils.StretchIcon;
 
-import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JComboBox;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
@@ -37,67 +31,59 @@ public class PaletteEditor
     private int paletteOffset = -1;
     private int nameOffset = -1;
 
-    private final JPanel preview1a;
-    private final JPanel preview1b;
-    private final JPanel preview2a;
-    private final JPanel preview2b;
-    private final JPanel preview3a;
-    private final JPanel preview3b;
-    private final JPanel preview4a;
-    private final JPanel preview4b;
-    private final JPanel preview5a;
-    private final JPanel preview5b;
+    private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
-    private final JLabel previewSongLabel;
-    private final JLabel previewInstrLabel;
+    private final JLabel previewSongLabel = new JLabel();
+    private final JLabel previewInstrLabel = new JLabel();
 
-    private final JSpinner c1r1;
-    private final JSpinner c1g1;
-    private final JSpinner c1b1;
-    private final JSpinner c1r2;
-    private final JSpinner c1g2;
-    private final JSpinner c1b2;
-    private final JSpinner c2r1;
-    private final JSpinner c2g1;
-    private final JSpinner c2b1;
-    private final JSpinner c2r2;
-    private final JSpinner c2g2;
-    private final JSpinner c2b2;
-    private final JSpinner c3r1;
-    private final JSpinner c3g1;
-    private final JSpinner c3b1;
-    private final JSpinner c3r2;
-    private final JSpinner c3g2;
-    private final JSpinner c3b2;
-    private final JSpinner c4r1;
-    private final JSpinner c4g1;
-    private final JSpinner c4b1;
-    private final JSpinner c4r2;
-    private final JSpinner c4g2;
-    private final JSpinner c4b2;
-    private final JSpinner c5r1;
-    private final JSpinner c5g1;
-    private final JSpinner c5b1;
-    private final JSpinner c5r2;
-    private final JSpinner c5g2;
-    private final JSpinner c5b2;
+    private final JSpinner[] normalBackgroundSpinners = new JSpinner[3];
+    private final JSpinner[] normalForegroundSpinners = new JSpinner[3];
+    private final JPanel[] normalPreview = new JPanel[2];
+
+    private final JSpinner[] shadedBackgroundSpinners = new JSpinner[3];
+    private final JSpinner[] shadedForegroundSpinners = new JSpinner[3];
+    private final JPanel[] shadedPreview = new JPanel[2];
+
+    private final JSpinner[] alternativeBackgroundSpinners = new JSpinner[3];
+    private final JSpinner[] alternativeForegroundSpinners = new JSpinner[3];
+    private final JPanel[] alternativePreview = new JPanel[2];
+
+    private final JSpinner[] selectionBackgroundSpinners = new JSpinner[3];
+    private final JSpinner[] selectionForegroundSpinners = new JSpinner[3];
+    private final JPanel[] selectionPreview = new JPanel[2];
+
+    private final JSpinner[] scrollbarBackgroundSpinners = new JSpinner[3];
+    private final JSpinner[] scrollbarForegroundSpinners = new JSpinner[3];
+    private final JPanel[] scrollbarPreview = new JPanel[2];
 
     private final JComboBox<String> paletteSelector;
 
     JMenuItem mntmPaste;
 
-    private java.awt.image.BufferedImage songImage;
-    private java.awt.image.BufferedImage instrImage;
+    private BufferedImage songImage;
+    private BufferedImage instrImage;
 
     private int previousSelectedPalette = -1;
 
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
-    private final javax.swing.JCheckBox desaturateButton;
-    private boolean desaturate = false;
+    private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
 
-    public PaletteEditor(Document document) {
+    private void createSpinners(JSpinner[] spinners) {
+        for (int i = 0; i < spinners.length; ++i) {
+            spinners[i] = new JSpinner(new SpinnerNumberModel(0,0,31,1));
+        }
+    }
+
+    private void createPreviews(JPanel[] previews) {
+        for (int i = 0; i < previews.length; ++i) {
+            previews[i] = new JPanel();
+            previews[i].setBorder(previewLabelBorder);
+        }
+    }
+
+    private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
@@ -129,260 +115,76 @@ public class PaletteEditor
         mntmPaste.addActionListener(this);
         mntmPaste.setEnabled(false);
         mnEdit.add(mntmPaste);
+    }
+
+    private void addSpinnerEntry(JPanel panel, String name, JSpinner[] background, JSpinner[] foreground, JPanel[] previews) {
+        panel.add(new JLabel(name), "span, split 3");
+        for (int i = 0; i < previews.length; ++i) {
+            panel.add(previews[i], i == previews.length - 1 ? "grow, wrap" : "grow");
+        }
+        for (int i = 0; i < background.length; ++i) {
+            panel.add(background[i], i == background.length - 1 ? "grow, wrap" : "grow");
+        }
+        for (int i = 0; i < foreground.length; ++i) {
+            panel.add(foreground[i], i == foreground.length - 1 ? "grow, wrap 10" : "grow");
+        }
+    }
+
+    public PaletteEditor(Document document) {
+        setupMenuBar();
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-        setBounds(100, 100, 650, 656);
-        setResizable(false);
+        setResizable(true);
         setTitle("Palette Editor");
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
-        contentPane.setLayout(null);
+        contentPane.setLayout(new MigLayout());
 
         paletteSelector = new JComboBox<>();
-        paletteSelector.setBounds(10, 10, 140, 20);
         paletteSelector.setEditable(true);
         paletteSelector.addItemListener(this);
         paletteSelector.addActionListener(this);
-        contentPane.add(paletteSelector);
+        contentPane.add(paletteSelector, "cell 0 0, grow, span, wrap 10");
 
-        JPanel previewSong = new JPanel(new BorderLayout());
-        previewSong.setBounds(314, 10, 160 * 2, 144 * 2);
-        previewSongLabel = new JLabel();
-        previewSong.add(previewSongLabel);
-        contentPane.add(previewSong);
+        createSpinners(normalBackgroundSpinners);
+        createSpinners(normalForegroundSpinners);
+        createSpinners(shadedBackgroundSpinners);
+        createSpinners(shadedForegroundSpinners);
+        createSpinners(alternativeBackgroundSpinners);
+        createSpinners(alternativeForegroundSpinners);
+        createSpinners(selectionBackgroundSpinners);
+        createSpinners(selectionForegroundSpinners);
+        createSpinners(scrollbarBackgroundSpinners);
+        createSpinners(scrollbarForegroundSpinners);
 
-        JPanel previewInstr = new JPanel(new BorderLayout());
-        previewInstr.setBounds(314, 10 + 144 * 2 + 10, 160 * 2, 144 * 2);
-        previewInstrLabel = new JLabel();
-        previewInstr.add(previewInstrLabel);
-        contentPane.add(previewInstr);
+        createPreviews(normalPreview);
+        addSpinnerEntry(contentPane, "Normal", normalBackgroundSpinners, normalForegroundSpinners, normalPreview);
 
-        c1r1 = new JSpinner();
-        c1r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c1r1.setBounds(10, 66, 36, 20);
-        contentPane.add(c1r1);
+        createPreviews(shadedPreview);
+        addSpinnerEntry(contentPane, "Shaded", shadedBackgroundSpinners, shadedForegroundSpinners, shadedPreview);
 
-        JLabel lblNormal = new JLabel("Normal");
-        lblNormal.setBounds(10, 41, 46, 14);
-        contentPane.add(lblNormal);
+        createPreviews(alternativePreview);
+        addSpinnerEntry(contentPane, "Altenative", alternativeBackgroundSpinners, alternativeForegroundSpinners, alternativePreview);
 
-        c1g1 = new JSpinner();
-        c1g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c1g1.setBounds(56, 66, 36, 20);
-        contentPane.add(c1g1);
+        createPreviews(selectionPreview);
+        addSpinnerEntry(contentPane, "Selection", selectionBackgroundSpinners, selectionForegroundSpinners, selectionPreview);
 
-        c1b1 = new JSpinner();
-        c1b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c1b1.setBounds(102, 66, 36, 20);
-        contentPane.add(c1b1);
+        createPreviews(scrollbarPreview);
+        addSpinnerEntry(contentPane, "Scrollbar", scrollbarBackgroundSpinners, scrollbarForegroundSpinners, scrollbarPreview);
 
-        preview1a = new JPanel();
-        preview1a.setBounds(95, 41, 43, 14);
-        preview1a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview1a);
-
-        preview1b = new JPanel();
-        preview1b.setBounds(159, 41, 43, 14);
-        preview1b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview1b);
-
-        c1b2 = new JSpinner();
-        c1b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c1b2.setBounds(251, 66, 36, 20);
-        contentPane.add(c1b2);
-
-        c1g2 = new JSpinner();
-        c1g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c1g2.setBounds(205, 66, 36, 20);
-        contentPane.add(c1g2);
-
-        c1r2 = new JSpinner();
-        c1r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c1r2.setBounds(159, 66, 36, 20);
-        contentPane.add(c1r2);
-
-        JLabel lblShaded = new JLabel("Shaded");
-        lblShaded.setBounds(10, 97, 46, 14);
-        contentPane.add(lblShaded);
-
-        c2r1 = new JSpinner();
-        c2r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c2r1.setBounds(10, 122, 36, 20);
-        contentPane.add(c2r1);
-
-        c2g1 = new JSpinner();
-        c2g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c2g1.setBounds(56, 122, 36, 20);
-        contentPane.add(c2g1);
-
-        c2b1 = new JSpinner();
-        c2b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c2b1.setBounds(102, 122, 36, 20);
-        contentPane.add(c2b1);
-
-        c2r2 = new JSpinner();
-        c2r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c2r2.setBounds(159, 122, 36, 20);
-        contentPane.add(c2r2);
-
-        c2g2 = new JSpinner();
-        c2g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c2g2.setBounds(205, 122, 36, 20);
-        contentPane.add(c2g2);
-
-        c2b2 = new JSpinner();
-        c2b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c2b2.setBounds(251, 122, 36, 20);
-        contentPane.add(c2b2);
-
-        preview2b = new JPanel();
-        preview2b.setBounds(159, 97, 43, 14);
-        preview2b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview2b);
-
-        preview2a = new JPanel();
-        preview2a.setBounds(95, 97, 43, 14);
-        preview2a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview2a);
-
-        JLabel lblAlternate = new JLabel("Alternate");
-        lblAlternate.setBounds(10, 153, 82, 14);
-        contentPane.add(lblAlternate);
-
-        c3r1 = new JSpinner();
-        c3r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c3r1.setBounds(10, 178, 36, 20);
-        contentPane.add(c3r1);
-
-        c3g1 = new JSpinner();
-        c3g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c3g1.setBounds(56, 178, 36, 20);
-        contentPane.add(c3g1);
-
-        c3b1 = new JSpinner();
-        c3b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c3b1.setBounds(102, 178, 36, 20);
-        contentPane.add(c3b1);
-
-        c3r2 = new JSpinner();
-        c3r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c3r2.setBounds(159, 178, 36, 20);
-        contentPane.add(c3r2);
-
-        c3g2 = new JSpinner();
-        c3g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c3g2.setBounds(205, 178, 36, 20);
-        contentPane.add(c3g2);
-
-        c3b2 = new JSpinner();
-        c3b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c3b2.setBounds(251, 178, 36, 20);
-        contentPane.add(c3b2);
-
-        preview3b = new JPanel();
-        preview3b.setBounds(159, 153, 43, 14);
-        preview3b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview3b);
-
-        preview3a = new JPanel();
-        preview3a.setBounds(95, 153, 43, 14);
-        preview3a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview3a);
-
-        JLabel lblCursor = new JLabel("Selection");
-        lblCursor.setBounds(10, 209, 82, 14);
-        contentPane.add(lblCursor);
-
-        c4r1 = new JSpinner();
-        c4r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c4r1.setBounds(10, 234, 36, 20);
-        contentPane.add(c4r1);
-
-        c4g1 = new JSpinner();
-        c4g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c4g1.setBounds(56, 234, 36, 20);
-        contentPane.add(c4g1);
-
-        c4b1 = new JSpinner();
-        c4b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c4b1.setBounds(102, 234, 36, 20);
-        contentPane.add(c4b1);
-
-        c4r2 = new JSpinner();
-        c4r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c4r2.setBounds(159, 234, 36, 20);
-        contentPane.add(c4r2);
-
-        c4g2 = new JSpinner();
-        c4g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c4g2.setBounds(205, 234, 36, 20);
-        contentPane.add(c4g2);
-
-        c4b2 = new JSpinner();
-        c4b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c4b2.setBounds(251, 234, 36, 20);
-        contentPane.add(c4b2);
-
-        preview4b = new JPanel();
-        preview4b.setBounds(159, 209, 43, 14);
-        preview4b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview4b);
-
-        preview4a = new JPanel();
-        preview4a.setBounds(95, 209, 43, 14);
-        preview4a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview4a);
-
-        JLabel scrollStartLabel = new JLabel("Scroll");
-        scrollStartLabel.setBounds(10, 265, 65, 14);
-        contentPane.add(scrollStartLabel);
-
-        c5r1 = new JSpinner();
-        c5r1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c5r1.setBounds(10, 290, 36, 20);
-        contentPane.add(c5r1);
-
-        c5g1 = new JSpinner();
-        c5g1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c5g1.setBounds(56, 290, 36, 20);
-        contentPane.add(c5g1);
-
-        c5b1 = new JSpinner();
-        c5b1.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c5b1.setBounds(102, 290, 36, 20);
-        contentPane.add(c5b1);
-
-        c5r2 = new JSpinner();
-        c5r2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c5r2.setBounds(159, 290, 36, 20);
-        contentPane.add(c5r2);
-
-        c5g2 = new JSpinner();
-        c5g2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c5g2.setBounds(205, 290, 36, 20);
-        contentPane.add(c5g2);
-
-        c5b2 = new JSpinner();
-        c5b2.setModel(new SpinnerNumberModel(0, 0, 31, 1));
-        c5b2.setBounds(251, 290, 36, 20);
-        contentPane.add(c5b2);
-
-        desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
         desaturateButton.setBounds(10, 330, 146, 24);
         desaturateButton.addItemListener(this);
-        contentPane.add(desaturateButton);
+        contentPane.add(desaturateButton, "span, grow, wrap");
 
-        preview5b = new JPanel();
-        preview5b.setBounds(159, 265, 43, 14);
-        preview5b.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview5b);
-
-        preview5a = new JPanel();
-        preview5a.setBounds(95, 265, 43, 14);
-        preview5a.setBorder(javax.swing.BorderFactory.createLoweredBevelBorder());
-        contentPane.add(preview5a);
+        JPanel previewSection = new JPanel();
+        previewSection.setLayout(new GridLayout(2, 1));
+        previewSongLabel.setMinimumSize(new Dimension(160 * 2, 144 * 2));
+        previewInstrLabel.setMinimumSize(new Dimension(160 * 2, 144 * 2));
+        previewSection.add(previewSongLabel);
+        previewSection.add(previewInstrLabel);
+        contentPane.add(previewSection, "dock east, gap 10");
 
         listenToSpinners();
 
@@ -394,6 +196,8 @@ public class PaletteEditor
         }
 
         setRomImage(document.romImage());
+        updatePreviewPanes();
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -401,39 +205,27 @@ public class PaletteEditor
                 document.setRomImage(romImage);
             }
         });
+
+        pack();
+        setMinimumSize(getPreferredSize());
     }
 
+    private void addSelfAsListenerToAllSpinners(JSpinner[] spinners) {
+        for(JSpinner spinner : spinners) {
+            spinner.addChangeListener(this);
+        }
+    }
     private void listenToSpinners() {
-        c1r1.addChangeListener(this);
-        c1g1.addChangeListener(this);
-        c1b1.addChangeListener(this);
-        c1r2.addChangeListener(this);
-        c1g2.addChangeListener(this);
-        c1b2.addChangeListener(this);
-        c2r1.addChangeListener(this);
-        c2g1.addChangeListener(this);
-        c2b1.addChangeListener(this);
-        c2r2.addChangeListener(this);
-        c2g2.addChangeListener(this);
-        c2b2.addChangeListener(this);
-        c3r1.addChangeListener(this);
-        c3g1.addChangeListener(this);
-        c3b1.addChangeListener(this);
-        c3r2.addChangeListener(this);
-        c3g2.addChangeListener(this);
-        c3b2.addChangeListener(this);
-        c4r1.addChangeListener(this);
-        c4g1.addChangeListener(this);
-        c4b1.addChangeListener(this);
-        c4r2.addChangeListener(this);
-        c4g2.addChangeListener(this);
-        c4b2.addChangeListener(this);
-        c5r1.addChangeListener(this);
-        c5g1.addChangeListener(this);
-        c5b1.addChangeListener(this);
-        c5r2.addChangeListener(this);
-        c5g2.addChangeListener(this);
-        c5b2.addChangeListener(this);
+        addSelfAsListenerToAllSpinners(normalBackgroundSpinners);
+        addSelfAsListenerToAllSpinners(normalForegroundSpinners);
+        addSelfAsListenerToAllSpinners(shadedBackgroundSpinners);
+        addSelfAsListenerToAllSpinners(shadedForegroundSpinners);
+        addSelfAsListenerToAllSpinners(alternativeBackgroundSpinners);
+        addSelfAsListenerToAllSpinners(alternativeForegroundSpinners);
+        addSelfAsListenerToAllSpinners(selectionBackgroundSpinners);
+        addSelfAsListenerToAllSpinners(selectionForegroundSpinners);
+        addSelfAsListenerToAllSpinners(scrollbarBackgroundSpinners);
+        addSelfAsListenerToAllSpinners(scrollbarForegroundSpinners);
     }
 
     private void setRomImage(byte[] romImage) {
@@ -465,23 +257,17 @@ public class PaletteEditor
         return new java.awt.Color(r, g, b);
     }
 
-    private void updateRom(int offset,
-                           JSpinner sr1,
-                           JSpinner sg1,
-                           JSpinner sb1,
-                           JSpinner sr2,
-                           JSpinner sg2,
-                           JSpinner sb2) {
-        int r1 = (Integer) sr1.getValue();
-        int g1 = (Integer) sg1.getValue();
-        int b1 = (Integer) sb1.getValue();
+    private void updateRom(int offset, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
+        int r1 = (Integer) backgroundSpinners[0].getValue();
+        int g1 = (Integer) backgroundSpinners[1].getValue();
+        int b1 = (Integer) backgroundSpinners[2].getValue();
         // gggrrrrr 0bbbbbgg
         romImage[offset] = (byte) (r1 | (g1 << 5));
         romImage[offset + 1] = (byte) ((g1 >> 3) | (b1 << 2));
 
-        int r2 = (Integer) sr2.getValue();
-        int g2 = (Integer) sg2.getValue();
-        int b2 = (Integer) sb2.getValue();
+        int r2 = (Integer) foregroundSpinners[0].getValue();
+        int g2 = (Integer) foregroundSpinners[1].getValue();
+        int b2 = (Integer) foregroundSpinners[2].getValue();
         romImage[offset + 6] = (byte) (r2 | (g2 << 5));
         romImage[offset + 7] = (byte) ((g2 >> 3) | (b2 << 2));
 
@@ -500,11 +286,11 @@ public class PaletteEditor
     }
 
     private void updateRomFromSpinners() {
-        updateRom(selectedPaletteOffset(), c1r1, c1g1, c1b1, c1r2, c1g2, c1b2);
-        updateRom(selectedPaletteOffset() + 8, c2r1, c2g1, c2b1, c2r2, c2g2, c2b2);
-        updateRom(selectedPaletteOffset() + 16, c3r1, c3g1, c3b1, c3r2, c3g2, c3b2);
-        updateRom(selectedPaletteOffset() + 24, c4r1, c4g1, c4b1, c4r2, c4g2, c4b2);
-        updateRom(selectedPaletteOffset() + 32, c5r1, c5g1, c5b1, c5r2, c5g2, c5b2);
+        updateRom(selectedPaletteOffset(), normalBackgroundSpinners, normalForegroundSpinners);
+        updateRom(selectedPaletteOffset() + 8, shadedBackgroundSpinners, shadedForegroundSpinners);
+        updateRom(selectedPaletteOffset() + 16, alternativeBackgroundSpinners, alternativeForegroundSpinners);
+        updateRom(selectedPaletteOffset() + 24, selectionBackgroundSpinners, selectionForegroundSpinners);
+        updateRom(selectedPaletteOffset() + 32, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
     }
 
     private java.awt.Color firstColor(int colorSet) {
@@ -624,7 +410,7 @@ public class PaletteEditor
                 dstImage.setRGB(x, y, colorCorrect(c));
             }
         }
-	if (desaturate) {
+	if (desaturateButton.isSelected()) {
 		return new java.awt.image.ColorConvertOp(java.awt.color.ColorSpace.getInstance(java.awt.color.ColorSpace.CS_GRAY), null).filter(dstImage, dstImage);
 	}
         return dstImage;
@@ -635,68 +421,56 @@ public class PaletteEditor
         previewInstrLabel.setIcon(new StretchIcon(modifyUsingPalette(instrImage)));
     }
 
+    private void setPreviewBackground(int colorSetIndex, JPanel[] previews) {
+        previews[0].setBackground(new java.awt.Color(colorCorrect(firstColor(colorSetIndex))));
+        previews[1].setBackground(new java.awt.Color(colorCorrect(secondColor(colorSetIndex))));
+
+    }
+
     private void updatePreviewPanes() {
-        preview1a.setBackground(new java.awt.Color(colorCorrect(firstColor(0))));
-        preview1b.setBackground(new java.awt.Color(colorCorrect(secondColor(0))));
-        preview2a.setBackground(new java.awt.Color(colorCorrect(firstColor(1))));
-        preview2b.setBackground(new java.awt.Color(colorCorrect(secondColor(1))));
-        preview3a.setBackground(new java.awt.Color(colorCorrect(firstColor(2))));
-        preview3b.setBackground(new java.awt.Color(colorCorrect(secondColor(2))));
-        preview4a.setBackground(new java.awt.Color(colorCorrect(firstColor(3))));
-        preview4b.setBackground(new java.awt.Color(colorCorrect(secondColor(3))));
-        preview5a.setBackground(new java.awt.Color(colorCorrect(firstColor(4))));
-        preview5b.setBackground(new java.awt.Color(colorCorrect(secondColor(4))));
+        setPreviewBackground(0, normalPreview);
+        setPreviewBackground(1, shadedPreview);
+        setPreviewBackground(2, alternativePreview);
+        setPreviewBackground(3, selectionPreview);
+        setPreviewBackground(4, scrollbarPreview);
 
         updateSongAndInstrScreens();
     }
 
-    private void updateSpinners() {
+    private void updateSpinners(int colorSetIndex, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
         updatingSpinners = true;
-        c1r1.setValue(firstColor(0).getRed() >> 3);
-        c1g1.setValue(firstColor(0).getGreen() >> 3);
-        c1b1.setValue(firstColor(0).getBlue() >> 3);
-        c1r2.setValue(secondColor(0).getRed() >> 3);
-        c1g2.setValue(secondColor(0).getGreen() >> 3);
-        c1b2.setValue(secondColor(0).getBlue() >> 3);
-        c2r1.setValue(firstColor(1).getRed() >> 3);
-        c2g1.setValue(firstColor(1).getGreen() >> 3);
-        c2b1.setValue(firstColor(1).getBlue() >> 3);
-        c2r2.setValue(secondColor(1).getRed() >> 3);
-        c2g2.setValue(secondColor(1).getGreen() >> 3);
-        c2b2.setValue(secondColor(1).getBlue() >> 3);
-        c3r1.setValue(firstColor(2).getRed() >> 3);
-        c3g1.setValue(firstColor(2).getGreen() >> 3);
-        c3b1.setValue(firstColor(2).getBlue() >> 3);
-        c3r2.setValue(secondColor(2).getRed() >> 3);
-        c3g2.setValue(secondColor(2).getGreen() >> 3);
-        c3b2.setValue(secondColor(2).getBlue() >> 3);
-        c4r1.setValue(firstColor(3).getRed() >> 3);
-        c4g1.setValue(firstColor(3).getGreen() >> 3);
-        c4b1.setValue(firstColor(3).getBlue() >> 3);
-        c4r2.setValue(secondColor(3).getRed() >> 3);
-        c4g2.setValue(secondColor(3).getGreen() >> 3);
-        c4b2.setValue(secondColor(3).getBlue() >> 3);
-        c5r1.setValue(firstColor(4).getRed() >> 3);
-        c5g1.setValue(firstColor(4).getGreen() >> 3);
-        c5b1.setValue(firstColor(4).getBlue() >> 3);
-        c5r2.setValue(secondColor(4).getRed() >> 3);
-        c5g2.setValue(secondColor(4).getGreen() >> 3);
-        c5b2.setValue(secondColor(4).getBlue() >> 3);
+        Color firstColor = firstColor(colorSetIndex);
+        Color secondColor = secondColor(colorSetIndex);
+
+        backgroundSpinners[0].setValue(firstColor.getRed()>>3);
+        backgroundSpinners[1].setValue(firstColor.getGreen()>>3);
+        backgroundSpinners[2].setValue(firstColor.getBlue()>>3);
+
+        foregroundSpinners[0].setValue(secondColor.getRed()>>3);
+        foregroundSpinners[1].setValue(secondColor.getGreen()>>3);
+        foregroundSpinners[2].setValue(secondColor.getBlue()>>3);
         updatingSpinners = false;
     }
 
+    private void updateAllSpinners() {
+        updateSpinners(0, normalBackgroundSpinners, normalForegroundSpinners);
+        updateSpinners(1, shadedBackgroundSpinners, shadedForegroundSpinners);
+        updateSpinners(2, alternativeBackgroundSpinners, alternativeForegroundSpinners);
+        updateSpinners(3, selectionBackgroundSpinners, selectionForegroundSpinners);
+        updateSpinners(4, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
+    }
+
     public void itemStateChanged(java.awt.event.ItemEvent e) {
-	Object source = e.getItemSelectable();
-	if (source == paletteSelector && e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+        Object source = e.getItemSelectable();
+        if (source == paletteSelector && e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             // Palette changed.
             if (paletteSelector.getSelectedIndex() != -1) {
                 updatePreviewPanes();
-                updateSpinners();
+                updateAllSpinners();
             }
         } else if (source == desaturateButton) {
-	    this.desaturate = e.getStateChange() == java.awt.event.ItemEvent.SELECTED;
-	    updatePreviewPanes();
-	}
+            updatePreviewPanes();
+        }
     }
 
     public void stateChanged(ChangeEvent e) {
