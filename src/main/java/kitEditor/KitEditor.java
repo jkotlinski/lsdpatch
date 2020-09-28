@@ -44,7 +44,6 @@ public class KitEditor extends JFrame {
     private final JButton dropSampleButton = new JButton();
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
-    private final JSlider ditherSlider = new JSlider();
     private final JSlider volumeSlider = new JSlider();
 
     private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
@@ -362,7 +361,6 @@ public class KitEditor extends JFrame {
 
         updateKitSizeLabel();
         addSampleButton.setEnabled(firstFreeSampleSlot() != -1);
-        ditherSlider.setEnabled(false);  // TODO: Should be individual per sample.
     }
 
     private void updateKitSizeLabel() {
@@ -584,7 +582,6 @@ public class KitEditor extends JFrame {
             return;
         }
         kitSizeLabel.setText(Integer.toHexString(totSampleSize) + " bytes written");
-        sbc.DITHER_VAL = ditherSlider.getValue();
 
         byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
         int[] lengths = new int[15];
