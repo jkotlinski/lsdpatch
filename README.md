@@ -1,5 +1,7 @@
 # LSDPatcher
 
+![Java CI with Maven](https://github.com/jkotlinski/lsdpatch/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 A tool for modifying songs, samples, fonts and palettes on Little Sound Dj (LSDj) ROM images and save files. Requires
 [Java][java] 8+. If you have problems running the .jar on Windows, try [Jarfix][jarfix].
 
