@@ -9,6 +9,7 @@ import net.miginfocom.swing.MigLayout;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
 import utils.JFileChooserFactory;
+import utils.RomUtilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -179,16 +180,18 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     void updateButtonsFromTextFields() {
-        boolean romOk = document.romImage() != null;
+        byte[] romImage = document.romImage();
+        boolean romOk = romImage != null;
         String savPath = savTextField.getText();
         boolean savPathOk = savPath.endsWith(".sav") && new File(savPath).exists();
+        boolean foundPalettes = romOk && RomUtilities.getNumberOfPalettes(romImage) != -1;
 
         romTextField.setBackground(romOk ? Color.white : Color.pink);
         savTextField.setBackground(savPathOk ? Color.white : Color.pink);
 
         editKitsButton.setEnabled(romOk);
-        editFontsButton.setEnabled(romOk);
-        editPalettesButton.setEnabled(romOk);
+        editFontsButton.setEnabled(romOk && foundPalettes);
+        editPalettesButton.setEnabled(romOk && foundPalettes);
         upgradeRomButton.setEnabled(romOk);
         songManagerButton.setEnabled(savPathOk && romOk);
     }
