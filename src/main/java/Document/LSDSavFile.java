@@ -584,7 +584,7 @@ public class LSDSavFile implements Cloneable {
                                 case 0:
                                     if (workRam[srcPtr] == 2) {
                                         isKit[instr] = true;
-                                    };
+                                    }
                                     break;
                                 case 2:
                                 case 9:
