@@ -527,7 +527,7 @@ public class LSDSavFile implements Cloneable {
         }
 
         int srcPtr = blockStartPtr + blockSize * blockId;
-        boolean isKit = false;
+        boolean[] isKit = new boolean[64];
 
         try {
             while (true) {
@@ -579,13 +579,16 @@ public class LSDSavFile implements Cloneable {
                         // Regular byte write.
                         boolean isInstrumentWrite = songPos >= 0x3080 && songPos < 0x3480;
                         if (isInstrumentWrite) {
+                            int instr = (songPos - 0x3080) / 0x10;
                             switch (songPos % 16) {
                                 case 0:
-                                    isKit = workRam[srcPtr] == 2;
+                                    if (workRam[srcPtr] == 2) {
+                                        isKit[instr] = true;
+                                    };
                                     break;
                                 case 2:
                                 case 9:
-                                    if (isKit) {
+                                    if (isKit[instr]) {
                                         instrumentKitLocations.add(srcPtr);
                                     }
                                     break;
