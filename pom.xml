@@ -9,6 +9,14 @@
     <version>1.6.0-preview.3</version>
     <packaging>jar</packaging>
 
+    <distributionManagement>
+	    <repository>
+		    <id>github</id>
+		    <name>GitHub jkotlinski Apache Maven Packages</name>
+		    <url>https://maven.pkg.github.com/jkotlinski/lsdpatch</url>
+	    </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.miglayout</groupId>
