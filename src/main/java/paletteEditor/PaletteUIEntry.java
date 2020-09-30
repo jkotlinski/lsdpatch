@@ -53,7 +53,8 @@ class PaletteUIEntry {
 
     public void updateSpinnersFromColor(Color foregroundColor, Color backgroundColor) {
         background[0].setValue(backgroundColor.getRed() >> 3);
-        background[1].setValue(backgroundColor.getBlue() >> 3);
+        background[1].setValue(backgroundColor.getGreen() >> 3);
+        background[2].setValue(backgroundColor.getBlue() >> 3);
 
         foreground[0].setValue(foregroundColor.getRed() >> 3);
         foreground[1].setValue(foregroundColor.getGreen() >> 3);
