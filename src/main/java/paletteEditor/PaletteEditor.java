@@ -20,17 +20,17 @@ import utils.StretchIcon;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
 public class PaletteEditor
         extends JFrame
-        implements java.awt.event.ItemListener, ChangeListener, java.awt.event.ActionListener {
+        implements java.awt.event.ActionListener {
     private static final long serialVersionUID = 5286120830758415869L;
 
     private byte[] romImage = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
+    java.io.File clipboard;
+
 
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
@@ -64,7 +64,7 @@ public class PaletteEditor
     private BufferedImage songImage;
     private BufferedImage instrImage;
 
-    private int previousSelectedPalette = -1;
+    private int lastSelectedPaletteIndex = -1;
 
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
@@ -95,12 +95,12 @@ public class PaletteEditor
 
         JMenuItem openMenuItem = new JMenuItem("Open...");
         openMenuItem.setMnemonic(KeyEvent.VK_O);
-        openMenuItem.addActionListener(this);
+        openMenuItem.addActionListener(e -> showOpenDialog());
         mnFile.add(openMenuItem);
 
         JMenuItem saveMenuItem = new JMenuItem("Save...");
         saveMenuItem.setMnemonic(KeyEvent.VK_S);
-        saveMenuItem.addActionListener(this);
+        saveMenuItem.addActionListener(e -> showSaveDialog());
         mnFile.add(saveMenuItem);
 
         JMenu mnEdit = new JMenu("Edit");
@@ -108,13 +108,13 @@ public class PaletteEditor
         menuBar.add(mnEdit);
 
         JMenuItem mntmCopy = new JMenuItem("Copy Palette");
-        mntmCopy.addActionListener(this);
+        mntmCopy.addActionListener(e -> copyPalette());
         mntmCopy.setMnemonic(KeyEvent.VK_C);
         mnEdit.add(mntmCopy);
 
         mntmPaste = new JMenuItem("Paste Palette");
         mntmPaste.setMnemonic(KeyEvent.VK_P);
-        mntmPaste.addActionListener(this);
+        mntmPaste.addActionListener(e -> pastePalette());
         mntmPaste.setEnabled(false);
         mnEdit.add(mntmPaste);
     }
@@ -146,8 +146,8 @@ public class PaletteEditor
 
         paletteSelector = new JComboBox<>();
         paletteSelector.setEditable(true);
-        paletteSelector.addItemListener(this);
         paletteSelector.addActionListener(this);
+        paletteSelector.addItemListener(e -> onPaletteSelected());
         contentPane.add(paletteSelector, "cell 0 0, grow, span, wrap 10");
 
         createSpinners(normalBackgroundSpinners);
@@ -177,10 +177,9 @@ public class PaletteEditor
         addSpinnerEntry(contentPane, "Scrollbar", scrollbarBackgroundSpinners, scrollbarForegroundSpinners, scrollbarPreview);
 
         randomizeButton.addActionListener((e) -> randomizeColors());
-
         contentPane.add(randomizeButton, "span, grow, wrap");
 
-        desaturateButton.addItemListener(this);
+        desaturateButton.addItemListener(e -> updatePreviewPanes());
         contentPane.add(desaturateButton, "span, grow, wrap");
 
         JPanel previewSection = new JPanel();
@@ -217,7 +216,7 @@ public class PaletteEditor
 
     private void addSelfAsListenerToAllSpinners(JSpinner[] spinners) {
         for(JSpinner spinner : spinners) {
-            spinner.addChangeListener(this);
+            spinner.addChangeListener(e -> onSliderChanged());
         }
     }
     private void listenToSpinners() {
@@ -282,7 +281,7 @@ public class PaletteEditor
         randomizeSpinnerGroup(rand, selectionBackgroundSpinners, selectionForegroundSpinners);
         randomizeSpinnerGroup(rand, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
         updatingSpinners = false;
-        stateChanged(null);
+        onSliderChanged();
     }
 
     private void updateRom(int offset, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
@@ -366,6 +365,7 @@ public class PaletteEditor
             }
             name = nameBuilder.toString();
         }
+
         romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE] = (byte) name.charAt(0);
         romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 1] = (byte) name.charAt(1);
         romImage[nameOffset + palette * RomUtilities.PALETTE_NAME_SIZE + 2] = (byte) name.charAt(2);
@@ -488,21 +488,7 @@ public class PaletteEditor
         updateSpinners(4, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
     }
 
-    public void itemStateChanged(java.awt.event.ItemEvent e) {
-        Object source = e.getItemSelectable();
-        if (source == paletteSelector && e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-            // Palette changed.
-            if (paletteSelector.getSelectedIndex() != -1) {
-                updatePreviewPanes();
-                updateAllSpinners();
-            }
-        } else if (source == desaturateButton) {
-            updatePreviewPanes();
-        }
-    }
-
-    public void stateChanged(ChangeEvent e) {
-        // Spinner changed.
+    public void onSliderChanged() {
         if (!updatingSpinners) {
             updateRomFromSpinners();
             updatePreviewPanes();
@@ -578,8 +564,6 @@ public class PaletteEditor
         }
     }
 
-    java.io.File clipboard;
-
     private void copyPalette() {
 	    try {
 		    clipboard = java.io.File.createTempFile("lsdpatcher", "palette");
@@ -614,6 +598,24 @@ public class PaletteEditor
 	    setPaletteName(paletteIndex, new String(name));
     }
 
+    private void onPaletteSelected() {
+        if (paletteSelector.getSelectedIndex() != -1) {
+            lastSelectedPaletteIndex = paletteSelector.getSelectedIndex();
+            updatePreviewPanes();
+            updateAllSpinners();
+        }
+    }
+
+    private void onPaletteRenamed() {
+        if (paletteSelector.getSelectedIndex() == -1) {
+            setPaletteName(lastSelectedPaletteIndex, (String)paletteSelector.getSelectedItem());
+            if (!populatingPaletteSelector) {
+                populatePaletteSelector();
+                paletteSelector.setSelectedIndex(lastSelectedPaletteIndex);
+            }
+        }
+    }
+
 	private void pastePalette() {
 		int paletteIndex = paletteSelector.getSelectedIndex();
 		loadPalette(clipboard);
@@ -625,40 +627,11 @@ public class PaletteEditor
 	}
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
-        String cmd = e.getActionCommand();
-        switch (cmd) {
-            case "Open...":
-                showOpenDialog();
-                break;
-            case "Save...":
-                showSaveDialog();
-                break;
-            case "comboBoxChanged": {
-                if (paletteSelector.getSelectedIndex() != -1) {
-                    previousSelectedPalette = paletteSelector.getSelectedIndex();
-                }
-                break;
-            }
-            case "comboBoxEdited": {
-                if (paletteSelector.getSelectedIndex() == -1) {
-                    setPaletteName(previousSelectedPalette, (String)paletteSelector.getSelectedItem());
-                    if (!populatingPaletteSelector) {
-                        populatePaletteSelector();
-                        paletteSelector.setSelectedIndex(previousSelectedPalette);
-                    }
-                } else {
-                    previousSelectedPalette = paletteSelector.getSelectedIndex();
-                }
-                break;
-            }
-	    case "Copy Palette":
-		copyPalette();
-		break;
-	    case "Paste Palette":
-		pastePalette();
-		break;
-	    default:
-		assert false;
+        if (e.getActionCommand().equals("comboBoxEdited")) {
+            onPaletteRenamed();
+        }
+        else {
+            assert false;
         }
     }
 }
