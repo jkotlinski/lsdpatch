@@ -18,7 +18,6 @@ import utils.RomUtilities;
 import utils.StretchIcon;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 public class PaletteEditor
@@ -31,31 +30,14 @@ public class PaletteEditor
     private int nameOffset = -1;
     java.io.File clipboard;
 
-
-    private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
-
     private final JLabel previewSongLabel = new JLabel();
     private final JLabel previewInstrLabel = new JLabel();
 
-    private final JSpinner[] normalBackgroundSpinners = new JSpinner[3];
-    private final JSpinner[] normalForegroundSpinners = new JSpinner[3];
-    private final JPanel[] normalPreview = new JPanel[2];
-
-    private final JSpinner[] shadedBackgroundSpinners = new JSpinner[3];
-    private final JSpinner[] shadedForegroundSpinners = new JSpinner[3];
-    private final JPanel[] shadedPreview = new JPanel[2];
-
-    private final JSpinner[] alternativeBackgroundSpinners = new JSpinner[3];
-    private final JSpinner[] alternativeForegroundSpinners = new JSpinner[3];
-    private final JPanel[] alternativePreview = new JPanel[2];
-
-    private final JSpinner[] selectionBackgroundSpinners = new JSpinner[3];
-    private final JSpinner[] selectionForegroundSpinners = new JSpinner[3];
-    private final JPanel[] selectionPreview = new JPanel[2];
-
-    private final JSpinner[] scrollbarBackgroundSpinners = new JSpinner[3];
-    private final JSpinner[] scrollbarForegroundSpinners = new JSpinner[3];
-    private final JPanel[] scrollbarPreview = new JPanel[2];
+    private final PaletteUIEntry normalEntry = new PaletteUIEntry();
+    private final PaletteUIEntry shadedEntry = new PaletteUIEntry();
+    private final PaletteUIEntry alternativeEntry = new PaletteUIEntry();
+    private final PaletteUIEntry selectionEntry = new PaletteUIEntry();
+    private final PaletteUIEntry scrollbarEntry = new PaletteUIEntry();
 
     private final JComboBox<String> paletteSelector;
 
@@ -72,18 +54,6 @@ public class PaletteEditor
     private final JButton randomizeButton = new JButton("Randomize colors");
     private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
 
-    private void createSpinners(JSpinner[] spinners) {
-        for (int i = 0; i < spinners.length; ++i) {
-            spinners[i] = new JSpinner(new SpinnerNumberModel(0,0,31,1));
-        }
-    }
-
-    private void createPreviews(JPanel[] previews) {
-        for (int i = 0; i < previews.length; ++i) {
-            previews[i] = new JPanel();
-            previews[i].setBorder(previewLabelBorder);
-        }
-    }
 
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -119,19 +89,6 @@ public class PaletteEditor
         mnEdit.add(mntmPaste);
     }
 
-    private void addSpinnerEntry(JPanel panel, String name, JSpinner[] background, JSpinner[] foreground, JPanel[] previews) {
-        panel.add(new JLabel(name), "span, split 3");
-        for (int i = 0; i < previews.length; ++i) {
-            panel.add(previews[i], i == previews.length - 1 ? "grow, wrap" : "grow");
-        }
-        for (int i = 0; i < background.length; ++i) {
-            panel.add(background[i], i == background.length - 1 ? "grow, wrap" : "grow");
-        }
-        for (int i = 0; i < foreground.length; ++i) {
-            panel.add(foreground[i], i == foreground.length - 1 ? "grow, wrap 10" : "grow");
-        }
-    }
-
     public PaletteEditor(Document document) {
         setupMenuBar();
 
@@ -150,31 +107,11 @@ public class PaletteEditor
         paletteSelector.addItemListener(e -> onPaletteSelected());
         contentPane.add(paletteSelector, "cell 0 0, grow, span, wrap 10");
 
-        createSpinners(normalBackgroundSpinners);
-        createSpinners(normalForegroundSpinners);
-        createSpinners(shadedBackgroundSpinners);
-        createSpinners(shadedForegroundSpinners);
-        createSpinners(alternativeBackgroundSpinners);
-        createSpinners(alternativeForegroundSpinners);
-        createSpinners(selectionBackgroundSpinners);
-        createSpinners(selectionForegroundSpinners);
-        createSpinners(scrollbarBackgroundSpinners);
-        createSpinners(scrollbarForegroundSpinners);
-
-        createPreviews(normalPreview);
-        addSpinnerEntry(contentPane, "Normal", normalBackgroundSpinners, normalForegroundSpinners, normalPreview);
-
-        createPreviews(shadedPreview);
-        addSpinnerEntry(contentPane, "Shaded", shadedBackgroundSpinners, shadedForegroundSpinners, shadedPreview);
-
-        createPreviews(alternativePreview);
-        addSpinnerEntry(contentPane, "Altenative", alternativeBackgroundSpinners, alternativeForegroundSpinners, alternativePreview);
-
-        createPreviews(selectionPreview);
-        addSpinnerEntry(contentPane, "Selection", selectionBackgroundSpinners, selectionForegroundSpinners, selectionPreview);
-
-        createPreviews(scrollbarPreview);
-        addSpinnerEntry(contentPane, "Scrollbar", scrollbarBackgroundSpinners, scrollbarForegroundSpinners, scrollbarPreview);
+        normalEntry.registerToPanel(contentPane, "Normal");
+        shadedEntry.registerToPanel(contentPane, "Shaded");
+        alternativeEntry.registerToPanel(contentPane, "Alternative");
+        selectionEntry.registerToPanel(contentPane, "Selection");
+        scrollbarEntry.registerToPanel(contentPane, "Scrollbar");
 
         randomizeButton.addActionListener((e) -> randomizeColors());
         contentPane.add(randomizeButton, "span, grow, wrap");
@@ -214,22 +151,12 @@ public class PaletteEditor
         setMinimumSize(getPreferredSize());
     }
 
-    private void addSelfAsListenerToAllSpinners(JSpinner[] spinners) {
-        for(JSpinner spinner : spinners) {
-            spinner.addChangeListener(e -> onSliderChanged());
-        }
-    }
     private void listenToSpinners() {
-        addSelfAsListenerToAllSpinners(normalBackgroundSpinners);
-        addSelfAsListenerToAllSpinners(normalForegroundSpinners);
-        addSelfAsListenerToAllSpinners(shadedBackgroundSpinners);
-        addSelfAsListenerToAllSpinners(shadedForegroundSpinners);
-        addSelfAsListenerToAllSpinners(alternativeBackgroundSpinners);
-        addSelfAsListenerToAllSpinners(alternativeForegroundSpinners);
-        addSelfAsListenerToAllSpinners(selectionBackgroundSpinners);
-        addSelfAsListenerToAllSpinners(selectionForegroundSpinners);
-        addSelfAsListenerToAllSpinners(scrollbarBackgroundSpinners);
-        addSelfAsListenerToAllSpinners(scrollbarForegroundSpinners);
+        normalEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
+        shadedEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
+        alternativeEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
+        selectionEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
+        scrollbarEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
     }
 
     private void setRomImage(byte[] romImage) {
@@ -261,51 +188,16 @@ public class PaletteEditor
         return new java.awt.Color(r, g, b);
     }
 
-    private void randomizeSpinnerGroup(Random rand, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
-        for(JSpinner spinner : backgroundSpinners) {
-            spinner.setValue(rand.nextInt(32));
-        }
-        for(JSpinner spinner : foregroundSpinners) {
-            spinner.setValue(rand.nextInt(32));
-        }
-
-    }
-
     // Shoutout to Defense Mechanism
     private void randomizeColors() {
         updatingSpinners = true;
         Random rand = new Random();
-        randomizeSpinnerGroup(rand, normalBackgroundSpinners, normalForegroundSpinners);
-        randomizeSpinnerGroup(rand, shadedBackgroundSpinners, shadedForegroundSpinners);
-        randomizeSpinnerGroup(rand, alternativeBackgroundSpinners, alternativeForegroundSpinners);
-        randomizeSpinnerGroup(rand, selectionBackgroundSpinners, selectionForegroundSpinners);
-        randomizeSpinnerGroup(rand, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
+        normalEntry.randomize(rand);
+        shadedEntry.randomize(rand);
+        alternativeEntry.randomize(rand);
+        selectionEntry.randomize(rand);
         updatingSpinners = false;
-        onSliderChanged();
-    }
-
-    private void updateRom(int offset, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
-        int r1 = (Integer) backgroundSpinners[0].getValue();
-        int g1 = (Integer) backgroundSpinners[1].getValue();
-        int b1 = (Integer) backgroundSpinners[2].getValue();
-        // gggrrrrr 0bbbbbgg
-        romImage[offset] = (byte) (r1 | (g1 << 5));
-        romImage[offset + 1] = (byte) ((g1 >> 3) | (b1 << 2));
-
-        int r2 = (Integer) foregroundSpinners[0].getValue();
-        int g2 = (Integer) foregroundSpinners[1].getValue();
-        int b2 = (Integer) foregroundSpinners[2].getValue();
-        romImage[offset + 6] = (byte) (r2 | (g2 << 5));
-        romImage[offset + 7] = (byte) ((g2 >> 3) | (b2 << 2));
-
-        // Generating antialiasing colors.
-        int rMid = (r1 + r2) / 2;
-        int gMid = (g1 + g2) / 2;
-        int bMid = (b1 + b2) / 2;
-        romImage[offset + 2] = (byte) (rMid | (gMid << 5));
-        romImage[offset + 3] = (byte) ((gMid >> 3) | (bMid << 2));
-        romImage[offset + 4] = romImage[offset + 2];
-        romImage[offset + 5] = romImage[offset + 3];
+        onSpinnerChanged();
     }
 
     private int selectedPaletteOffset() {
@@ -313,11 +205,11 @@ public class PaletteEditor
     }
 
     private void updateRomFromSpinners() {
-        updateRom(selectedPaletteOffset(), normalBackgroundSpinners, normalForegroundSpinners);
-        updateRom(selectedPaletteOffset() + 8, shadedBackgroundSpinners, shadedForegroundSpinners);
-        updateRom(selectedPaletteOffset() + 16, alternativeBackgroundSpinners, alternativeForegroundSpinners);
-        updateRom(selectedPaletteOffset() + 24, selectionBackgroundSpinners, selectionForegroundSpinners);
-        updateRom(selectedPaletteOffset() + 32, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
+        normalEntry.writeToRom(romImage, selectedPaletteOffset());
+        shadedEntry.writeToRom(romImage, selectedPaletteOffset() + 8);
+        alternativeEntry.writeToRom(romImage, selectedPaletteOffset() + 16);
+        selectionEntry.writeToRom(romImage, selectedPaletteOffset() + 24);
+        scrollbarEntry.writeToRom(romImage, selectedPaletteOffset() + 32);
     }
 
     private java.awt.Color firstColor(int colorSet) {
@@ -449,46 +341,32 @@ public class PaletteEditor
         previewInstrLabel.setIcon(new StretchIcon(modifyUsingPalette(instrImage)));
     }
 
-    private void setPreviewBackground(int colorSetIndex, JPanel[] previews) {
-        previews[0].setBackground(new java.awt.Color(colorCorrect(firstColor(colorSetIndex))));
-        previews[1].setBackground(new java.awt.Color(colorCorrect(secondColor(colorSetIndex))));
-
-    }
-
     private void updatePreviewPanes() {
-        setPreviewBackground(0, normalPreview);
-        setPreviewBackground(1, shadedPreview);
-        setPreviewBackground(2, alternativePreview);
-        setPreviewBackground(3, selectionPreview);
-        setPreviewBackground(4, scrollbarPreview);
-
+        normalEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(0))), new java.awt.Color(colorCorrect(secondColor(0))));
+        shadedEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(1))), new java.awt.Color(colorCorrect(secondColor(1))));
+        alternativeEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(2))), new java.awt.Color(colorCorrect(secondColor(2))));
+        selectionEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(3))), new java.awt.Color(colorCorrect(secondColor(3))));
+        scrollbarEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(4))), new java.awt.Color(colorCorrect(secondColor(4))));
         updateSongAndInstrScreens();
     }
 
-    private void updateSpinners(int colorSetIndex, JSpinner[] backgroundSpinners, JSpinner[] foregroundSpinners) {
-        updatingSpinners = true;
-        Color firstColor = firstColor(colorSetIndex);
-        Color secondColor = secondColor(colorSetIndex);
-
-        backgroundSpinners[0].setValue(firstColor.getRed()>>3);
-        backgroundSpinners[1].setValue(firstColor.getGreen()>>3);
-        backgroundSpinners[2].setValue(firstColor.getBlue()>>3);
-
-        foregroundSpinners[0].setValue(secondColor.getRed()>>3);
-        foregroundSpinners[1].setValue(secondColor.getGreen()>>3);
-        foregroundSpinners[2].setValue(secondColor.getBlue()>>3);
-        updatingSpinners = false;
+    private void updateSpinners(int colorSetIndex, PaletteUIEntry entry) {
+        Color backgroundColor = firstColor(colorSetIndex);
+        Color foregroundColor = secondColor(colorSetIndex);
+        entry.updateSpinnersFromColor(foregroundColor, backgroundColor);
     }
 
     private void updateAllSpinners() {
-        updateSpinners(0, normalBackgroundSpinners, normalForegroundSpinners);
-        updateSpinners(1, shadedBackgroundSpinners, shadedForegroundSpinners);
-        updateSpinners(2, alternativeBackgroundSpinners, alternativeForegroundSpinners);
-        updateSpinners(3, selectionBackgroundSpinners, selectionForegroundSpinners);
-        updateSpinners(4, scrollbarBackgroundSpinners, scrollbarForegroundSpinners);
+        updatingSpinners = true;
+        updateSpinners(0, normalEntry);
+        updateSpinners(1, shadedEntry);
+        updateSpinners(2, alternativeEntry);
+        updateSpinners(3, selectionEntry);
+        updateSpinners(4, scrollbarEntry);
+        updatingSpinners = false;
     }
 
-    public void onSliderChanged() {
+    public void onSpinnerChanged() {
         if (!updatingSpinners) {
             updateRomFromSpinners();
             updatePreviewPanes();
