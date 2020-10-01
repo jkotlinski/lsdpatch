@@ -5,16 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [1.6.0] - 2020-10-02
+### Fixed
+ - Kit sample playback got stuck at times.
+ - Old LSDj ROMs (like, v3) would not open.
+
 ### Added
  - Startup dialog to choose ROM, SAV and sub-tool.
  - Added song manager from LSDManager project.
  - Song manager warning on corrupted songs.
  - Song manager now saves LSDj Project files (.lsdprj) which contains both song and sample kits.
- - Upgrade ROM functionality, which downloads the latest ROM images from https://www.littlesounddj.com. The upgrade preserves custom kits, fonts and palettes.
+ - Upgrade ROM button, which downloads the latest ROM images from https://www.littlesounddj.com. The upgrade preserves custom kits, fonts and palettes.
+ - Palette editor randomize button.
 
-### Fixed
- - Kit sample playback got stuck at times.
- - Old LSDj ROMs (like, v3) would not open.
+### Changed
+ - Palette editor layout.
 
 ## [1.5.0] - 2020-09-13
 ### Changed

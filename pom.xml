@@ -6,7 +6,7 @@
 
     <groupId>com.littlesounddj</groupId>
     <artifactId>lsdpatch</artifactId>
-    <version>1.6.0-preview.3</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <distributionManagement>
