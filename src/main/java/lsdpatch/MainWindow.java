@@ -6,6 +6,7 @@ import Document.*;
 import fontEditor.FontEditor;
 import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
+import paletteEditor.ColorPicker;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
 import utils.JFileChooserFactory;
@@ -75,6 +76,10 @@ public class MainWindow extends JFrame implements IDocumentListener {
                 super.windowClosing(e);
             }
         });
+
+        ColorPicker colorPicker = new ColorPicker();
+        colorPicker.setVisible(true);
+        colorPicker.setLocationRelativeTo(this);
     }
 
     private void openRomUpgradeTool() {

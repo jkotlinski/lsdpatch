@@ -275,17 +275,6 @@ public class PaletteEditor
         populatingPaletteSelector = false;
     }
 
-    private int colorCorrect(java.awt.Color c) {
-        int r = ((c.getRed() >> 3) * 255) / 0xf8;
-        int g = ((c.getGreen() >> 3) * 255) / 0xf8;
-        int b = ((c.getBlue() >> 3) * 255) / 0xf8;
-
-        // Matrix conversion from Gambatte.
-        return (((r * 13 + g * 2 + b) >> 1) << 16)
-                | ((g * 3 + b) << 9)
-                | ((r * 3 + g * 2 + b * 11) >> 1);
-    }
-
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
         int w = srcImage.getWidth();
         int h = srcImage.getHeight();
@@ -328,7 +317,7 @@ public class PaletteEditor
                     System.err.printf("%x%n", rgb);
                     c = new java.awt.Color(255, 0, 255);
                 }
-                dstImage.setRGB(x, y, colorCorrect(c));
+                dstImage.setRGB(x, y, ColorUtil.colorCorrect(c));
             }
         }
 	if (desaturateButton.isSelected()) {
@@ -343,11 +332,21 @@ public class PaletteEditor
     }
 
     private void updatePreviewPanes() {
-        normalEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(0))), new java.awt.Color(colorCorrect(secondColor(0))));
-        shadedEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(1))), new java.awt.Color(colorCorrect(secondColor(1))));
-        alternativeEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(2))), new java.awt.Color(colorCorrect(secondColor(2))));
-        selectionEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(3))), new java.awt.Color(colorCorrect(secondColor(3))));
-        scrollbarEntry.updatePreviews(new java.awt.Color(colorCorrect(firstColor(4))), new java.awt.Color(colorCorrect(secondColor(4))));
+        normalEntry.updatePreviews(
+                new java.awt.Color(ColorUtil.colorCorrect(firstColor(0))),
+                new java.awt.Color(ColorUtil.colorCorrect(secondColor(0))));
+        shadedEntry.updatePreviews(
+                new java.awt.Color(ColorUtil.colorCorrect(firstColor(1))),
+                new java.awt.Color(ColorUtil.colorCorrect(secondColor(1))));
+        alternativeEntry.updatePreviews(
+                new java.awt.Color(ColorUtil.colorCorrect(firstColor(2))),
+                new java.awt.Color(ColorUtil.colorCorrect(secondColor(2))));
+        selectionEntry.updatePreviews(
+                new java.awt.Color(ColorUtil.colorCorrect(firstColor(3))),
+                new java.awt.Color(ColorUtil.colorCorrect(secondColor(3))));
+        scrollbarEntry.updatePreviews(
+                new java.awt.Color(ColorUtil.colorCorrect(firstColor(4))),
+                new java.awt.Color(ColorUtil.colorCorrect(secondColor(4))));
         updateSongAndInstrScreens();
     }
 
