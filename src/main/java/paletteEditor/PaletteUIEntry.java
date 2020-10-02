@@ -20,22 +20,25 @@ class PaletteUIEntry {
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
-        panel.add(new JLabel(entryName), "span, split 3");
-        for (int i = 0; i < preview.length; ++i) {
-            panel.add(preview[i], i == preview.length - 1 ? "grow, wrap" : "grow");
-        }
-        for (int i = 0; i < background.length; ++i) {
-            panel.add(background[i], i == background.length - 1 ? "grow, wrap" : "grow");
-        }
-        for (int i = 0; i < foreground.length; ++i) {
-            panel.add(foreground[i], i == foreground.length - 1 ? "grow, wrap 10" : "grow");
-        }
+        final int previewWidth = 38;
+        panel.add(new JLabel(entryName), "span 4, wrap");
+        panel.add(background[0]);
+        panel.add(background[1]);
+        panel.add(background[2]);
+        panel.add(preview[0], "grow, wrap");
+        preview[1].setMinimumSize(new Dimension(previewWidth, 0));
+        panel.add(foreground[0]);
+        panel.add(foreground[1]);
+        panel.add(foreground[2]);
+        panel.add(preview[1], "grow, wrap");
+        preview[1].setMinimumSize(new Dimension(previewWidth, 0));
     }
 
     public void createPreviews(JPanel[] previews) {
         for (int i = 0; i < previews.length; ++i) {
             previews[i] = new JPanel();
             previews[i].setBorder(previewLabelBorder);
+            previews[i].setMinimumSize(new Dimension(32, 0));
         }
     }
 

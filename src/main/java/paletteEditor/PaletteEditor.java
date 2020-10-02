@@ -51,9 +51,7 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
-    private final JButton randomizeButton = new JButton("Randomize colors");
     private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
-
 
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -113,10 +111,12 @@ public class PaletteEditor
         selectionEntry.registerToPanel(contentPane, "Selection");
         scrollbarEntry.registerToPanel(contentPane, "Scrollbar");
 
+        JButton randomizeButton = new JButton("Randomize colors");
         randomizeButton.addActionListener((e) -> randomizeColors());
         contentPane.add(randomizeButton, "span, grow, wrap");
 
         desaturateButton.addItemListener(e -> updatePreviewPanes());
+        desaturateButton.setToolTipText("Tip: To make your palette enjoyable to use, make it look OK desaturated!");
         contentPane.add(desaturateButton, "span, grow, wrap");
 
         JPanel previewSection = new JPanel();
@@ -149,6 +149,7 @@ public class PaletteEditor
 
         pack();
         setMinimumSize(getPreferredSize());
+        setResizable(false);
     }
 
     private void listenToSpinners() {
