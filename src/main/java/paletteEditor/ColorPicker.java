@@ -5,106 +5,70 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
-public class ColorPicker extends JFrame {
-
-    private interface HueListener {
-        void onHueChanged(float hue);
+public class ColorPicker extends JFrame implements HuePanel.Listener, SaturationBrightnessPanel.Listener {
+    interface Listener {
+        void colorChanged(int r, int g, int b);
     }
 
-    private static class Hue extends JPanel implements MouseListener, MouseMotionListener {
-        int selectedPosition = 0;
-        final int width = 32;
-        final int height = 256;
-        private final LinkedList<HueListener> hueListeners = new LinkedList<>();
+    final LinkedList<Listener> listeners = new LinkedList<>();
 
-        Hue() {
-            setMinimumSize(new Dimension(width, height));
-            addMouseListener(this);
-            addMouseMotionListener(this);
-        }
+    final HuePanel huePanel;
+    final SaturationBrightnessPanel saturationBrightnessPanel;
 
-        public void subscribe(HueListener hueListener) {
-            hueListeners.add(hueListener);
-        }
+    public ColorPicker(int r, int g, int b) {
+        assert(r >= 0 && r < 32);
+        assert(g >= 0 && g < 32);
+        assert(b >= 0 && b < 32);
 
-        @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            for (int y = 0; y < height; ++y) {
-                Color color = Color.getHSBColor((float) y / height, 1, 1);
-                color = new Color(ColorUtil.colorCorrect(color));
-                for (int x = 0; x < width; ++x) {
-                    image.setRGB(x, y, color.getRGB());
-                }
-            }
-            g.drawImage(image, 0, 0, null);
-            g.setColor(Color.BLACK);
-            g.drawRect(0, selectedPosition - 1, width, 2);
-        }
+        float hue = 0;
+        float saturation = 0;
+        float brightness = 0;
 
-        public float hue() {
-            float hue = selectedPosition;
-            hue /= height;
-            assert(hue >= 0);
-            assert(hue <= 1);
-            return hue;
-        }
+        huePanel = new HuePanel(hue);
+        saturationBrightnessPanel = new SaturationBrightnessPanel(huePanel, saturation, brightness);
 
-        boolean mousePressed;
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            mousePressed = true;
-            mouseDragged(e);
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            mousePressed = false;
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            selectedPosition = Math.max(0, Math.min(height, e.getY()));
-            for (HueListener hueListener : hueListeners) {
-                hueListener.onHueChanged(hue());
-            }
-            repaint();
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-        }
-    }
-
-    public ColorPicker() {
-        Hue hue = new Hue();
+        huePanel.subscribe(this);
+        saturationBrightnessPanel.subscribe(this);
 
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(new MigLayout());
 
-        contentPane.add(hue);
+        contentPane.add(saturationBrightnessPanel);
+        contentPane.add(huePanel, "gap 5");
         pack();
+    }
+
+    public void subscribe(Listener listener) {
+        listeners.add(listener);
+    }
+
+    private void broadcastColor() {
+        float hue = huePanel.hue();
+        float saturation = saturationBrightnessPanel.saturation();
+        float brightness = saturationBrightnessPanel.brightness();
+
+        int rgb = Color.HSBtoRGB(hue, saturation, brightness);
+        byte b = (byte)((rgb & 255) >> 3);
+        rgb >>= 8;
+        byte g = (byte)((rgb & 255) >> 3);
+        rgb >>= 8;
+        byte r = (byte)((rgb & 255) >> 3);
+        for (Listener listener : listeners) {
+            listener.colorChanged(r, g, b);
+        }
+    }
+
+    @Override
+    public void hueChanged() {
+        broadcastColor();
+    }
+
+    @Override
+    public void saturationBrightnessChanged() {
+        broadcastColor();
     }
 }

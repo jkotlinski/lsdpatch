@@ -76,10 +76,6 @@ public class MainWindow extends JFrame implements IDocumentListener {
                 super.windowClosing(e);
             }
         });
-
-        ColorPicker colorPicker = new ColorPicker();
-        colorPicker.setVisible(true);
-        colorPicker.setLocationRelativeTo(this);
     }
 
     private void openRomUpgradeTool() {

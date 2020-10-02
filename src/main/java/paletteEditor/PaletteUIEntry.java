@@ -4,19 +4,65 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Random;
 
 class PaletteUIEntry {
+    private static class PreviewPanel extends JPanel implements MouseListener {
+        JSpinner[] spinners;
+
+        PreviewPanel(JSpinner[] spinners) {
+            this.spinners = spinners;
+            addMouseListener(this);
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            ColorPicker colorPicker = new ColorPicker(
+                    (int)spinners[0].getValue(),
+                    (int)spinners[1].getValue(),
+                    (int)spinners[2].getValue());
+            colorPicker.subscribe((r, g, b) -> {
+                spinners[0].setValue(r);
+                spinners[1].setValue(g);
+                spinners[2].setValue(b);
+            });
+            colorPicker.setLocationRelativeTo(this);
+            colorPicker.setVisible(true);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+    }
+
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
     public final JSpinner[] background = new JSpinner[3];
     public final JSpinner[] foreground = new JSpinner[3];
-    public final JPanel[] preview = new JPanel[2];
+    public final PreviewPanel[] preview = new PreviewPanel[2];
 
     public PaletteUIEntry() {
         createSpinners(background);
         createSpinners(foreground);
-        createPreviews(preview);
+        createPreviews();
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
@@ -34,12 +80,14 @@ class PaletteUIEntry {
         preview[1].setMinimumSize(new Dimension(previewWidth, 0));
     }
 
-    public void createPreviews(JPanel[] previews) {
-        for (int i = 0; i < previews.length; ++i) {
-            previews[i] = new JPanel();
-            previews[i].setBorder(previewLabelBorder);
-            previews[i].setMinimumSize(new Dimension(32, 0));
-        }
+    private void createPreviews() {
+        preview[0] = new PreviewPanel(background);
+        preview[0].setBorder(previewLabelBorder);
+        preview[0].setMinimumSize(new Dimension(32, 0));
+
+        preview[1] = new PreviewPanel(foreground);
+        preview[1].setBorder(previewLabelBorder);
+        preview[1].setMinimumSize(new Dimension(32, 0));
     }
 
     // TODO compute the color from the internal data
