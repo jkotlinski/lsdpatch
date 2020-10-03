@@ -6,7 +6,6 @@ import java.awt.color.ColorSpace;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.LinkedList;
 
 import Document.Document;
 import net.miginfocom.swing.MigLayout;
@@ -40,7 +39,6 @@ public class PaletteEditor
     private final SwatchPair alternateSwatchPair = new SwatchPair();
     private final SwatchPair cursorSwatchPair = new SwatchPair();
     private final SwatchPair scrollBarSwatchPair = new SwatchPair();
-    private final LinkedList<SwatchPair> allSwatchPairs = new LinkedList<>();
     private final SwatchPanel swatchPanel = new SwatchPanel();
 
     private JComboBox<String> paletteSelector;
@@ -52,7 +50,7 @@ public class PaletteEditor
 
     private int lastSelectedPaletteIndex = -1;
 
-    private boolean updatingSpinners = false;
+    private boolean updatingSwatches = false;
     private boolean populatingPaletteSelector = false;
 
     private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate");
@@ -119,14 +117,7 @@ public class PaletteEditor
         swatchPanel.add(alternateSwatchPair, "Alternate");
         swatchPanel.add(cursorSwatchPair, "Cursor");
         swatchPanel.add(scrollBarSwatchPair, "Scroll Bar");
-        allSwatchPairs.add(normalSwatchPair);
-        allSwatchPairs.add(shadedSwatchPair);
-        allSwatchPairs.add(alternateSwatchPair);
-        allSwatchPairs.add(cursorSwatchPair);
-        allSwatchPairs.add(scrollBarSwatchPair);
-        for (SwatchPair swatchPair : allSwatchPairs) {
-            swatchPair.addListener(this);
-        }
+        swatchPanel.addListener(this);
 
         previewSongLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
         contentPane.add(previewSongLabel);
@@ -173,7 +164,7 @@ public class PaletteEditor
         }
 
         setRomImage(document.romImage());
-        updatePreviewPanes();
+        updateSongAndInstrScreens();
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -253,7 +244,7 @@ public class PaletteEditor
     }
 
     private void addDesaturateButton(JPanel spinnerPanel) {
-        desaturateButton.addItemListener(e -> updatePreviewPanes());
+        desaturateButton.addItemListener(e -> updateSongAndInstrScreens());
         desaturateButton.setToolTipText("Tip: Great palettes look OK when desaturated, too!");
         spinnerPanel.add(desaturateButton, "grow");
     }
@@ -289,9 +280,9 @@ public class PaletteEditor
 
     // Shout-out to Defense Mechanism
     private void randomizeColors() {
-        updatingSpinners = true;
+        updatingSwatches = true;
         swatchPanel.randomize();
-        updatingSpinners = false;
+        updatingSwatches = false;
         swatchChanged();
     }
 
@@ -425,39 +416,20 @@ public class PaletteEditor
         previewInstrLabel.setIcon(new StretchIcon(modifyUsingPalette(instrImage)));
     }
 
-    private void updatePreviewPanes() {
-        normalSwatchPair.updatePreviews(
-                new java.awt.Color(ColorUtil.colorCorrect(firstColor(0))),
-                new java.awt.Color(ColorUtil.colorCorrect(secondColor(0))));
-        shadedSwatchPair.updatePreviews(
-                new java.awt.Color(ColorUtil.colorCorrect(firstColor(1))),
-                new java.awt.Color(ColorUtil.colorCorrect(secondColor(1))));
-        alternateSwatchPair.updatePreviews(
-                new java.awt.Color(ColorUtil.colorCorrect(firstColor(2))),
-                new java.awt.Color(ColorUtil.colorCorrect(secondColor(2))));
-        cursorSwatchPair.updatePreviews(
-                new java.awt.Color(ColorUtil.colorCorrect(firstColor(3))),
-                new java.awt.Color(ColorUtil.colorCorrect(secondColor(3))));
-        scrollBarSwatchPair.updatePreviews(
-                new java.awt.Color(ColorUtil.colorCorrect(firstColor(4))),
-                new java.awt.Color(ColorUtil.colorCorrect(secondColor(4))));
-        updateSongAndInstrScreens();
-    }
-
-    private void updateSpinners(int colorSetIndex, SwatchPair entry) {
+    private void updateSwatches(int colorSetIndex, SwatchPair swatchPair) {
         Color backgroundColor = firstColor(colorSetIndex);
         Color foregroundColor = secondColor(colorSetIndex);
-        entry.setColors(foregroundColor, backgroundColor);
+        swatchPair.setColors(foregroundColor, backgroundColor);
     }
 
-    private void updateAllSpinners() {
-        updatingSpinners = true;
-        updateSpinners(0, normalSwatchPair);
-        updateSpinners(1, shadedSwatchPair);
-        updateSpinners(2, alternateSwatchPair);
-        updateSpinners(3, cursorSwatchPair);
-        updateSpinners(4, scrollBarSwatchPair);
-        updatingSpinners = false;
+    private void updateAllSwatches() {
+        updatingSwatches = true;
+        updateSwatches(0, normalSwatchPair);
+        updateSwatches(1, shadedSwatchPair);
+        updateSwatches(2, alternateSwatchPair);
+        updateSwatches(3, cursorSwatchPair);
+        updateSwatches(4, scrollBarSwatchPair);
+        updatingSwatches = false;
     }
 
     private Swatch selectedSwatch;
@@ -467,18 +439,13 @@ public class PaletteEditor
         selectedSwatch = swatch;
         colorPicker.setColor(swatch.r(), swatch.g(), swatch.b());
         colorPicker.subscribe(swatch::setRGB);
-        for (SwatchPair swatchPair : allSwatchPairs) {
-            swatchPair.deselect();
-        }
-        final int w = 3;
-        swatch.setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
     }
 
     @Override
     public void swatchChanged() {
-        if (!updatingSpinners) {
+        if (!updatingSwatches) {
             updateRomFromSpinners();
-            updatePreviewPanes();
+            updateSongAndInstrScreens();
             colorPicker.setColor(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
         }
     }
@@ -588,8 +555,8 @@ public class PaletteEditor
     private void onPaletteSelected() {
         if (paletteSelector.getSelectedIndex() != -1) {
             lastSelectedPaletteIndex = paletteSelector.getSelectedIndex();
-            updatePreviewPanes();
-            updateAllSpinners();
+            updateSongAndInstrScreens();
+            updateAllSwatches();
             normalSwatchPair.selectBackground();
         }
     }

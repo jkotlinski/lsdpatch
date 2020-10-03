@@ -86,12 +86,6 @@ class SwatchPair implements Swatch.Listener {
         select((Swatch)e.getSource());
     }
 
-    // TODO compute the color from the internal data
-    public void updatePreviews(Color firstColor, Color secondColor) {
-        bgSwatch.setBackground(firstColor);
-        fgSwatch.setBackground(secondColor);
-    }
-
     public void setColors(Color foregroundColor, Color backgroundColor) {
         bgSwatch.setRGB(backgroundColor.getRed() >> 3,
                 backgroundColor.getGreen() >> 3,
@@ -99,6 +93,9 @@ class SwatchPair implements Swatch.Listener {
         fgSwatch.setRGB(foregroundColor.getRed() >> 3,
                 foregroundColor.getGreen() >> 3,
                 foregroundColor.getBlue() >> 3);
+
+        bgSwatch.setBackground(backgroundColor);
+        fgSwatch.setBackground(foregroundColor);
     }
 
     public void randomize(Random rand) {

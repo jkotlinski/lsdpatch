@@ -1,6 +1,7 @@
 package paletteEditor;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -34,6 +35,7 @@ public class Swatch extends JPanel {
                 listener.swatchChanged();
             }
         }
+        setBackground(new Color(ColorUtil.colorCorrect(new Color(r << 3, g << 3, b << 3))));
     }
 
     public void randomize(Random rand) {
