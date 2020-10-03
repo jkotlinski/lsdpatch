@@ -120,14 +120,6 @@ public class PaletteEditor
         selectionEntry.registerToPanel(pickerPanel, "Cursor");
         scrollbarEntry.registerToPanel(pickerPanel, "Scroll Bar");
 
-        JPanel spinnerPanel = new JPanel();
-        spinnerPanel.setLayout(new GridLayout(1, 3));
-        SpinnerModel spinnerModel = new SpinnerNumberModel(0, 0, 31, 1);
-        spinnerPanel.add(new JSpinner(spinnerModel));
-        spinnerPanel.add(new JSpinner(spinnerModel));
-        spinnerPanel.add(new JSpinner(spinnerModel));
-        pickerPanel.add(spinnerPanel, "grow, span, gaptop 5");
-
         previewSongLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
         contentPane.add(previewSongLabel);
         previewSongLabel.addMouseListener(new MouseListener() {
@@ -256,7 +248,7 @@ public class PaletteEditor
 
     private void addDesaturateButton(JPanel spinnerPanel) {
         desaturateButton.addItemListener(e -> updatePreviewPanes());
-        desaturateButton.setToolTipText("Tip: Great palettes look OK when desaturated, too!");
+        desaturateButton.setToolTipText("Tip: Enjoyable palettes look OK when desaturated, too!");
         spinnerPanel.add(desaturateButton, "grow");
     }
 
