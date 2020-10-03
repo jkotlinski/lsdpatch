@@ -22,12 +22,11 @@ public class ColorPicker extends JFrame implements HuePanel.Listener, Saturation
         assert(g >= 0 && g < 32);
         assert(b >= 0 && b < 32);
 
-        float hue = 0;
-        float saturation = 0;
-        float brightness = 0;
+        float[] hsb = new float[3];
+        Color.RGBtoHSB(r << 3, g << 3, b << 3, hsb);
 
-        huePanel = new HuePanel(hue);
-        saturationBrightnessPanel = new SaturationBrightnessPanel(huePanel, saturation, brightness);
+        huePanel = new HuePanel(hsb[0]);
+        saturationBrightnessPanel = new SaturationBrightnessPanel(huePanel, hsb[1], hsb[2]);
 
         huePanel.subscribe(this);
         saturationBrightnessPanel.subscribe(this);

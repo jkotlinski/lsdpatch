@@ -2,6 +2,7 @@ package paletteEditor;
 
 import java.awt.*;
 
+import java.awt.color.ColorSpace;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -320,9 +321,10 @@ public class PaletteEditor
                 dstImage.setRGB(x, y, ColorUtil.colorCorrect(c));
             }
         }
-	if (desaturateButton.isSelected()) {
-		return new java.awt.image.ColorConvertOp(java.awt.color.ColorSpace.getInstance(java.awt.color.ColorSpace.CS_GRAY), null).filter(dstImage, dstImage);
-	}
+        if (desaturateButton.isSelected()) {
+            ColorSpace colorSpace = ColorSpace.getInstance(java.awt.color.ColorSpace.CS_GRAY);
+            return new java.awt.image.ColorConvertOp(colorSpace, null).filter(dstImage, dstImage);
+        }
         return dstImage;
     }
 
