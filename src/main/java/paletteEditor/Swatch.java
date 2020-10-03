@@ -1,13 +1,10 @@
 package paletteEditor;
 
 import javax.swing.*;
+import java.util.Random;
 
 public class Swatch extends JPanel {
-    private RGB555 rgb555;
-
-    Swatch(RGB555 rgb555) {
-        this.rgb555 = rgb555;
-    }
+    private final RGB555 rgb555 = new RGB555();
 
     public int r() {
         return rgb555.r();
@@ -25,5 +22,15 @@ public class Swatch extends JPanel {
         rgb555.setR(r);
         rgb555.setG(g);
         rgb555.setB(b);
+    }
+
+    public void randomize(Random rand) {
+        rgb555.setR(rand.nextInt(32));
+        rgb555.setG(rand.nextInt(32));
+        rgb555.setB(rand.nextInt(32));
+    }
+
+    public void addChangeListener(RGB555.Listener listener) {
+        rgb555.addChangeListener(listener);
     }
 }

@@ -58,12 +58,6 @@ public class RGB555 {
         return b;
     }
 
-    public void randomize(Random rand) {
-        setR(rand.nextInt(32));
-        setG(rand.nextInt(32));
-        setB(rand.nextInt(32));
-    }
-
     public void addChangeListener(Listener listener) {
         listeners.add(listener);
     }

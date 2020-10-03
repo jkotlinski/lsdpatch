@@ -11,8 +11,6 @@ class PaletteUIEntry {
 
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
-    public final RGB555 background = new RGB555();
-    public final RGB555 foreground = new RGB555();
     public final Swatch[] swatch = new Swatch[2];
 
     private final ColorPicker colorPicker;
@@ -55,7 +53,7 @@ class PaletteUIEntry {
     }
 
     private void createSwatches() {
-        swatch[0] = new Swatch(background);
+        swatch[0] = new Swatch();
         swatch[0].setBorder(previewLabelBorder);
         swatch[0].setMinimumSize(new Dimension(32, 0));
         swatch[0].addMouseListener(new MouseAdapter() {
@@ -66,7 +64,7 @@ class PaletteUIEntry {
             }
         });
 
-        swatch[1] = new Swatch(foreground);
+        swatch[1] = new Swatch();
         swatch[1].setBorder(previewLabelBorder);
         swatch[1].setMinimumSize(new Dimension(32, 0));
         swatch[1].addMouseListener(new MouseAdapter() {
@@ -89,36 +87,35 @@ class PaletteUIEntry {
     }
 
     public void setColors(Color foregroundColor, Color backgroundColor) {
-        background.setR(backgroundColor.getRed() >> 3);
-        background.setG(backgroundColor.getGreen() >> 3);
-        background.setB(backgroundColor.getBlue() >> 3);
-
-        foreground.setR(foregroundColor.getRed() >> 3);
-        foreground.setG(foregroundColor.getGreen() >> 3);
-        foreground.setB(foregroundColor.getBlue() >> 3);
+        swatch[0].setRGB(backgroundColor.getRed() >> 3,
+                backgroundColor.getGreen() >> 3,
+                backgroundColor.getBlue() >> 3);
+        swatch[1].setRGB(foregroundColor.getRed() >> 3,
+                foregroundColor.getGreen() >> 3,
+                foregroundColor.getBlue() >> 3);
     }
 
     public void listenToColorChanges(RGB555.Listener listener) {
-        background.addChangeListener(listener);
-        foreground.addChangeListener(listener);
+        swatch[0].addChangeListener(listener);
+        swatch[1].addChangeListener(listener);
     }
 
     public void randomize(Random rand) {
-        background.randomize(rand);
-        foreground.randomize(rand);
+        swatch[0].randomize(rand);
+        swatch[1].randomize(rand);
     }
 
     public void writeToRom(byte[] romImage, int offset) {
-        int r1 = background.r();
-        int g1 = background.g();
-        int b1 = background.b();
+        int r1 = swatch[0].r();
+        int g1 = swatch[0].g();
+        int b1 = swatch[0].b();
         // gggrrrrr 0bbbbbgg
         romImage[offset] = (byte) (r1 | (g1 << 5));
         romImage[offset + 1] = (byte) ((g1 >> 3) | (b1 << 2));
 
-        int r2 = foreground.r();
-        int g2 = foreground.g();
-        int b2 = foreground.b();
+        int r2 = swatch[1].r();
+        int g2 = swatch[1].g();
+        int b2 = swatch[1].b();
         romImage[offset + 6] = (byte) (r2 | (g2 << 5));
         romImage[offset + 7] = (byte) ((g2 >> 3) | (b2 << 2));
 
