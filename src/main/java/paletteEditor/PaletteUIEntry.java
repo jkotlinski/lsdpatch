@@ -2,7 +2,6 @@ package paletteEditor;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.LinkedList;
@@ -11,12 +10,12 @@ import java.util.Random;
 class PaletteUIEntry {
     private static class PreviewPanel extends JPanel implements MouseListener {
         ColorPicker colorPicker;
-        JSpinner[] spinners;
+        RGB555 myColor;
 
         static LinkedList<PreviewPanel> allPreviewPanels = new LinkedList<>();
 
-        PreviewPanel(JSpinner[] spinners, ColorPicker colorPicker) {
-            this.spinners = spinners;
+        PreviewPanel(RGB555 myColor, ColorPicker colorPicker) {
+            this.myColor = myColor;
             this.colorPicker = colorPicker;
             addMouseListener(this);
             allPreviewPanels.add(this);
@@ -32,14 +31,11 @@ class PaletteUIEntry {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            colorPicker.setColor(
-                    (int)spinners[0].getValue(),
-                    (int)spinners[1].getValue(),
-                    (int)spinners[2].getValue());
+            colorPicker.setColor(myColor.r(), myColor.g(), myColor.b());
             colorPicker.subscribe((r, g, b) -> {
-                spinners[0].setValue(r);
-                spinners[1].setValue(g);
-                spinners[2].setValue(b);
+                myColor.setR(r);
+                myColor.setG(g);
+                myColor.setB(b);
             });
             for (PreviewPanel panel : allPreviewPanels) {
                 if (panel != this) {
@@ -65,13 +61,11 @@ class PaletteUIEntry {
 
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
-    public final JSpinner[] background = new JSpinner[3];
-    public final JSpinner[] foreground = new JSpinner[3];
+    public final RGB555 background = new RGB555();
+    public final RGB555 foreground = new RGB555();
     public final PreviewPanel[] preview = new PreviewPanel[2];
 
     public PaletteUIEntry(ColorPicker colorPicker) {
-        createSpinners(background);
-        createSpinners(foreground);
         createPreviews(colorPicker);
     }
 
@@ -86,11 +80,15 @@ class PaletteUIEntry {
 
         JButton swapButton = new JButton("<>");
         swapButton.addActionListener(e -> {
-            for (int i = 0; i < 3; ++i) {
-                Integer tmp = (Integer) background[i].getValue();
-                background[i].setValue(foreground[i].getValue());
-                foreground[i].setValue(tmp);
-            }
+            int tmp = background.r();
+            background.setR(foreground.r());
+            foreground.setR(tmp);
+            tmp = background.g();
+            background.setG(foreground.g());
+            foreground.setG(tmp);
+            tmp = background.b();
+            background.setB(foreground.b());
+            foreground.setB(tmp);
         });
         panel.add(swapButton, "wrap");
     }
@@ -119,52 +117,37 @@ class PaletteUIEntry {
         preview[1].setBackground(secondColor);
     }
 
-    private void createSpinners(JSpinner[] spinners) {
-        for (int i = 0; i < spinners.length; ++i) {
-            spinners[i] = new JSpinner(new SpinnerNumberModel(0, 0, 31, 1));
-        }
-    }
-
     public void updateSpinnersFromColor(Color foregroundColor, Color backgroundColor) {
-        background[0].setValue(backgroundColor.getRed() >> 3);
-        background[1].setValue(backgroundColor.getGreen() >> 3);
-        background[2].setValue(backgroundColor.getBlue() >> 3);
+        background.setR(backgroundColor.getRed() >> 3);
+        background.setG(backgroundColor.getGreen() >> 3);
+        background.setB(backgroundColor.getBlue() >> 3);
 
-        foreground[0].setValue(foregroundColor.getRed() >> 3);
-        foreground[1].setValue(foregroundColor.getGreen() >> 3);
-        foreground[2].setValue(foregroundColor.getBlue() >> 3);
-
+        foreground.setR(foregroundColor.getRed() >> 3);
+        foreground.setG(foregroundColor.getGreen() >> 3);
+        foreground.setB(foregroundColor.getBlue() >> 3);
     }
 
-    public void addListenerToAllSpinners(ChangeListener listener) {
-        for (JSpinner spinner : background) {
-            spinner.addChangeListener(listener);
-        }
-        for (JSpinner spinner : foreground) {
-            spinner.addChangeListener(listener);
-        }
+    public void addListenerToAllSpinners(RGB555.Listener listener) {
+        background.addChangeListener(listener);
+        foreground.addChangeListener(listener);
     }
 
     public void randomize(Random rand) {
-        for (JSpinner spinner : background) {
-            spinner.setValue(rand.nextInt(32));
-        }
-        for (JSpinner spinner : foreground) {
-            spinner.setValue(rand.nextInt(32));
-        }
+        background.randomize(rand);
+        foreground.randomize(rand);
     }
 
     public void writeToRom(byte[] romImage, int offset) {
-        int r1 = (Integer) background[0].getValue();
-        int g1 = (Integer) background[1].getValue();
-        int b1 = (Integer) background[2].getValue();
+        int r1 = background.r();
+        int g1 = background.g();
+        int b1 = background.b();
         // gggrrrrr 0bbbbbgg
         romImage[offset] = (byte) (r1 | (g1 << 5));
         romImage[offset + 1] = (byte) ((g1 >> 3) | (b1 << 2));
 
-        int r2 = (Integer) foreground[0].getValue();
-        int g2 = (Integer) foreground[1].getValue();
-        int b2 = (Integer) foreground[2].getValue();
+        int r2 = foreground.r();
+        int g2 = foreground.g();
+        int b2 = foreground.b();
         romImage[offset + 6] = (byte) (r2 | (g2 << 5));
         romImage[offset + 7] = (byte) ((g2 >> 3) | (b2 << 2));
 

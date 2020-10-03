@@ -253,11 +253,11 @@ public class PaletteEditor
     }
 
     private void listenToSpinners() {
-        normalEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
-        shadedEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
-        alternativeEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
-        selectionEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
-        scrollbarEntry.addListenerToAllSpinners(e -> onSpinnerChanged());
+        normalEntry.addListenerToAllSpinners(this::onColorChanged);
+        shadedEntry.addListenerToAllSpinners(this::onColorChanged);
+        alternativeEntry.addListenerToAllSpinners(this::onColorChanged);
+        selectionEntry.addListenerToAllSpinners(this::onColorChanged);
+        scrollbarEntry.addListenerToAllSpinners(this::onColorChanged);
     }
 
     private void setRomImage(byte[] romImage) {
@@ -299,7 +299,7 @@ public class PaletteEditor
         selectionEntry.randomize(rand);
         scrollbarEntry.randomize(rand);
         updatingSpinners = false;
-        onSpinnerChanged();
+        onColorChanged();
     }
 
     private int selectedPaletteOffset() {
@@ -467,7 +467,7 @@ public class PaletteEditor
         updatingSpinners = false;
     }
 
-    public void onSpinnerChanged() {
+    public void onColorChanged() {
         if (!updatingSpinners) {
             updateRomFromSpinners();
             updatePreviewPanes();
