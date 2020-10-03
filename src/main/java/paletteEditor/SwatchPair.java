@@ -93,9 +93,6 @@ class SwatchPair implements Swatch.Listener {
         fgSwatch.setRGB(foregroundColor.getRed() >> 3,
                 foregroundColor.getGreen() >> 3,
                 foregroundColor.getBlue() >> 3);
-
-        bgSwatch.setBackground(backgroundColor);
-        fgSwatch.setBackground(foregroundColor);
     }
 
     public void randomize(Random rand) {

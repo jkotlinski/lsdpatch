@@ -8,7 +8,7 @@ import java.util.Random;
 public class Swatch extends JPanel {
     public interface Listener {
         void swatchChanged();
-    };
+    }
     final LinkedList<Listener> listeners = new LinkedList<>();
 
     private final RGB555 rgb555 = new RGB555();
