@@ -24,8 +24,6 @@ class SwatchPair implements Swatch.Listener {
         }
     }
 
-    private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
-
     public final Swatch bgSwatch = new Swatch();
     public final Swatch fgSwatch = new Swatch();
 
@@ -37,13 +35,9 @@ class SwatchPair implements Swatch.Listener {
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
-        final int previewWidth = 34;
-        final int previewHeight = 34;
         panel.add(new JLabel(entryName), "span, wrap");
         panel.add(bgSwatch);
-        bgSwatch.setMinimumSize(new Dimension(previewWidth, previewHeight));
         panel.add(fgSwatch, "wrap");
-        fgSwatch.setMinimumSize(new Dimension(previewWidth, previewHeight));
     }
 
     public void selectBackground() {
@@ -61,29 +55,19 @@ class SwatchPair implements Swatch.Listener {
     }
 
     private void createSwatches() {
-        bgSwatch.setBorder(previewLabelBorder);
-        bgSwatch.setMinimumSize(new Dimension(32, 0));
         bgSwatch.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                swatchPressed(e);
-            }
-        });
+                select(bgSwatch);
+            }});
 
-        fgSwatch.setBorder(previewLabelBorder);
-        fgSwatch.setMinimumSize(new Dimension(32, 0));
         fgSwatch.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                swatchPressed(e);
-            }
-        });
-    }
-
-    private void swatchPressed(MouseEvent e) {
-        select((Swatch)e.getSource());
+                select(fgSwatch);
+            }});
     }
 
     public void setColors(Color foregroundColor, Color backgroundColor) {
