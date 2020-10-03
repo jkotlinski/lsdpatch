@@ -19,6 +19,8 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     public final SwatchPair cursorSwatchPair = new SwatchPair();
     public final SwatchPair scrollBarSwatchPair = new SwatchPair();
 
+    private Swatch selectedSwatch;
+
     public SwatchPanel() {
         setLayout(new MigLayout());
 
@@ -28,7 +30,24 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         add(cursorSwatchPair, "Cursor");
         add(scrollBarSwatchPair, "Scroll Bar");
 
+        JButton swapButton = new JButton("Swap");
+        swapButton.addActionListener(e -> swapStart());
+        add(swapButton, "span, grow, gaptop 5");
+
         normalSwatchPair.selectBackground();
+    }
+
+    private boolean swapping;
+    private void swapStart() {
+        if (selectedSwatch == null) {
+            return;
+        }
+        swapping = !swapping;
+        updateCursor();
+    }
+
+    private void updateCursor() {
+        setCursor(new Cursor(swapping ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
     }
 
     public void addListener(SwatchPair.Listener listener) {
@@ -47,8 +66,23 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         }
     }
 
+    private void handleSwap(Swatch swatch) {
+        if (!swapping) {
+            return;
+        }
+        int r = swatch.r();
+        int g = swatch.g();
+        int b = swatch.b();
+        swatch.setRGB(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
+        selectedSwatch.setRGB(r, g, b);
+        swapping = false;
+        updateCursor();
+    }
+
     @Override
     public void swatchSelected(Swatch swatch) {
+        handleSwap(swatch);
+        selectedSwatch = swatch;
         for (SwatchPair swatchPair : swatchPairs) {
             swatchPair.deselect();
         }
