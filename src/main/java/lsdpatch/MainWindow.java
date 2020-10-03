@@ -249,6 +249,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
             document.setRomFile(new File(romPath));
             document.loadSavFile(savPath);
             document.clearDirty();
+            JFileChooserFactory.setBaseFolder(fileDialog.getDirectory());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     e.getLocalizedMessage(),
