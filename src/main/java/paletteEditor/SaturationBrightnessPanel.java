@@ -74,7 +74,7 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
         g.setXORMode(Color.WHITE);
         g.setColor(Color.BLACK);
         final int r = 3;
-        g.drawRect((int)selection.getX() - r, (int)selection.getY() - r, 2 * r, 2 * r);
+        g.fillOval((int)selection.getX() - r, (int)selection.getY() - r, 2 * r, 2 * r);
     }
 
     @Override
