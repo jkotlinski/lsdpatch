@@ -34,11 +34,6 @@ public class PaletteEditor
 
     private final ColorPicker colorPicker = new ColorPicker();
 
-    private final SwatchPair normalSwatchPair = new SwatchPair();
-    private final SwatchPair shadedSwatchPair = new SwatchPair();
-    private final SwatchPair alternateSwatchPair = new SwatchPair();
-    private final SwatchPair cursorSwatchPair = new SwatchPair();
-    private final SwatchPair scrollBarSwatchPair = new SwatchPair();
     private final SwatchPanel swatchPanel = new SwatchPanel();
 
     private JComboBox<String> paletteSelector;
@@ -112,11 +107,6 @@ public class PaletteEditor
         midPanel.add(topRowPanel, "wrap");
         midPanel.add(colorPicker);
 
-        swatchPanel.add(normalSwatchPair, "Normal");
-        swatchPanel.add(shadedSwatchPair, "Shaded");
-        swatchPanel.add(alternateSwatchPair, "Alternate");
-        swatchPanel.add(cursorSwatchPair, "Cursor");
-        swatchPanel.add(scrollBarSwatchPair, "Scroll Bar");
         swatchPanel.addListener(this);
 
         previewSongLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
@@ -176,8 +166,6 @@ public class PaletteEditor
 
         pack();
         setMinimumSize(getPreferredSize());
-
-        normalSwatchPair.selectBackground();
     }
 
     private void songImagePressed(MouseEvent e) {
@@ -191,39 +179,39 @@ public class PaletteEditor
     private void selectColor(int rgb) {
         switch (rgb) {
             case 0xff000000:
-                normalSwatchPair.selectBackground();
+                swatchPanel.normalSwatchPair.selectBackground();
                 break;
             case 0xff000008:
             case 0xff000019:
-                normalSwatchPair.selectForeground();
+                swatchPanel.normalSwatchPair.selectForeground();
                 break;
             case 0xff000800:
-                shadedSwatchPair.selectBackground();
+                swatchPanel.shadedSwatchPair.selectBackground();
                 break;
             case 0xff000808:
             case 0xff000819:
-                shadedSwatchPair.selectForeground();
+                swatchPanel.shadedSwatchPair.selectForeground();
                 break;
             case 0xff001000:
-                alternateSwatchPair.selectBackground();
+                swatchPanel.alternateSwatchPair.selectBackground();
                 break;
             case 0xff001008:
             case 0xff001019:
-                alternateSwatchPair.selectForeground();
+                swatchPanel.alternateSwatchPair.selectForeground();
                 break;
             case 0xff001900:
-                cursorSwatchPair.selectBackground();
+                swatchPanel.cursorSwatchPair.selectBackground();
                 break;
             case 0xff001908:
             case 0xff001919:
-                cursorSwatchPair.selectForeground();
+                swatchPanel.cursorSwatchPair.selectForeground();
                 break;
             case 0xff002100:
-                scrollBarSwatchPair.selectBackground();
+                swatchPanel.scrollBarSwatchPair.selectBackground();
                 break;
             case 0xff002108:
             case 0xff002119:
-                scrollBarSwatchPair.selectForeground();
+                swatchPanel.scrollBarSwatchPair.selectForeground();
                 break;
         }
     }
@@ -291,11 +279,7 @@ public class PaletteEditor
     }
 
     private void updateRomFromSwatches() {
-        normalSwatchPair.writeToRom(romImage, selectedPaletteOffset());
-        shadedSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 8);
-        alternateSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 16);
-        cursorSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 24);
-        scrollBarSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 32);
+        swatchPanel.writeToRom(romImage, selectedPaletteOffset());
     }
 
     private java.awt.Color firstColor(int colorSet) {
@@ -424,12 +408,13 @@ public class PaletteEditor
 
     private void updateAllSwatches() {
         updatingSwatches = true;
-        updateSwatches(0, normalSwatchPair);
-        updateSwatches(1, shadedSwatchPair);
-        updateSwatches(2, alternateSwatchPair);
-        updateSwatches(3, cursorSwatchPair);
-        updateSwatches(4, scrollBarSwatchPair);
+        updateSwatches(0, swatchPanel.normalSwatchPair);
+        updateSwatches(1, swatchPanel.shadedSwatchPair);
+        updateSwatches(2, swatchPanel.alternateSwatchPair);
+        updateSwatches(3, swatchPanel.cursorSwatchPair);
+        updateSwatches(4, swatchPanel.scrollBarSwatchPair);
         updatingSwatches = false;
+        swatchChanged();
     }
 
     private Swatch selectedSwatch;
@@ -446,7 +431,9 @@ public class PaletteEditor
         if (!updatingSwatches) {
             updateRomFromSwatches();
             updateSongAndInstrScreens();
-            colorPicker.setColor(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
+            if (selectedSwatch != null) {
+                colorPicker.setColor(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
+            }
         }
     }
 
@@ -557,7 +544,6 @@ public class PaletteEditor
             lastSelectedPaletteIndex = paletteSelector.getSelectedIndex();
             updateSongAndInstrScreens();
             updateAllSwatches();
-            normalSwatchPair.selectBackground();
         }
     }
 

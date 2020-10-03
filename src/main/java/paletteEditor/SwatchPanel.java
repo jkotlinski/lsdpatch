@@ -13,8 +13,22 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     private final HashMap<String, SwatchPair> swatchPairs = new HashMap<>();
     private final Random random = new Random();
 
+    public final SwatchPair normalSwatchPair = new SwatchPair();
+    public final SwatchPair shadedSwatchPair = new SwatchPair();
+    public final SwatchPair alternateSwatchPair = new SwatchPair();
+    public final SwatchPair cursorSwatchPair = new SwatchPair();
+    public final SwatchPair scrollBarSwatchPair = new SwatchPair();
+
     public SwatchPanel() {
         setLayout(new MigLayout());
+
+        add(normalSwatchPair, "Normal");
+        add(shadedSwatchPair, "Shaded");
+        add(alternateSwatchPair, "Alternate");
+        add(cursorSwatchPair, "Cursor");
+        add(scrollBarSwatchPair, "Scroll Bar");
+
+        normalSwatchPair.selectBackground();
     }
 
     public void addListener(SwatchPair.Listener listener) {
@@ -40,11 +54,23 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         }
         final int w = 3;
         swatch.setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
-        listener.swatchSelected(swatch);
+        if (listener != null) {
+            listener.swatchSelected(swatch);
+        }
     }
 
     @Override
     public void swatchChanged() {
-        listener.swatchChanged();
+        if (listener != null) {
+            listener.swatchChanged();
+        }
+    }
+
+    public void writeToRom(byte[] romImage, int selectedPaletteOffset) {
+        normalSwatchPair.writeToRom(romImage, selectedPaletteOffset);
+        shadedSwatchPair.writeToRom(romImage, selectedPaletteOffset + 8);
+        alternateSwatchPair.writeToRom(romImage, selectedPaletteOffset + 16);
+        cursorSwatchPair.writeToRom(romImage, selectedPaletteOffset + 24);
+        scrollBarSwatchPair.writeToRom(romImage, selectedPaletteOffset + 32);
     }
 }
