@@ -5,20 +5,35 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 import java.util.Random;
 
-class SwatchPair {
+class SwatchPair implements Swatch.Listener {
+    public interface Listener {
+        void swatchSelected(Swatch swatch);
+        void swatchChanged();
+    }
+    private LinkedList<Listener> listeners = new LinkedList<>();
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+    @Override
+    public void swatchChanged() {
+        for (Listener listener : listeners) {
+            listener.swatchChanged();
+        }
+    }
 
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
     public final Swatch bgSwatch = new Swatch();
     public final Swatch fgSwatch = new Swatch();
 
-    private final ColorPicker colorPicker;
-
-    public SwatchPair(ColorPicker colorPicker) {
-        this.colorPicker = colorPicker;
+    public SwatchPair() {
         createSwatches();
+
+        bgSwatch.addListener(this);
+        fgSwatch.addListener(this);
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
@@ -40,17 +55,9 @@ class SwatchPair {
     }
 
     private void select(Swatch swatch) {
-        colorPicker.setColor(swatch.r(), swatch.g(), swatch.b());
-        colorPicker.subscribe(swatch::setRGB);
-        /* TODO - move up in hierarchy where we can find all swatches
-        for (Swatch panel : allSwatches) {
-            if (panel != this) {
-                panel.setBorder(BorderFactory.createLoweredBevelBorder());
-            }
+        for (Listener listener : listeners) {
+            listener.swatchSelected(swatch);
         }
-         */
-        final int w = 3;
-        swatch.setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
     }
 
     private void createSwatches() {
@@ -94,11 +101,6 @@ class SwatchPair {
                 foregroundColor.getBlue() >> 3);
     }
 
-    public void addSwatchListener(Swatch.Listener listener) {
-        bgSwatch.addListener(listener);
-        fgSwatch.addListener(listener);
-    }
-
     public void randomize(Random rand) {
         bgSwatch.randomize(rand);
         fgSwatch.randomize(rand);
@@ -128,4 +130,8 @@ class SwatchPair {
         romImage[offset + 5] = romImage[offset + 3];
     }
 
+    public void deselect() {
+        bgSwatch.deselect();
+        fgSwatch.deselect();
+    }
 }

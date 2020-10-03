@@ -43,4 +43,8 @@ public class Swatch extends JPanel {
     public void addListener(Listener listener) {
         listeners.add(listener);
     }
+
+    public void deselect() {
+        setBorder(BorderFactory.createLoweredBevelBorder());
+    }
 }
