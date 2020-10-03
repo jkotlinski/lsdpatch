@@ -248,7 +248,7 @@ public class PaletteEditor
 
     private void addDesaturateButton(JPanel spinnerPanel) {
         desaturateButton.addItemListener(e -> updatePreviewPanes());
-        desaturateButton.setToolTipText("Tip: Enjoyable palettes look OK when desaturated, too!");
+        desaturateButton.setToolTipText("Tip: Great palettes look OK when desaturated, too!");
         spinnerPanel.add(desaturateButton, "grow");
     }
 
