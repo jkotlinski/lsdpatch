@@ -27,7 +27,7 @@ public class PaletteEditor
     private byte[] romImage = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
-    private int previewScale = 2;
+    private final int previewScale = 2;
     java.io.File clipboard;
 
     private final JLabel previewSongLabel = new JLabel();
@@ -179,6 +179,8 @@ public class PaletteEditor
 
         pack();
         setMinimumSize(getPreferredSize());
+
+        normalEntry.selectBackground();
     }
 
     private void songImagePressed(MouseEvent e) {
@@ -579,6 +581,7 @@ public class PaletteEditor
             lastSelectedPaletteIndex = paletteSelector.getSelectedIndex();
             updatePreviewPanes();
             updateAllSpinners();
+            normalEntry.selectBackground();
         }
     }
 

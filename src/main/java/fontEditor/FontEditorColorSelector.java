@@ -18,7 +18,7 @@ class FontEditorColorSelector {
 
     private final ArrayList<ChangeEventListener> listeners;
 
-    private class FontEditorColorListener implements MouseListener {
+    private static class FontEditorColorListener implements MouseListener {
         final FontEditorColorSelector selector;
         final int color;
 
