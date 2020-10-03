@@ -71,10 +71,15 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
             }
         }
         g.drawImage(image, 0, 0, null);
-        g.setXORMode(Color.WHITE);
-        g.setColor(Color.BLACK);
-        final int r = 3;
-        g.fillOval((int)selection.getX() - r, (int)selection.getY() - r, 2 * r, 2 * r);
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setXORMode(Color.WHITE);
+        int radius = 5;
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawOval((int) selection.getX() - radius,
+                (int) selection.getY() - radius,
+                2 * radius, 2 * radius);
     }
 
     @Override

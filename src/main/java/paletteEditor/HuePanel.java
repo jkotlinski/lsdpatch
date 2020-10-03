@@ -43,8 +43,13 @@ class HuePanel extends JPanel implements MouseListener, MouseMotionListener {
             }
         }
         g.drawImage(image, 0, 0, null);
-        g.setColor(Color.BLACK);
-        g.fillRect(0, selectedPosition - 1, width, 3);
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(Color.BLACK);
+        int r = 5;
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawOval(width / 2 - r, selectedPosition - r, 2 * r, 2 * r);
     }
 
     public float hue() {
