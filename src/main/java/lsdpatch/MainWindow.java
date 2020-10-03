@@ -6,7 +6,6 @@ import Document.*;
 import fontEditor.FontEditor;
 import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
-import paletteEditor.ColorPicker;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
 import utils.JFileChooserFactory;

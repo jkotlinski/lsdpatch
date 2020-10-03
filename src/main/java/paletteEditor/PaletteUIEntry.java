@@ -10,16 +10,22 @@ import java.util.Random;
 
 class PaletteUIEntry {
     private static class PreviewPanel extends JPanel implements MouseListener {
+        ColorPicker colorPicker;
         JSpinner[] spinners;
 
-        PreviewPanel(JSpinner[] spinners) {
+        PreviewPanel(JSpinner[] spinners, ColorPicker colorPicker) {
             this.spinners = spinners;
+            this.colorPicker = colorPicker;
             addMouseListener(this);
         }
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            ColorPicker colorPicker = new ColorPicker(
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            colorPicker.setColor(
                     (int)spinners[0].getValue(),
                     (int)spinners[1].getValue(),
                     (int)spinners[2].getValue());
@@ -28,12 +34,6 @@ class PaletteUIEntry {
                 spinners[1].setValue(g);
                 spinners[2].setValue(b);
             });
-            colorPicker.setLocationRelativeTo(this);
-            colorPicker.setVisible(true);
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
         }
 
         @Override
@@ -55,19 +55,19 @@ class PaletteUIEntry {
     public final JSpinner[] foreground = new JSpinner[3];
     public final PreviewPanel[] preview = new PreviewPanel[2];
 
-    public PaletteUIEntry() {
+    public PaletteUIEntry(ColorPicker colorPicker) {
         createSpinners(background);
         createSpinners(foreground);
-        createPreviews();
+        createPreviews(colorPicker);
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
         final int previewWidth = 38;
-        panel.add(new JLabel(entryName), "span 4, wrap");
+        panel.add(new JLabel(entryName), "span 8, wrap");
         panel.add(background[0]);
         panel.add(background[1]);
         panel.add(background[2]);
-        panel.add(preview[0], "grow, wrap");
+        panel.add(preview[0], "grow");
         preview[1].setMinimumSize(new Dimension(previewWidth, 0));
         panel.add(foreground[0]);
         panel.add(foreground[1]);
@@ -76,12 +76,12 @@ class PaletteUIEntry {
         preview[1].setMinimumSize(new Dimension(previewWidth, 0));
     }
 
-    private void createPreviews() {
-        preview[0] = new PreviewPanel(background);
+    private void createPreviews(ColorPicker colorPicker) {
+        preview[0] = new PreviewPanel(background, colorPicker);
         preview[0].setBorder(previewLabelBorder);
         preview[0].setMinimumSize(new Dimension(32, 0));
 
-        preview[1] = new PreviewPanel(foreground);
+        preview[1] = new PreviewPanel(foreground, colorPicker);
         preview[1].setBorder(previewLabelBorder);
         preview[1].setMinimumSize(new Dimension(32, 0));
     }

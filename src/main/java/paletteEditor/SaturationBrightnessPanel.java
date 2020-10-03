@@ -6,14 +6,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.LinkedList;
 
 public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listener, MouseListener, MouseMotionListener {
     interface Listener {
         void saturationBrightnessChanged();
     }
 
-    private final LinkedList<Listener> listeners = new LinkedList<>();
+    private Listener listener;
 
     final int width = 256;
     final int height = 256;
@@ -24,8 +23,7 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
 
     boolean mousePressed;
 
-    public SaturationBrightnessPanel(HuePanel huePanel, float saturation, float brightness) {
-        selection.setLocation(saturation * width, (1 - brightness) * height);
+    public SaturationBrightnessPanel(HuePanel huePanel) {
         this.huePanel = huePanel;
         huePanel.subscribe(this);
         setMinimumSize(new Dimension(width, height));
@@ -33,8 +31,17 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
         addMouseMotionListener(this);
     }
 
+    public void setSaturationBrightness(float saturation, float brightness) {
+        assert(saturation >= 0);
+        assert(saturation <= 1);
+        assert(brightness >= 0);
+        assert(brightness <= 1);
+        selection.setLocation(saturation * width, (1 - brightness) * height);
+        repaint();
+    }
+
     public void subscribe(Listener listener) {
-        listeners.add(listener);
+        this.listener = listener;
     }
 
     @Override
@@ -97,7 +104,7 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
     public void mouseDragged(MouseEvent e) {
         selection.x = Math.min(width, Math.max(0, e.getX()));
         selection.y = Math.min(height, Math.max(0, e.getY()));
-        for (Listener listener : listeners) {
+        if (listener != null) {
             listener.saturationBrightnessChanged();
         }
         repaint();

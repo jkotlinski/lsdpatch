@@ -34,15 +34,17 @@ public class PaletteEditor
     private final JLabel previewSongLabel = new JLabel();
     private final JLabel previewInstrLabel = new JLabel();
 
-    private final PaletteUIEntry normalEntry = new PaletteUIEntry();
-    private final PaletteUIEntry shadedEntry = new PaletteUIEntry();
-    private final PaletteUIEntry alternativeEntry = new PaletteUIEntry();
-    private final PaletteUIEntry selectionEntry = new PaletteUIEntry();
-    private final PaletteUIEntry scrollbarEntry = new PaletteUIEntry();
+    private final ColorPicker colorPicker = new ColorPicker();
 
-    private final JComboBox<String> paletteSelector;
+    private final PaletteUIEntry normalEntry = new PaletteUIEntry(colorPicker);
+    private final PaletteUIEntry shadedEntry = new PaletteUIEntry(colorPicker);
+    private final PaletteUIEntry alternativeEntry = new PaletteUIEntry(colorPicker);
+    private final PaletteUIEntry selectionEntry = new PaletteUIEntry(colorPicker);
+    private final PaletteUIEntry scrollbarEntry = new PaletteUIEntry(colorPicker);
 
-    JMenuItem mntmPaste;
+    private JComboBox<String> paletteSelector;
+
+    JMenuItem menuItemPaste;
 
     private BufferedImage songImage;
     private BufferedImage instrImage;
@@ -52,7 +54,7 @@ public class PaletteEditor
     private boolean updatingSpinners = false;
     private boolean populatingPaletteSelector = false;
 
-    private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate preview");
+    private final JCheckBox desaturateButton = new javax.swing.JCheckBox("Desaturate");
 
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -76,16 +78,16 @@ public class PaletteEditor
         mnEdit.setMnemonic(KeyEvent.VK_E);
         menuBar.add(mnEdit);
 
-        JMenuItem mntmCopy = new JMenuItem("Copy Palette");
-        mntmCopy.addActionListener(e -> copyPalette());
-        mntmCopy.setMnemonic(KeyEvent.VK_C);
-        mnEdit.add(mntmCopy);
+        JMenuItem menuItemCopy = new JMenuItem("Copy Palette");
+        menuItemCopy.addActionListener(e -> copyPalette());
+        menuItemCopy.setMnemonic(KeyEvent.VK_C);
+        mnEdit.add(menuItemCopy);
 
-        mntmPaste = new JMenuItem("Paste Palette");
-        mntmPaste.setMnemonic(KeyEvent.VK_P);
-        mntmPaste.addActionListener(e -> pastePalette());
-        mntmPaste.setEnabled(false);
-        mnEdit.add(mntmPaste);
+        menuItemPaste = new JMenuItem("Paste Palette");
+        menuItemPaste.setMnemonic(KeyEvent.VK_P);
+        menuItemPaste.addActionListener(e -> pastePalette());
+        menuItemPaste.setEnabled(false);
+        mnEdit.add(menuItemPaste);
     }
 
     public PaletteEditor(Document document) {
@@ -93,40 +95,28 @@ public class PaletteEditor
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-        setResizable(true);
         setTitle("Palette Editor");
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
-        contentPane.setLayout(new MigLayout());
+        contentPane.setLayout(new GridLayout(1, 3));
 
-        paletteSelector = new JComboBox<>();
-        paletteSelector.setEditable(true);
-        paletteSelector.addActionListener(this);
-        paletteSelector.addItemListener(e -> onPaletteSelected());
-        contentPane.add(paletteSelector, "cell 0 0, grow, span, wrap 10");
+        JPanel midPanel = new JPanel();
+        midPanel.setLayout(new MigLayout());
 
-        normalEntry.registerToPanel(contentPane, "Normal");
-        shadedEntry.registerToPanel(contentPane, "Shaded");
-        alternativeEntry.registerToPanel(contentPane, "Alternative");
-        selectionEntry.registerToPanel(contentPane, "Selection");
-        scrollbarEntry.registerToPanel(contentPane, "Scrollbar");
+        addPaletteSelector(midPanel);
+        addDesaturateButton(midPanel);
+        addRandomizeButton(midPanel);
 
-        JButton randomizeButton = new JButton("Randomize colors");
-        randomizeButton.addActionListener((e) -> randomizeColors());
-        contentPane.add(randomizeButton, "span, grow, wrap");
+        midPanel.add(colorPicker, "span");
 
-        desaturateButton.addItemListener(e -> updatePreviewPanes());
-        desaturateButton.setToolTipText("Tip: To make your palette enjoyable to use, make it look OK desaturated!");
-        contentPane.add(desaturateButton, "span, grow, wrap");
-
-        JPanel previewSection = new JPanel();
-        previewSection.setLayout(new GridLayout(2, 1));
         previewSongLabel.setMinimumSize(new Dimension(160 * 2, 144 * 2));
+        contentPane.add(previewSongLabel);
+
+        contentPane.add(midPanel);
+
         previewInstrLabel.setMinimumSize(new Dimension(160 * 2, 144 * 2));
-        previewSection.add(previewSongLabel);
-        previewSection.add(previewInstrLabel);
-        contentPane.add(previewSection, "dock east, gap 10");
+        contentPane.add(previewInstrLabel);
 
         listenToSpinners();
 
@@ -150,7 +140,26 @@ public class PaletteEditor
 
         pack();
         setMinimumSize(getPreferredSize());
-        setResizable(false);
+    }
+
+    private void addRandomizeButton(JPanel spinnerPanel) {
+        JButton randomizeButton = new JButton("Randomize");
+        randomizeButton.addActionListener((e) -> randomizeColors());
+        spinnerPanel.add(randomizeButton, "grow, wrap");
+    }
+
+    private void addPaletteSelector(JPanel spinnerPanel) {
+        paletteSelector = new JComboBox<>();
+        paletteSelector.setEditable(true);
+        paletteSelector.addActionListener(this);
+        paletteSelector.addItemListener(e -> onPaletteSelected());
+        spinnerPanel.add(paletteSelector, "grow");
+    }
+
+    private void addDesaturateButton(JPanel spinnerPanel) {
+        desaturateButton.addItemListener(e -> updatePreviewPanes());
+        desaturateButton.setToolTipText("Tip: To make your palette enjoyable to use, make it look OK desaturated!");
+        spinnerPanel.add(desaturateButton, "grow");
     }
 
     private void listenToSpinners() {
@@ -190,7 +199,7 @@ public class PaletteEditor
         return new java.awt.Color(r, g, b);
     }
 
-    // Shoutout to Defense Mechanism
+    // Shout-out to Defense Mechanism
     private void randomizeColors() {
         updatingSpinners = true;
         Random rand = new Random();
@@ -376,7 +385,6 @@ public class PaletteEditor
     }
 
     private void savePalette(String path) {
-
         Object selectedItem = paletteSelector.getSelectedItem();
         if (selectedItem == null) {
             javax.swing.JOptionPane.showMessageDialog(this, "Couldn't read the palette name.");
@@ -451,7 +459,7 @@ public class PaletteEditor
 		    e.printStackTrace();
 	    }
 	    savePalette(clipboard.getAbsolutePath());
-	    mntmPaste.setEnabled(true);
+	    menuItemPaste.setEnabled(true);
     }
 
     private boolean areDuplicateNames() {

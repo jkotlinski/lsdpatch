@@ -7,42 +7,42 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.LinkedList;
 
-public class ColorPicker extends JFrame implements HuePanel.Listener, SaturationBrightnessPanel.Listener {
+public class ColorPicker extends JPanel implements HuePanel.Listener, SaturationBrightnessPanel.Listener {
     interface Listener {
         void colorChanged(int r, int g, int b);
     }
 
-    final LinkedList<Listener> listeners = new LinkedList<>();
+    private Listener listener;
 
     final HuePanel huePanel;
     final SaturationBrightnessPanel saturationBrightnessPanel;
 
-    public ColorPicker(int r, int g, int b) {
+    public ColorPicker() {
+        huePanel = new HuePanel();
+        saturationBrightnessPanel = new SaturationBrightnessPanel(huePanel);
+
+        huePanel.subscribe(this);
+        saturationBrightnessPanel.subscribe(this);
+
+        setLayout(new MigLayout());
+
+        add(saturationBrightnessPanel);
+        add(huePanel, "gap 5");
+    }
+
+    public void setColor(int r, int g, int b) {
         assert(r >= 0 && r < 32);
         assert(g >= 0 && g < 32);
         assert(b >= 0 && b < 32);
 
         float[] hsb = new float[3];
         Color.RGBtoHSB(r << 3, g << 3, b << 3, hsb);
-
-        huePanel = new HuePanel(hsb[0]);
-        saturationBrightnessPanel = new SaturationBrightnessPanel(huePanel, hsb[1], hsb[2]);
-
-        huePanel.subscribe(this);
-        saturationBrightnessPanel.subscribe(this);
-
-        JPanel contentPane = new JPanel();
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        setContentPane(contentPane);
-        contentPane.setLayout(new MigLayout());
-
-        contentPane.add(saturationBrightnessPanel);
-        contentPane.add(huePanel, "gap 5");
-        pack();
+        huePanel.setHue(hsb[0]);
+        saturationBrightnessPanel.setSaturationBrightness(hsb[1], hsb[2]);
     }
 
     public void subscribe(Listener listener) {
-        listeners.add(listener);
+        this.listener = listener;
     }
 
     private void broadcastColor() {
@@ -56,7 +56,7 @@ public class ColorPicker extends JFrame implements HuePanel.Listener, Saturation
         byte g = (byte)((rgb & 255) >> 3);
         rgb >>= 8;
         byte r = (byte)((rgb & 255) >> 3);
-        for (Listener listener : listeners) {
+        if (listener != null) {
             listener.colorChanged(r, g, b);
         }
     }
