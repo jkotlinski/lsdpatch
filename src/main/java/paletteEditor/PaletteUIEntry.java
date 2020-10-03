@@ -23,6 +23,10 @@ class PaletteUIEntry {
         public void mouseClicked(MouseEvent e) {
         }
 
+        public void select() {
+            mousePressed(null);
+        }
+
         @Override
         public void mousePressed(MouseEvent e) {
             colorPicker.setColor(
@@ -62,18 +66,27 @@ class PaletteUIEntry {
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
-        final int previewWidth = 38;
-        panel.add(new JLabel(entryName), "span 8, wrap");
-        panel.add(background[0]);
-        panel.add(background[1]);
-        panel.add(background[2]);
-        panel.add(preview[0], "grow");
-        preview[1].setMinimumSize(new Dimension(previewWidth, 0));
-        panel.add(foreground[0]);
-        panel.add(foreground[1]);
-        panel.add(foreground[2]);
-        panel.add(preview[1], "grow, wrap");
-        preview[1].setMinimumSize(new Dimension(previewWidth, 0));
+        final int previewWidth = 34;
+        final int previewHeight = 34;
+        panel.add(new JLabel(entryName), "span, wrap");
+        panel.add(preview[0]);
+        //panel.add(background[0]);
+        //panel.add(background[1]);
+        //panel.add(background[2], "wrap");
+        preview[0].setMinimumSize(new Dimension(previewWidth, previewHeight));
+        panel.add(preview[1], "wrap");
+        //panel.add(foreground[0]);
+        //panel.add(foreground[1]);
+        //panel.add(foreground[2], "wrap");
+        preview[1].setMinimumSize(new Dimension(previewWidth, previewHeight));
+    }
+
+    public void selectBackground() {
+        preview[0].select();
+    }
+
+    public void selectForeground() {
+        preview[1].select();
     }
 
     private void createPreviews(ColorPicker colorPicker) {

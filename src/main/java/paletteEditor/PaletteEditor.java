@@ -3,9 +3,7 @@ package paletteEditor;
 import java.awt.*;
 
 import java.awt.color.ColorSpace;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Random;
@@ -29,6 +27,7 @@ public class PaletteEditor
     private byte[] romImage = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
+    private int previewScale = 2;
     java.io.File clipboard;
 
     private final JLabel previewSongLabel = new JLabel();
@@ -99,24 +98,64 @@ public class PaletteEditor
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
-        contentPane.setLayout(new GridLayout(1, 3));
+        contentPane.setLayout(new MigLayout());
 
         JPanel midPanel = new JPanel();
         midPanel.setLayout(new MigLayout());
 
-        addPaletteSelector(midPanel);
-        addDesaturateButton(midPanel);
-        addRandomizeButton(midPanel);
+        JPanel topRowPanel = new JPanel();
+        topRowPanel.setLayout(new MigLayout());
+        addPaletteSelector(topRowPanel);
+        addDesaturateButton(topRowPanel);
+        addRandomizeButton(topRowPanel);
 
-        midPanel.add(colorPicker, "span");
+        midPanel.add(topRowPanel, "wrap");
+        midPanel.add(colorPicker);
 
-        previewSongLabel.setMinimumSize(new Dimension(160 * 2, 144 * 2));
+        JPanel pickerPanel = new JPanel();
+        pickerPanel.setLayout(new MigLayout());
+        normalEntry.registerToPanel(pickerPanel, "Normal");
+        shadedEntry.registerToPanel(pickerPanel, "Shaded");
+        alternativeEntry.registerToPanel(pickerPanel, "Alternate");
+        selectionEntry.registerToPanel(pickerPanel, "Cursor");
+        scrollbarEntry.registerToPanel(pickerPanel, "Scroll Bar");
+
+        previewSongLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
         contentPane.add(previewSongLabel);
+        previewSongLabel.addMouseListener(new MouseListener() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                songImagePressed(e);
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) { }
+            @Override
+            public void mouseReleased(MouseEvent e) { }
+            @Override
+            public void mouseEntered(MouseEvent e) { }
+            @Override
+            public void mouseExited(MouseEvent e) { }
+        });
 
         contentPane.add(midPanel);
+        contentPane.add(pickerPanel);
 
-        previewInstrLabel.setMinimumSize(new Dimension(160 * 2, 144 * 2));
-        contentPane.add(previewInstrLabel);
+        previewInstrLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
+        previewInstrLabel.addMouseListener(new MouseListener() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                instrImagePressed(e);
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
+        contentPane.add(previewInstrLabel, "gap 10");
 
         listenToSpinners();
 
@@ -142,6 +181,54 @@ public class PaletteEditor
         setMinimumSize(getPreferredSize());
     }
 
+    private void songImagePressed(MouseEvent e) {
+        selectColor(songImage.getRGB(e.getX() / previewScale, e.getY() / previewScale));
+    }
+
+    private void instrImagePressed(MouseEvent e) {
+        selectColor(instrImage.getRGB(e.getX() / previewScale, e.getY() / previewScale));
+    }
+
+    private void selectColor(int rgb) {
+        switch (rgb) {
+            case 0xff000000:
+                normalEntry.selectBackground();
+                break;
+            case 0xff000008:
+            case 0xff000019:
+                normalEntry.selectForeground();
+                break;
+            case 0xff000800:
+                shadedEntry.selectBackground();
+                break;
+            case 0xff000808:
+            case 0xff000819:
+                shadedEntry.selectForeground();
+                break;
+            case 0xff001000:
+                alternativeEntry.selectBackground();
+                break;
+            case 0xff001008:
+            case 0xff001019:
+                alternativeEntry.selectForeground();
+                break;
+            case 0xff001900:
+                selectionEntry.selectBackground();
+                break;
+            case 0xff001908:
+            case 0xff001919:
+                selectionEntry.selectForeground();
+                break;
+            case 0xff002100:
+                scrollbarEntry.selectBackground();
+                break;
+            case 0xff002108:
+            case 0xff002119:
+                scrollbarEntry.selectForeground();
+                break;
+        }
+    }
+
     private void addRandomizeButton(JPanel spinnerPanel) {
         JButton randomizeButton = new JButton("Randomize");
         randomizeButton.addActionListener((e) -> randomizeColors());
@@ -153,7 +240,8 @@ public class PaletteEditor
         paletteSelector.setEditable(true);
         paletteSelector.addActionListener(this);
         paletteSelector.addItemListener(e -> onPaletteSelected());
-        spinnerPanel.add(paletteSelector, "grow");
+        paletteSelector.setMaximumSize(new Dimension(80, 1000));
+        spinnerPanel.add(paletteSelector);
     }
 
     private void addDesaturateButton(JPanel spinnerPanel) {
@@ -207,6 +295,7 @@ public class PaletteEditor
         shadedEntry.randomize(rand);
         alternativeEntry.randomize(rand);
         selectionEntry.randomize(rand);
+        scrollbarEntry.randomize(rand);
         updatingSpinners = false;
         onSpinnerChanged();
     }
@@ -286,8 +375,7 @@ public class PaletteEditor
     }
 
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
-        int w = srcImage.getWidth();
-        int h = srcImage.getHeight();
+        int w = srcImage.getWidth(); int h = srcImage.getHeight();
         java.awt.image.BufferedImage dstImage = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
