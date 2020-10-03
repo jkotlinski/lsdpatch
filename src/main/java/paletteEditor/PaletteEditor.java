@@ -164,6 +164,9 @@ public class PaletteEditor
 
         pack();
         setMinimumSize(getPreferredSize());
+
+        // Needs to be here for the swatchSelected callback.
+        swatchPanel.normalSwatchPair.selectBackground();
     }
 
     private void songImagePressed(MouseEvent e) {

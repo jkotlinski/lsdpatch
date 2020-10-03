@@ -38,8 +38,6 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         add(alternateSwatchPair, "Alternate");
         add(cursorSwatchPair, "Cursor");
         add(scrollBarSwatchPair, "Scroll Bar");
-
-        normalSwatchPair.selectBackground();
     }
 
     enum CommandState {
