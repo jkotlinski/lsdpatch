@@ -16,7 +16,6 @@ import utils.RomUtilities;
 import utils.StretchIcon;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 public class PaletteEditor
         extends JFrame
@@ -91,7 +90,6 @@ public class PaletteEditor
 
         setTitle("Palette Editor");
         JPanel contentPane = new JPanel();
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(new MigLayout());
 
