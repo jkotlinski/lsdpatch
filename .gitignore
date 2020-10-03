@@ -5,3 +5,7 @@ target
 .idea
 .settings
 *.iml
+
+*.gb
+*.sav
+*.lsdprj
