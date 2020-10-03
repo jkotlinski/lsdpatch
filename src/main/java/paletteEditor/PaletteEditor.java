@@ -228,25 +228,25 @@ public class PaletteEditor
         }
     }
 
-    private void addRandomizeButton(JPanel spinnerPanel) {
+    private void addRandomizeButton(JPanel panel) {
         JButton randomizeButton = new JButton("Randomize");
         randomizeButton.addActionListener((e) -> randomizeColors());
-        spinnerPanel.add(randomizeButton, "grow, wrap");
+        panel.add(randomizeButton, "grow, wrap");
     }
 
-    private void addPaletteSelector(JPanel spinnerPanel) {
+    private void addPaletteSelector(JPanel panel) {
         paletteSelector = new JComboBox<>();
         paletteSelector.setEditable(true);
         paletteSelector.addActionListener(this);
         paletteSelector.addItemListener(e -> onPaletteSelected());
         paletteSelector.setMaximumSize(new Dimension(80, 1000));
-        spinnerPanel.add(paletteSelector);
+        panel.add(paletteSelector);
     }
 
-    private void addDesaturateButton(JPanel spinnerPanel) {
+    private void addDesaturateButton(JPanel panel) {
         desaturateButton.addItemListener(e -> updateSongAndInstrScreens());
         desaturateButton.setToolTipText("Tip: Great palettes look OK when desaturated, too!");
-        spinnerPanel.add(desaturateButton, "grow");
+        panel.add(desaturateButton, "grow");
     }
 
     private void setRomImage(byte[] romImage) {
@@ -290,7 +290,7 @@ public class PaletteEditor
         return paletteOffset + selectedPalette() * RomUtilities.PALETTE_SIZE;
     }
 
-    private void updateRomFromSpinners() {
+    private void updateRomFromSwatches() {
         normalSwatchPair.writeToRom(romImage, selectedPaletteOffset());
         shadedSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 8);
         alternateSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 16);
@@ -444,7 +444,7 @@ public class PaletteEditor
     @Override
     public void swatchChanged() {
         if (!updatingSwatches) {
-            updateRomFromSpinners();
+            updateRomFromSwatches();
             updateSongAndInstrScreens();
             colorPicker.setColor(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
         }
