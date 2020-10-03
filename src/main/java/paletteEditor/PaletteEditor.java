@@ -157,7 +157,7 @@ public class PaletteEditor
         });
         contentPane.add(previewInstrLabel, "gap 10");
 
-        listenToSpinners();
+        addSwatchListener();
 
         try {
             songImage = javax.imageio.ImageIO.read(getClass().getResource("/song.bmp"));
@@ -252,12 +252,12 @@ public class PaletteEditor
         spinnerPanel.add(desaturateButton, "grow");
     }
 
-    private void listenToSpinners() {
-        normalEntry.listenToColorChanges(this::onColorChanged);
-        shadedEntry.listenToColorChanges(this::onColorChanged);
-        alternativeEntry.listenToColorChanges(this::onColorChanged);
-        selectionEntry.listenToColorChanges(this::onColorChanged);
-        scrollbarEntry.listenToColorChanges(this::onColorChanged);
+    private void addSwatchListener() {
+        normalEntry.addSwatchListener(this::swatchChanged);
+        shadedEntry.addSwatchListener(this::swatchChanged);
+        alternativeEntry.addSwatchListener(this::swatchChanged);
+        selectionEntry.addSwatchListener(this::swatchChanged);
+        scrollbarEntry.addSwatchListener(this::swatchChanged);
     }
 
     private void setRomImage(byte[] romImage) {
@@ -299,7 +299,7 @@ public class PaletteEditor
         selectionEntry.randomize(rand);
         scrollbarEntry.randomize(rand);
         updatingSpinners = false;
-        onColorChanged();
+        swatchChanged();
     }
 
     private int selectedPaletteOffset() {
@@ -467,7 +467,7 @@ public class PaletteEditor
         updatingSpinners = false;
     }
 
-    public void onColorChanged() {
+    public void swatchChanged() {
         if (!updatingSpinners) {
             updateRomFromSpinners();
             updatePreviewPanes();

@@ -1,9 +1,15 @@
 package paletteEditor;
 
 import javax.swing.*;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class Swatch extends JPanel {
+    public interface Listener {
+        void swatchChanged();
+    };
+    final LinkedList<Listener> listeners = new LinkedList<>();
+
     private final RGB555 rgb555 = new RGB555();
 
     public int r() {
@@ -19,18 +25,22 @@ public class Swatch extends JPanel {
     }
 
     public void setRGB(int r, int g, int b) {
+        boolean changed = r != rgb555.r() || g != rgb555.g() || b != rgb555.b();
         rgb555.setR(r);
         rgb555.setG(g);
         rgb555.setB(b);
+        if (changed) {
+            for (Listener listener : listeners) {
+                listener.swatchChanged();
+            }
+        }
     }
 
     public void randomize(Random rand) {
-        rgb555.setR(rand.nextInt(32));
-        rgb555.setG(rand.nextInt(32));
-        rgb555.setB(rand.nextInt(32));
+        setRGB(rand.nextInt(32), rand.nextInt(32), rand.nextInt(32));
     }
 
-    public void addChangeListener(RGB555.Listener listener) {
-        rgb555.addChangeListener(listener);
+    public void addListener(Listener listener) {
+        listeners.add(listener);
     }
 }

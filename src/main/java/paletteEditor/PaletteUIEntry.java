@@ -94,9 +94,9 @@ class PaletteUIEntry {
                 foregroundColor.getBlue() >> 3);
     }
 
-    public void listenToColorChanges(RGB555.Listener listener) {
-        bgSwatch.addChangeListener(listener);
-        fgSwatch.addChangeListener(listener);
+    public void addSwatchListener(Swatch.Listener listener) {
+        bgSwatch.addListener(listener);
+        fgSwatch.addListener(listener);
     }
 
     public void randomize(Random rand) {
