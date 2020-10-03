@@ -4,13 +4,13 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     SwatchPair.Listener listener;
 
-    private final HashMap<String, SwatchPair> swatchPairs = new HashMap<>();
+    private final LinkedList<SwatchPair> swatchPairs = new LinkedList<>();
     private final Random random = new Random();
 
     public final SwatchPair normalSwatchPair = new SwatchPair();
@@ -37,19 +37,19 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
 
     public void add(SwatchPair swatchPair, String swatchPairName) {
         swatchPair.registerToPanel(this, swatchPairName);
-        swatchPairs.put(swatchPairName, swatchPair);
+        swatchPairs.add(swatchPair);
         swatchPair.addListener(this);
     }
 
     public void randomize() {
-        for (SwatchPair swatchPair : swatchPairs.values()) {
+        for (SwatchPair swatchPair : swatchPairs) {
             swatchPair.randomize(random);
         }
     }
 
     @Override
     public void swatchSelected(Swatch swatch) {
-        for (SwatchPair swatchPair : swatchPairs.values()) {
+        for (SwatchPair swatchPair : swatchPairs) {
             swatchPair.deselect();
         }
         final int w = 3;
