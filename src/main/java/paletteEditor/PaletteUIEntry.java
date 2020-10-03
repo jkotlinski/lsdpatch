@@ -3,6 +3,8 @@ package paletteEditor;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Random;
 
 class PaletteUIEntry {
@@ -11,20 +13,23 @@ class PaletteUIEntry {
 
     public final RGB555 background = new RGB555();
     public final RGB555 foreground = new RGB555();
-    public final Swatch[] preview = new Swatch[2];
+    public final Swatch[] swatch = new Swatch[2];
+
+    private final ColorPicker colorPicker;
 
     public PaletteUIEntry(ColorPicker colorPicker) {
-        createPreviews(colorPicker);
+        this.colorPicker = colorPicker;
+        createSwatches();
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
         final int previewWidth = 34;
         final int previewHeight = 34;
         panel.add(new JLabel(entryName), "span, wrap");
-        panel.add(preview[0]);
-        preview[0].setMinimumSize(new Dimension(previewWidth, previewHeight));
-        panel.add(preview[1]);
-        preview[1].setMinimumSize(new Dimension(previewWidth, previewHeight));
+        panel.add(swatch[0]);
+        swatch[0].setMinimumSize(new Dimension(previewWidth, previewHeight));
+        panel.add(swatch[1]);
+        swatch[1].setMinimumSize(new Dimension(previewWidth, previewHeight));
 
         JButton swapButton = new JButton("<>");
         swapButton.addActionListener(e -> {
@@ -42,27 +47,59 @@ class PaletteUIEntry {
     }
 
     public void selectBackground() {
-        preview[0].select();
+        select(swatch[0]);
     }
 
     public void selectForeground() {
-        preview[1].select();
+        select(swatch[1]);
     }
 
-    private void createPreviews(ColorPicker colorPicker) {
-        preview[0] = new Swatch(background, colorPicker);
-        preview[0].setBorder(previewLabelBorder);
-        preview[0].setMinimumSize(new Dimension(32, 0));
+    private void select(Swatch swatch) {
+        colorPicker.setColor(swatch.r(), swatch.g(), swatch.b());
+        colorPicker.subscribe(swatch::setRGB);
+        /* TODO - move up in hierarchy where we can find all swatches
+        for (Swatch panel : allSwatches) {
+            if (panel != this) {
+                panel.setBorder(BorderFactory.createLoweredBevelBorder());
+            }
+        }
+         */
+        final int w = 3;
+        swatch.setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
+    }
 
-        preview[1] = new Swatch(foreground, colorPicker);
-        preview[1].setBorder(previewLabelBorder);
-        preview[1].setMinimumSize(new Dimension(32, 0));
+    private void createSwatches() {
+        swatch[0] = new Swatch(background);
+        swatch[0].setBorder(previewLabelBorder);
+        swatch[0].setMinimumSize(new Dimension(32, 0));
+        swatch[0].addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                swatchPressed(e);
+            }
+        });
+
+        swatch[1] = new Swatch(foreground);
+        swatch[1].setBorder(previewLabelBorder);
+        swatch[1].setMinimumSize(new Dimension(32, 0));
+        swatch[1].addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                swatchPressed(e);
+            }
+        });
+    }
+
+    private void swatchPressed(MouseEvent e) {
+        select((Swatch)e.getSource());
     }
 
     // TODO compute the color from the internal data
     public void updatePreviews(Color firstColor, Color secondColor) {
-        preview[0].setBackground(firstColor);
-        preview[1].setBackground(secondColor);
+        swatch[0].setBackground(firstColor);
+        swatch[1].setBackground(secondColor);
     }
 
     public void setColors(Color foregroundColor, Color backgroundColor) {

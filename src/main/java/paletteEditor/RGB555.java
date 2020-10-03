@@ -1,16 +1,17 @@
 package paletteEditor;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 public class RGB555 {
     public interface Listener {
         void colorChanged();
     };
-    private int r;
-    private int g;
-    private int b;
+    private int r = -1;
+    private int g = -1;
+    private int b = -1;
 
-    Listener listener;
+    final LinkedList<Listener> listeners = new LinkedList<>();
 
     public void setR(int r) {
         assert(r >= 0 && r < 32);
@@ -18,7 +19,7 @@ public class RGB555 {
             return;
         }
         this.r = r;
-        if (listener != null) {
+        for (Listener listener : listeners) {
             listener.colorChanged();
         }
     }
@@ -29,7 +30,7 @@ public class RGB555 {
             return;
         }
         this.g = g;
-        if (listener != null) {
+        for (Listener listener : listeners) {
             listener.colorChanged();
         }
     }
@@ -40,7 +41,7 @@ public class RGB555 {
             return;
         }
         this.b = b;
-        if (listener != null) {
+        for (Listener listener : listeners) {
             listener.colorChanged();
         }
     }
@@ -64,7 +65,6 @@ public class RGB555 {
     }
 
     public void addChangeListener(Listener listener) {
-        assert(listener == null);
-        this.listener = listener;
+        listeners.add(listener);
     }
 }
