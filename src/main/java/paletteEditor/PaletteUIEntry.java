@@ -28,22 +28,8 @@ class PaletteUIEntry {
         panel.add(new JLabel(entryName), "span, wrap");
         panel.add(swatch[0]);
         swatch[0].setMinimumSize(new Dimension(previewWidth, previewHeight));
-        panel.add(swatch[1]);
+        panel.add(swatch[1], "wrap");
         swatch[1].setMinimumSize(new Dimension(previewWidth, previewHeight));
-
-        JButton swapButton = new JButton("<>");
-        swapButton.addActionListener(e -> {
-            int tmp = background.r();
-            background.setR(foreground.r());
-            foreground.setR(tmp);
-            tmp = background.g();
-            background.setG(foreground.g());
-            foreground.setG(tmp);
-            tmp = background.b();
-            background.setB(foreground.b());
-            foreground.setB(tmp);
-        });
-        panel.add(swapButton, "wrap");
     }
 
     public void selectBackground() {
