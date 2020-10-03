@@ -11,7 +11,7 @@ import java.util.LinkedList;
 class HuePanel extends JPanel implements MouseListener, MouseMotionListener {
     int selectedPosition;
     final int width = 24;
-    final int height = 240;
+    final int height = 242;
     private final LinkedList<Listener> listeners = new LinkedList<>();
 
     public interface Listener {

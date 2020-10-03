@@ -14,8 +14,8 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
 
     private Listener listener;
 
-    final int width = 240;
-    final int height = 240;
+    final int width = 242;
+    final int height = 242;
 
     final Point selection = new Point();
 

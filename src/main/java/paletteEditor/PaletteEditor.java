@@ -102,7 +102,7 @@ public class PaletteEditor
         addDesaturateButton(topRowPanel);
         addRandomizeButton(topRowPanel);
 
-        midPanel.add(topRowPanel, "wrap");
+        midPanel.add(topRowPanel, "grow, wrap");
         midPanel.add(colorPicker);
 
         swatchPanel.addListener(this);
