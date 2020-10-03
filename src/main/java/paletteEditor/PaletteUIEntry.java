@@ -3,67 +3,15 @@ package paletteEditor;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.LinkedList;
 import java.util.Random;
 
 class PaletteUIEntry {
-    private static class PreviewPanel extends JPanel implements MouseListener {
-        ColorPicker colorPicker;
-        RGB555 myColor;
-
-        static LinkedList<PreviewPanel> allPreviewPanels = new LinkedList<>();
-
-        PreviewPanel(RGB555 myColor, ColorPicker colorPicker) {
-            this.myColor = myColor;
-            this.colorPicker = colorPicker;
-            addMouseListener(this);
-            allPreviewPanels.add(this);
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-        }
-
-        public void select() {
-            mousePressed(null);
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            colorPicker.setColor(myColor.r(), myColor.g(), myColor.b());
-            colorPicker.subscribe((r, g, b) -> {
-                myColor.setR(r);
-                myColor.setG(g);
-                myColor.setB(b);
-            });
-            for (PreviewPanel panel : allPreviewPanels) {
-                if (panel != this) {
-                    panel.setBorder(BorderFactory.createLoweredBevelBorder());
-                }
-            }
-            final int w = 3;
-            setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-    }
 
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
     public final RGB555 background = new RGB555();
     public final RGB555 foreground = new RGB555();
-    public final PreviewPanel[] preview = new PreviewPanel[2];
+    public final SwatchPanel[] preview = new SwatchPanel[2];
 
     public PaletteUIEntry(ColorPicker colorPicker) {
         createPreviews(colorPicker);
@@ -102,11 +50,11 @@ class PaletteUIEntry {
     }
 
     private void createPreviews(ColorPicker colorPicker) {
-        preview[0] = new PreviewPanel(background, colorPicker);
+        preview[0] = new SwatchPanel(background, colorPicker);
         preview[0].setBorder(previewLabelBorder);
         preview[0].setMinimumSize(new Dimension(32, 0));
 
-        preview[1] = new PreviewPanel(foreground, colorPicker);
+        preview[1] = new SwatchPanel(foreground, colorPicker);
         preview[1].setBorder(previewLabelBorder);
         preview[1].setMinimumSize(new Dimension(32, 0));
     }
@@ -117,7 +65,7 @@ class PaletteUIEntry {
         preview[1].setBackground(secondColor);
     }
 
-    public void updateSpinnersFromColor(Color foregroundColor, Color backgroundColor) {
+    public void setColors(Color foregroundColor, Color backgroundColor) {
         background.setR(backgroundColor.getRed() >> 3);
         background.setG(backgroundColor.getGreen() >> 3);
         background.setB(backgroundColor.getBlue() >> 3);
@@ -127,7 +75,7 @@ class PaletteUIEntry {
         foreground.setB(foregroundColor.getBlue() >> 3);
     }
 
-    public void addListenerToAllSpinners(RGB555.Listener listener) {
+    public void listenToColorChanges(RGB555.Listener listener) {
         background.addChangeListener(listener);
         foreground.addChangeListener(listener);
     }

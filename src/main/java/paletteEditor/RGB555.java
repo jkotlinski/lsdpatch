@@ -1,6 +1,5 @@
 package paletteEditor;
 
-import javax.swing.event.ChangeListener;
 import java.util.Random;
 
 public class RGB555 {

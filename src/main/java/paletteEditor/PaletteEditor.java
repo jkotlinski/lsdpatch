@@ -253,11 +253,11 @@ public class PaletteEditor
     }
 
     private void listenToSpinners() {
-        normalEntry.addListenerToAllSpinners(this::onColorChanged);
-        shadedEntry.addListenerToAllSpinners(this::onColorChanged);
-        alternativeEntry.addListenerToAllSpinners(this::onColorChanged);
-        selectionEntry.addListenerToAllSpinners(this::onColorChanged);
-        scrollbarEntry.addListenerToAllSpinners(this::onColorChanged);
+        normalEntry.listenToColorChanges(this::onColorChanged);
+        shadedEntry.listenToColorChanges(this::onColorChanged);
+        alternativeEntry.listenToColorChanges(this::onColorChanged);
+        selectionEntry.listenToColorChanges(this::onColorChanged);
+        scrollbarEntry.listenToColorChanges(this::onColorChanged);
     }
 
     private void setRomImage(byte[] romImage) {
@@ -454,7 +454,7 @@ public class PaletteEditor
     private void updateSpinners(int colorSetIndex, PaletteUIEntry entry) {
         Color backgroundColor = firstColor(colorSetIndex);
         Color foregroundColor = secondColor(colorSetIndex);
-        entry.updateSpinnersFromColor(foregroundColor, backgroundColor);
+        entry.setColors(foregroundColor, backgroundColor);
     }
 
     private void updateAllSpinners() {
