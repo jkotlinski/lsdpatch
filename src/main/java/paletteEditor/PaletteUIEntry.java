@@ -11,7 +11,7 @@ class PaletteUIEntry {
 
     public final RGB555 background = new RGB555();
     public final RGB555 foreground = new RGB555();
-    public final SwatchPanel[] preview = new SwatchPanel[2];
+    public final Swatch[] preview = new Swatch[2];
 
     public PaletteUIEntry(ColorPicker colorPicker) {
         createPreviews(colorPicker);
@@ -50,11 +50,11 @@ class PaletteUIEntry {
     }
 
     private void createPreviews(ColorPicker colorPicker) {
-        preview[0] = new SwatchPanel(background, colorPicker);
+        preview[0] = new Swatch(background, colorPicker);
         preview[0].setBorder(previewLabelBorder);
         preview[0].setMinimumSize(new Dimension(32, 0));
 
-        preview[1] = new SwatchPanel(foreground, colorPicker);
+        preview[1] = new Swatch(foreground, colorPicker);
         preview[1].setBorder(previewLabelBorder);
         preview[1].setMinimumSize(new Dimension(32, 0));
     }

@@ -6,17 +6,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.LinkedList;
 
-public class SwatchPanel extends JPanel implements MouseListener {
+public class Swatch extends JPanel implements MouseListener {
     ColorPicker colorPicker;
-    RGB555 myColor;
+    RGB555 rgb555;
 
-    static LinkedList<SwatchPanel> allSwatchPanels = new LinkedList<>();
+    static LinkedList<Swatch> allSwatches = new LinkedList<>();
 
-    SwatchPanel(RGB555 myColor, ColorPicker colorPicker) {
-        this.myColor = myColor;
+    Swatch(RGB555 rgb555, ColorPicker colorPicker) {
+        this.rgb555 = rgb555;
         this.colorPicker = colorPicker;
         addMouseListener(this);
-        allSwatchPanels.add(this);
+        allSwatches.add(this);
     }
 
     @Override
@@ -29,13 +29,13 @@ public class SwatchPanel extends JPanel implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        colorPicker.setColor(myColor.r(), myColor.g(), myColor.b());
+        colorPicker.setColor(rgb555.r(), rgb555.g(), rgb555.b());
         colorPicker.subscribe((r, g, b) -> {
-            myColor.setR(r);
-            myColor.setG(g);
-            myColor.setB(b);
+            rgb555.setR(r);
+            rgb555.setG(g);
+            rgb555.setB(b);
         });
-        for (SwatchPanel panel : allSwatchPanels) {
+        for (Swatch panel : allSwatches) {
             if (panel != this) {
                 panel.setBorder(BorderFactory.createLoweredBevelBorder());
             }
