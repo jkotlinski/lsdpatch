@@ -35,11 +35,11 @@ public class PaletteEditor
 
     private final ColorPicker colorPicker = new ColorPicker();
 
-    private final PaletteUIEntry normalEntry = new PaletteUIEntry(colorPicker);
-    private final PaletteUIEntry shadedEntry = new PaletteUIEntry(colorPicker);
-    private final PaletteUIEntry alternativeEntry = new PaletteUIEntry(colorPicker);
-    private final PaletteUIEntry selectionEntry = new PaletteUIEntry(colorPicker);
-    private final PaletteUIEntry scrollbarEntry = new PaletteUIEntry(colorPicker);
+    private final SwatchPair normalEntry = new SwatchPair(colorPicker);
+    private final SwatchPair shadedEntry = new SwatchPair(colorPicker);
+    private final SwatchPair alternativeEntry = new SwatchPair(colorPicker);
+    private final SwatchPair selectionEntry = new SwatchPair(colorPicker);
+    private final SwatchPair scrollbarEntry = new SwatchPair(colorPicker);
 
     private JComboBox<String> paletteSelector;
 
@@ -451,7 +451,7 @@ public class PaletteEditor
         updateSongAndInstrScreens();
     }
 
-    private void updateSpinners(int colorSetIndex, PaletteUIEntry entry) {
+    private void updateSpinners(int colorSetIndex, SwatchPair entry) {
         Color backgroundColor = firstColor(colorSetIndex);
         Color foregroundColor = secondColor(colorSetIndex);
         entry.setColors(foregroundColor, backgroundColor);

@@ -7,7 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Random;
 
-class PaletteUIEntry {
+class SwatchPair {
 
     private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
 
@@ -16,7 +16,7 @@ class PaletteUIEntry {
 
     private final ColorPicker colorPicker;
 
-    public PaletteUIEntry(ColorPicker colorPicker) {
+    public SwatchPair(ColorPicker colorPicker) {
         this.colorPicker = colorPicker;
         createSwatches();
     }
