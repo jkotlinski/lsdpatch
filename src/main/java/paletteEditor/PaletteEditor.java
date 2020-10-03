@@ -7,7 +7,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.LinkedList;
-import java.util.Random;
 
 import Document.Document;
 import net.miginfocom.swing.MigLayout;
@@ -39,9 +38,10 @@ public class PaletteEditor
     private final SwatchPair normalSwatchPair = new SwatchPair();
     private final SwatchPair shadedSwatchPair = new SwatchPair();
     private final SwatchPair alternateSwatchPair = new SwatchPair();
-    private final SwatchPair selectionSwatchPair = new SwatchPair();
+    private final SwatchPair cursorSwatchPair = new SwatchPair();
     private final SwatchPair scrollBarSwatchPair = new SwatchPair();
     private final LinkedList<SwatchPair> allSwatchPairs = new LinkedList<>();
+    private final SwatchPanel swatchPanel = new SwatchPanel();
 
     private JComboBox<String> paletteSelector;
 
@@ -114,17 +114,15 @@ public class PaletteEditor
         midPanel.add(topRowPanel, "wrap");
         midPanel.add(colorPicker);
 
-        JPanel pickerPanel = new JPanel();
-        pickerPanel.setLayout(new MigLayout());
-        normalSwatchPair.registerToPanel(pickerPanel, "Normal");
-        shadedSwatchPair.registerToPanel(pickerPanel, "Shaded");
-        alternateSwatchPair.registerToPanel(pickerPanel, "Alternate");
-        selectionSwatchPair.registerToPanel(pickerPanel, "Cursor");
-        scrollBarSwatchPair.registerToPanel(pickerPanel, "Scroll Bar");
+        swatchPanel.add(normalSwatchPair, "Normal");
+        swatchPanel.add(shadedSwatchPair, "Shaded");
+        swatchPanel.add(alternateSwatchPair, "Alternate");
+        swatchPanel.add(cursorSwatchPair, "Cursor");
+        swatchPanel.add(scrollBarSwatchPair, "Scroll Bar");
         allSwatchPairs.add(normalSwatchPair);
         allSwatchPairs.add(shadedSwatchPair);
         allSwatchPairs.add(alternateSwatchPair);
-        allSwatchPairs.add(selectionSwatchPair);
+        allSwatchPairs.add(cursorSwatchPair);
         allSwatchPairs.add(scrollBarSwatchPair);
         for (SwatchPair swatchPair : allSwatchPairs) {
             swatchPair.addListener(this);
@@ -148,7 +146,7 @@ public class PaletteEditor
         });
 
         contentPane.add(midPanel);
-        contentPane.add(pickerPanel);
+        contentPane.add(swatchPanel);
 
         previewInstrLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
         previewInstrLabel.addMouseListener(new MouseListener() {
@@ -223,11 +221,11 @@ public class PaletteEditor
                 alternateSwatchPair.selectForeground();
                 break;
             case 0xff001900:
-                selectionSwatchPair.selectBackground();
+                cursorSwatchPair.selectBackground();
                 break;
             case 0xff001908:
             case 0xff001919:
-                selectionSwatchPair.selectForeground();
+                cursorSwatchPair.selectForeground();
                 break;
             case 0xff002100:
                 scrollBarSwatchPair.selectBackground();
@@ -292,12 +290,7 @@ public class PaletteEditor
     // Shout-out to Defense Mechanism
     private void randomizeColors() {
         updatingSpinners = true;
-        Random rand = new Random();
-        normalSwatchPair.randomize(rand);
-        shadedSwatchPair.randomize(rand);
-        alternateSwatchPair.randomize(rand);
-        selectionSwatchPair.randomize(rand);
-        scrollBarSwatchPair.randomize(rand);
+        swatchPanel.randomize();
         updatingSpinners = false;
         swatchChanged();
     }
@@ -310,7 +303,7 @@ public class PaletteEditor
         normalSwatchPair.writeToRom(romImage, selectedPaletteOffset());
         shadedSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 8);
         alternateSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 16);
-        selectionSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 24);
+        cursorSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 24);
         scrollBarSwatchPair.writeToRom(romImage, selectedPaletteOffset() + 32);
     }
 
@@ -442,7 +435,7 @@ public class PaletteEditor
         alternateSwatchPair.updatePreviews(
                 new java.awt.Color(ColorUtil.colorCorrect(firstColor(2))),
                 new java.awt.Color(ColorUtil.colorCorrect(secondColor(2))));
-        selectionSwatchPair.updatePreviews(
+        cursorSwatchPair.updatePreviews(
                 new java.awt.Color(ColorUtil.colorCorrect(firstColor(3))),
                 new java.awt.Color(ColorUtil.colorCorrect(secondColor(3))));
         scrollBarSwatchPair.updatePreviews(
@@ -462,13 +455,16 @@ public class PaletteEditor
         updateSpinners(0, normalSwatchPair);
         updateSpinners(1, shadedSwatchPair);
         updateSpinners(2, alternateSwatchPair);
-        updateSpinners(3, selectionSwatchPair);
+        updateSpinners(3, cursorSwatchPair);
         updateSpinners(4, scrollBarSwatchPair);
         updatingSpinners = false;
     }
 
+    private Swatch selectedSwatch;
+
     @Override
     public void swatchSelected(Swatch swatch) {
+        selectedSwatch = swatch;
         colorPicker.setColor(swatch.r(), swatch.g(), swatch.b());
         colorPicker.subscribe(swatch::setRGB);
         for (SwatchPair swatchPair : allSwatchPairs) {
@@ -483,6 +479,7 @@ public class PaletteEditor
         if (!updatingSpinners) {
             updateRomFromSpinners();
             updatePreviewPanes();
+            colorPicker.setColor(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
         }
     }
 
