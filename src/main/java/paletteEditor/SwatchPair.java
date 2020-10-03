@@ -36,8 +36,8 @@ class SwatchPair implements Swatch.Listener {
 
     public void registerToPanel(JPanel panel, String entryName) {
         panel.add(new JLabel(entryName), "span, wrap");
-        panel.add(bgSwatch);
-        panel.add(fgSwatch, "wrap");
+        panel.add(bgSwatch, "grow");
+        panel.add(fgSwatch, "grow, wrap");
     }
 
     public void selectBackground() {

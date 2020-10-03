@@ -24,30 +24,49 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     public SwatchPanel() {
         setLayout(new MigLayout());
 
+        JButton swapButton = new JButton("Swap");
+        swapButton.setPreferredSize(new Dimension(0, 0));
+        swapButton.addActionListener(e -> swapStart());
+        add(swapButton, "");
+        JButton copyButton = new JButton("Copy");
+        copyButton.setPreferredSize(new Dimension(0, 0));
+        copyButton.addActionListener(e -> copyStart());
+        add(copyButton, "wrap");
+
         add(normalSwatchPair, "Normal");
         add(shadedSwatchPair, "Shaded");
         add(alternateSwatchPair, "Alternate");
         add(cursorSwatchPair, "Cursor");
         add(scrollBarSwatchPair, "Scroll Bar");
 
-        JButton swapButton = new JButton("Swap");
-        swapButton.addActionListener(e -> swapStart());
-        add(swapButton, "span, grow, gaptop 5");
-
         normalSwatchPair.selectBackground();
     }
 
-    private boolean swapping;
+    enum CommandState {
+        OFF,
+        SWAP,
+        COPY
+    }
+    CommandState commandState;
     private void swapStart() {
         if (selectedSwatch == null) {
             return;
         }
-        swapping = !swapping;
+        commandState = CommandState.SWAP;
+        updateCursor();
+    }
+    private void copyStart() {
+        if (selectedSwatch == null) {
+            return;
+        }
+        commandState = CommandState.COPY;
         updateCursor();
     }
 
     private void updateCursor() {
-        setCursor(new Cursor(swapping ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
+        setCursor(new Cursor(commandState == CommandState.OFF
+                ? Cursor.DEFAULT_CURSOR
+                : Cursor.HAND_CURSOR));
     }
 
     public void addListener(SwatchPair.Listener listener) {
@@ -66,8 +85,17 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         }
     }
 
+    private void handleCopy(Swatch swatch) {
+        if (commandState != CommandState.COPY) {
+            return;
+        }
+        swatch.setRGB(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
+        commandState = CommandState.OFF;
+        updateCursor();
+    }
+
     private void handleSwap(Swatch swatch) {
-        if (!swapping) {
+        if (commandState != CommandState.SWAP) {
             return;
         }
         int r = swatch.r();
@@ -75,13 +103,14 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         int b = swatch.b();
         swatch.setRGB(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
         selectedSwatch.setRGB(r, g, b);
-        swapping = false;
+        commandState = CommandState.OFF;
         updateCursor();
     }
 
     @Override
     public void swatchSelected(Swatch swatch) {
         handleSwap(swatch);
+        handleCopy(swatch);
         selectedSwatch = swatch;
         for (SwatchPair swatchPair : swatchPairs) {
             swatchPair.deselect();

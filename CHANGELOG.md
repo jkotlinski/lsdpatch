@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
  - Palette Editor color picker.
- - Palette Editor swap foreground/background buttons.
+ - Palette Editor swap and copy buttons.
 
 ### Removed
  - Palette Editor color spinners.
