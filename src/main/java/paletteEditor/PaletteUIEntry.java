@@ -77,7 +77,7 @@ class PaletteUIEntry {
 
     public void registerToPanel(JPanel panel, String entryName) {
         final int previewWidth = 34;
-        final int previewHeight = 34;
+        final int previewHeight = 32;
         panel.add(new JLabel(entryName), "span, wrap");
         panel.add(preview[0]);
         preview[0].setMinimumSize(new Dimension(previewWidth, previewHeight));
