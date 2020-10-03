@@ -4,8 +4,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
+import java.util.LinkedList;
 import java.util.Random;
 
 class PaletteUIEntry {
@@ -13,10 +13,13 @@ class PaletteUIEntry {
         ColorPicker colorPicker;
         JSpinner[] spinners;
 
+        static LinkedList<PreviewPanel> allPreviewPanels = new LinkedList<>();
+
         PreviewPanel(JSpinner[] spinners, ColorPicker colorPicker) {
             this.spinners = spinners;
             this.colorPicker = colorPicker;
             addMouseListener(this);
+            allPreviewPanels.add(this);
         }
 
         @Override
@@ -38,6 +41,13 @@ class PaletteUIEntry {
                 spinners[1].setValue(g);
                 spinners[2].setValue(b);
             });
+            for (PreviewPanel panel : allPreviewPanels) {
+                if (panel != this) {
+                    panel.setBorder(BorderFactory.createLoweredBevelBorder());
+                }
+            }
+            final int w = 3;
+            setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
         }
 
         @Override
@@ -70,14 +80,8 @@ class PaletteUIEntry {
         final int previewHeight = 34;
         panel.add(new JLabel(entryName), "span, wrap");
         panel.add(preview[0]);
-        //panel.add(background[0]);
-        //panel.add(background[1]);
-        //panel.add(background[2], "wrap");
         preview[0].setMinimumSize(new Dimension(previewWidth, previewHeight));
         panel.add(preview[1], "wrap");
-        //panel.add(foreground[0]);
-        //panel.add(foreground[1]);
-        //panel.add(foreground[2], "wrap");
         preview[1].setMinimumSize(new Dimension(previewWidth, previewHeight));
     }
 
