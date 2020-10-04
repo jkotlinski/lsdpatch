@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: made screen colors a tad brighter.
  - Palette Editor: updated screenshots to LSDj v8.9.0.
  - Palette Editor: brighter mid-tones if the background is brighter than the foreground.
+ - Palette Editor: switched color correction from Gambatte to Sameboy.
 
 ### Removed
  - Palette Editor: color spinners.
