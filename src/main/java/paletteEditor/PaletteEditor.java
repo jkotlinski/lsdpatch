@@ -178,39 +178,39 @@ public class PaletteEditor
 
     private void selectColor(int rgb) {
         switch (rgb) {
-            case 0xff000000:
+            case ScreenShotColors.NORMAL_BG:
                 swatchPanel.normalSwatchPair.selectBackground();
                 break;
-            case 0xff000008:
-            case 0xff000019:
+            case ScreenShotColors.NORMAL_MID:
+            case ScreenShotColors.NORMAL_FG:
                 swatchPanel.normalSwatchPair.selectForeground();
                 break;
-            case 0xff000800:
+            case ScreenShotColors.SHADED_BG:
                 swatchPanel.shadedSwatchPair.selectBackground();
                 break;
-            case 0xff000808:
-            case 0xff000819:
+            case ScreenShotColors.SHADED_MID:
+            case ScreenShotColors.SHADED_FG:
                 swatchPanel.shadedSwatchPair.selectForeground();
                 break;
-            case 0xff001000:
+            case ScreenShotColors.ALT_BG:
                 swatchPanel.alternateSwatchPair.selectBackground();
                 break;
-            case 0xff001008:
-            case 0xff001019:
+            case ScreenShotColors.ALT_MID:
+            case ScreenShotColors.ALT_FG:
                 swatchPanel.alternateSwatchPair.selectForeground();
                 break;
-            case 0xff001900:
+            case ScreenShotColors.CUR_BG:
                 swatchPanel.cursorSwatchPair.selectBackground();
                 break;
-            case 0xff001908:
-            case 0xff001919:
+            case ScreenShotColors.CUR_MID:
+            case ScreenShotColors.CUR_FG:
                 swatchPanel.cursorSwatchPair.selectForeground();
                 break;
-            case 0xff002100:
+            case ScreenShotColors.SCROLL_BG:
                 swatchPanel.scrollBarSwatchPair.selectBackground();
                 break;
-            case 0xff002108:
-            case 0xff002119:
+            case ScreenShotColors.SCROLL_MID:
+            case ScreenShotColors.SCROLL_FG:
                 swatchPanel.scrollBarSwatchPair.selectForeground();
                 break;
         }
@@ -342,35 +342,35 @@ public class PaletteEditor
             for (int x = 0; x < w; ++x) {
                 int rgb = srcImage.getRGB(x, y);
                 java.awt.Color c;
-                if (rgb == 0xff000000) {
+                if (rgb == ScreenShotColors.NORMAL_BG) {
                     c = firstColor(0);
-                } else if (rgb == 0xff000008) {
+                } else if (rgb == ScreenShotColors.NORMAL_MID) {
                     c = midColor(0);
-                } else if (rgb == 0xff000019) {
+                } else if (rgb == ScreenShotColors.NORMAL_FG) {
                     c = secondColor(0);
-                } else if (rgb == 0xff000800) {
+                } else if (rgb == ScreenShotColors.SHADED_BG) {
                     c = firstColor(1);
-                } else if (rgb == 0xff000808) {
+                } else if (rgb == ScreenShotColors.SHADED_MID) {
                     c = midColor(1);
-                } else if (rgb == 0xff000819) {
+                } else if (rgb == ScreenShotColors.SHADED_FG) {
                     c = secondColor(1);
-                } else if (rgb == 0xff001000) {
+                } else if (rgb == ScreenShotColors.ALT_BG) {
                     c = firstColor(2);
-                } else if (rgb == 0xff001008) {
+                } else if (rgb == ScreenShotColors.ALT_MID) {
                     c = midColor(2);
-                } else if (rgb == 0xff001019) {
+                } else if (rgb == ScreenShotColors.ALT_FG) {
                     c = secondColor(2);
-                } else if (rgb == 0xff001900) {
+                } else if (rgb == ScreenShotColors.CUR_BG) {
                     c = firstColor(3);
-                } else if (rgb == 0xff001908) {
+                } else if (rgb == ScreenShotColors.CUR_MID) {
                     c = midColor(3);
-                } else if (rgb == 0xff001919) {
+                } else if (rgb == ScreenShotColors.CUR_FG) {
                     c = secondColor(3);
-                } else if (rgb == 0xff002100) {
+                } else if (rgb == ScreenShotColors.SCROLL_BG) {
                     c = firstColor(4);
-                } else if (rgb == 0xff002108) {
+                } else if (rgb == ScreenShotColors.SCROLL_MID) {
                     c = midColor(4);
-                } else if (rgb == 0xff002119) {
+                } else if (rgb == ScreenShotColors.SCROLL_FG) {
                     c = secondColor(4);
                 } else {
                     System.err.printf("%x%n", rgb);

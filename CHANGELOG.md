@@ -6,12 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
- - Palette Editor: color picker
- - Palette Editor: "Swap color" and "Clone color" buttons.
+ - Palette Editor: color picker!
+ - Palette Editor: "swap color" and "clone color" buttons.
  - Palette Editor: click in lsdj screens to select color.
 
 ### Changed
  - Palette Editor: made screen colors a tad brighter.
+ - Palette Editor: updated screenshots to LSDj v8.9.0.
 
 ### Removed
  - Palette Editor: color spinners.
