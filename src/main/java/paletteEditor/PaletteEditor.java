@@ -220,7 +220,7 @@ public class PaletteEditor
     private void addRandomizeButton(JPanel panel) {
         JButton randomizeButton = new JButton("Randomize");
         randomizeButton.addActionListener((e) -> randomizeColors());
-        panel.add(randomizeButton, "grow, wrap");
+        panel.add(randomizeButton, "wrap");
     }
 
     private void addPaletteSelector(JPanel panel) {
@@ -228,14 +228,13 @@ public class PaletteEditor
         paletteSelector.setEditable(true);
         paletteSelector.addActionListener(this);
         paletteSelector.addItemListener(e -> onPaletteSelected());
-        paletteSelector.setMaximumSize(new Dimension(80, 1000));
         panel.add(paletteSelector);
     }
 
     private void addDesaturateButton(JPanel panel) {
         desaturateButton.addItemListener(e -> updateSongAndInstrScreens());
         desaturateButton.setToolTipText("Tip: Great palettes look OK when desaturated, too!");
-        panel.add(desaturateButton, "grow");
+        panel.add(desaturateButton);
     }
 
     private void setRomImage(byte[] romImage) {
