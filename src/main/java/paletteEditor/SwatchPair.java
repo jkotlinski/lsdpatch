@@ -99,9 +99,9 @@ class SwatchPair implements Swatch.Listener {
         romImage[offset + 7] = (byte) ((g2 >> 3) | (b2 << 2));
 
         // Mid-tone.
-        int rMid = (r1 > r2) ? (r1 * 3 + r2) / 4 : (r1 + r2) / 2;
-        int gMid = (g1 > g2) ? (g1 * 3 + g2) / 4 : (g1 + g2) / 2;
-        int bMid = (b1 > b2) ? (b1 * 3 + b2) / 4 : (b1 + b2) / 2;
+        int rMid = (r1 > r2) ? (r1 * 2 + r2) / 3 : (r1 + r2) / 2;
+        int gMid = (g1 > g2) ? (g1 * 2 + g2) / 3 : (g1 + g2) / 2;
+        int bMid = (b1 > b2) ? (b1 * 2 + b2) / 3 : (b1 + b2) / 2;
         romImage[offset + 2] = (byte) (rMid | (gMid << 5));
         romImage[offset + 3] = (byte) ((gMid >> 3) | (bMid << 2));
         romImage[offset + 4] = romImage[offset + 2];
