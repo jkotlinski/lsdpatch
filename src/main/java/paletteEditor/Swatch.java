@@ -1,7 +1,6 @@
 package paletteEditor;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.Random;
@@ -11,12 +10,11 @@ public class Swatch extends JPanel {
         void swatchChanged();
     }
     final LinkedList<Listener> listeners = new LinkedList<>();
-    private final Border previewLabelBorder = javax.swing.BorderFactory.createLoweredBevelBorder();
     private final RGB555 rgb555 = new RGB555();
 
     public Swatch() {
-        setMinimumSize(new Dimension(34, 34));
-        setBorder(previewLabelBorder);
+        setPreferredSize(new Dimension(50, 37));
+        setBorder(BorderFactory.createLoweredBevelBorder());
     }
 
     public int r() {

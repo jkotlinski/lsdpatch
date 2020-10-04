@@ -24,14 +24,19 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     public SwatchPanel() {
         setLayout(new MigLayout());
 
-        JButton swapButton = new JButton("Swap");
+        JButton randomizeButton = new JButton("Randomize all");
+        randomizeButton.addActionListener((e) -> randomize());
+        add(randomizeButton, "grow, span, wrap");
+
+        JButton cloneButton = new JButton("Clone color");
+        cloneButton.setPreferredSize(new Dimension(0, 0));
+        cloneButton.addActionListener(e -> cloneStart());
+        add(cloneButton, "grow, span, wrap");
+
+        JButton swapButton = new JButton("Swap color");
         swapButton.setPreferredSize(new Dimension(0, 0));
         swapButton.addActionListener(e -> swapStart());
-        add(swapButton, "");
-        JButton copyButton = new JButton("Copy");
-        copyButton.setPreferredSize(new Dimension(0, 0));
-        copyButton.addActionListener(e -> copyStart());
-        add(copyButton, "wrap");
+        add(swapButton, "grow, span, wrap");
 
         add(normalSwatchPair, "Normal");
         add(shadedSwatchPair, "Shaded");
@@ -43,7 +48,7 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     enum CommandState {
         OFF,
         SWAP,
-        COPY
+        CLONE
     }
     CommandState commandState;
     private void swapStart() {
@@ -53,11 +58,11 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         commandState = CommandState.SWAP;
         updateCursor();
     }
-    private void copyStart() {
+    private void cloneStart() {
         if (selectedSwatch == null) {
             return;
         }
-        commandState = CommandState.COPY;
+        commandState = CommandState.CLONE;
         updateCursor();
     }
 
@@ -83,8 +88,8 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         }
     }
 
-    private void handleCopy(Swatch swatch) {
-        if (commandState != CommandState.COPY) {
+    private void handleClone(Swatch swatch) {
+        if (commandState != CommandState.CLONE) {
             return;
         }
         swatch.setRGB(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
@@ -108,7 +113,7 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
     @Override
     public void swatchSelected(Swatch swatch) {
         handleSwap(swatch);
-        handleCopy(swatch);
+        handleClone(swatch);
         selectedSwatch = swatch;
         for (SwatchPair swatchPair : swatchPairs) {
             swatchPair.deselect();

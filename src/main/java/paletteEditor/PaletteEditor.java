@@ -100,7 +100,6 @@ public class PaletteEditor
         topRowPanel.setLayout(new MigLayout());
         addPaletteSelector(topRowPanel);
         addDesaturateButton(topRowPanel);
-        addRandomizeButton(topRowPanel);
 
         midPanel.add(topRowPanel, "grow, wrap");
         midPanel.add(colorPicker);
@@ -217,12 +216,6 @@ public class PaletteEditor
         }
     }
 
-    private void addRandomizeButton(JPanel panel) {
-        JButton randomizeButton = new JButton("Randomize");
-        randomizeButton.addActionListener((e) -> randomizeColors());
-        panel.add(randomizeButton, "wrap");
-    }
-
     private void addPaletteSelector(JPanel panel) {
         paletteSelector = new JComboBox<>();
         paletteSelector.setEditable(true);
@@ -264,14 +257,6 @@ public class PaletteEditor
         int g = ((romImage[offset + 1] & 3) << 6) | ((romImage[offset] & 0xe0) >> 2);
         int b = (romImage[offset + 1] << 1) & 0xf8;
         return new java.awt.Color(r, g, b);
-    }
-
-    // Shout-out to Defense Mechanism
-    private void randomizeColors() {
-        updatingSwatches = true;
-        swatchPanel.randomize();
-        updatingSwatches = false;
-        swatchChanged();
     }
 
     private int selectedPaletteOffset() {
