@@ -1,7 +1,6 @@
 package paletteEditor;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -13,7 +12,7 @@ class SwatchPair implements Swatch.Listener {
         void swatchSelected(Swatch swatch);
         void swatchChanged();
     }
-    private LinkedList<Listener> listeners = new LinkedList<>();
+    private final LinkedList<Listener> listeners = new LinkedList<>();
     public void addListener(Listener listener) {
         listeners.add(listener);
     }
@@ -35,9 +34,10 @@ class SwatchPair implements Swatch.Listener {
     }
 
     public void registerToPanel(JPanel panel, String entryName) {
-        panel.add(new JLabel(entryName), "span, wrap");
         panel.add(bgSwatch, "grow");
+        bgSwatch.setToolTipText(entryName + " background");
         panel.add(fgSwatch, "grow, wrap");
+        fgSwatch.setToolTipText(entryName + " text");
     }
 
     public void selectBackground() {

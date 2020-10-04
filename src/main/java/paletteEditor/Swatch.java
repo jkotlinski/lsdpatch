@@ -15,7 +15,7 @@ public class Swatch extends JPanel {
     private final RGB555 rgb555 = new RGB555();
 
     public Swatch() {
-        setMinimumSize(new Dimension(34, 32));
+        setMinimumSize(new Dimension(34, 34));
         setBorder(previewLabelBorder);
     }
 
