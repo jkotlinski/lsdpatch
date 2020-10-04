@@ -423,7 +423,13 @@ public class PaletteEditor
     public void swatchSelected(Swatch swatch) {
         selectedSwatch = swatch;
         colorPicker.setColor(swatch.r(), swatch.g(), swatch.b());
-        colorPicker.subscribe(swatch::setRGB);
+        colorPicker.subscribe((r, g, b) -> {
+                    updatingSwatches = true;
+                    swatch.setRGB(r, g, b);
+                    updateRomFromSwatches();
+                    updateSongAndInstrScreens();
+                    updatingSwatches = false;
+                });
     }
 
     @Override
