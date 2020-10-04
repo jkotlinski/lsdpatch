@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: "Swap color" and "Clone color" buttons.
  - Palette Editor: click in lsdj screens to select color.
 
+### Changed
+ - Palette Editor: made screen colors a tad brighter.
+
 ### Removed
  - Palette Editor: color spinners.
 
