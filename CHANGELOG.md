@@ -10,15 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - Palette Editor: color picker!
- - Palette Editor: "swap color" and "clone color" buttons.
  - Palette Editor: click in lsdj screens to select color.
+ - Palette Editor: "swap color" and "clone color" buttons.
  - Palette Editor: "raw" button, which displays colors as-is.
 
 ### Changed
- - Palette Editor: made screen colors a tad brighter.
- - Palette Editor: updated screenshots to LSDj v8.9.0.
- - Palette Editor: brighter mid-tones if the background is brighter than the foreground.
  - Palette Editor: switched color correction from Gambatte to Sameboy.
+ - Palette Editor: updated screenshots to LSDj v8.9.0.
+ - Palette Editor: create brighter mid-tones if the background is brighter than the foreground.
  - Improved last used file path memory between editor runs.
 
 ### Removed
