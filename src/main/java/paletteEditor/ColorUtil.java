@@ -1,24 +1,34 @@
 package paletteEditor;
 
 public class ColorUtil {
+    static public boolean agb = false;
+
+    private static final int[] scaleChannelWithCurve = {
+            0, 5, 8, 11, 16, 22, 28, 36, 43, 51, 59, 67, 77, 87, 97, 107,
+            119, 130, 141, 153, 166, 177, 188, 200, 209, 221, 230, 238, 245, 249, 252, 255
+    };
+    private static final int[] scaleChannelWithCurveAgb = {
+            0,2,5,10,15,20,26,32,38,45,52,60,68,76,84,92,101,110,119,128,138,148,158,168,178,189,199,210,221,232,244,255
+    };
 
     // From Sameboy.
     public static int colorCorrect(java.awt.Color c) {
-        int[] scaleChannelWithCurve = {
-                0, 5, 8, 11, 16, 22, 28, 36, 43, 51, 59, 67, 77, 87, 97, 107,
-                119, 130, 141, 153, 166, 177, 188, 200, 209, 221, 230, 238, 245, 249, 252, 255
-        };
-
         int r = c.getRed() >> 3;
         int g = c.getGreen() >> 3;
         int b = c.getBlue() >> 3;
 
-        r = scaleChannelWithCurve[r];
-        g = scaleChannelWithCurve[g];
-        b = scaleChannelWithCurve[b];
+        if (agb) {
+            r = scaleChannelWithCurveAgb[r];
+            g = scaleChannelWithCurveAgb[g];
+            b = scaleChannelWithCurveAgb[b];
+        } else {
+            r = scaleChannelWithCurve[r];
+            g = scaleChannelWithCurve[g];
+            b = scaleChannelWithCurve[b];
+        }
 
         int new_r = r;
-        int new_g = (g * 3 + b) / 4;
+        int new_g = agb ? (g * 6 + b) / 7 : (g * 3 + b) / 4;
         int new_b = b;
 
         r = new_r;
