@@ -1,11 +1,9 @@
 package utils;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.prefs.Preferences;
 
 public class JFileChooserFactory {
     public enum FileType {

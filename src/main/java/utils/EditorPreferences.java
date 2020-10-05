@@ -1,6 +1,5 @@
 package utils;
 
-import java.io.File;
 import java.util.prefs.Preferences;
 
 public class EditorPreferences {
