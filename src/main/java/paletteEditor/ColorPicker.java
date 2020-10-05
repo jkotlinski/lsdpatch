@@ -3,9 +3,7 @@ package paletteEditor;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.LinkedList;
 
 public class ColorPicker extends JPanel implements HuePanel.Listener, SaturationBrightnessPanel.Listener {
     interface Listener {
