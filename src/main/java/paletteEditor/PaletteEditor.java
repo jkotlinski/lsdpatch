@@ -106,24 +106,27 @@ public class PaletteEditor
         paletteSelector.addItemListener(e -> onPaletteSelected());
         topRowPanel.add(paletteSelector);
 
-        desaturateToggleButton.addItemListener(e -> updateSongAndInstrScreens());
-        desaturateToggleButton.setToolTipText("Tip: Great palettes look OK when desaturated, too!");
-        topRowPanel.add(desaturateToggleButton);
-
-        boolean ipsScreen = EditorPreferences.getKey("ips", "0").equals("1");
-        JToggleButton ipsToggleButton = new JCheckBox("IPS");
-        ipsToggleButton.setSelected(ipsScreen);
-        ColorUtil.setIpsScreen(ipsScreen);
-        ipsToggleButton.addItemListener(e -> {
-            boolean enabled = ColorUtil.toggleIpsScreen();
-            ColorUtil.setIpsScreen(enabled);
-            EditorPreferences.putKey("ips", enabled ? "1" : "0");
+        boolean rawScreen = EditorPreferences.getKey("raw", "0").equals("1");
+        JToggleButton rawToggleButton = new JCheckBox("Raw");
+        rawToggleButton.setSelected(rawScreen);
+        ColorUtil.setRawScreen(rawScreen);
+        rawToggleButton.addItemListener(e -> {
+            boolean enabled = ColorUtil.toggleRawScreen();
+            ColorUtil.setRawScreen(enabled);
+            EditorPreferences.putKey("raw", enabled ? "1" : "0");
             updateSongAndInstrScreens();
             colorPicker.repaint();
             updateAllSwatches();
         });
-        ipsToggleButton.setToolTipText("Simulate IPS screen");
-        topRowPanel.add(ipsToggleButton);
+        rawToggleButton.setToolTipText("Display palette without color conversion."
+                + " Poor Game Boy emulators can look like this.");
+        topRowPanel.add(rawToggleButton);
+
+        desaturateToggleButton.addItemListener(e -> updateSongAndInstrScreens());
+        desaturateToggleButton.setToolTipText(
+                "Display palette in grayscale. " +
+                        "Needed for colorblind, good for everyone else.");
+        topRowPanel.add(desaturateToggleButton);
 
         midPanel.add(topRowPanel, "grow, wrap");
         midPanel.add(colorPicker);

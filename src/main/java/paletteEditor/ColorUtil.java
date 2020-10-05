@@ -6,15 +6,15 @@ public class ColorUtil {
             119, 130, 141, 153, 166, 177, 188, 200, 209, 221, 230, 238, 245, 249, 252, 255
     };
 
-    static public boolean ipsScreen;
+    static public boolean rawScreen;
 
-    public static void setIpsScreen(boolean enabled) {
-        ipsScreen = enabled;
+    public static void setRawScreen(boolean enabled) {
+        rawScreen = enabled;
     }
 
-    public static boolean toggleIpsScreen() {
-        ipsScreen = !ipsScreen;
-        return ipsScreen;
+    public static boolean toggleRawScreen() {
+        rawScreen = !rawScreen;
+        return rawScreen;
     }
 
     // From Sameboy.
@@ -23,7 +23,7 @@ public class ColorUtil {
         int g = c.getGreen();
         int b = c.getBlue();
 
-        if (ipsScreen) {
+        if (rawScreen) {
             r = (((r >> 3) << 3) * 0xff) / 0xf8;
             g = (((g >> 3) << 3) * 0xff) / 0xf8;
             b = (((b >> 3) << 3) * 0xff) / 0xf8;
