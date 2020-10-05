@@ -23,8 +23,7 @@ import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
 
-public class FontEditor extends JFrame implements java.awt.event.ItemListener, java.awt.event.ActionListener,
-        FontMap.TileSelectListener, TileEditor.TileChangedListener {
+public class FontEditor extends JFrame implements FontMap.TileSelectListener, TileEditor.TileChangedListener {
 
     private static final long serialVersionUID = 5296681614787155252L;
 
@@ -72,8 +71,8 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         fontSelector = new JComboBox<>();
         fontSelector.setEditable(true);
         // TODO is there a way to remove the action listener implementation from this class?
-        fontSelector.addItemListener(this);
-        fontSelector.addActionListener(this);
+        fontSelector.addItemListener(this::fontSelectorItemChanged);
+        fontSelector.addActionListener(this::fontSelectorAction);
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 1;
@@ -229,7 +228,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         populateFontSelector();
     }
 
-    public void itemStateChanged(java.awt.event.ItemEvent e) {
+    private void fontSelectorItemChanged(java.awt.event.ItemEvent e) {
         if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             if (e.getItemSelectable() == fontSelector) {
                 // Font changed.
@@ -263,27 +262,25 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         fontMap.repaint();
     }
 
-    public void actionPerformed(java.awt.event.ActionEvent e) {
-        String cmd = e.getActionCommand();
-        if (cmd.equals("comboBoxChanged") && e.getSource() instanceof JComboBox) {
-            JComboBox<String> cb = (JComboBox<String>) e.getSource();
-            if (cb.getSelectedIndex() != -1) {
-                previousSelectedFont = cb.getSelectedIndex();
-            }
-        } else if (cmd.equals("comboBoxEdited") && e.getSource() instanceof JComboBox) {
-            JComboBox<String> cb = (JComboBox<String>) e.getSource();
-            String selectedItem = (String) cb.getSelectedItem();
-            if (cb.getSelectedIndex() == -1 && selectedItem != null) {
-                int index = previousSelectedFont;
-                RomUtilities.setFontName(romImage, index, selectedItem);
-                populateFontSelector();
-                fontSelector.setSelectedIndex(index);
-                cb.setSelectedIndex(index);
-            } else {
-                previousSelectedFont = cb.getSelectedIndex();
-            }
-        } else {
-            assert false;
+    private void fontSelectorAction(java.awt.event.ActionEvent e) {
+        switch (e.getActionCommand()) {
+            case "comboBoxChanged":
+                if (fontSelector.getSelectedIndex() != -1) {
+                    previousSelectedFont = fontSelector.getSelectedIndex();
+                }
+                break;
+            case "comboBoxEdited":
+                String selectedItem = (String) fontSelector.getSelectedItem();
+                if (fontSelector.getSelectedIndex() == -1 && selectedItem != null) {
+                    int index = previousSelectedFont;
+                    RomUtilities.setFontName(romImage, index, selectedItem);
+                    populateFontSelector();
+                    fontSelector.setSelectedIndex(index);
+                    fontSelector.setSelectedIndex(index);
+                } else {
+                    previousSelectedFont = fontSelector.getSelectedIndex();
+                }
+                break;
         }
     }
 
