@@ -60,7 +60,7 @@ class FontEditorColorSelector {
         darkButton.addMouseListener(new FontEditorColorListener(this, 3));
 
         JPanel mediumButton = new JPanel();
-        mediumButton.setBackground(Color.GRAY);
+        mediumButton.setBackground(Color.LIGHT_GRAY);
         mediumButton.addMouseListener(new FontEditorColorListener(this, 2));
 
         JPanel lightButton = new JPanel();
@@ -103,7 +103,7 @@ class FontEditorColorSelector {
                 buttonColor = Color.WHITE;
                 break;
             case 2:
-                buttonColor = Color.GRAY;
+                buttonColor = Color.LIGHT_GRAY;
                 break;
             case 3:
                 buttonColor = Color.BLACK;
