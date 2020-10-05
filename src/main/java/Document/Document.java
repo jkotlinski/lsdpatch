@@ -1,5 +1,6 @@
 package Document;
 
+import utils.EditorPreferences;
 import utils.GlobalHolder;
 import utils.RomUtilities;
 
@@ -63,8 +64,7 @@ public class Document {
             RandomAccessFile f = new RandomAccessFile(romFile, "r");
             f.readFully(romImage);
             f.close();
-
-            GlobalHolder.get(Preferences.class).put("path", romFile.getAbsolutePath());
+            EditorPreferences.setLastPath("gb", romPath);
         } catch (IOException ioe) {
             romImage = null;
         }
@@ -75,6 +75,7 @@ public class Document {
         try {
             savFile = new LSDSavFile();
             savFile.loadFromSav(savPath);
+            EditorPreferences.setLastPath("sav", savPath);
         } catch (IOException e) {
             savFile = null;
         }

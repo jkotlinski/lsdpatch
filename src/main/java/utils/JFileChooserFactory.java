@@ -60,7 +60,7 @@ public class JFileChooserFactory {
             chooser.setApproveButtonMnemonic(JFileChooser.OPEN_DIALOG);
         }
         chooser.setDialogTitle(windowTitle);
-        FileFilter filter;
+        FileNameExtensionFilter filter;
         switch (type) {
             case Lsdfnt:
                 filter = new FileNameExtensionFilter("LSDJ Font (*.lsdfnt)", "lsdfnt");
@@ -85,18 +85,10 @@ public class JFileChooserFactory {
         chooser.addChoosableFileFilter(filter);
         chooser.setFileFilter(filter);
 
-        chooser.setCurrentDirectory(new File(GlobalHolder.get(Preferences.class).get("path", System.getProperty("user.dir"))));
+        chooser.setCurrentDirectory(new File(EditorPreferences.lastPath(filter.getExtensions()[0])));
 
         chooser.setMultiSelectionEnabled(operation == FileOperation.MultipleLoad);
 
         return chooser;
-    }
-
-    public static String baseFolder() {
-        return GlobalHolder.get(Preferences.class).get("path", null);
-    }
-
-    public static void setBaseFolder(String newPath) {
-        GlobalHolder.get(Preferences.class).put("path", newPath);
     }
 }

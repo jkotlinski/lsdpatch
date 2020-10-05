@@ -82,7 +82,6 @@ public class LSDPatcher {
         }
         Preferences preferences = Preferences.userRoot().node(LSDPatcher.class.getName());
         GlobalHolder.set(preferences, Preferences.class);
-        preferences.put("path", preferences.get("path", System.getProperty("user.dir")));
 
         initUi();
     }
