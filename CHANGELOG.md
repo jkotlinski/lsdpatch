@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: color picker!
  - Palette Editor: "swap color" and "clone color" buttons.
  - Palette Editor: click in lsdj screens to select color.
+ - Palette Editor: IPS button, to simulate backlit IPS screen.
 
 ### Changed
  - Palette Editor: made screen colors a tad brighter.

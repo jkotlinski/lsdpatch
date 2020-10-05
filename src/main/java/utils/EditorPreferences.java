@@ -7,19 +7,19 @@ public class EditorPreferences {
         return System.getProperty("user.dir");
     }
 
-    private static String get(String name, String defaultValue) {
+    public static String getKey(String name, String defaultValue) {
         return GlobalHolder.get(Preferences.class).get(name, defaultValue);
     }
 
-    private static void put(String name, String value) {
+    public static void putKey(String name, String value) {
         GlobalHolder.get(Preferences.class).put(name, value);
     }
 
     public static String lastPath(String extension) {
-        return get("lastPath" + extension, userDir());
+        return getKey("lastPath" + extension, userDir());
     }
 
     public static void setLastPath(String extension, String value) {
-        put("lastPath" + extension, value);
+        putKey("lastPath" + extension, value);
     }
 }

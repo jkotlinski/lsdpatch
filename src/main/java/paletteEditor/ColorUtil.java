@@ -6,11 +6,30 @@ public class ColorUtil {
             119, 130, 141, 153, 166, 177, 188, 200, 209, 221, 230, 238, 245, 249, 252, 255
     };
 
+    static public boolean ipsScreen;
+
+    public static void setIpsScreen(boolean enabled) {
+        ipsScreen = enabled;
+    }
+
+    public static boolean toggleIpsScreen() {
+        ipsScreen = !ipsScreen;
+        return ipsScreen;
+    }
+
     // From Sameboy.
     public static int colorCorrect(java.awt.Color c) {
-        int r = c.getRed() >> 3;
-        int g = c.getGreen() >> 3;
-        int b = c.getBlue() >> 3;
+        int r = c.getRed();
+        int g = c.getGreen();
+        int b = c.getBlue();
+
+        if (ipsScreen) {
+            return (r << 16) | (g << 8) | b;
+        }
+
+        r >>= 3;
+        g >>= 3;
+        b >>= 3;
 
         r = scaleChannelWithCurve[r];
         g = scaleChannelWithCurve[g];
@@ -21,12 +40,12 @@ public class ColorUtil {
         int new_b = b;
 
         r = new_r;
-        g = new_g;
-        b = new_b;
+        g = new_r; // correct, according to LIJI
+        b = new_r; // correct, according to LIJI
 
-        new_r = new_r * 7 / 8 + (    g + b) / 16;
-        new_g = new_g * 7 / 8 + (r   +   b) / 16;
-        new_b = new_b * 7 / 8 + (r + g    ) / 16;
+        new_r = new_r * 7 / 8 + (g + b) / 16;
+        new_g = new_g * 7 / 8 + (r + b) / 16;
+        new_b = new_b * 7 / 8 + (r + g) / 16;
 
         new_r = new_r * (224 - 32) / 255 + 32;
         new_g = new_g * (220 - 36) / 255 + 36;
