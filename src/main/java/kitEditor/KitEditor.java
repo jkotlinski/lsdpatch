@@ -415,7 +415,6 @@ public class KitEditor extends JFrame {
 
             try {
                 File f = chooser.getSelectedFile();
-                EditorPreferences.setLastPath("kit", f.getAbsolutePath());
                 byte[] buf = new byte[RomUtilities.BANK_SIZE];
                 int offset = getROMOffsetForSelectedBank();
                 RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
@@ -425,6 +424,7 @@ public class KitEditor extends JFrame {
                 }
                 bankFile.write(buf);
                 bankFile.close();
+                EditorPreferences.setLastPath("kit", f.getAbsolutePath());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                         JOptionPane.ERROR_MESSAGE);
@@ -447,6 +447,7 @@ public class KitEditor extends JFrame {
             flushWavFiles();
             createSamplesFromRom();
             updateBankView();
+            EditorPreferences.setLastPath("kit", kitFile.getAbsolutePath());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
@@ -460,6 +461,7 @@ public class KitEditor extends JFrame {
         dialog.setVisible(true);
         if (dialog.getFile() != null) {
             loadKit(new File(dialog.getDirectory(), dialog.getFile()));
+            EditorPreferences.setLastPath("kit", dialog.getDirectory() + dialog.getFile());
         }
     }
 
@@ -569,6 +571,7 @@ public class KitEditor extends JFrame {
         dialog.setVisible(true);
         if (dialog.getFile() != null) {
             addSample(new File(dialog.getDirectory(), dialog.getFile()));
+            EditorPreferences.setLastPath("wav", dialog.getDirectory() + dialog.getFile());
         }
     }
 
@@ -702,5 +705,6 @@ public class KitEditor extends JFrame {
             f = new File(f.getAbsoluteFile().toString() + ".wav");
         }
         s.writeToWav(f);
+        EditorPreferences.setLastPath("wav", f.getAbsolutePath());
     }
 }
