@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+ - Kit Editor: sample export broke in 1.6.0.
+
 ### Added
  - Palette Editor: color picker!
  - Palette Editor: "swap color" and "clone color" buttons.

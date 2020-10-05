@@ -61,6 +61,7 @@ public class KitEditor extends JFrame {
         setVisible(true);
         setTitle("Kit Editor");
         updateRomView();
+        createSamplesFromRom();
 
         addWindowListener(new WindowAdapter() {
             @Override
