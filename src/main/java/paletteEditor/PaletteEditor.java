@@ -118,7 +118,7 @@ public class PaletteEditor
             colorPicker.repaint();
             updateAllSwatches();
         });
-        rawToggleButton.setToolTipText("Display palette without color conversion."
+        rawToggleButton.setToolTipText("Display palette with no color conversion."
                 + " Poor Game Boy emulators can look like this.");
         topRowPanel.add(rawToggleButton);
 
