@@ -35,8 +35,18 @@ public class ColorPicker extends JPanel implements HuePanel.Listener, Saturation
         assert(g >= 0 && g < 32);
         assert(b >= 0 && b < 32);
 
+        r <<= 3;
+        g <<= 3;
+        b <<= 3;
+        r *= 0xff;
+        r /= 0xf8;
+        g *= 0xff;
+        g /= 0xf8;
+        b *= 0xff;
+        b /= 0xf8;
+
         float[] hsb = new float[3];
-        Color.RGBtoHSB(r << 3, g << 3, b << 3, hsb);
+        Color.RGBtoHSB(r, g, b, hsb);
         huePanel.setHue(hsb[0]);
         saturationBrightnessPanel.setSaturationBrightness(hsb[1], hsb[2]);
     }
