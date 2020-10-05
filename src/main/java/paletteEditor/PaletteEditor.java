@@ -122,8 +122,8 @@ public class PaletteEditor
             colorPicker.repaint();
             updateAllSwatches();
         });
+        ipsToggleButton.setToolTipText("Simulate IPS screen");
         topRowPanel.add(ipsToggleButton);
-        topRowPanel.setToolTipText("Emulates IPS screen.");
 
         midPanel.add(topRowPanel, "grow, wrap");
         midPanel.add(colorPicker);
