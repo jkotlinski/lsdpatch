@@ -1,5 +1,6 @@
 package Document;
 
+import utils.EditorPreferences;
 import utils.RomUtilities;
 
 import java.io.*;
@@ -265,6 +266,7 @@ public class LSDSavFile implements Cloneable {
             writeKits(romImage, songId, file);
 
             file.close();
+            EditorPreferences.setLastPath("lsdprj", filePath);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
                     e.getLocalizedMessage(),
