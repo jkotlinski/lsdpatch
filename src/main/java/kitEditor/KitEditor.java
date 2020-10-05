@@ -3,12 +3,9 @@ package kitEditor;
 import Document.Document;
 import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
-import utils.FileDrop;
-import utils.JFileChooserFactory;
+import utils.*;
 import utils.JFileChooserFactory.FileOperation;
 import utils.JFileChooserFactory.FileType;
-import utils.RomUtilities;
-import utils.SampleCanvas;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -418,7 +415,7 @@ public class KitEditor extends JFrame {
 
             try {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.setBaseFolder(f.getParent());
+                EditorPreferences.setLastPath("kit", f.getAbsolutePath());
                 byte[] buf = new byte[RomUtilities.BANK_SIZE];
                 int offset = getROMOffsetForSelectedBank();
                 RandomAccessFile bankFile = new RandomAccessFile(f, "rw");

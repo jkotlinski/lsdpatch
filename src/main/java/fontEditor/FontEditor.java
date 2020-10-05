@@ -9,16 +9,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import Document.Document;
-import lsdpatch.LSDPatcher;
 import structures.LSDJFont;
+import utils.EditorPreferences;
 import utils.FontIO;
 import utils.JFileChooserFactory;
 import utils.JFileChooserFactory.FileOperation;
@@ -295,7 +293,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
             int returnVal = chooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.setBaseFolder(f.getParent());
                 String fontName;
                 fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
                 tileEditor.generateShadedAndInvertedTiles();
@@ -306,6 +303,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
                 int previousIndex = fontSelector.getSelectedIndex();
                 populateFontSelector();
                 fontSelector.setSelectedIndex(previousIndex);
+                EditorPreferences.setLastPath("lsdfnt", f.getAbsolutePath());
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Couldn't open fnt file.\n" + e.getMessage());
@@ -326,14 +324,13 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
             int returnVal = chooser.showSaveDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File f = chooser.getSelectedFile();
-                JFileChooserFactory.setBaseFolder(f.getParent());
                 String filename = f.toString();
                 if (!filename.endsWith("lsdfnt")) {
                     //noinspection UnusedAssignment
                     filename = filename.concat(".lsdfnt");
                 }
                 FontIO.saveFnt(f, fontName, romImage, selectedFontOffset);
-
+                EditorPreferences.setLastPath("lsdfnt", f.getAbsolutePath());
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Couldn't save fnt file.\n" + e.getMessage());
@@ -347,7 +344,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File bitmap = chooser.getSelectedFile();
-            JFileChooserFactory.setBaseFolder(bitmap.getParent());
             try {
                 BufferedImage image = ImageIO.read(bitmap);
                 if (image.getWidth() != 64 && image.getHeight() != 72) {
@@ -359,7 +355,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
 
                 tileEditor.tileChanged();
                 tileChanged();
-
+                EditorPreferences.setLastPath("png", bitmap.getAbsolutePath());
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Couldn't load the given picture.\n" + e.getMessage());
                 e.printStackTrace();
@@ -373,7 +369,6 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-            JFileChooserFactory.setBaseFolder(f.getParent());
             String filename = f.toString();
             if (!filename.endsWith("png")) {
                 filename += ".png";
@@ -381,6 +376,7 @@ public class FontEditor extends JFrame implements java.awt.event.ItemListener, j
             BufferedImage image = tileEditor.createImage();
             try {
                 ImageIO.write(image, "PNG", new File(filename));
+                EditorPreferences.setLastPath("png", f.getAbsolutePath());
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Couldn't export the font map.\n" + e.getMessage());
                 e.printStackTrace();

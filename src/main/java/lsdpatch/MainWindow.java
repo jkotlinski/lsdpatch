@@ -8,7 +8,7 @@ import kitEditor.KitEditor;
 import net.miginfocom.swing.MigLayout;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
-import utils.JFileChooserFactory;
+import utils.EditorPreferences;
 import utils.RomUtilities;
 
 import javax.swing.*;
@@ -42,23 +42,18 @@ public class MainWindow extends JFrame implements IDocumentListener {
 
         panel.add(new JSeparator(), "span 5");
 
-        upgradeRomButton.setEnabled(false);
         upgradeRomButton.addActionListener(e -> openRomUpgradeTool());
         panel.add(upgradeRomButton);
 
-        songManagerButton.setEnabled(false);
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
         editKitsButton.addActionListener(e -> new KitEditor(document).setLocationRelativeTo(this));
-        editKitsButton.setEnabled(false);
         panel.add(editKitsButton);
         editFontsButton.addActionListener(e -> openKitEditor());
-        editFontsButton.setEnabled(false);
         panel.add(editFontsButton);
 
         editPalettesButton.addActionListener(e -> openPaletteEditor());
-        editPalettesButton.setEnabled(false);
         panel.add(editPalettesButton, "grow x");
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -105,7 +100,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
 
     private void addSelectors(JPanel panel) {
         romTextField.setMinimumSize(new Dimension(300, 0));
-        romTextField.setText("Select LSDj ROM file --->");
+        romTextField.setText(EditorPreferences.lastPath("gb"));
         romTextField.setEditable(false);
         panel.add(romTextField, "span 4, grow x");
 
@@ -119,12 +114,16 @@ public class MainWindow extends JFrame implements IDocumentListener {
 
         savTextField.setMinimumSize(new Dimension(300, 0));
         savTextField.setEditable(false);
-        savTextField.setText("Select LSDj save file --->");
+        savTextField.setText(EditorPreferences.lastPath("sav"));
         panel.add(savTextField, "span 4, grow x");
 
         JButton browseSavButton = new JButton("Browse...");
         browseSavButton.addActionListener(e -> onBrowseSavButtonPress());
         panel.add(browseSavButton);
+
+        document.loadRomImage(EditorPreferences.lastPath("gb"));
+        document.loadSavFile(EditorPreferences.lastPath("sav"));
+        updateButtonsFromTextFields();
     }
 
     private void onBrowseRomButtonPress() {
@@ -138,7 +137,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         FileDialog fileDialog = new FileDialog(this,
             "Select LSDj ROM Image",
             FileDialog.LOAD);
-        fileDialog.setDirectory(JFileChooserFactory.baseFolder());
+        fileDialog.setDirectory(EditorPreferences.lastPath("gb"));
         fileDialog.setFile("*.gb");
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
@@ -149,8 +148,10 @@ public class MainWindow extends JFrame implements IDocumentListener {
         String romPath = fileDialog.getDirectory() + fileName;
         romTextField.setText(romPath);
         document.loadRomImage(romPath);
+        EditorPreferences.setLastPath("gb", romPath);
         String savPath = romPath.replaceFirst(".gb", ".sav");
         document.loadSavFile(savPath);
+        EditorPreferences.setLastPath("sav", savPath);
         savTextField.setText(savPath);
         updateButtonsFromTextFields();
     }
@@ -166,7 +167,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Select LSDj .sav file",
                 FileDialog.LOAD);
-        fileDialog.setDirectory(JFileChooserFactory.baseFolder());
+        fileDialog.setDirectory(EditorPreferences.lastPath("sav"));
         fileDialog.setFile("*.sav");
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
@@ -225,7 +226,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Save .gb file",
                 FileDialog.SAVE);
-        fileDialog.setDirectory(JFileChooserFactory.baseFolder());
+        fileDialog.setDirectory(EditorPreferences.lastPath("gb"));
         fileDialog.setFile("*.gb");
         fileDialog.setVisible(true);
 
@@ -249,7 +250,8 @@ public class MainWindow extends JFrame implements IDocumentListener {
             document.setRomFile(new File(romPath));
             document.loadSavFile(savPath);
             document.clearDirty();
-            JFileChooserFactory.setBaseFolder(fileDialog.getDirectory());
+            EditorPreferences.setLastPath("gb", romPath);
+            EditorPreferences.setLastPath("sav", savPath);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     e.getLocalizedMessage(),

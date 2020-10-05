@@ -3,7 +3,7 @@ package songManager;
 import Document.Document;
 import Document.LSDSavFile;
 import net.miginfocom.swing.MigLayout;
-import utils.GlobalHolder;
+import utils.EditorPreferences;
 
 import java.awt.*;
 import javax.swing.JButton;
@@ -11,7 +11,6 @@ import javax.swing.JList;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.util.prefs.Preferences;
 
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -77,10 +76,6 @@ public class SongManager extends JFrame implements ListSelectionListener {
         updateRamUsageIndicator();
     }
 
-    private String savePath() {
-        return GlobalHolder.get(Preferences.class).get("path", System.getProperty("user.dir"));
-    }
-
     public void clearSlotButton_actionPerformed() {
         if (songList.isSelectionEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a song!",
@@ -115,7 +110,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             FileDialog fileDialog = new FileDialog(this,
                     "Export song to .lsdprj",
                     FileDialog.SAVE);
-            fileDialog.setDirectory(savePath());
+            fileDialog.setDirectory(EditorPreferences.lastPath("lsdprj"));
             fileDialog.setFile("*.lsdprj");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
@@ -128,7 +123,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             }
             savFile.exportSongToFile(songs[0], filePath, romImage);
         } else if (songs.length > 1) {
-            JFileChooser fileChooser = new JFileChooser(savePath());
+            JFileChooser fileChooser = new JFileChooser(EditorPreferences.lastPath("lsdprj"));
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
                     "Batch export selected songs to .lsdprj files");
@@ -182,7 +177,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Add song(s)...",
                 FileDialog.LOAD);
-        fileDialog.setDirectory(savePath());
+        fileDialog.setDirectory(EditorPreferences.lastPath("lsdprj"));
         fileDialog.setFile("*.lsdsng;*.lsdprj");
         fileDialog.setMultipleMode(true);
         fileDialog.setVisible(true);
