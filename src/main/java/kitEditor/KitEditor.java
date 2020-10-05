@@ -457,6 +457,7 @@ public class KitEditor extends JFrame {
 
     private void loadKitButton_actionPerformed() {
         FileDialog dialog = new FileDialog(this, "Load kit", FileDialog.LOAD);
+        dialog.setDirectory(EditorPreferences.lastDirectory("kit"));
         dialog.setFile("*.kit");
         dialog.setVisible(true);
         if (dialog.getFile() != null) {
@@ -567,6 +568,7 @@ public class KitEditor extends JFrame {
 
     private void selectSampleToAdd() {
         FileDialog dialog = new FileDialog(this, "Load sample", FileDialog.LOAD);
+        dialog.setDirectory(EditorPreferences.lastPath("wav"));
         dialog.setFile("*.wav");
         dialog.setVisible(true);
         if (dialog.getFile() != null) {
@@ -665,6 +667,9 @@ public class KitEditor extends JFrame {
     // TODO : Overwrite warning
     private void exportAllSamplesFromKit() {
         String directory = selectAFolder();
+        if (directory == null) {
+            return;
+        }
 
         int index = 0;
         String kitName = (String)bankBox.getSelectedItem();
@@ -684,13 +689,15 @@ public class KitEditor extends JFrame {
             }
             File exportedFile = new File(directory, String.format("%s - %02d - %s.wav", kitName, index, name));
             s.writeToWav(exportedFile);
+            EditorPreferences.setLastPath("wav", exportedFile.getAbsolutePath());
             index++;
         }
     }
 
 
     private void exportSample() {
-        Sample s = samples[instrList.getSelectedIndex()];
+        int i = instrList.getSelectedIndex();
+        Sample s = samples[i];
         if (s == null) {
             return;
         }

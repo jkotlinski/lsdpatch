@@ -83,7 +83,7 @@ public class JFileChooserFactory {
         chooser.addChoosableFileFilter(filter);
         chooser.setFileFilter(filter);
 
-        chooser.setCurrentDirectory(new File(EditorPreferences.lastPath(filter.getExtensions()[0])));
+        chooser.setCurrentDirectory(new File(EditorPreferences.lastDirectory(filter.getExtensions()[0])));
 
         chooser.setMultiSelectionEnabled(operation == FileOperation.MultipleLoad);
 

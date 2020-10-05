@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.File;
 import java.util.prefs.Preferences;
 
 public class EditorPreferences {
@@ -17,6 +18,10 @@ public class EditorPreferences {
 
     public static String lastPath(String extension) {
         return getKey("lastPath" + extension, userDir());
+    }
+
+    public static String lastDirectory(String extension){
+        return new File(lastPath(extension)).getParent();
     }
 
     public static void setLastPath(String extension, String value) {
