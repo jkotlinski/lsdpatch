@@ -24,6 +24,9 @@ public class ColorUtil {
         int b = c.getBlue();
 
         if (ipsScreen) {
+            r = (((r >> 3) << 3) * 0xff) / 0xf8;
+            g = (((g >> 3) << 3) * 0xff) / 0xf8;
+            b = (((b >> 3) << 3) * 0xff) / 0xf8;
             return (r << 16) | (g << 8) | b;
         }
 
