@@ -124,8 +124,7 @@ public class PaletteEditor
 
         desaturateToggleButton.addItemListener(e -> updateSongAndInstrScreens());
         desaturateToggleButton.setToolTipText(
-                "Display palette in grayscale. " +
-                        "Needed for colorblind, good for everyone else.");
+                "Making the palette work in grayscale is needed for the color-blind and good for everyone else.");
         topRowPanel.add(desaturateToggleButton);
 
         midPanel.add(topRowPanel, "grow, wrap");
