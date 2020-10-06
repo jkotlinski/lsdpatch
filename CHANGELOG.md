@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
  - Kit Editor: sample export broke in 1.6.0.
+ - Song Editor: some songs were incorrectly flagged as corrupted. thx michael dufault!
 
 ### Added
  - Palette Editor: color picker!

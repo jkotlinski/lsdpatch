@@ -422,7 +422,7 @@ public class LSDSavFile implements Cloneable {
                                 break;
 
                             default: // block switch
-                                byte block = workRam[srcPtr];
+                                int block = workRam[srcPtr] & 0xff;
                                 srcPtr = 0x8000 + blockSize * block;
                                 break;
                         }
@@ -571,7 +571,7 @@ public class LSDSavFile implements Cloneable {
                                 break;
 
                             default: // block switch
-                                byte block = workRam[srcPtr];
+                                int block = workRam[srcPtr] & 0xff;
                                 srcPtr = 0x8000 + blockSize * block;
                                 break;
                         }
