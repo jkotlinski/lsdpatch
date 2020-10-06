@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: switched color correction from Gambatte to Sameboy.
  - Palette Editor: updated screenshots to LSDj v8.9.0.
  - Palette Editor: create brighter mid-tones if the background is brighter than the foreground.
- - Improved last used file path memory between editor runs.
+ - Each file extension now has its own last used load/save file path.
 
 ### Removed
  - Palette Editor: color spinners.
