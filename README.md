@@ -7,7 +7,7 @@ A tool for modifying songs, samples, fonts and palettes on [Little Sound Dj][lsd
 
 ## Preparing samples
 
-Each kit fits ~2.8 seconds of samples. To prepare your samples for Game Boy, use [sox]:
+Each kit fits ~2.8 seconds of samples. To prepare samples for Game Boy, use [sox]:
 
 ```shell
 sox.exe raw_sample.wav --rate 11468 -c 1 -b 8 converted_sample.wav --norm=0 dither -p 5
