@@ -99,13 +99,12 @@ class SwatchPair implements Swatch.Listener {
         int r2 = ColorUtil.to8bit(fg.r());
         int g2 = ColorUtil.to8bit(fg.g());
         int b2 = ColorUtil.to8bit(fg.b());
-        Color color1 = new Color(ColorUtil.colorCorrect(
-                new Color(Math.max(r1, r2), Math.max(g1, g2), Math.max(b1, b2))));
-        Color color2 = new Color(ColorUtil.colorCorrect(
-                new Color(Math.min(r1, r2), Math.min(g1, g2), Math.min(b1, b2))));
-        int midR = (color1.getRed() * 2 + color2.getRed()) / 3;
-        int midG = (color1.getGreen() * 2 + color2.getGreen()) / 3;
-        int midB = (color1.getBlue() * 2 + color2.getBlue()) / 3;
+        Color bgColor = new Color(ColorUtil.colorCorrect( new Color(r1, g1, b1)));
+        Color fgColor = new Color(ColorUtil.colorCorrect( new Color(r2, g2, b2)));
+        int k = 55;
+        int midR = (bgColor.getRed() * k + fgColor.getRed() * (100 - k)) / 100;
+        int midG = (bgColor.getGreen() * k + fgColor.getGreen() * (100 - k)) / 100;
+        int midB = (bgColor.getBlue() * k + fgColor.getBlue() * (100 - k)) / 100;
         return new Color(midR, midG, midB);
     }
 
