@@ -486,6 +486,9 @@ public class PaletteEditor
             javax.swing.JOptionPane.showMessageDialog(this, "Load failed!");
         }
         int index = paletteSelector.getSelectedIndex();
+        while (areDuplicateNames()) {
+            addNumberToPaletteName(index);
+        }
         populatePaletteSelector();
         paletteSelector.setSelectedIndex(index);
     }
