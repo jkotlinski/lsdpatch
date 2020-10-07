@@ -1,9 +1,21 @@
 package paletteEditor;
 
 public class RGB555 {
-    private int r = -1;
-    private int g = -1;
-    private int b = -1;
+    int r;
+    int g;
+    int b;
+
+    public RGB555() {
+        r = -1;
+        g = -1;
+        b = -1;
+    }
+
+    public RGB555(int r, int g, int b) {
+        setR(r);
+        setG(g);
+        setB(b);
+    }
 
     public void setR(int r) {
         assert(r >= 0 && r < 32);

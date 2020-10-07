@@ -17,12 +17,20 @@ public class ColorUtil {
         return rawScreen;
     }
 
+    public static int to8bit(int color) {
+        assert(color >= 0);
+        assert(color < 32);
+        color <<= 3;
+        color *= 0xff;
+        return color / 0xf8;
+    }
+
     // From Sameboy.
     public static int colorCorrect(java.awt.Color c) {
-        int r = c.getRed();
-        int g = c.getGreen();
-        int b = c.getBlue();
+        return colorCorrect(c.getRed(), c.getGreen(), c.getBlue());
+    }
 
+    public static int colorCorrect(int r, int g, int b) {
         if (rawScreen) {
             r = (((r >> 3) << 3) * 0xff) / 0xf8;
             g = (((g >> 3) << 3) * 0xff) / 0xf8;

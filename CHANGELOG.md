@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
 
+### Changed
+ - Palette Editor: improved midtone generation.
+
 ## [1.7.0] - 2020-10-06
 ### Fixed
  - Kit Editor: sample export broke in 1.6.0.
