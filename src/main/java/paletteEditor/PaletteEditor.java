@@ -583,8 +583,5 @@ public class PaletteEditor
         if (e.getActionCommand().equals("comboBoxEdited")) {
             onPaletteRenamed();
         }
-        else {
-            assert false;
-        }
     }
 }
