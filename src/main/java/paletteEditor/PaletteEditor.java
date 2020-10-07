@@ -350,45 +350,78 @@ public class PaletteEditor
     private java.awt.image.BufferedImage modifyUsingPalette(java.awt.image.BufferedImage srcImage) {
         int w = srcImage.getWidth(); int h = srcImage.getHeight();
         java.awt.image.BufferedImage dstImage = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
+
+        int normalBg = ColorUtil.colorCorrect(firstColor(0));
+        int normalMid = ColorUtil.colorCorrect(midColor(0));
+        int normalFg = ColorUtil.colorCorrect(secondColor(0));
+        int shadedBg = ColorUtil.colorCorrect(firstColor(1));
+        int shadedMid = ColorUtil.colorCorrect(midColor(1));
+        int shadedFg = ColorUtil.colorCorrect(secondColor(1));
+        int alternateBg = ColorUtil.colorCorrect(firstColor(2));
+        int alternateMid = ColorUtil.colorCorrect(midColor(2));
+        int alternateFg = ColorUtil.colorCorrect(secondColor(2));
+        int cursorBg = ColorUtil.colorCorrect(firstColor(3));
+        int cursorMid = ColorUtil.colorCorrect(midColor(3));
+        int cursorFg = ColorUtil.colorCorrect(secondColor(3));
+        int scrollBg = ColorUtil.colorCorrect(firstColor(4));
+        int scrollMid = ColorUtil.colorCorrect(midColor(4));
+        int scrollFg = ColorUtil.colorCorrect(secondColor(4));
+
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
                 int rgb = srcImage.getRGB(x, y);
-                java.awt.Color c;
-                if (rgb == ScreenShotColors.NORMAL_BG) {
-                    c = firstColor(0);
-                } else if (rgb == ScreenShotColors.NORMAL_MID) {
-                    c = midColor(0);
-                } else if (rgb == ScreenShotColors.NORMAL_FG) {
-                    c = secondColor(0);
-                } else if (rgb == ScreenShotColors.SHADED_BG) {
-                    c = firstColor(1);
-                } else if (rgb == ScreenShotColors.SHADED_MID) {
-                    c = midColor(1);
-                } else if (rgb == ScreenShotColors.SHADED_FG) {
-                    c = secondColor(1);
-                } else if (rgb == ScreenShotColors.ALT_BG) {
-                    c = firstColor(2);
-                } else if (rgb == ScreenShotColors.ALT_MID) {
-                    c = midColor(2);
-                } else if (rgb == ScreenShotColors.ALT_FG) {
-                    c = secondColor(2);
-                } else if (rgb == ScreenShotColors.CUR_BG) {
-                    c = firstColor(3);
-                } else if (rgb == ScreenShotColors.CUR_MID) {
-                    c = midColor(3);
-                } else if (rgb == ScreenShotColors.CUR_FG) {
-                    c = secondColor(3);
-                } else if (rgb == ScreenShotColors.SCROLL_BG) {
-                    c = firstColor(4);
-                } else if (rgb == ScreenShotColors.SCROLL_MID) {
-                    c = midColor(4);
-                } else if (rgb == ScreenShotColors.SCROLL_FG) {
-                    c = secondColor(4);
-                } else {
-                    System.err.printf("%x%n", rgb);
-                    c = new java.awt.Color(255, 0, 255);
+                int correctedRgb;
+                switch (rgb) {
+                    case ScreenShotColors.NORMAL_BG:
+                        correctedRgb = normalBg;
+                        break;
+                    case ScreenShotColors.NORMAL_MID:
+                        correctedRgb = normalMid;
+                        break;
+                    case ScreenShotColors.NORMAL_FG:
+                        correctedRgb = normalFg;
+                        break;
+                    case ScreenShotColors.SHADED_BG:
+                        correctedRgb = shadedBg;
+                        break;
+                    case ScreenShotColors.SHADED_MID:
+                        correctedRgb = shadedMid;
+                        break;
+                    case ScreenShotColors.SHADED_FG:
+                        correctedRgb = shadedFg;
+                        break;
+                    case ScreenShotColors.ALT_BG:
+                        correctedRgb = alternateBg;
+                        break;
+                    case ScreenShotColors.ALT_MID:
+                        correctedRgb = alternateMid;
+                        break;
+                    case ScreenShotColors.ALT_FG:
+                        correctedRgb = alternateFg;
+                        break;
+                    case ScreenShotColors.CUR_BG:
+                        correctedRgb = cursorBg;
+                        break;
+                    case ScreenShotColors.CUR_MID:
+                        correctedRgb = cursorMid;
+                        break;
+                    case ScreenShotColors.CUR_FG:
+                        correctedRgb = cursorFg;
+                        break;
+                    case ScreenShotColors.SCROLL_BG:
+                        correctedRgb = scrollBg;
+                        break;
+                    case ScreenShotColors.SCROLL_MID:
+                        correctedRgb = scrollMid;
+                        break;
+                    case ScreenShotColors.SCROLL_FG:
+                        correctedRgb = scrollFg;
+                        break;
+                    default:
+                        System.err.printf("%x%n", rgb);
+                        correctedRgb = 0xff00ff;
                 }
-                dstImage.setRGB(x, y, ColorUtil.colorCorrect(c));
+                dstImage.setRGB(x, y, correctedRgb);
             }
         }
         if (desaturateToggleButton.isSelected()) {
