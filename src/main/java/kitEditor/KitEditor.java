@@ -569,7 +569,7 @@ public class KitEditor extends JFrame {
 
     private void selectSampleToAdd() {
         FileDialog dialog = new FileDialog(this, "Load sample", FileDialog.LOAD);
-        dialog.setDirectory(EditorPreferences.lastPath("wav"));
+        dialog.setDirectory(EditorPreferences.lastDirectory("wav"));
         dialog.setFile("*.wav");
         dialog.setVisible(true);
         if (dialog.getFile() != null) {

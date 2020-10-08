@@ -137,7 +137,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         FileDialog fileDialog = new FileDialog(this,
             "Select LSDj ROM Image",
             FileDialog.LOAD);
-        fileDialog.setDirectory(EditorPreferences.lastPath("gb"));
+        fileDialog.setDirectory(EditorPreferences.lastDirectory("gb"));
         fileDialog.setFile("*.gb");
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
@@ -167,7 +167,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Select LSDj .sav file",
                 FileDialog.LOAD);
-        fileDialog.setDirectory(EditorPreferences.lastPath("sav"));
+        fileDialog.setDirectory(EditorPreferences.lastDirectory("sav"));
         fileDialog.setFile("*.sav");
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
@@ -226,7 +226,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Save .gb file",
                 FileDialog.SAVE);
-        fileDialog.setDirectory(EditorPreferences.lastPath("gb"));
+        fileDialog.setDirectory(EditorPreferences.lastDirectory("gb"));
         fileDialog.setFile("*.gb");
         fileDialog.setVisible(true);
 

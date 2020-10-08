@@ -110,7 +110,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             FileDialog fileDialog = new FileDialog(this,
                     "Export song to .lsdprj",
                     FileDialog.SAVE);
-            fileDialog.setDirectory(EditorPreferences.lastPath("lsdprj"));
+            fileDialog.setDirectory(EditorPreferences.lastDirectory("lsdprj"));
             fileDialog.setFile("*.lsdprj");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
@@ -123,7 +123,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             }
             savFile.exportSongToFile(songs[0], filePath, romImage);
         } else if (songs.length > 1) {
-            JFileChooser fileChooser = new JFileChooser(EditorPreferences.lastPath("lsdprj"));
+            JFileChooser fileChooser = new JFileChooser(EditorPreferences.lastDirectory("lsdprj"));
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
                     "Batch export selected songs to .lsdprj files");
@@ -177,7 +177,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         FileDialog fileDialog = new FileDialog(this,
                 "Add song(s)...",
                 FileDialog.LOAD);
-        fileDialog.setDirectory(EditorPreferences.lastPath("lsdprj"));
+        fileDialog.setDirectory(EditorPreferences.lastDirectory("lsdprj"));
         fileDialog.setFile("*.lsdsng;*.lsdprj");
         fileDialog.setMultipleMode(true);
         fileDialog.setVisible(true);

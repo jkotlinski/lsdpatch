@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
  - Palette Editor: dragging color picker sliders is now more responsive.
+ - Various file dialogs would not remember the last used directory.
 
 ### Changed
  - Palette Editor: improved midtone generation.
