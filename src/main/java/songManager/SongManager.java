@@ -166,7 +166,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
     public void addLsdSngButton_actionPerformed() {
         FileDialog fileDialog = new FileDialog(this,
-                "Add song(s)...",
+                "Load Songs",
                 FileDialog.LOAD);
         fileDialog.setDirectory(EditorPreferences.lastDirectory("lsdprj"));
         fileDialog.setFile("*.lsdsng;*.lsdprj");
