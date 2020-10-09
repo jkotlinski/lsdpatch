@@ -20,7 +20,7 @@ public class EditorPreferences {
         return getKey("lastPath" + extension, userDir());
     }
 
-    public static String lastDirectory(String extension){
+    public static String lastDirectory(String extension) {
         return new File(lastPath(extension)).getParent();
     }
 

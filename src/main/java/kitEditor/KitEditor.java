@@ -642,9 +642,10 @@ public class KitEditor extends JFrame {
 
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
+        chooser.setCurrentDirectory(new File(EditorPreferences.lastDirectory("wav")));
+        chooser.setDialogTitle("Export all samples to directory");
 
         int returnVal = chooser.showOpenDialog(this);
-
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile().toString();
         }
@@ -665,6 +666,7 @@ public class KitEditor extends JFrame {
         if (kitName.length() == 0) {
             kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
         }
+
         for (Sample s : samples) {
             if (s == null || s.length() == 0) {
                 continue;
@@ -679,6 +681,11 @@ public class KitEditor extends JFrame {
             EditorPreferences.setLastPath("wav", exportedFile.getAbsolutePath());
             index++;
         }
+
+        JOptionPane.showMessageDialog(this,
+                "Saved " + index + " wave files!",
+                "Export OK!",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
 
