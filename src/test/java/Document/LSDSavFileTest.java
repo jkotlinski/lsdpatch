@@ -38,4 +38,9 @@ class LSDSavFileTest {
             Assertions.assertTrue(savFile.isValid(song));
         }
     }
+
+    @Test
+    void broken() {
+        Assertions.fail("ko");
+    }
 }
