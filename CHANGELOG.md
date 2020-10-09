@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Palette Editor: improved mid-tone generation.
+ - Replaced most Java file dialogs with native file dialogs.
 
 ## [1.7.0] - 2020-10-06
 ### Fixed
