@@ -10,9 +10,7 @@ import java.io.File;
 import Document.Document;
 import net.miginfocom.swing.MigLayout;
 import utils.EditorPreferences;
-import utils.JFileChooserFactory;
-import utils.JFileChooserFactory.FileOperation;
-import utils.JFileChooserFactory.FileType;
+import utils.FileDialogLauncher;
 import utils.RomUtilities;
 import utils.StretchIcon;
 
@@ -527,26 +525,16 @@ public class PaletteEditor
     }
 
     private void showOpenDialog() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Load Palette", FileType.Lsdpal, FileOperation.Load);
-        int returnVal = chooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File f = chooser.getSelectedFile();
+        File f = FileDialogLauncher.load(this, "Load Palette", "lsdpal");
+        if (f != null) {
             loadPalette(f);
-            EditorPreferences.setLastPath("lsdpal", f.getAbsolutePath());
         }
     }
 
     private void showSaveDialog() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Save Palette", FileType.Lsdpal, FileOperation.Save);
-        int returnVal = chooser.showSaveDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File f = chooser.getSelectedFile();
-            String filename = f.toString();
-            if (!filename.endsWith("lsdpal")) {
-                filename += ".lsdpal";
-            }
-            savePalette(filename);
-            EditorPreferences.setLastPath("lsdpal", f.getAbsolutePath());
+        File f = FileDialogLauncher.save(this, "Save Palette", "lsdpal");
+        if (f != null) {
+            savePalette(f.toString());
         }
     }
 

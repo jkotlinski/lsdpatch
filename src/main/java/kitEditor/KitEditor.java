@@ -4,8 +4,6 @@ import Document.Document;
 import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
 import utils.*;
-import utils.JFileChooserFactory.FileOperation;
-import utils.JFileChooserFactory.FileType;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -409,29 +407,25 @@ public class KitEditor extends JFrame {
     }
 
     private void exportKitButton_actionPerformed() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Export kit", FileType.Kit, FileOperation.Save);
-
-        int result = chooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-
-            try {
-                File f = chooser.getSelectedFile();
-                byte[] buf = new byte[RomUtilities.BANK_SIZE];
-                int offset = getROMOffsetForSelectedBank();
-                RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
-
-                for (int i = 0; i < buf.length; i++) {
-                    buf[i] = romImage[offset++];
-                }
-                bankFile.write(buf);
-                bankFile.close();
-                EditorPreferences.setLastPath("kit", f.getAbsolutePath());
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            updateRomView();
+        File f = FileDialogLauncher.save(this, "Export Kit", "kit");
+        if (f == null) {
+            return;
         }
+        try {
+            byte[] buf = new byte[RomUtilities.BANK_SIZE];
+            int offset = getROMOffsetForSelectedBank();
+            RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
+
+            for (int i = 0; i < buf.length; i++) {
+                buf[i] = romImage[offset++];
+            }
+            bankFile.write(buf);
+            bankFile.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        updateRomView();
     }
 
     private void loadKit(File kitFile) {

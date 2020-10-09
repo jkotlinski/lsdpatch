@@ -16,11 +16,8 @@ import javax.swing.*;
 
 import Document.Document;
 import structures.LSDJFont;
-import utils.EditorPreferences;
+import utils.FileDialogLauncher;
 import utils.FontIO;
-import utils.JFileChooserFactory;
-import utils.JFileChooserFactory.FileOperation;
-import utils.JFileChooserFactory.FileType;
 import utils.RomUtilities;
 
 public class FontEditor extends JFrame implements FontMap.TileSelectListener, TileEditor.TileChangedListener {
@@ -286,22 +283,20 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
 
     private void showOpenDialog() {
         try {
-            JFileChooser chooser = JFileChooserFactory.createChooser("Open Font", FileType.Lsdfnt, FileOperation.Load);
-            int returnVal = chooser.showOpenDialog(this);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File f = chooser.getSelectedFile();
-                String fontName;
-                fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
-                tileEditor.generateShadedAndInvertedTiles();
-                RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
-                tileEditor.tileChanged();
-                tileChanged();
-                // Refresh the name list.
-                int previousIndex = fontSelector.getSelectedIndex();
-                populateFontSelector();
-                fontSelector.setSelectedIndex(previousIndex);
-                EditorPreferences.setLastPath("lsdfnt", f.getAbsolutePath());
+            File f = FileDialogLauncher.load(this, "Open Font", "lsdfnt");
+            if (f == null) {
+                return;
             }
+            String fontName;
+            fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
+            tileEditor.generateShadedAndInvertedTiles();
+            RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
+            tileEditor.tileChanged();
+            tileChanged();
+            // Refresh the name list.
+            int previousIndex = fontSelector.getSelectedIndex();
+            populateFontSelector();
+            fontSelector.setSelectedIndex(previousIndex);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Couldn't open fnt file.\n" + e.getMessage());
             e.printStackTrace();
@@ -310,25 +305,18 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
 
     private void showSaveDialog() {
         try {
-            JFileChooser chooser = JFileChooserFactory.createChooser("Save Font", FileType.Lsdfnt, FileOperation.Save);
-
             if (fontSelector.getSelectedItem() == null) {
                 JOptionPane.showMessageDialog(this, "Couldn't read the selected font name.");
                 return;
             }
 
             String fontName = (String) fontSelector.getSelectedItem();
-            int returnVal = chooser.showSaveDialog(this);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File f = chooser.getSelectedFile();
-                String filename = f.toString();
-                if (!filename.endsWith("lsdfnt")) {
-                    //noinspection UnusedAssignment
-                    filename = filename.concat(".lsdfnt");
-                }
-                FontIO.saveFnt(f, fontName, romImage, selectedFontOffset);
-                EditorPreferences.setLastPath("lsdfnt", f.getAbsolutePath());
+
+            File f = FileDialogLauncher.save(this, "Save Font", "lsdfnt");
+            if (f == null) {
+                return;
             }
+            FontIO.saveFnt(f, fontName, romImage, selectedFontOffset);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Couldn't save fnt file.\n" + e.getMessage());
             e.printStackTrace();
@@ -337,47 +325,37 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
 
     private void importBitmap() {
         // File Choose
-        JFileChooser chooser = JFileChooserFactory.createChooser("Import Font Image", FileType.Png, FileOperation.Load);
-        int returnVal = chooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File bitmap = chooser.getSelectedFile();
-            try {
-                BufferedImage image = ImageIO.read(bitmap);
-                if (image.getWidth() != 64 && image.getHeight() != 72) {
-                    JOptionPane.showMessageDialog(this,
-                            "Make sure your picture has the right dimensions (64 * 72 pixels).");
-                    return;
-                }
-                tileEditor.readImage(chooser.getSelectedFile().getName(), image);
-
-                tileEditor.tileChanged();
-                tileChanged();
-                EditorPreferences.setLastPath("png", bitmap.getAbsolutePath());
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Couldn't load the given picture.\n" + e.getMessage());
-                e.printStackTrace();
-            }
+        File bitmap = FileDialogLauncher.load(this, "Import Font Image", "png");
+        if (bitmap == null) {
+            return;
         }
-
+        try {
+            BufferedImage image = ImageIO.read(bitmap);
+            if (image.getWidth() != 64 && image.getHeight() != 72) {
+                JOptionPane.showMessageDialog(this,
+                        "Make sure your picture has the right dimensions (64 * 72 pixels).");
+                return;
+            }
+            tileEditor.readImage(bitmap.getName(), image);
+            tileEditor.tileChanged();
+            tileChanged();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Couldn't load the given picture.\n" + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void exportBitmap() {
-        JFileChooser chooser = JFileChooserFactory.createChooser("Export Font " + RomUtilities.getFontName(romImage, previousSelectedFont), FileType.Png, FileOperation.Save);
-        int returnVal = chooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File f = chooser.getSelectedFile();
-            String filename = f.toString();
-            if (!filename.endsWith("png")) {
-                filename += ".png";
-            }
-            BufferedImage image = tileEditor.createImage();
-            try {
-                ImageIO.write(image, "PNG", new File(filename));
-                EditorPreferences.setLastPath("png", f.getAbsolutePath());
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Couldn't export the font map.\n" + e.getMessage());
-                e.printStackTrace();
-            }
+        File f = FileDialogLauncher.save(this, "Export Font", "png");
+        if (f == null) {
+            return;
+        }
+        BufferedImage image = tileEditor.createImage();
+        try {
+            ImageIO.write(image, "PNG", f);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Couldn't export the font map.\n" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
