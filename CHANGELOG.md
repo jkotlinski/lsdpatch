@@ -11,12 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Various file dialogs would not remember the last used directory.
 
 ### Changed
- - Palette Editor: improved midtone generation.
+ - Palette Editor: improved mid-tone generation.
 
 ## [1.7.0] - 2020-10-06
 ### Fixed
  - Kit Editor: sample export broke in 1.6.0.
- - Song Editor: some songs were incorrectly flagged as corrupted. thx michael dufault!
+ - Song Editor: incorrect broken-song warnings. thx michael dufault!
 
 ### Added
  - Palette Editor: color picker!
@@ -77,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.6] - 2017-10-19
 ### Fixed
- - ROM checksum is now recalculated on save.
+ - Recalculate ROM checksum on save.
 
 ## [1.1.5] - 2017-10-14
 ### Added
