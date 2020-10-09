@@ -7,7 +7,14 @@ import java.io.File;
 public class FileDialogLauncher {
 
     public static File load(JFrame parent, String title, String fileExtension) {
-        return open(parent, title, fileExtension, FileDialog.LOAD);
+        File f = open(parent, title, fileExtension, FileDialog.LOAD);
+        if (f == null) {
+            return null;
+        }
+        if (!f.getName().endsWith("." + fileExtension)) {
+            return null;
+        }
+        return f;
     }
 
     public static File save(JFrame parent, String title, String fileExtension) {

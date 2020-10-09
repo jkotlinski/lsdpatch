@@ -4,6 +4,7 @@ import Document.Document;
 import Document.LSDSavFile;
 import net.miginfocom.swing.MigLayout;
 import utils.EditorPreferences;
+import utils.FileDialogLauncher;
 
 import java.awt.*;
 import javax.swing.JButton;
@@ -107,21 +108,11 @@ public class SongManager extends JFrame implements ListSelectionListener {
         int[] songs = songList.getSelectedIndices();
 
         if (songs.length == 1) {
-            FileDialog fileDialog = new FileDialog(this,
-                    "Export song to .lsdprj",
-                    FileDialog.SAVE);
-            fileDialog.setDirectory(EditorPreferences.lastDirectory("lsdprj"));
-            fileDialog.setFile("*.lsdprj");
-            fileDialog.setVisible(true);
-            String fileName = fileDialog.getFile();
-            if (fileName == null) {
+            File f = FileDialogLauncher.save(this, "Export Song", "lsdprj");
+            if (f == null) {
                 return;
             }
-            String filePath = fileDialog.getDirectory() + fileName;
-            if (!filePath.toUpperCase().endsWith(".LSDPRJ")) {
-                filePath += ".lsdprj";
-            }
-            savFile.exportSongToFile(songs[0], filePath, romImage);
+            savFile.exportSongToFile(songs[0], f.getAbsolutePath(), romImage);
         } else if (songs.length > 1) {
             JFileChooser fileChooser = new JFileChooser(EditorPreferences.lastDirectory("lsdprj"));
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

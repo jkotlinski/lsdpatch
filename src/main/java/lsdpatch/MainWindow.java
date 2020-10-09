@@ -9,6 +9,7 @@ import net.miginfocom.swing.MigLayout;
 import paletteEditor.PaletteEditor;
 import songManager.SongManager;
 import utils.EditorPreferences;
+import utils.FileDialogLauncher;
 import utils.RomUtilities;
 
 import javax.swing.*;
@@ -134,21 +135,14 @@ public class MainWindow extends JFrame implements IDocumentListener {
                 JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
             return;
         }
-        FileDialog fileDialog = new FileDialog(this,
-            "Select LSDj ROM Image",
-            FileDialog.LOAD);
-        fileDialog.setDirectory(EditorPreferences.lastDirectory("gb"));
-        fileDialog.setFile("*.gb");
-        fileDialog.setVisible(true);
-        String fileName = fileDialog.getFile();
-        if (fileName == null) {
+
+        File romFile = FileDialogLauncher.load(this, "Select LSDj ROM Image", "gb");
+        if (romFile == null) {
             return;
         }
-
-        String romPath = fileDialog.getDirectory() + fileName;
+        String romPath = romFile.getAbsolutePath();
         romTextField.setText(romPath);
         document.loadRomImage(romPath);
-        EditorPreferences.setLastPath("gb", romPath);
         String savPath = romPath.replaceFirst(".gb", ".sav");
         document.loadSavFile(savPath);
         EditorPreferences.setLastPath("sav", savPath);
@@ -164,19 +158,12 @@ public class MainWindow extends JFrame implements IDocumentListener {
                 JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
             return;
         }
-        FileDialog fileDialog = new FileDialog(this,
-                "Select LSDj .sav file",
-                FileDialog.LOAD);
-        fileDialog.setDirectory(EditorPreferences.lastDirectory("sav"));
-        fileDialog.setFile("*.sav");
-        fileDialog.setVisible(true);
-        String fileName = fileDialog.getFile();
-        if (fileName == null) {
+
+        File savFile = FileDialogLauncher.load(this, "Load Save File", "sav");
+        if (savFile == null) {
             return;
         }
-
-        String savPath = fileDialog.getDirectory() + fileName;
-        savTextField.setText(savPath);
+        savTextField.setText(savFile.getAbsolutePath());
         updateButtonsFromTextFields();
     }
 
@@ -223,22 +210,11 @@ public class MainWindow extends JFrame implements IDocumentListener {
     }
 
     private void onSave() {
-        FileDialog fileDialog = new FileDialog(this,
-                "Save .gb file",
-                FileDialog.SAVE);
-        fileDialog.setDirectory(EditorPreferences.lastDirectory("gb"));
-        fileDialog.setFile("*.gb");
-        fileDialog.setVisible(true);
-
-        String fileName = fileDialog.getFile();
-        if (fileName == null) {
+        File f = FileDialogLauncher.save(this, "Save ROM Image", "gb");
+        if (f == null) {
             return;
         }
-
-        String romPath = fileDialog.getDirectory() + fileName;
-        if (!romPath.toUpperCase().endsWith(".GB")) {
-            romPath += ".gb";
-        }
+        String romPath = f.getAbsolutePath();
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(romPath)) {
             fileOutputStream.write(document.romImage());

@@ -451,13 +451,9 @@ public class KitEditor extends JFrame {
     }
 
     private void loadKitButton_actionPerformed() {
-        FileDialog dialog = new FileDialog(this, "Load kit", FileDialog.LOAD);
-        dialog.setDirectory(EditorPreferences.lastDirectory("kit"));
-        dialog.setFile("*.kit");
-        dialog.setVisible(true);
-        if (dialog.getFile() != null) {
-            loadKit(new File(dialog.getDirectory(), dialog.getFile()));
-            EditorPreferences.setLastPath("kit", dialog.getDirectory() + dialog.getFile());
+        File f = FileDialogLauncher.load(this, "Load Sample Kit", "kit");
+        if (f != null) {
+            loadKit(f);
         }
     }
 
@@ -562,13 +558,9 @@ public class KitEditor extends JFrame {
     }
 
     private void selectSampleToAdd() {
-        FileDialog dialog = new FileDialog(this, "Load sample", FileDialog.LOAD);
-        dialog.setDirectory(EditorPreferences.lastDirectory("wav"));
-        dialog.setFile("*.wav");
-        dialog.setVisible(true);
-        if (dialog.getFile() != null) {
-            addSample(new File(dialog.getDirectory(), dialog.getFile()));
-            EditorPreferences.setLastPath("wav", dialog.getDirectory() + dialog.getFile());
+        File f = FileDialogLauncher.load(this, "Load Sample", "wav");
+        if (f != null) {
+            addSample(f);
         }
     }
 
@@ -696,17 +688,10 @@ public class KitEditor extends JFrame {
         if (s == null) {
             return;
         }
-        FileDialog dialog = new FileDialog(this, "Save sample as .wav", FileDialog.SAVE);
-        dialog.setFile(s.getName() + ".wav");
-        dialog.setVisible(true);
-        if (dialog.getFile() == null) {
-            return;
+
+        File f = FileDialogLauncher.save(this, "Save Sample", "wav");
+        if (f != null) {
+            s.writeToWav(f);
         }
-        File f = new File(dialog.getDirectory(), dialog.getFile());
-        if (!f.toString().toUpperCase().endsWith(".WAV")) {
-            f = new File(f.getAbsoluteFile().toString() + ".wav");
-        }
-        s.writeToWav(f);
-        EditorPreferences.setLastPath("wav", f.getAbsolutePath());
     }
 }
