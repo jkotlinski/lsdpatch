@@ -8,11 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
  - Palette Editor: dragging color picker sliders is now more responsive.
- - Various file dialogs would not remember the last used directory.
+ - Some file dialogs would not remember the last used directory.
 
 ### Changed
  - Palette Editor: improved mid-tone generation.
- - Replaced Java file dialogs with native file dialogs.
  - Various file dialog improvements.
 
 ## [1.7.0] - 2020-10-06
