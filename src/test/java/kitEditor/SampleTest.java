@@ -24,13 +24,5 @@ class SampleTest {
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz.wav", sample.getName());
         Assertions.assertEquals(11469, sample.length());
-        File f = new File("c:\\cygwin64\\home\\Johan\\lsdpatch\\test.raw");
-        try (FileOutputStream fos = new FileOutputStream(f)) {
-            for (int i = 0; i < sample.length(); ++i) {
-                fos.write(sample.read());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
