@@ -5,13 +5,6 @@ A tool for modifying songs, samples, fonts and palettes on [Little Sound Dj][lsd
 
 [Download][releases] | [Fonts][lsdfnts] | [Palettes][lsdpals]
 
-## Preparing samples
-
-Each kit fits ~2.8 seconds of samples. To prepare samples for Game Boy, use [sox]:
-
-```shell
-sox.exe raw_sample.wav --rate 11468 -c 1 -b 8 converted_sample.wav --norm=0 dither -p 5
-```
 ## Tutorials
 - [Tutorial by Little-Scale](http://little-scale.blogspot.com/2008/11/how-to-prepare-samples-and-create-lsdj.html)
 - [Video tutorial by 2xAA](http://www.youtube.com/watch?v=FGeVrW5Jxww)

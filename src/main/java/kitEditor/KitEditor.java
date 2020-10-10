@@ -547,8 +547,14 @@ public class KitEditor extends JFrame {
             offset++;
         }
 
-        Sample sample = Sample.createFromWav(wavFile);
-        if (sample == null) {
+        Sample sample;
+        try {
+            sample = Sample.createFromWav(wavFile);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(contentPane,
+                    e.getLocalizedMessage(),
+                    "Sample load failed!",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         samples[firstFreeSampleSlot()] = sample;

@@ -1,6 +1,11 @@
 package kitEditor;
 
 import java.io.*;
+import java.util.ArrayList;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 class Sample {
@@ -48,190 +53,57 @@ class Sample {
 
     // ------------------
 
-    static Sample createFromWav(File file) {
-        int ch = 0;
-        long sampleRate = 0;
-        int bits = 0;
+    static Sample createFromWav(File file) throws IOException, UnsupportedAudioFileException {
+        ArrayList<Integer> samples = readSamples(file);
+        normalize(samples);
+        dither(samples);
 
-        try {
-            FileInputStream in = new FileInputStream(file.getAbsolutePath());
-
-            long riffId = readWord(in);
-            if (riffId != 1380533830) {
-                JOptionPane.showMessageDialog(null,
-                        "Missing RIFF id!",
-                        "Format error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-
-            readWord(in); //skip file size
-
-            long waveId = readWord(in);
-            if (waveId != 1463899717) {
-                JOptionPane.showMessageDialog(null,
-                        "Missing WAVE id!",
-                        "Format error",
-                        JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
-
-            while (in.available() != 0) {
-                long chunkId = readWord(in);
-                long chunkSize = readEndianWord(in);
-
-                if (chunkId == 0x666D7420) // fmt
-                {
-                    int compression = readEndianShort(in);
-                    if (compression != 1) {
-                        JOptionPane.showMessageDialog(null,
-                                "kitEditor.Sample is compressed. Only PCM .wav files are supported.",
-                                "Format error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return null;
-                    }
-                    ch = readEndianShort(in);
-                    if (ch > 2) {
-                        JOptionPane.showMessageDialog(null,
-                                "Unsupported number of channels!",
-                                "Format error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return null;
-                    }
-                    sampleRate = readEndianWord(in);
-                    readWord(in); //avg. bytes/second
-                    readEndianShort(in);  // Block align.
-                    bits = readEndianShort(in);
-                    if (bits != 16 && bits != 8) {
-                        JOptionPane.showMessageDialog(null,
-                                "Only 8-bit and 16-bit .wav are supported!",
-                                "Format error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return null;
-                    }
-                } else if (chunkId == 0x64617461) // data
-                {
-                    byte[] buf = new byte[(int) chunkSize];
-                    if (in.read(buf) != buf.length) {
-                        throw new Exception("Chunk read failed!");
-                    }
-
-                    if (ch == 2) {
-                        int inIt = 0;
-                        int outIt = 0;
-                        while (inIt < chunkSize) {
-                            buf[outIt++] = buf[inIt++];
-                            buf[outIt++] = buf[inIt++];
-                            inIt += 2;
-                        }
-                        chunkSize /= 2;
-                        //noinspection UnusedAssignment
-                        ch = 1;
-                    }
-
-                    if (bits == 16) {
-                        // Convert from signed 16-bit to signed 8-bit
-                        // by simply taking the most significant byte.
-                        int inIt = 1;
-                        int outIt = 0;
-
-                        while (inIt < chunkSize) {
-                            buf[outIt] = buf[inIt];
-                            outIt++;
-                            inIt += 2;
-                        }
-                        chunkSize /= 2;
-                    } else if (bits == 8) {
-                        // Converts unsigned 8-bit to signed 8-bit.
-                        for (int it = 0; it < chunkSize; ++it) {
-                            buf[it] += 128;
-                        }
-                    }
-
-                    int outFreq = 11468;
-                    int outFrames = (int) ((outFreq * chunkSize) / sampleRate);
-
-                    double readPos = 0.0;
-                    double advance = (double) sampleRate / (double) outFreq;
-
-                    byte[] outBuf = new byte[outFrames];
-                    int writePos = 0;
-
-                    while (writePos < outFrames) {
-                        byte val = buf[(int) readPos];
-                        outBuf[writePos++] = val;
-                        readPos += advance;
-                    }
-
-                    return new Sample(outBuf, file.getName());
-                } else if (in.skip(chunkSize) != chunkSize) {
-                    throw new Exception("Chunk skip failed!");
-                }
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "File error",
-                    JOptionPane.ERROR_MESSAGE);
+        byte[] buf = new byte[samples.size()];
+        for (int i = 0; i < buf.length; ++i) {
+            buf[i] = (byte)(int)samples.get(i);
         }
-        return null;
+        return new Sample(buf, file.getName());
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static private long readWord(FileInputStream in) throws IOException {
-        long ret = 0;
-        byte[] word = new byte[4];
-        in.read(word);
-
-        ret += word[0];
-        ret <<= 8;
-
-        ret += word[1];
-        ret <<= 8;
-
-        ret += word[2];
-        ret <<= 8;
-
-        ret += word[3];
-
-        return ret;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static private int readEndianShort(FileInputStream in) throws IOException {
-        int ret = 0;
-        byte[] word = new byte[2];
-        in.read(word);
-
-        ret += signedToUnsigned(word[1]);
-        ret <<= 8;
-        ret += signedToUnsigned(word[0]);
-
-        return ret;
-    }
-
-    static private int signedToUnsigned(byte b) {
-        if (b >= 0) {
-            return b;
+    private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
+        AudioInputStream ais = AudioSystem.getAudioInputStream(file);
+        AudioFormat outFormat = new AudioFormat(11468, 8, 1, true, false);
+        AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
+        ArrayList<Integer> samples = new ArrayList<>();
+        while (true) {
+            int b = convertedAis.read();
+            if (b == -1) {
+                break;
+            }
+            b = (byte)b;
+            samples.add(b);
         }
-        return 0x100 + b;
+        return samples;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static private long readEndianWord(FileInputStream in) throws IOException {
-        long ret = 0;
-        byte[] word = new byte[4];
-        in.read(word);
+    private static void dither(ArrayList<Integer> samples) {
+        for (int i = 0; i < samples.size(); ++i) {
+            int s = samples.get(i);
+            s += Math.random() * 16 - 8;
+            s = Math.max(-128, Math.min(s, 127));
+            samples.set(i, s);
+        }
+    }
 
-        ret += signedToUnsigned(word[3]);
-        ret <<= 8;
-
-        ret += signedToUnsigned(word[2]);
-        ret <<= 8;
-
-        ret += signedToUnsigned(word[1]);
-        ret <<= 8;
-
-        ret += signedToUnsigned(word[0]);
-
-        return ret;
+    private static void normalize(ArrayList<Integer> samples) {
+        int peak = Integer.MIN_VALUE;
+        for (Integer sample : samples) {
+            peak = Math.max(peak, Math.abs(sample));
+        }
+        if (peak >= 127) {
+            return;
+        }
+        for (int i = 0; i < samples.size(); ++i) {
+            int s = samples.get(i);
+            s *= 127;
+            s /= peak;
+            samples.set(i, s);
+        }
     }
 
     // ------------------
