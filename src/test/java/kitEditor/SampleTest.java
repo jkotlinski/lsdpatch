@@ -5,14 +5,16 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Objects;
+import java.net.URL;
 
 class SampleTest {
 
     @Test
     void createFromWav() {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("sine1s44khz.wav")).getFile());
+        URL url = classLoader.getResource("sine1s44khz.wav");
+        assert url != null;
+        File file = new File(url.getFile());
         Sample sample = null;
         try {
             sample = Sample.createFromWav(file);
