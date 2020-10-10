@@ -109,8 +109,8 @@ class SwatchPair implements Swatch.Listener {
     }
 
     private RGB555 findBestRgb(RGB555 start, Color target) {
-        TreeMap<Integer, RGB555> map = new TreeMap<>();
-        int startDiff = diff(target, start.r(), start.g(), start.b());
+        TreeMap<Double, RGB555> map = new TreeMap<>();
+        double startDiff = diff(target, start.r(), start.g(), start.b());
         map.put(startDiff, start);
         add(map, target, start, 1, 0, 0);
         add(map, target, start, -1, 0, 0);
@@ -124,7 +124,7 @@ class SwatchPair implements Swatch.Listener {
         return findBestRgb(map.firstEntry().getValue(), target);
     }
 
-    private void add(TreeMap<Integer, RGB555> map, Color target, RGB555 start, int rd, int gd, int bd) {
+    private void add(TreeMap<Double, RGB555> map, Color target, RGB555 start, int rd, int gd, int bd) {
         int r = start.r() + rd;
         int g = start.g() + gd;
         int b = start.b() + bd;
@@ -135,7 +135,7 @@ class SwatchPair implements Swatch.Listener {
         map.put(diff(target, r, g, b), rgb555);
     }
 
-    private static int diff(Color target, int r, int g, int b) {
+    private static double diff(Color target, int r, int g, int b) {
         int rgb24 = ColorUtil.colorCorrect(
                 ColorUtil.to8bit(r),
                 ColorUtil.to8bit(g),
@@ -144,11 +144,15 @@ class SwatchPair implements Swatch.Listener {
         int gg = (rgb24 >> 8) & 0xff;
         int bb = rgb24 & 0xff;
 
-        rr -= target.getRed();
-        gg -= target.getGreen();
-        bb -= target.getBlue();
+        // red-mean
+        double rm = (rr + target.getRed()) / 2.0;
+        double rd = rr - target.getRed();
+        double gd = gg - target.getGreen();
+        double bd = bb - target.getBlue();
 
-        return rr * rr + gg * gg + bb * bb;
+        return Math.sqrt((2.0 + rm / 256.0) * rd * rd +
+                4.0 * gd * gd +
+                ((2.0 + (255.0 - rm) / 256.0) * bd * bd));
     }
 
     public void writeToRom(byte[] romImage, int offset) {
