@@ -1,22 +1,4 @@
-package kitEditor;/* Copyright (C) 2001-2011 by Johan Kotlinski
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. */
+package kitEditor;
 
 import java.io.*;
 import javax.swing.*;
@@ -66,7 +48,6 @@ class Sample {
 
     // ------------------
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     static Sample createFromWav(File file) {
         int ch = 0;
         long sampleRate = 0;
@@ -91,6 +72,7 @@ class Sample {
                         "Missing WAVE id!",
                         "Format error",
                         JOptionPane.ERROR_MESSAGE);
+                return null;
             }
 
             while (in.available() != 0) {
@@ -129,7 +111,9 @@ class Sample {
                 } else if (chunkId == 0x64617461) // data
                 {
                     byte[] buf = new byte[(int) chunkSize];
-                    in.read(buf);
+                    if (in.read(buf) != buf.length) {
+                        throw new Exception("Chunk read failed!");
+                    }
 
                     if (ch == 2) {
                         int inIt = 0;
@@ -179,8 +163,8 @@ class Sample {
                     }
 
                     return new Sample(outBuf, file.getName());
-                } else {
-                    in.skip(chunkSize);
+                } else if (in.skip(chunkSize) != chunkSize) {
+                    throw new Exception("Chunk skip failed!");
                 }
             }
         } catch (Exception e) {
