@@ -145,7 +145,7 @@ class Sample {
 
             byte[] unsigned = new byte[buf.length];
             for (int it = 0; it < buf.length; ++it) {
-                unsigned[it] = (byte) ((int) buf[it] + 0x80);
+                unsigned[it] = (byte) ((int) buf[it] + 0x88);
             }
             wavFile.write(unsigned);
             wavFile.close();
