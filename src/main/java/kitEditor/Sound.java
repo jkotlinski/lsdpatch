@@ -16,7 +16,15 @@ public class Sound {
 
         while (src < gbSample.length) {
             byte sample = gbSample[src++];
-            waveData[dst++] = (byte) (0xf0 & sample);
+
+            // Emulates Game Boy sound chip bug. While changing waveform,
+            // sound is played back at zero DC. This happens every 32'nd sample.
+            if (dst % 32 == 0) {
+                waveData[dst] = 0x78;
+            } else {
+                waveData[dst] = (byte) (0xf0 & sample);
+            }
+            ++dst;
             waveData[dst++] = (byte) ((0x0F & sample) << 4);
         }
         for (int i = waveData.length / 2; i < waveData.length; ++i) {
