@@ -85,7 +85,13 @@ class Sample {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            s += pinkNoise.nextValue() * 0.5;
+            /* The noise level was selected so that it will not
+             * be heard during silent parts of the sample. It is
+             * still enough to reduce bit-reduction harmonics by
+             * a couple of decibels.
+             */
+            final double noiseLevel = 0.15;
+            s += pinkNoise.nextValue() * noiseLevel;
             s = Math.max(-128, Math.min(s, 127));
             samples.set(i, s);
         }
