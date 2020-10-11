@@ -71,11 +71,13 @@ class Sample {
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
         ArrayList<Integer> samples = new ArrayList<>();
         while (true) {
-            byte[] sample = new byte[2];
-            if (convertedAis.read(sample) < 2) {
+            byte[] buf = new byte[2];
+            if (convertedAis.read(buf) < 2) {
                 break;
             }
-            samples.add((int)sample[1]); // Drops least significant byte.
+            int sample = buf[1];
+            if (buf[0] < 0) ++sample;
+            samples.add(sample); // Drops least significant byte.
         }
         return samples;
     }
