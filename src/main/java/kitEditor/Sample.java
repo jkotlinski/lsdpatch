@@ -2,7 +2,6 @@ package kitEditor;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -83,10 +82,10 @@ class Sample {
     }
 
     private static void dither(ArrayList<Integer> samples) {
-        Random rnd = new Random();
+        PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            s += rnd.nextGaussian() * 4;
+            s += pinkNoise.nextValue() * 4;
             s = Math.max(-128, Math.min(s, 127));
             samples.set(i, s);
         }
