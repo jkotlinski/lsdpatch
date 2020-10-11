@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Kit Editor: "Add Sample" now automatically resamples, normalizes and dithers the sample. No need to prepare samples using sox anymore.
  - Kit Editor: removed the emulation of wave refresh noise at prelisten.
+ - Kit Editor: skip upsampling during playback.
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.
 

@@ -9,30 +9,20 @@ public class Sound {
 
     private static final ArrayList<Clip> clipPool = new ArrayList<>();
 
-    private static final long WAV_SAMPLE_RATE = 48000L;
-    private static final long LSDJ_SAMPLE_RATE = 11468L;
-
     private static byte[] preProcessNibblesIntoWaveData(byte[] gbSample) {
-        long numSamples = ((long)gbSample.length * WAV_SAMPLE_RATE);
-        long numNibblePairsToWrite = (numSamples/LSDJ_SAMPLE_RATE)*2L;
+        byte[] waveData = new byte[gbSample.length * 2];
+        int src = 0;
+        int dst = 0;
 
-        byte[] upsampledData = new byte[(int) (numNibblePairsToWrite * 2L)];
-
-        for (int i = 0; i < upsampledData.length/2; i++) {
-            double ratio = i / (double) (upsampledData.length/2);
-
-            int sampleIndex = (int) (ratio * gbSample.length);
-            int nibble = (int) (ratio * gbSample.length * 2.) % 2;
-            byte sample = gbSample[sampleIndex];
-            if (nibble == 0)
-                upsampledData[i] = (byte) (0xf0 & sample);
-            else
-                upsampledData[i] = (byte) ((0x0F & sample) << 4);
+        while (src < gbSample.length) {
+            byte sample = gbSample[src++];
+            waveData[dst++] = (byte) (0xf0 & sample);
+            waveData[dst++] = (byte) ((0x0F & sample) << 4);
         }
-        for (int i = upsampledData.length/2; i < upsampledData.length; ++i) {
-            upsampledData[i] = -128;
+        for (int i = waveData.length / 2; i < waveData.length; ++i) {
+            waveData[i] = -128;
         }
-        return upsampledData;
+        return waveData;
     }
 
     private static Clip getClip() throws LineUnavailableException {
@@ -54,7 +44,7 @@ public class Sound {
      */
     @SuppressWarnings("JavaDoc")
     static void play(byte[] gbSample, float volume) throws LineUnavailableException {
-        AudioFormat upsampledFormat = new AudioFormat(48000, 8, 1, false, false);
+        AudioFormat upsampledFormat = new AudioFormat(11468, 8, 1, false, false);
         byte[] upsampledData = preProcessNibblesIntoWaveData(gbSample);
 
         // Play it!
