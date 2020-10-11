@@ -1,7 +1,6 @@
 package Document;
 
 import utils.EditorPreferences;
-import utils.GlobalHolder;
 import utils.RomUtilities;
 
 import java.io.File;
@@ -10,7 +9,6 @@ import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 public class Document {
     private boolean romDirty;
@@ -83,6 +81,9 @@ public class Document {
     }
 
     public LSDSavFile savFile() {
+        if (savFile == null) {
+            return null;
+        }
         try {
             return savFile.clone();
         } catch (CloneNotSupportedException e) {
@@ -91,7 +92,12 @@ public class Document {
     }
 
     public void setSavFile(LSDSavFile savFile) {
-        if (savFile.equals(this.savFile)) {
+        if (savFile == null) {
+            this.savFile = null;
+            setSavDirty(false);
+            return;
+        }
+        if (this.savFile != null && savFile.equals(this.savFile)) {
             return;
         }
         this.savFile = savFile;

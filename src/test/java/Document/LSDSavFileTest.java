@@ -38,4 +38,20 @@ class LSDSavFileTest {
             Assertions.assertTrue(savFile.isValid(song));
         }
     }
+
+    @Test
+    void testClone() throws CloneNotSupportedException {
+        LSDSavFile savFile = new LSDSavFile();
+        LSDSavFile clone = savFile.clone();
+        Assertions.assertNotNull(clone);
+        Assertions.assertNotSame(savFile, clone);
+    }
+
+    @Test
+    void saveAs() throws Exception {
+        LSDSavFile savFile = new LSDSavFile();
+        File file = File.createTempFile("lsdpatcher", ".sav");
+        file.deleteOnExit();
+        savFile.saveAs(file.getAbsolutePath());
+    }
 }
