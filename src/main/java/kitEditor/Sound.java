@@ -28,12 +28,6 @@ public class Sound {
                 upsampledData[i] = (byte) (0xf0 & sample);
             else
                 upsampledData[i] = (byte) ((0x0F & sample) << 4);
-
-            // Emulates Game Boy sound chip bug. While changing waveform,
-            // sound is played back at zero DC. This happens every 32'nd sample.
-            if (sampleIndex % 32 == 0) {
-                upsampledData[i] = 0x78;
-            }
         }
         for (int i = upsampledData.length/2; i < upsampledData.length; ++i) {
             upsampledData[i] = -128;
