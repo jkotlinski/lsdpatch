@@ -230,6 +230,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
             document.setRomFile(new File(romPath));
             document.clearDirty();
             EditorPreferences.setLastPath("gb", romPath);
+            saveButton.setEnabled(false);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     e.getLocalizedMessage(),
