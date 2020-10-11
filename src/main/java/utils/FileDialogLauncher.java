@@ -28,6 +28,16 @@ public class FileDialogLauncher {
 
         if (!fileName.endsWith("." + fileExtension)) {
             fileName += "." + fileExtension;
+            if (mode == FileDialog.SAVE &&
+                    new File(directory + fileName).exists() &&
+                    JOptionPane.showConfirmDialog(parent,
+                            fileName + " already exists.\n" +
+                                    "Do you want to replace it?",
+                            "Confirm Save As",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE) == JOptionPane.NO_OPTION) {
+                return null;
+            }
         }
         String path = directory + fileName;
         EditorPreferences.setLastPath(fileExtension, path);
