@@ -7,26 +7,11 @@ import java.io.File;
 public class FileDialogLauncher {
 
     public static File load(JFrame parent, String title, String fileExtension) {
-        File f = open(parent, title, fileExtension, FileDialog.LOAD);
-        if (f == null) {
-            return null;
-        }
-        if (!f.getName().endsWith("." + fileExtension)) {
-            return null;
-        }
-        return f;
+        return open(parent, title, fileExtension, FileDialog.LOAD);
     }
 
     public static File save(JFrame parent, String title, String fileExtension) {
-        File f = open(parent, title, fileExtension, FileDialog.SAVE);
-        if (f == null) {
-            return null;
-        }
-        String fileName = f.getName();
-        if (!fileName.endsWith("." + fileExtension)) {
-            fileName += "." + fileExtension;
-        }
-        return new File(f.getParent(), fileName);
+        return open(parent, title, fileExtension, FileDialog.SAVE);
     }
 
     private static File open(JFrame parent, String title, String fileExtension, int mode) {
@@ -39,6 +24,10 @@ public class FileDialogLauncher {
         String fileName = fileDialog.getFile();
         if (fileName == null) {
             return null;
+        }
+
+        if (!fileName.endsWith("." + fileExtension)) {
+            fileName += "." + fileExtension;
         }
         String path = directory + fileName;
         EditorPreferences.setLastPath(fileExtension, path);
