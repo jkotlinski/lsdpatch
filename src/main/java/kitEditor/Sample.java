@@ -57,12 +57,16 @@ class Sample {
         ArrayList<Integer> samples = readSamples(file);
         normalize(samples);
         dither(samples);
+        byte[] buf = to8Bit(samples);
+        return new Sample(buf, file.getName());
+    }
 
+    private static byte[] to8Bit(ArrayList<Integer> samples) {
         byte[] buf = new byte[samples.size()];
         for (int i = 0; i < buf.length; ++i) {
-            buf[i] = (byte)(int)samples.get(i);
+            buf[i] = (byte)(samples.get(i) / 256);
         }
-        return new Sample(buf, file.getName());
+        return buf;
     }
 
     private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
@@ -76,8 +80,9 @@ class Sample {
                 break;
             }
             int sample = buf[1];
-            if (buf[0] < 0) ++sample;
-            samples.add(sample); // Drops least significant byte.
+            sample *= 256;
+            sample += (int)buf[0] & 0xff;
+            samples.add(sample);
         }
         return samples;
     }
@@ -91,9 +96,9 @@ class Sample {
              * still enough to reduce bit-reduction harmonics by
              * a couple of decibels.
              */
-            final double noiseLevel = 0.15;
+            final double noiseLevel = 0.15 * 256;
             s += pinkNoise.nextValue() * noiseLevel;
-            s = Math.max(-128, Math.min(s, 127));
+            s = Math.max(Short.MIN_VALUE, Math.min(s, Short.MAX_VALUE));
             samples.set(i, s);
         }
     }
@@ -103,12 +108,12 @@ class Sample {
         for (Integer sample : samples) {
             peak = Math.max(peak, Math.abs(sample));
         }
-        if (peak >= 127 || peak == 0) {
+        if (peak == 0) {
             return;
         }
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            s *= 127;
+            s *= Short.MAX_VALUE;
             s /= peak;
             samples.set(i, s);
         }
