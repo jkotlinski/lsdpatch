@@ -219,16 +219,8 @@ public class KitEditor extends JFrame {
 
     private void playSample(int index) {
 
-        byte[] nibblesForRepaint;
-        byte[] nibblesForPlayback;
-        if (playSpeedToggle.isSelected()) {
-            nibblesForPlayback = get4BitSamples(index, true);
-            nibblesForRepaint = get4BitSamples(index, false);
-        } else {
-            nibblesForPlayback = get4BitSamples(index, false);
-            nibblesForRepaint = nibblesForPlayback;
-
-        }
+        byte[] nibblesForRepaint = get4BitSamples(index, false);
+        byte[] nibblesForPlayback = get4BitSamples(index, playSpeedToggle.isSelected());
         if (nibblesForPlayback == null) {
             return;
         }
