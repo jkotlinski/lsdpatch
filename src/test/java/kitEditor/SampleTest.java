@@ -35,7 +35,7 @@ class SampleTest {
         }
         int avg = sum / sample.length();
         Assertions.assertTrue(avg == 127 || avg == 128);
-        Assertions.assertEquals(0, min);
+        Assertions.assertTrue(min <= 1);
         Assertions.assertEquals(255, max);
     }
 }
