@@ -97,7 +97,7 @@ class Sample {
         for (Integer sample : samples) {
             peak = Math.max(peak, Math.abs(sample));
         }
-        if (peak >= 127) {
+        if (peak >= 127 || peak == 0) {
             return;
         }
         for (int i = 0; i < samples.size(); ++i) {
