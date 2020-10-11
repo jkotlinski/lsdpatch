@@ -9,7 +9,7 @@ public class Sound {
 
     private static final ArrayList<Clip> clipPool = new ArrayList<>();
 
-    private static byte[] preProcessNibblesIntoWaveData(byte[] gbSample) {
+    private static byte[] nibblesToWaveData(byte[] gbSample) {
         byte[] waveData = new byte[gbSample.length * 2];
         int src = 0;
         int dst = 0;
@@ -43,13 +43,12 @@ public class Sound {
      * @throws LineUnavailableException
      */
     @SuppressWarnings("JavaDoc")
-    static void play(byte[] gbSample, float volume) throws LineUnavailableException {
-        AudioFormat upsampledFormat = new AudioFormat(11468, 8, 1, false, false);
-        byte[] upsampledData = preProcessNibblesIntoWaveData(gbSample);
-
-        // Play it!
+    static void play(byte[] gbSample, float volume, boolean halfSpeed) throws LineUnavailableException {
+        final int sampleRate = halfSpeed ? 5734 : 11468;
+        byte[] waveData = nibblesToWaveData(gbSample);
         Clip clip = getClip();
-        clip.open(upsampledFormat, upsampledData, 0, upsampledData.length);
+        AudioFormat audioFormat = new AudioFormat(sampleRate, 8, 1, false, false);
+        clip.open(audioFormat, waveData, 0, waveData.length);
         FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
         float result = 20f * (float) Math.log10(volume);
         control.setValue(result);

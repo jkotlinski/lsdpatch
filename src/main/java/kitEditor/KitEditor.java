@@ -193,40 +193,28 @@ public class KitEditor extends JFrame {
         });
     }
 
-    private byte[] get4BitSamples(int index, boolean halfSpeed) {
+    private byte[] get4BitSamples(int index) {
         int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
         if (stop <= start) {
             return null;
         }
-        byte[] arr;
-        if (halfSpeed) {
-            arr = new byte[(stop - start) * 2];
-            for (int i = start; i < stop; ++i) {
-                arr[(i - start) * 2] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
-                arr[(i - start) * 2 + 1] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
-            }
-
-        } else {
-            arr = new byte[stop - start];
-            for (int i = start; i < stop; ++i) {
-                arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
-            }
+        byte[] arr = new byte[stop - start];
+        for (int i = start; i < stop; ++i) {
+            arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
         }
         return arr;
     }
 
     private void playSample(int index) {
-
-        byte[] nibblesForRepaint = get4BitSamples(index, false);
-        byte[] nibblesForPlayback = get4BitSamples(index, playSpeedToggle.isSelected());
-        if (nibblesForPlayback == null) {
+        byte[] nibbles = get4BitSamples(index);
+        if (nibbles == null) {
             return;
         }
         try {
-            Sound.play(nibblesForPlayback, volumeSlider.getValue()/100.f);
-            sampleView.setBufferContent(nibblesForRepaint);
+            Sound.play(nibbles, volumeSlider.getValue() / 100.f, playSpeedToggle.isSelected());
+            sampleView.setBufferContent(nibbles);
             sampleView.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
@@ -387,7 +375,7 @@ public class KitEditor extends JFrame {
             if (samples[sampleIt] != null) {
                 continue;
             }
-            byte[] nibbles = get4BitSamples(sampleIt, false);
+            byte[] nibbles = get4BitSamples(sampleIt);
 
             if (nibbles != null) {
                 String name = getRomSampleName(sampleIt);
