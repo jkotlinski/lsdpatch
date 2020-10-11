@@ -219,15 +219,17 @@ public class MainWindow extends JFrame implements IDocumentListener {
         try (FileOutputStream fileOutputStream = new FileOutputStream(romPath)) {
             fileOutputStream.write(document.romImage());
             fileOutputStream.close();
-            String savPath = romPath.replace(".gb", ".sav");
-            document.savFile().saveAs(savPath);
+            if (document.savFile() != null) {
+                String savPath = romPath.replace(".gb", ".sav");
+                document.savFile().saveAs(savPath);
+                savTextField.setText(savPath);
+                document.loadSavFile(savPath);
+                EditorPreferences.setLastPath("sav", savPath);
+            }
             romTextField.setText(romPath);
-            savTextField.setText(savPath);
             document.setRomFile(new File(romPath));
-            document.loadSavFile(savPath);
             document.clearDirty();
             EditorPreferences.setLastPath("gb", romPath);
-            EditorPreferences.setLastPath("sav", savPath);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     e.getLocalizedMessage(),
