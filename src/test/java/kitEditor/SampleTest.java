@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URL;
 
 class SampleTest {
@@ -24,5 +23,19 @@ class SampleTest {
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz.wav", sample.getName());
         Assertions.assertEquals(11469, sample.length());
+
+        int sum = 0;
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i < sample.length(); ++i) {
+            int s = sample.read();
+            sum += s;
+            min = Math.min(s, min);
+            max = Math.max(s, max);
+        }
+        int avg = sum / sample.length();
+        Assertions.assertEquals(127, avg);
+        Assertions.assertEquals(0, min);
+        Assertions.assertEquals(255, max);
     }
 }
