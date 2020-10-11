@@ -67,16 +67,15 @@ class Sample {
 
     private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
-        AudioFormat outFormat = new AudioFormat(11468, 8, 1, true, false);
+        AudioFormat outFormat = new AudioFormat(11468, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
         ArrayList<Integer> samples = new ArrayList<>();
         while (true) {
-            int b = convertedAis.read();
-            if (b == -1) {
+            byte[] sample = new byte[2];
+            if (convertedAis.read(sample) < 2) {
                 break;
             }
-            b = (byte)b;
-            samples.add(b);
+            samples.add((int)sample[1]); // Drops least significant byte.
         }
         return samples;
     }
