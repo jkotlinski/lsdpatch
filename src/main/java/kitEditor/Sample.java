@@ -85,7 +85,7 @@ class Sample {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            s += pinkNoise.nextValue() * 4;
+            s += pinkNoise.nextValue() * 0.5;
             s = Math.max(-128, Math.min(s, 127));
             samples.set(i, s);
         }
