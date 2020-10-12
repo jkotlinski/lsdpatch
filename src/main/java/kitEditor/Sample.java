@@ -94,7 +94,7 @@ class Sample {
              * still enough to reduce bit-reduction harmonics by
              * a couple of decibels.
              */
-            final double noiseLevel = 0.15 * 256;
+            final double noiseLevel = 0.2 * 256;
             s += pinkNoise.nextValue() * noiseLevel;
             s = Math.max(Short.MIN_VALUE, Math.min(s, Short.MAX_VALUE));
             samples.set(i, s);
