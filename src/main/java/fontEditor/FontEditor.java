@@ -20,7 +20,7 @@ import utils.FileDialogLauncher;
 import utils.FontIO;
 import utils.RomUtilities;
 
-public class FontEditor extends JFrame implements FontMap.TileSelectListener, TileEditor.TileChangedListener {
+public class FontEditor extends JFrame implements FontMap.TileSelectListener, FontMap.GfxTileSelectListener, TileEditor.TileChangedListener {
 
     private static final long serialVersionUID = 5296681614787155252L;
 
@@ -120,6 +120,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setPreferredSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setTileSelectListener(this);
+        fontMap.setGfxTileSelectListener(this);
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
         constraints.gridy = 4;
@@ -212,7 +213,9 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         fontMap.setRomImage(romImage);
+        fontMap.setGfxCharOffset(RomUtilities.findGfxFontOffset(romImage));
         tileEditor.setRomImage(romImage);
+        tileEditor.setGfxDataOffset(RomUtilities.findGfxFontOffset(romImage));
 
         fontOffset = RomUtilities.findFontOffset(romImage);
         if (fontOffset == -1) {
@@ -253,6 +256,12 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
 
     public void tileSelected(int tile) {
         tileEditor.setTile(tile);
+    }
+
+
+    @Override
+    public void gfxTileSelected(int tile) {
+        tileEditor.setGfxTile(tile);
     }
 
     public void tileChanged() {

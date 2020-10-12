@@ -9,15 +9,24 @@ import java.awt.image.BufferedImage;
  * @author Eiyeron
  */
 public class LSDJFont extends ROMDataManipulator {
-    public static final int FONT_NUM_TILES_X = 8;
-    public static final int FONT_NUM_TILES_Y = 9;
-    public static final int FONT_MAP_WIDTH = FONT_NUM_TILES_X * 8;
-    public static final int FONT_MAP_HEIGHT = FONT_NUM_TILES_Y * 8;
     public static final int TILE_COUNT = 71;
+    public static final int GFX_TILE_COUNT = 46;
+    public static final int FONT_NUM_TILES_X = 8;
+    public static final int FONT_NUM_TILES_Y = (int)Math.ceil(TILE_COUNT/ (float)FONT_NUM_TILES_X);
+    public static final int GFX_FONT_NUM_TILES_Y = (int)Math.ceil((TILE_COUNT + GFX_TILE_COUNT)/ (float)FONT_NUM_TILES_X);
+    public static final int FONT_MAP_WIDTH = FONT_NUM_TILES_X * 8;
+    public static final int FONT_MAP_HEIGHT = (GFX_FONT_NUM_TILES_Y) * 8;
     public static final int FONT_HEADER_SIZE = 130;
     public static final int FONT_COUNT = 3;
     public static final int FONT_SIZE = 0xe96;
     public static final int FONT_NAME_LENGTH = 4;
+    public static final int FONT_TILE_SIZE = 16;
+
+    private int gfxDataOffset = -1;
+
+    public void setGfxDataOffset(int gfxDataOffset) {
+        this.gfxDataOffset = gfxDataOffset;
+    }
 
     public LSDJFont() {
     }
@@ -28,7 +37,16 @@ public class LSDJFont extends ROMDataManipulator {
             // TODO exception?
             return -1;
         }
-        return getDataOffset() + index * 16;
+        return getDataOffset() + index * FONT_TILE_SIZE;
+    }
+
+    private int getGfxTileDataLocation(int index) {
+        if (index < 0 || index >= GFX_TILE_COUNT)
+        {
+            // TODO exception?
+            return -1;
+        }
+        return gfxDataOffset + index * FONT_TILE_SIZE;
     }
 
     public int getPixel(int x, int y) {
@@ -43,16 +61,32 @@ public class LSDJFont extends ROMDataManipulator {
         return value;
     }
 
+    public int getGfxPixel(int x, int y) {
+        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= FONT_MAP_HEIGHT)
+            return -1;
+
+        int tileToRead = (y / 8) * 8 + x / 8;
+        int tileOffset = getGfxTileDataLocation(tileToRead) + (y % 8) * 2;
+        int xMask = 7 - (x % 8);
+        int value = (romImage[tileOffset] >> xMask) & 1;
+        value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
+        return value;
+    }
+
     // - Tile data manipulation -
     // Note : those functions only affect the normal variant tileset.
     // In the future it might be good to either provide alternative functions
     // or to extend them to allow editing the other variants too.
 
+    public int getGfxTilePixel(int tile, int x, int y) {
+        return getGfxPixel((tile % FONT_NUM_TILES_X) * 8 + (x % 8), (tile / FONT_NUM_TILES_X) * 8 + (y % 8));
+    }
+
     public int getTilePixel(int tile, int localX, int localY) {
         return getPixel((tile % FONT_NUM_TILES_X) * 8 + (localX % 8), (tile / FONT_NUM_TILES_X) * 8 + (localY % 8));
     }
 
-    private void setPixel(int x, int y, int color) {
+    private void setPixel(int x, int y, int color, Boolean editGfxCharacter) {
         assert color >= 1 && color <= 3;
         if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= FONT_MAP_HEIGHT)
             return;
@@ -60,7 +94,7 @@ public class LSDJFont extends ROMDataManipulator {
         int localY = y % 8;
         int tileToEdit = (y / 8) * 8 + x / 8;
 
-        int tileOffset = getTileDataLocation(tileToEdit) + localY * 2;
+        int tileOffset = (editGfxCharacter ? getGfxTileDataLocation(tileToEdit) : getTileDataLocation(tileToEdit)) + localY * 2;
         int xMask = 0x80 >> localX;
         romImage[tileOffset] &= 0xff ^ xMask;
         romImage[tileOffset + 1] &= 0xff ^ xMask;
@@ -72,8 +106,8 @@ public class LSDJFont extends ROMDataManipulator {
         }
     }
 
-    public void setTilePixel(int tile, int localX, int localY, int color) {
-        setPixel((tile % FONT_NUM_TILES_X) * 8 + (localX % 8), (tile / FONT_NUM_TILES_X) * 8 + (localY % 8), color);
+    public void setTilePixel(int tile, int localX, int localY, int color, Boolean editGfxCharacter) {
+        setPixel((tile % FONT_NUM_TILES_X) * 8 + (localX % 8), (tile / FONT_NUM_TILES_X) * 8 + (localY % 8), color, editGfxCharacter);
     }
 
     public void rotateTileUp(int tile) {
@@ -106,7 +140,7 @@ public class LSDJFont extends ROMDataManipulator {
 
     public void rotateTileRight(int tile) {
         int tileOffset = getTileDataLocation(tile);
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < FONT_TILE_SIZE; i++) {
             byte currentByte = romImage[tileOffset + i];
             byte shiftedByte = (byte) (((currentByte & 1) << 7) | ((currentByte >> 1) & 0x7F));
             romImage[tileOffset + i] = shiftedByte;
@@ -115,7 +149,7 @@ public class LSDJFont extends ROMDataManipulator {
 
     public void rotateTileLeft(int tile) {
         int tileOffset = getTileDataLocation(tile);
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < FONT_TILE_SIZE; i++) {
             byte currentByte = romImage[tileOffset + i];
             byte shiftedByte = (byte) (((currentByte & 0x80) >> 7) | (currentByte << 1));
             romImage[tileOffset + i] = shiftedByte;
@@ -140,7 +174,7 @@ public class LSDJFont extends ROMDataManipulator {
         }
         int sourceLocation = getTileDataLocation(index); // The two first tiles are not mirrored.
         int invertedLocation = sourceLocation + 0x4d2;
-        for (int i = 0; i < 16; i += 2) {
+        for (int i = 0; i < FONT_TILE_SIZE; i += 2) {
             romImage[invertedLocation + i] = (byte) ~romImage[sourceLocation + i + 1];
             romImage[invertedLocation + i + 1] = (byte) ~romImage[sourceLocation + i];
         }
@@ -154,7 +188,7 @@ public class LSDJFont extends ROMDataManipulator {
         }
         int sourceLocation = getTileDataLocation(index); // The two first tiles are not mirrored.
         int shadedLocation = sourceLocation + 0x4d2 * 2;
-        for (int i = 0; i < 16; i += 2) {
+        for (int i = 0; i < FONT_TILE_SIZE; i += 2) {
             int sourceByte = romImage[sourceLocation + i];
             if (i % 4 == 2) {
                 romImage[shadedLocation + i] = (byte)(sourceByte | 0xaa);
@@ -166,10 +200,13 @@ public class LSDJFont extends ROMDataManipulator {
     }
 
     public String loadImageData(String name, BufferedImage image) {
+        int numTiles = image.getHeight()/8 * image.getWidth()/8;
+        // Limiting to either loading text tiles or load all tiles. No partial graphical tiles loading.
+        int maxTileIndex = numTiles < LSDJFont.GFX_TILE_COUNT + LSDJFont.TILE_COUNT ? LSDJFont.TILE_COUNT :LSDJFont.TILE_COUNT + LSDJFont.GFX_TILE_COUNT;
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int currentTileIndex = (y / 8) * 8 + x / 8;
-                if (currentTileIndex >= LSDJFont.TILE_COUNT) break;
+                if (currentTileIndex >= maxTileIndex) break;
                 int rgb = image.getRGB(x, y);
                 float[] color = Color.RGBtoHSB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, null);
                 int lum = (int) (color[2] * 255);
@@ -181,7 +218,11 @@ public class LSDJFont extends ROMDataManipulator {
                     col = 2;
                 else if (lum >= 0)
                     col = 3;
-                setPixel(x, y, col);
+                if (currentTileIndex >= LSDJFont.TILE_COUNT) {
+                    setTilePixel(currentTileIndex - LSDJFont.TILE_COUNT, x%8, y%8, col, true);
+                } else {
+                    setTilePixel(currentTileIndex, x%8, y%8, col, false);
+                }
             }
         }
         StringBuilder sub;
@@ -200,9 +241,15 @@ public class LSDJFont extends ROMDataManipulator {
         for (int y = 0; y < LSDJFont.FONT_MAP_HEIGHT; y++) {
             for (int x = 0; x < LSDJFont.FONT_MAP_WIDTH; x++) {
                 int tileToRead = (y / 8) * 8 + x / 8;
-                if (tileToRead >= TILE_COUNT)
+                if (tileToRead >= TILE_COUNT + GFX_TILE_COUNT)
                     break;
-                int color = getPixel(x, y);
+                int color;
+                if (tileToRead >= TILE_COUNT) {
+                    color = getGfxTilePixel(tileToRead - TILE_COUNT, x%8, y%8);
+                }
+                else {
+                    color = getTilePixel(tileToRead, x%8, y%8);
+                }
                 switch (color) {
                     case 1:
                         image.setRGB(x, y, 0x808080);
