@@ -109,23 +109,23 @@ public class RomUtilities {
         }
 
         return baseOffset + 5 * getNumberOfPalettes(romImage);
+    }
 
+    // Returns address of first graphics character.
+    public static int findGfxFontOffset(byte[] romImage) {
+        for (int i = 30 * 0x4000; i < 31 * 0x4000; ++i) {
+            if (romImage[i] == 1 && romImage[i + 1] == 46 && romImage[i + 2] == 0 && romImage[i + 3] == 1) {
+                return i + 2 + 8 * 16;
+            }
+        }
+        return -1;
     }
 
     public static int findFontOffset(byte[] romImage) {
-        int i = 30 * 0x4000; // Bank 30.
-        while (i < 31 * 0x4000) {
-            // Looks for the end of graphics font.
-            if (romImage[i] == 0 && romImage[i + 1] == 0 && romImage[i + 2] == 0 && romImage[i + 3] == 0
-                    && romImage[i + 4] == (byte) 0xd0 && romImage[i + 5] == (byte) 0x90 && romImage[i + 6] == 0x50
-                    && romImage[i + 7] == 0x50 && romImage[i + 8] == 0x50 && romImage[i + 9] == 0x50
-                    && romImage[i + 10] == 0x50 && romImage[i + 11] == 0x50 && romImage[i + 12] == (byte) 0xd0
-                    && romImage[i + 13] == (byte) 0x90 && romImage[i + 14] == 0 && romImage[i + 15] == 0) {
-                return i + 16;
-            }
-            ++i;
-        }
-        return -1;
+        int gfxOffset = findGfxFontOffset(romImage);
+        int gfxCharacterCount = 46;
+        int gfxCharacterSize = 16;
+        return gfxOffset == -1 ? -1 : gfxOffset + gfxCharacterCount * gfxCharacterSize;
     }
 
     public static int findFontNameOffset(byte[] romImage) {
