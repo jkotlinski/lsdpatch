@@ -64,6 +64,17 @@ class Sample {
         for (int i = 0; i < samples.size(); ++i) {
             samplesInt[i] = samples.get(i);
         }
+
+        // Due to Game Boy audio bug, the first sample in a frame is played
+        // back using the same value as a sample in previous frame.
+        // To reduce error, let's try to average these samples.
+        for (int i = 0x20; i < samplesInt.length; i += 0x20) {
+            int n = 3; // Tested on DMG-01 with 240 Hz sine wave.
+            int avg = (samplesInt[i] + samplesInt[i - n]) / 2;
+            samplesInt[i] = avg;
+            samplesInt[i - n] = avg;
+        }
+
         return new Sample(samplesInt, file.getName());
     }
 
