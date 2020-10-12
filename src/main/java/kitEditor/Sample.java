@@ -10,11 +10,15 @@ import javax.swing.*;
 
 class Sample {
     private final String name;
-    private final byte[] buf;
+    private final int[] intBuf; // Signed 16-bit PCM.
     private int readPos;
 
-    private Sample(byte[] iBuf, String iName) {
-        buf = iBuf;
+    private Sample(int[] iBuf, String iName) {
+        for (int j : iBuf) {
+            assert (j >= Short.MIN_VALUE);
+            assert (j <= Short.MAX_VALUE);
+        }
+        intBuf = iBuf;
         name = iName;
     }
 
@@ -23,30 +27,29 @@ class Sample {
     }
 
     int length() {
-        return buf.length;
+        return intBuf.length;
     }
 
     void seekStart() {
         readPos = 0;
     }
 
-    int read() {
-        int val = buf[readPos++];
-        // Converts from signed to unsigned 8-bit.
-        val += 0x80;
-        return val;
+    int readInt() {
+        return intBuf[readPos++];
     }
 
     // ------------------
 
     static Sample createFromNibbles(byte[] nibbles, String name) {
-        byte[] buf = new byte[nibbles.length * 2];
+        int[] buf = new int[nibbles.length * 2];
         for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
             buf[2 * nibbleIt] = (byte) (nibbles[nibbleIt] & 0xf0);
             buf[2 * nibbleIt + 1] = (byte) ((nibbles[nibbleIt] & 0xf) << 4);
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
-            buf[bufIt] -= 0x80;
+            int s = (byte)(buf[bufIt] - 0x80);
+            s *= 256;
+            buf[bufIt] = s;
         }
         return new Sample(buf, name);
     }
@@ -57,16 +60,11 @@ class Sample {
         ArrayList<Integer> samples = readSamples(file);
         normalize(samples);
         dither(samples);
-        byte[] buf = to8Bit(samples);
-        return new Sample(buf, file.getName());
-    }
-
-    private static byte[] to8Bit(ArrayList<Integer> samples) {
-        byte[] buf = new byte[samples.size()];
-        for (int i = 0; i < buf.length; ++i) {
-            buf[i] = (byte)(samples.get(i) / 256);
+        int[] samplesInt = new int[samples.size()];
+        for (int i = 0; i < samples.size(); ++i) {
+            samplesInt[i] = samples.get(i);
         }
-        return buf;
+        return new Sample(samplesInt, file.getName());
     }
 
     private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
@@ -113,8 +111,10 @@ class Sample {
         }
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            s *= Short.MAX_VALUE;
+            // Adds DC offset to avoid dithering noise on silent samples.
+            s *= Short.MAX_VALUE - 512;
             s /= peak;
+            s += 256;
             samples.set(i, s);
         }
     }
@@ -125,8 +125,8 @@ class Sample {
         try {
             RandomAccessFile wavFile = new RandomAccessFile(f, "rw");
 
-            int payloadSize = buf.length;
-            int fileSize = buf.length + 0x2c;
+            int payloadSize = intBuf.length;
+            int fileSize = intBuf.length + 0x2c;
             int waveSize = fileSize - 8;
 
             byte[] header = {
@@ -155,9 +155,9 @@ class Sample {
 
             wavFile.write(header);
 
-            byte[] unsigned = new byte[buf.length];
-            for (int it = 0; it < buf.length; ++it) {
-                unsigned[it] = (byte) ((int) buf[it] + 0x80);
+            byte[] unsigned = new byte[intBuf.length];
+            for (int it = 0; it < intBuf.length; ++it) {
+                unsigned[it] = (byte) (intBuf[it] / 256 + 0x80);
             }
             wavFile.write(unsigned);
             wavFile.close();

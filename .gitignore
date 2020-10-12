@@ -8,4 +8,6 @@ target
 
 *.gb
 *.sav
+*.wav
+*.raw
 ./*.lsdprj

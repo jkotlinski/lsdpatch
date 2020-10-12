@@ -28,7 +28,7 @@ class SampleTest {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
         for (int i = 0; i < sample.length(); ++i) {
-            int s = sample.read();
+            int s = sample.readInt();
             sum += s;
             min = Math.min(s, min);
             max = Math.max(s, max);
