@@ -18,6 +18,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainWindow extends JFrame implements IDocumentListener {
     JTextField romTextField = new JTextField();
@@ -231,9 +232,9 @@ public class MainWindow extends JFrame implements IDocumentListener {
             document.clearDirty();
             EditorPreferences.setLastPath("gb", romPath);
             saveButton.setEnabled(false);
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "File save failed!",
                     JOptionPane.ERROR_MESSAGE);
         }

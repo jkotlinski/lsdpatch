@@ -532,7 +532,7 @@ public class KitEditor extends JFrame {
             sample = Sample.createFromWav(wavFile, true);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(contentPane,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "Sample load failed!",
                     JOptionPane.ERROR_MESSAGE);
             return;

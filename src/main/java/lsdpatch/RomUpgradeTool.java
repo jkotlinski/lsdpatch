@@ -110,7 +110,7 @@ public class RomUpgradeTool extends JFrame {
             importAll();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "Fetching new version failed!",
                     JOptionPane.ERROR_MESSAGE);
         }

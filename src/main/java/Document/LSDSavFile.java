@@ -63,7 +63,7 @@ public class LSDSavFile implements Cloneable {
         return isSixtyFourKbRam() ? 0xbf - 0x80 : 0xbf;
     }
 
-    public void saveAs(String filePath) throws Exception {
+    public void saveAs(String filePath) throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
             if (isSixtyFourKbRam()) {
                 System.arraycopy(workRam, 0, workRam, 65536, 0x10000);
@@ -268,7 +268,7 @@ public class LSDSavFile implements Cloneable {
             file.close();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "Song export failed!",
                     JOptionPane.ERROR_MESSAGE);
         }
