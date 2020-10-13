@@ -90,11 +90,9 @@ class Sample {
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
             /* The noise level was selected so that it will not
-             * be heard during silent parts of the sample. It is
-             * still enough to reduce bit-reduction harmonics by
-             * a couple of decibels.
+             * be heard during silent parts of the sample.
              */
-            final double noiseLevel = 0.2 * 256;
+            final double noiseLevel = 256 * 1.5;
             s += pinkNoise.nextValue() * noiseLevel;
             s = Math.max(Short.MIN_VALUE, Math.min(s, Short.MAX_VALUE));
             samples.set(i, s);
@@ -106,15 +104,13 @@ class Sample {
         for (Integer sample : samples) {
             peak = Math.max(peak, Math.abs(sample));
         }
-        if (peak == 0) {
+        if (peak == 0 || peak >= Short.MAX_VALUE) {
             return;
         }
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            // Adds DC offset to avoid dithering noise on silent samples.
-            s *= Short.MAX_VALUE - 512;
+            s *= Short.MAX_VALUE;
             s /= peak;
-            s += 256;
             samples.set(i, s);
         }
     }

@@ -24,7 +24,7 @@ class SampleTest {
         Assertions.assertEquals("sine1s44khz.wav", sample.getName());
         Assertions.assertEquals(11469, sample.length());
 
-        int sum = 0;
+        double sum = 0;
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
         for (int i = 0; i < sample.length(); ++i) {
@@ -33,9 +33,9 @@ class SampleTest {
             min = Math.min(s, min);
             max = Math.max(s, max);
         }
-        int avg = sum / sample.length();
-        Assertions.assertTrue(avg == 127 || avg == 128);
-        Assertions.assertTrue(min <= 1);
-        Assertions.assertEquals(255, max);
+        double avg = sum / sample.length();
+        Assertions.assertTrue(Math.abs(avg) <= 5);
+        Assertions.assertEquals(Short.MIN_VALUE, min);
+        Assertions.assertEquals(Short.MAX_VALUE, max);
     }
 }

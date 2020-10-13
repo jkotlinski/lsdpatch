@@ -23,14 +23,7 @@ class sbc {
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
                 int s = sample.readInt();
-                s -= Short.MIN_VALUE;
-                s /= 256 * 16;
-
-                /*
-                //this is to get middle at 7.5 instead of 8.0
-                outputBuffer[outputCounter]*=0xe;
-                outputBuffer[outputCounter]/=0xf;
-                */
+                s = (int)(Math.round((double)s / (256 * 16) + 8));
 
                 //range check
                 s = Math.min(0xf, s);
