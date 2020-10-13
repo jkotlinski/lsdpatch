@@ -141,7 +141,7 @@ public class CommandLineFunctions {
             destinationFile.readFully(destinationRomFile);
 
             if (RomUtilities.getNumberOfPalettes(originRomFile) > RomUtilities.getNumberOfPalettes(destinationRomFile)) {
-                System.err.print("Warning: Palettes skipped due to lack of space!");
+                System.err.println("Warning: Palettes skipped due to lack of space!");
             }
 
             {
