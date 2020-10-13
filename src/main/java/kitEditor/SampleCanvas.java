@@ -1,4 +1,4 @@
-package utils;
+package kitEditor;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -6,8 +6,7 @@ import java.awt.geom.GeneralPath;
 public class SampleCanvas extends Canvas {
     byte[] buf;
 
-    public void setBufferContent(byte[] newBuffer)
-    {
+    public void setBufferContent(byte[] newBuffer) {
         buf = newBuffer;
         setBackground(Color.black);
     }
