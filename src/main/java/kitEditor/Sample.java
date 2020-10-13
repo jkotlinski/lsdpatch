@@ -56,10 +56,12 @@ class Sample {
 
     // ------------------
 
-    static Sample createFromWav(File file) throws IOException, UnsupportedAudioFileException {
+    static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
         ArrayList<Integer> samples = readSamples(file);
         normalize(samples);
-        dither(samples);
+        if (dither) {
+            dither(samples);
+        }
         int[] samplesInt = new int[samples.size()];
         for (int i = 0; i < samples.size(); ++i) {
             samplesInt[i] = samples.get(i);
@@ -97,18 +99,17 @@ class Sample {
     }
 
     private static void normalize(ArrayList<Integer> samples) {
-        int peak = Integer.MIN_VALUE;
+        double peak = Double.MIN_VALUE;
         for (Integer sample : samples) {
-            peak = Math.max(peak, Math.abs(sample));
+            double s = sample;
+            s = s < 0 ? s / Short.MIN_VALUE : s / Short.MAX_VALUE;
+            peak = Math.max(s, peak);
         }
-        if (peak == 0 || peak >= Short.MAX_VALUE) {
+        if (peak == 0) {
             return;
         }
         for (int i = 0; i < samples.size(); ++i) {
-            int s = samples.get(i);
-            s *= Short.MAX_VALUE;
-            s /= peak;
-            samples.set(i, s);
+            samples.set(i, (int)(samples.get(i) / peak));
         }
     }
 
