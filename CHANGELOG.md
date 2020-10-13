@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: improved sound playback quality.
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.
+ - Improved command line feedback.
 
 ## [1.7.0] - 2020-10-06
 ### Fixed
