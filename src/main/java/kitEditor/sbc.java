@@ -23,11 +23,8 @@ class sbc {
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
                 int s = sample.readInt();
-                s = (int)(Math.round((double)s / (256 * 16) + 8));
-
-                //range check
-                s = Math.min(0xf, s);
-                s = Math.max(0, s);
+                s = (int)(Math.round((double)s / (256 * 16) + 7.5));
+                s = Math.min(0xf, Math.max(0, s));
                 outputBuffer[outputCounter] = s;
 
                 if (outputCounter == 31) {

@@ -89,8 +89,7 @@ class Sample {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            // The highest level that is not audible during absolute silence.
-            final double noiseLevel = 256 * 1.5;
+            final double noiseLevel = 256 * 4; // ad hoc.
             s += pinkNoise.nextValue() * noiseLevel;
             s = Math.max(Short.MIN_VALUE, Math.min(s, Short.MAX_VALUE));
             samples.set(i, s);
