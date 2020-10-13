@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: when adding samples, blend between wave frames to reduce impact of the [Game Boy wave refresh bug](https://www.devrs.com/gb/files/gbsnd3.gif).
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.
+ - Improved command line feedback.
 
 ## [1.7.0] - 2020-10-06
 ### Fixed

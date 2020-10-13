@@ -101,7 +101,6 @@ public class LSDPatcher {
 
     private static void processArguments(String[] args) {
         String command = args[0].toLowerCase();
-
         if (command.compareTo("fnt2png") == 0 && args.length == 3) {
             CommandLineFunctions.fontToPng(args[1], args[2]);
         } else if (command.compareTo("png2fnt") == 0 && args.length == 4) {
@@ -115,10 +114,9 @@ public class LSDPatcher {
         } else if (command.compareTo("clone") == 0 && args.length == 3) {
             // -1 to allow 1-3 range instead of 0-2
             CommandLineFunctions.copyAllCustomizations(args[1], args[2]);
+        } else {
+            usage();
         }
-
-        usage();
-
     }
 
 }

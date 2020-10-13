@@ -16,7 +16,7 @@ class SampleTest {
         File file = new File(url.getFile());
         Sample sample = null;
         try {
-            sample = Sample.createFromWav(file);
+            sample = Sample.createFromWav(file, false);
         } catch (Exception e) {
             Assertions.fail(e);
         }
@@ -34,8 +34,8 @@ class SampleTest {
             max = Math.max(s, max);
         }
         int avg = sum / sample.length();
-        Assertions.assertTrue(avg == 127 || avg == 128);
-        Assertions.assertTrue(min <= 1);
-        Assertions.assertEquals(255, max);
+        Assertions.assertEquals(0, avg);
+        Assertions.assertEquals(Short.MIN_VALUE, min);
+        Assertions.assertEquals(32765, max);
     }
 }

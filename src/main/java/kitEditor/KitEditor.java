@@ -529,7 +529,7 @@ public class KitEditor extends JFrame {
 
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile);
+            sample = Sample.createFromWav(wavFile, true);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(contentPane,
                     e.getLocalizedMessage(),

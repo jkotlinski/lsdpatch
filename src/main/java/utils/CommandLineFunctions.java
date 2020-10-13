@@ -28,6 +28,8 @@ public class CommandLineFunctions {
             String sub = font.loadImageData(name, image);
 
             FontIO.saveFnt(new File(fntFile), sub, buffer);
+
+            System.out.println("OK!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,6 +44,7 @@ public class CommandLineFunctions {
             font.setDataOffset(0);
             BufferedImage image = font.saveDataToImage();
             ImageIO.write(image, "PNG", new File(pngFile));
+            System.out.println("OK!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,6 +70,7 @@ public class CommandLineFunctions {
             BufferedImage image = font.saveDataToImage();
             ImageIO.write(image, "PNG", new File(RomUtilities.getFontName(romImage, numFont) + ".png"));
 
+            System.out.println("OK!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -96,6 +100,7 @@ public class CommandLineFunctions {
             romFile.write(romImage);
             romFile.close();
 
+            System.out.println("OK!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -135,18 +140,13 @@ public class CommandLineFunctions {
             RandomAccessFile destinationFile = new RandomAccessFile(new File(destinationFileName), "rw");
             destinationFile.readFully(destinationRomFile);
 
-
-            if (RomUtilities.getNumberOfPalettes(originRomFile) > RomUtilities.getNumberOfPalettes(destinationRomFile))
-            {
-                System.err.printf("Destination file doesn't have enough palettes slots to import all from the origin rom. Aborting.");
-                return;
+            if (RomUtilities.getNumberOfPalettes(originRomFile) > RomUtilities.getNumberOfPalettes(destinationRomFile)) {
+                System.err.println("Warning: Palettes skipped due to lack of space!");
             }
-
 
             {
                 int inBaseFontOffset = RomUtilities.findFontOffset(originRomFile);
                 int outBaseFontOffset = RomUtilities.findFontOffset(destinationRomFile);
-
 
                 System.arraycopy(originRomFile, inBaseFontOffset, destinationRomFile, outBaseFontOffset,
                         (LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE) * LSDJFont.FONT_COUNT);
@@ -158,15 +158,17 @@ public class CommandLineFunctions {
             }
 
             {
+                int paletteCount = Math.min(RomUtilities.getNumberOfPalettes(originRomFile),
+                        RomUtilities.getNumberOfPalettes(destinationRomFile));
                 int inPaletteOffset = RomUtilities.findPaletteOffset(originRomFile);
                 int outPaletteOffset = RomUtilities.findPaletteOffset(destinationRomFile);
                 System.arraycopy(originRomFile, inPaletteOffset, destinationRomFile, outPaletteOffset,
-                        RomUtilities.PALETTE_SIZE * RomUtilities.getNumberOfPalettes(originRomFile));
+                        RomUtilities.PALETTE_SIZE * paletteCount);
 
                 int inPaletteNameOffset = RomUtilities.findPaletteNameOffset(originRomFile);
                 int outPaletteNameOffset = RomUtilities.findPaletteNameOffset(destinationRomFile);
                 System.arraycopy(originRomFile, inPaletteNameOffset, destinationRomFile, outPaletteNameOffset,
-                        RomUtilities.PALETTE_NAME_SIZE * RomUtilities.getNumberOfPalettes(originRomFile));
+                        RomUtilities.PALETTE_NAME_SIZE * paletteCount);
             }
 
             Vector<Integer> inKitsToCopy = new Vector<>();
@@ -208,11 +210,10 @@ public class CommandLineFunctions {
             destinationFile.write(destinationRomFile);
             destinationFile.close();
 
-
+            System.out.println("OK!");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 }
