@@ -72,23 +72,16 @@ public class KitEditor extends JFrame {
 
     private void setListeners() {
         bankBox.addActionListener(bankBoxListener);
-
         instrList.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                if (!playSampleToggle.isSelected()) {
-                    return;
-                }
-                if (romImage != null) {
-                    int index = instrList.locationToIndex(e.getPoint());
-
-                    boolean hasIndex = (index > -1);
-                    if (hasIndex) {
-                        playSample(index);
-                    }
-                    dropSampleButton.setEnabled(hasIndex);
-                    exportSampleButton.setEnabled(hasIndex);
-                }
+                playSample();
             }
+        });
+        instrList.addListSelectionListener(e -> {
+            int index = instrList.getSelectedIndex();
+            boolean enable = index >= 0 && samples[index] != null;
+            dropSampleButton.setEnabled(enable);
+            exportSampleButton.setEnabled(enable);
         });
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
@@ -96,7 +89,6 @@ public class KitEditor extends JFrame {
         renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
-
         addSampleButton.addActionListener(e -> selectSampleToAdd());
         dropSampleButton.addActionListener(e -> dropSample());
     }
@@ -194,6 +186,9 @@ public class KitEditor extends JFrame {
     }
 
     private byte[] getNibbles(int index) {
+        if (index < 0) {
+            return null;
+        }
         int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
@@ -207,8 +202,11 @@ public class KitEditor extends JFrame {
         return arr;
     }
 
-    private void playSample(int index) {
-        byte[] nibbles = getNibbles(index);
+    private void playSample() {
+        if (!playSampleToggle.isSelected()) {
+            return;
+        }
+        byte[] nibbles = getNibbles(instrList.getSelectedIndex());
         if (nibbles == null) {
             return;
         }
