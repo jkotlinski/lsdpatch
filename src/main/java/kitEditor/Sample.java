@@ -8,33 +8,42 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 class Sample {
+    private final File file;
     private final String name;
-    private final short[] samples; // Signed 16-bit PCM.
+    private short[] samples;
     private int readPos;
+    private int volumeDb = 0;
 
-    private Sample(short[] iBuf, String iName) {
-        for (int j : iBuf) {
-            assert (j >= Short.MIN_VALUE);
-            assert (j <= Short.MAX_VALUE);
+    private Sample(File file, short[] iBuf, String iName) {
+        this.file = file;
+        if (iBuf != null) {
+            for (int j : iBuf) {
+                assert (j >= Short.MIN_VALUE);
+                assert (j <= Short.MAX_VALUE);
+            }
+            samples = iBuf;
         }
-        samples = iBuf;
         name = iName;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    int length() {
+    public int length() {
         return samples.length;
     }
 
-    void seekStart() {
+    public void seekStart() {
         readPos = 0;
     }
 
-    short read() {
+    public short read() {
         return samples[readPos++];
+    }
+
+    public boolean canAdjustVolume() {
+        return file != null;
     }
 
     // ------------------
@@ -50,47 +59,54 @@ class Sample {
             s *= 256;
             buf[bufIt] = s;
         }
-        return new Sample(buf, name);
+        return new Sample(null, buf, name);
     }
 
     // ------------------
 
     static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
-        ArrayList<Short> samples = readSamples(file);
+        Sample s = new Sample(file, null, file.getName());
+        s.readFromFile(dither);
+        return s;
+    }
+
+    private void readFromFile(boolean dither) throws IOException, UnsupportedAudioFileException {
+        ArrayList<Integer> samples = readSamples(file);
         normalize(samples);
         if (dither) {
             dither(samples);
         }
-        short[] shortSamples = new short[samples.size()];
+        this.samples = new short[samples.size()];
         for (int i = 0; i < samples.size(); ++i) {
-            shortSamples[i] = samples.get(i);
+            this.samples[i] = (short)Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, samples.get(i)));
         }
-
-        /* Due to Game Boy audio bug, the first sample in a frame is played
-         * back using the same value as the last completed sample in previous
-         * frame. To reduce error, average these samples.
-         */
-        for (int i = 0x20; i < shortSamples.length; i += 0x20) {
-            int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
-            short avg = (short) ((shortSamples[i] + shortSamples[i - n]) / 2);
-            shortSamples[i] = avg;
-            shortSamples[i - n] = avg;
-        }
-
-        return new Sample(shortSamples, file.getName());
+        blendWaveFrames();
     }
 
-    private static ArrayList<Short> readSamples(File file) throws UnsupportedAudioFileException, IOException {
+    /* Due to Game Boy audio bug, the first sample in a frame is played
+     * back using the same value as the last completed sample in previous
+     * frame. To reduce error, average these samples.
+     */
+    private void blendWaveFrames() {
+        for (int i = 0x20; i < samples.length; i += 0x20) {
+            int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
+            short avg = (short) ((samples[i] + samples[i - n]) / 2);
+            samples[i] = avg;
+            samples[i - n] = avg;
+        }
+    }
+
+    private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         AudioFormat outFormat = new AudioFormat(11468, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
-        ArrayList<Short> samples = new ArrayList<>();
+        ArrayList<Integer> samples = new ArrayList<>();
         while (true) {
             byte[] buf = new byte[2];
             if (convertedAis.read(buf) < 2) {
                 break;
             }
-            short sample = buf[1];
+            int sample = buf[1];
             sample *= 256;
             sample += (int)buf[0] & 0xff;
             samples.add(sample);
@@ -98,20 +114,19 @@ class Sample {
         return samples;
     }
 
-    private static void dither(ArrayList<Short> samples) {
+    private static void dither(ArrayList<Integer> samples) {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
             final double noiseLevel = 256 * 4; // ad hoc.
             s += pinkNoise.nextValue() * noiseLevel;
-            s = Math.max(Short.MIN_VALUE, Math.min(s, Short.MAX_VALUE));
-            samples.set(i, (short)s);
+            samples.set(i, s);
         }
     }
 
-    private static void normalize(ArrayList<Short> samples) {
+    private void normalize(ArrayList<Integer> samples) {
         double peak = Double.MIN_VALUE;
-        for (Short sample : samples) {
+        for (Integer sample : samples) {
             double s = sample;
             s = s < 0 ? s / Short.MIN_VALUE : s / Short.MAX_VALUE;
             peak = Math.max(s, peak);
@@ -119,8 +134,18 @@ class Sample {
         if (peak == 0) {
             return;
         }
+        double volumeAdjust = Math.pow(10, volumeDb / 20.0);
         for (int i = 0; i < samples.size(); ++i) {
-            samples.set(i, (short)(samples.get(i) / peak));
+            samples.set(i, (int)((samples.get(i) * volumeAdjust) / peak));
         }
+    }
+
+    public int volumeDb() {
+        return volumeDb;
+    }
+
+    public void setVolumeDb(int value) throws IOException, UnsupportedAudioFileException {
+        volumeDb = value;
+        readFromFile(true);
     }
 }

@@ -45,15 +45,12 @@ public class Sound {
      * @throws LineUnavailableException
      */
     @SuppressWarnings("JavaDoc")
-    static void play(byte[] gbSample, float volume, boolean halfSpeed) throws LineUnavailableException {
+    static void play(byte[] gbSample, boolean halfSpeed) throws LineUnavailableException {
         final int sampleRate = halfSpeed ? 5734 : 11468;
         byte[] waveData = nibblesToWaveData(gbSample);
         Clip clip = getClip();
         AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, false, false);
         clip.open(audioFormat, waveData, 0, waveData.length);
-        FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        float result = 20f * (float) Math.log10(volume);
-        control.setValue(result);
         clip.start();
     }
 }

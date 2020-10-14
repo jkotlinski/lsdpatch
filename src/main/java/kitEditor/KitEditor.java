@@ -35,11 +35,11 @@ public class KitEditor extends JFrame {
     private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
     private final JTextArea kitTextArea = new JTextArea();
-    private final JButton addSampleButton = new JButton();
-    private final JButton dropSampleButton = new JButton();
+    private final JButton addSampleButton = new JButton("Add sample");
+    private final JButton dropSampleButton = new JButton("Drop sample");
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
-    private final JSlider volumeSlider = new JSlider();
+    private final JSpinner volumeSpinner = new JSpinner();
 
     private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
     private final JCheckBox playSpeedToggle = new JCheckBox("Play samples in half-speed");
@@ -79,10 +79,15 @@ public class KitEditor extends JFrame {
         });
         instrList.addListSelectionListener(e -> {
             int index = instrList.getSelectedIndex();
-            boolean enable = index >= 0 && samples[index] != null;
-            dropSampleButton.setEnabled(enable);
-            exportSampleButton.setEnabled(enable);
+            boolean enableButtons = getNibbles(index) != null;
+            dropSampleButton.setEnabled(enableButtons);
+            exportSampleButton.setEnabled(enableButtons);
+            Sample sample = index >= 0 ? samples[index] : null;
+            boolean enableVolume = sample != null && sample.canAdjustVolume();
+            volumeSpinner.setEnabled(enableVolume);
+            volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
         });
+        volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
         exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
@@ -91,6 +96,34 @@ public class KitEditor extends JFrame {
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
         addSampleButton.addActionListener(e -> selectSampleToAdd());
         dropSampleButton.addActionListener(e -> dropSample());
+    }
+
+    static boolean updatingVolume = false;
+    private void onVolumeChanged() {
+        if (updatingVolume) {
+            return;
+        }
+        int index = instrList.getSelectedIndex();
+        if (index < 0) {
+            return;
+        }
+        Sample sample = samples[index];
+        if (sample == null || !sample.canAdjustVolume()) {
+            return;
+        }
+        updatingVolume = true;
+        try {
+            sample.setVolumeDb((int)volumeSpinner.getValue());
+            compileKit();
+            instrList.setSelectedIndex(index);
+            playSample();
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(contentPane,
+                    exception.getMessage(),
+                    "File error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        updatingVolume = false;
     }
 
     private void jbInit() {
@@ -126,10 +159,8 @@ public class KitEditor extends JFrame {
         exportAllSamplesButton.setText("Export all samples");
 
         addSampleButton.setEnabled(false);
-        addSampleButton.setText("Add sample");
-
-        dropSampleButton.setText("Drop sample");
         dropSampleButton.setEnabled(false);
+        volumeSpinner.setEnabled(false);
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
@@ -144,7 +175,7 @@ public class KitEditor extends JFrame {
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume"), "split 2");
-        contentPane.add(volumeSlider, "grow, wrap");
+        contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
 
         setMinimumSize(getPreferredSize());
@@ -211,7 +242,7 @@ public class KitEditor extends JFrame {
             return;
         }
         try {
-            Sound.play(nibbles, volumeSlider.getValue() / 100.f, playSpeedToggle.isSelected());
+            Sound.play(nibbles, playSpeedToggle.isSelected());
             sampleView.setBufferContent(nibbles);
             sampleView.repaint();
         } catch (Exception e) {
@@ -535,10 +566,15 @@ public class KitEditor extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        samples[firstFreeSampleSlot()] = sample;
-
+        int index = firstFreeSampleSlot();
+        if (index == -1) {
+            return;
+        }
+        samples[index] = sample;
         compileKit();
         updateRomView();
+        instrList.setSelectedIndex(index);
+        playSample();
     }
 
     private void selectSampleToAdd() {
@@ -549,7 +585,6 @@ public class KitEditor extends JFrame {
     }
 
     private void compileKit() {
-        updateBankView();
         if (totSampleSize > 0x3fa0) {
             kitSizeLabel.setText(Integer.toHexString(totSampleSize) + "/3fa0 bytes used");
             return;
