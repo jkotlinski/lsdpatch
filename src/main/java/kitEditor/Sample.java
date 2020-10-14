@@ -13,6 +13,7 @@ class Sample {
     private short[] samples;
     private int readPos;
     private int volumeDb = 0;
+    private int ditherDb = -30;
 
     private Sample(File file, short[] iBuf, String iName) {
         this.file = file;
@@ -120,11 +121,11 @@ class Sample {
         return samples;
     }
 
-    private static void dither(ArrayList<Integer> samples) {
+    private void dither(ArrayList<Integer> samples) {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            final double noiseLevel = 256 * 4; // ad hoc.
+            double noiseLevel = Short.MAX_VALUE * Math.pow(10, ditherDb / 20.0);
             s += pinkNoise.nextValue() * noiseLevel;
             samples.set(i, s);
         }
@@ -144,6 +145,15 @@ class Sample {
         for (int i = 0; i < samples.size(); ++i) {
             samples.set(i, (int)((samples.get(i) * volumeAdjust) / peak));
         }
+    }
+
+    public int ditherDb() {
+        return ditherDb;
+    }
+
+    public void setDitherDb(int value) throws IOException, UnsupportedAudioFileException {
+        ditherDb = value;
+        readFromFile(true);
     }
 
     public int volumeDb() {

@@ -37,6 +37,7 @@ public class KitEditor extends JFrame {
     private final JButton dropSampleButton = new JButton("Drop sample");
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
+    private final JSpinner ditherSpinner = new JSpinner();
     private final JSpinner volumeSpinner = new JSpinner();
 
     private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
@@ -82,9 +83,12 @@ public class KitEditor extends JFrame {
             exportSampleButton.setEnabled(enableButtons);
             Sample sample = index >= 0 ? samples[index] : null;
             boolean enableVolume = sample != null && sample.canAdjustVolume();
+            ditherSpinner.setEnabled(enableVolume);
+            ditherSpinner.setValue(enableVolume ? sample.ditherDb() : 0);
             volumeSpinner.setEnabled(enableVolume);
             volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
         });
+        ditherSpinner.addChangeListener(e -> onVolumeChanged());
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
@@ -111,6 +115,7 @@ public class KitEditor extends JFrame {
         }
         updatingVolume = true;
         try {
+            sample.setDitherDb((int)ditherSpinner.getValue());
             sample.setVolumeDb((int)volumeSpinner.getValue());
             compileKit();
             instrList.setSelectedIndex(index);
@@ -158,6 +163,7 @@ public class KitEditor extends JFrame {
 
         addSampleButton.setEnabled(false);
         dropSampleButton.setEnabled(false);
+        ditherSpinner.setEnabled(false);
         volumeSpinner.setEnabled(false);
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
@@ -172,8 +178,10 @@ public class KitEditor extends JFrame {
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
-        contentPane.add(new JLabel("Volume (dB):"), "split 2");
-        contentPane.add(volumeSpinner, "grow, wrap");
+        contentPane.add(new JLabel("Volume (dB):"), "sg label, split 2");
+        contentPane.add(volumeSpinner, "sg spinner, grow, wrap");
+        contentPane.add(new JLabel("Dither (dB):"), "sg label, split 2");
+        contentPane.add(ditherSpinner, "sg spinner, grow, wrap");
         contentPane.add(sampleView, "grow, span 2, wmin 10, hmin 64");
         sampleView.addMouseListener(new MouseAdapter() {
             @Override

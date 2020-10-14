@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: dragging color picker sliders is now more responsive.
  - Kit Editor: "Export sample" now exports sample from ROM instead of intermediate 16-bit work sample.
  - Kit Editor: when prelistening a sample, stop already playing samples.
+ - Kit Editor: dither level control.
  - Some file dialogs would not remember the last used directory.
  - Saving a ROM when no SAV has been loaded.
 
@@ -25,7 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Improved command line feedback.
 
 ### Removed
-
  - Font Editor: removed saving of .lsdfnt files, as well as loading/saving multiple fonts in one go.
 
 ## [1.7.0] - 2020-10-06
