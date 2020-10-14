@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: improved sound playback quality.
  - Kit Editor: when adding samples, blend wave frames to reduce impact of the [Game Boy wave refresh bug](https://www.devrs.com/gb/files/gbsnd3.gif).
  - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
+ - Kit Editor: click sample view to play.
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.
  - Improved command line feedback.

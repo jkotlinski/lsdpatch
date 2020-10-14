@@ -175,6 +175,12 @@ public class KitEditor extends JFrame {
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2, wmin 10, hmin 64");
+        sampleView.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                playSample();
+            }
+        });
 
         setMinimumSize(getPreferredSize());
         pack();
