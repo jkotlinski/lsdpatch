@@ -174,7 +174,7 @@ public class KitEditor extends JFrame {
         contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
-        contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
+        contentPane.add(sampleView, "grow, span 2, wmin 10, hmin 64");
 
         setMinimumSize(getPreferredSize());
         pack();
