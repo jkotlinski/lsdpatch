@@ -172,7 +172,7 @@ public class KitEditor extends JFrame {
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
-        contentPane.add(new JLabel("Volume"), "split 2");
+        contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2,wmin 10, hmin 64");
 
@@ -353,8 +353,7 @@ public class KitEditor extends JFrame {
             s[instrNo] = (instrNo + 1) + ". " + new String(buf);
             Sample sample = samples[instrNo];
             if (sample != null) {
-                int sampleLength = (sample.length() / 2 - sample.length() / 2 % 0x10);
-                s[instrNo] += " (" + Integer.toHexString(sampleLength) + ")";
+                s[instrNo] += " (" + Integer.toHexString(sample.lengthInBytes()) + ")";
             }
         }
         instrList.setListData(s);
@@ -588,7 +587,7 @@ public class KitEditor extends JFrame {
 
         byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
         int[] lengths = new int[15];
-        sbc.handle(newSamples, samples, lengths);
+        sbc.compile(newSamples, samples, lengths);
 
         //copy sampledata to ROM image
         int offset = getROMOffsetForSelectedBank() + 0x60;
@@ -619,7 +618,7 @@ public class KitEditor extends JFrame {
     private int totalSampleSize() {
         int total = 0;
         for (Sample s : samples) {
-            total += s == null ? 0 : s.length();
+            total += s == null ? 0 : s.lengthInBytes();
         }
         return total;
     }

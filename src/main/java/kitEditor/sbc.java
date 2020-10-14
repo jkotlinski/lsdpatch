@@ -4,7 +4,7 @@ package kitEditor;
 
 class sbc {
 
-    public static void handle(byte[] dst, Sample[] samples, int[] byteLength) {
+    public static void compile(byte[] dst, Sample[] samples, int[] byteLength) {
         int offset = 0x60; //don't overwrite sample bank info!
         for (int sampleIt = 0; sampleIt < samples.length; sampleIt++) {
             Sample sample = samples[sampleIt];
@@ -13,7 +13,7 @@ class sbc {
             }
 
             sample.seekStart();
-            int sampleLength = sample.length();
+            int sampleLength = sample.lengthInSamples();
 
             int addedBytes = 0;
             int[] outputBuffer = new int[32];

@@ -30,8 +30,14 @@ class Sample {
         return name;
     }
 
-    public int length() {
+    public int lengthInSamples() {
         return samples.length;
+    }
+
+    public int lengthInBytes() {
+        int l = lengthInSamples() / 2;
+        l -= l % 0x10;
+        return l;
     }
 
     public void seekStart() {

@@ -22,18 +22,19 @@ class SampleTest {
         }
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz.wav", sample.getName());
-        Assertions.assertEquals(11469, sample.length());
+        Assertions.assertEquals(11469, sample.lengthInSamples());
+        Assertions.assertEquals(5728, sample.lengthInBytes());
 
         int sum = 0;
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
-        for (int i = 0; i < sample.length(); ++i) {
+        for (int i = 0; i < sample.lengthInSamples(); ++i) {
             int s = sample.read();
             sum += s;
             min = Math.min(s, min);
             max = Math.max(s, max);
         }
-        int avg = sum / sample.length();
+        int avg = sum / sample.lengthInSamples();
         Assertions.assertEquals(0, avg);
         Assertions.assertEquals(Short.MIN_VALUE, min);
         Assertions.assertEquals(32765, max);
