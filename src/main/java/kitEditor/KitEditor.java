@@ -193,7 +193,7 @@ public class KitEditor extends JFrame {
         });
     }
 
-    private byte[] get4BitSamples(int index) {
+    private byte[] getNibbles(int index) {
         int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
@@ -208,7 +208,7 @@ public class KitEditor extends JFrame {
     }
 
     private void playSample(int index) {
-        byte[] nibbles = get4BitSamples(index);
+        byte[] nibbles = getNibbles(index);
         if (nibbles == null) {
             return;
         }
@@ -375,7 +375,7 @@ public class KitEditor extends JFrame {
             if (samples[sampleIt] != null) {
                 continue;
             }
-            byte[] nibbles = get4BitSamples(sampleIt);
+            byte[] nibbles = getNibbles(sampleIt);
 
             if (nibbles != null) {
                 String name = getRomSampleName(sampleIt);
@@ -623,7 +623,6 @@ public class KitEditor extends JFrame {
 
     // TODO : put this in a factory eventually
     private String selectAFolder() {
-
         JFileChooser chooser = new JFileChooser();
 
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -638,7 +637,6 @@ public class KitEditor extends JFrame {
         return null;
     }
 
-    // TODO : Overwrite warning
     private void exportAllSamplesFromKit() {
         String directory = selectAFolder();
         if (directory == null) {
@@ -648,22 +646,28 @@ public class KitEditor extends JFrame {
         int index = 0;
         String kitName = (String)bankBox.getSelectedItem();
         assert kitName != null;
-        kitName = kitName.substring(kitName.indexOf(' '));
+        kitName = kitName.substring(kitName.indexOf(' ') + 1);
         if (kitName.length() == 0) {
             kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
         }
 
-        for (Sample s : samples) {
-            if (s == null || s.length() == 0) {
+        for (int i = 0; i < samples.length; ++i) {
+            byte[] nibbles = getNibbles(i);
+            if (nibbles == null || nibbles.length == 0) {
+                continue;
+            }
+            Sample s = samples[i];
+            if (s == null) {
                 continue;
             }
 
-            String name = s.getName();
-            if (name.length() == 0) {
-                name = "[untitled]";
+            String sampleName = s.getName();
+            if (sampleName.length() == 0) {
+                sampleName = "[untitled]";
             }
-            File exportedFile = new File(directory, String.format("%s - %02d - %s.wav", kitName, index, name));
-            s.writeToWav(exportedFile);
+            File exportedFile = new File(directory,
+                    String.format("%s - %02d - %s.wav", kitName, index + 1, sampleName));
+            writeNibblesToWav(exportedFile, nibbles);
             EditorPreferences.setLastPath("wav", exportedFile.getAbsolutePath());
             index++;
         }
@@ -676,15 +680,59 @@ public class KitEditor extends JFrame {
 
 
     private void exportSample() {
-        int i = instrList.getSelectedIndex();
-        Sample s = samples[i];
-        if (s == null) {
-            return;
-        }
-
         File f = FileDialogLauncher.save(this, "Save Sample", "wav");
         if (f != null) {
-            s.writeToWav(f);
+            writeNibblesToWav(f, getNibbles(instrList.getSelectedIndex()));
+        }
+    }
+
+    private static void writeNibblesToWav(File f, byte[] nibbles) {
+        try {
+            RandomAccessFile wavFile = new RandomAccessFile(f, "rw");
+
+            int payloadSize = nibbles.length * 2;
+            int fileSize = nibbles.length * 2 + 0x2c;
+            int waveSize = fileSize - 8;
+
+            byte[] header = {
+                    0x52, 0x49, 0x46, 0x46,  // RIFF
+                    (byte) waveSize,
+                    (byte) (waveSize >> 8),
+                    (byte) (waveSize >> 16),
+                    (byte) (waveSize >> 24),
+                    0x57, 0x41, 0x56, 0x45,  // WAVE
+                    // --- fmt chunk
+                    0x66, 0x6D, 0x74, 0x20,  // fmt
+                    16, 0, 0, 0,  // fmt size
+                    1, 0,  // pcm
+                    1, 0,  // channel count
+                    (byte) 0xcc, 0x2c, 0, 0,  // freq (11468 hz)
+                    (byte) 0xcc, 0x2c, 0, 0,  // avg. bytes/sec
+                    1, 0,  // block align
+                    8, 0,  // bits per sample
+                    // --- data chunk
+                    0x64, 0x61, 0x74, 0x61,  // data
+                    (byte) payloadSize,
+                    (byte) (payloadSize >> 8),
+                    (byte) (payloadSize >> 16),
+                    (byte) (payloadSize >> 24)
+            };
+
+            wavFile.write(header);
+
+            byte[] unsigned = new byte[nibbles.length * 2];
+            int dst = 0;
+            for (int nibblePair : nibbles) {
+                unsigned[dst++] = (byte) ((nibblePair & 0xf0) + 8);
+                unsigned[dst++] = (byte) ((nibblePair << 4) + 8);
+            }
+            wavFile.write(unsigned);
+            wavFile.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    e.getMessage(),
+                    "File error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
