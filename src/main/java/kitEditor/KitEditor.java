@@ -28,7 +28,7 @@ public class KitEditor extends JFrame {
     private Sample[] samples = new Sample[MAX_SAMPLES];
 
     private final JButton loadKitButton = new JButton();
-    private final JButton exportKitButton = new JButton();
+    private final JButton saveKitButton = new JButton();
     private final JButton exportSampleButton = new JButton();
     private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
@@ -92,7 +92,7 @@ public class KitEditor extends JFrame {
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
-        exportKitButton.addActionListener(e -> exportKitButton_actionPerformed());
+        saveKitButton.addActionListener(e -> saveKit());
         renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
@@ -143,7 +143,7 @@ public class KitEditor extends JFrame {
         kitContainer.setMinimumSize(kitContainer.getPreferredSize());
 
         loadKitButton.setText("Load Kit");
-        exportKitButton.setText("Export Kit");
+        saveKitButton.setText("Save Kit");
 
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
 
@@ -161,7 +161,7 @@ public class KitEditor extends JFrame {
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "wrap");
-        contentPane.add(exportKitButton, "wrap");
+        contentPane.add(saveKitButton, "wrap");
         contentPane.add(kitTextArea, "grow,split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
@@ -416,7 +416,7 @@ public class KitEditor extends JFrame {
         }
     }
 
-    private void exportKitButton_actionPerformed() {
+    private void saveKit() {
         File f = FileDialogLauncher.save(this, "Export Kit", "kit");
         if (f == null) {
             return;
