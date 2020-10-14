@@ -178,10 +178,10 @@ public class KitEditor extends JFrame {
         contentPane.add(dropSampleButton, "span 2,wrap 10");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
-        contentPane.add(new JLabel("Volume (dB):"), "sg label, split 2");
-        contentPane.add(volumeSpinner, "sg spinner, grow, wrap");
-        contentPane.add(new JLabel("Dither (dB):"), "sg label, split 2");
-        contentPane.add(ditherSpinner, "sg spinner, grow, wrap");
+        contentPane.add(new JLabel("Volume (dB):"), "split 2");
+        contentPane.add(volumeSpinner, "grow, wrap");
+        contentPane.add(new JLabel("Dither (dB):"), "split 2");
+        contentPane.add(ditherSpinner, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2, wmin 10, hmin 64");
         sampleView.addMouseListener(new MouseAdapter() {
             @Override
