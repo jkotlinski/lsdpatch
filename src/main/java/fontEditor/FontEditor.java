@@ -169,12 +169,8 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         fileMenu.setMnemonic(KeyEvent.VK_F);
         menuBar.add(fileMenu);
 
-        addMenuEntry(fileMenu, "Open...", KeyEvent.VK_O, e -> showOpenDialog());
-        addMenuEntry(fileMenu, "Save...", KeyEvent.VK_S, e -> showSaveDialog());
-        addMenuEntry(fileMenu, "Import to image...", KeyEvent.VK_I, e -> importBitmap());
-        addMenuEntry(fileMenu, "Import all fonts...", KeyEvent.VK_G, e -> importAllFonts());
-        addMenuEntry(fileMenu, "Export to image...", KeyEvent.VK_E, e -> exportBitmap());
-        addMenuEntry(fileMenu, "Export all fonts...", KeyEvent.VK_F, e -> exportAllFonts());
+        addMenuEntry(fileMenu, "Load font...", KeyEvent.VK_L, e -> loadFont());
+        addMenuEntry(fileMenu, "Save font...", KeyEvent.VK_S, e -> saveFont());
     }
 
     private void createEditMenu(JMenuBar menuBar) {
@@ -281,10 +277,15 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         }
     }
 
-    private void showOpenDialog() {
+    private void loadFont() {
         try {
-            File f = FileDialogLauncher.load(this, "Open Font", "lsdfnt");
+            File f = FileDialogLauncher.load(this, "Open Font", new String[]{ "png", "lsdfnt" });
             if (f == null) {
+                return;
+            }
+
+            if (f.getName().endsWith("png")) {
+                importBitmap(f);
                 return;
             }
             String fontName;
@@ -303,32 +304,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         }
     }
 
-    private void showSaveDialog() {
-        try {
-            if (fontSelector.getSelectedItem() == null) {
-                JOptionPane.showMessageDialog(this, "Couldn't read the selected font name.");
-                return;
-            }
-
-            String fontName = (String) fontSelector.getSelectedItem();
-
-            File f = FileDialogLauncher.save(this, "Save Font", "lsdfnt");
-            if (f == null) {
-                return;
-            }
-            FontIO.saveFnt(f, fontName, romImage, selectedFontOffset);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Couldn't save fnt file.\n" + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void importBitmap() {
-        // File Choose
-        File bitmap = FileDialogLauncher.load(this, "Import Font Image", "png");
-        if (bitmap == null) {
-            return;
-        }
+    private void importBitmap(File bitmap) {
         try {
             BufferedImage image = ImageIO.read(bitmap);
             if (image.getWidth() != 64 && image.getHeight() != 72) {
@@ -345,7 +321,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         }
     }
 
-    private void exportBitmap() {
+    private void saveFont() {
         File f = FileDialogLauncher.save(this, "Export Font", "png");
         if (f == null) {
             return;
@@ -358,38 +334,4 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
             e.printStackTrace();
         }
     }
-
-    private void importAllFonts() {
-        int previousSelectedFont = this.previousSelectedFont;
-        for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
-            selectedFontOffset = getFontDataLocation(i);
-            fontMap.setFontOffset(selectedFontOffset);
-            tileEditor.setFontOffset(selectedFontOffset);
-            fontSelector.setSelectedIndex(i);
-            importBitmap();
-        }
-
-        selectedFontOffset = getFontDataLocation(previousSelectedFont);
-        fontMap.setFontOffset(selectedFontOffset);
-        tileEditor.setFontOffset(selectedFontOffset);
-        fontSelector.setSelectedIndex(previousSelectedFont);
-    }
-
-    private void exportAllFonts() {
-        int previousSelectedFont = this.previousSelectedFont;
-        for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
-            selectedFontOffset = getFontDataLocation(i);
-            fontMap.setFontOffset(selectedFontOffset);
-            tileEditor.setFontOffset(selectedFontOffset);
-            fontSelector.setSelectedIndex(i);
-            exportBitmap();
-        }
-
-        selectedFontOffset = getFontDataLocation(previousSelectedFont);
-        fontMap.setFontOffset(selectedFontOffset);
-        tileEditor.setFontOffset(selectedFontOffset);
-        fontSelector.setSelectedIndex(previousSelectedFont);
-
-    }
-
 }

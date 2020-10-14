@@ -8,8 +8,8 @@ import structures.LSDJFont;
 
 public class FontIO {
 
-    static String loadFnt(File file, byte[] array) throws IOException {
-        return loadFnt(file, array, 0);
+    static void loadFnt(File file, byte[] array) throws IOException {
+        loadFnt(file, array, 0);
     }
 
     public static String loadFnt(File file, byte[] array, int arrayOffset) throws IOException {

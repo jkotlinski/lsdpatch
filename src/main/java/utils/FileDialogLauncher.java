@@ -7,17 +7,25 @@ import java.io.File;
 public class FileDialogLauncher {
 
     public static File load(JFrame parent, String title, String fileExtension) {
-        return open(parent, title, fileExtension, FileDialog.LOAD);
+        return open(parent, title, new String[] { fileExtension }, FileDialog.LOAD);
+    }
+
+    public static File load(JFrame parent, String title, String[] fileExtensions) {
+        return open(parent, title, fileExtensions, FileDialog.LOAD);
     }
 
     public static File save(JFrame parent, String title, String fileExtension) {
-        return open(parent, title, fileExtension, FileDialog.SAVE);
+        return open(parent, title, new String[] { fileExtension }, FileDialog.SAVE);
     }
 
-    private static File open(JFrame parent, String title, String fileExtension, int mode) {
+    private static File open(JFrame parent, String title, String[] fileExtensions, int mode) {
         FileDialog fileDialog = new FileDialog(parent, title, mode);
-        fileDialog.setDirectory(EditorPreferences.lastDirectory(fileExtension));
-        fileDialog.setFile("*." + fileExtension);
+        fileDialog.setDirectory(EditorPreferences.lastDirectory(fileExtensions[0]));
+        StringBuilder fileMatch = new StringBuilder("*." + fileExtensions[0]);
+        for (int i = 1; i < fileExtensions.length; ++i) {
+            fileMatch.append(";*.").append(fileExtensions[i]);
+        }
+        fileDialog.setFile(fileMatch.toString());
         fileDialog.setVisible(true);
 
         String directory = fileDialog.getDirectory();
@@ -26,8 +34,18 @@ public class FileDialogLauncher {
             return null;
         }
 
-        if (!fileName.endsWith("." + fileExtension)) {
-            fileName += "." + fileExtension;
+        boolean filenameMatchesExtension = false;
+        String selectedExtension = null;
+        for (String fileExtension : fileExtensions) {
+            if (fileName.endsWith(fileExtension)) {
+                filenameMatchesExtension = true;
+                selectedExtension = fileExtension;
+                break;
+            }
+        }
+        if (!filenameMatchesExtension) {
+            selectedExtension = fileExtensions[0];
+            fileName += "." + fileExtensions[0];
             if (mode == FileDialog.SAVE &&
                     new File(directory + fileName).exists() &&
                     JOptionPane.showConfirmDialog(parent,
@@ -40,7 +58,8 @@ public class FileDialogLauncher {
             }
         }
         String path = directory + fileName;
-        EditorPreferences.setLastPath(fileExtension, path);
+        assert selectedExtension != null;
+        EditorPreferences.setLastPath(selectedExtension, path);
         return new File(path);
     }
 }

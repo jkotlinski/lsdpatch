@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Various file dialog improvements.
  - Improved command line feedback.
 
+### Removed
+
+ - Font Editor: removed saving of .lsdfnt files, as well as loading/saving multiple fonts in one go.
+
 ## [1.7.0] - 2020-10-06
 ### Fixed
  - Kit Editor: sample export broke in 1.6.0.
