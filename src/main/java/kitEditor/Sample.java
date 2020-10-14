@@ -168,7 +168,9 @@ class Sample {
             wavFile.write(unsigned);
             wavFile.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "File error : " +e.getCause(),
+            JOptionPane.showMessageDialog(null,
+                    e.getMessage(),
+                    "File error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
