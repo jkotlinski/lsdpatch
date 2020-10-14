@@ -23,8 +23,6 @@ public class KitEditor extends JFrame {
 
     private final java.awt.event.ActionListener bankBoxListener = e -> bankBox_actionPerformed();
 
-    private int totSampleSize = 0;
-
     private final byte[] romImage;
 
     private Sample[] samples = new Sample[MAX_SAMPLES];
@@ -333,8 +331,6 @@ public class KitEditor extends JFrame {
         byte[] buf = new byte[3];
         String[] s = new String[15];
 
-        totSampleSize = 0;
-
         int bankOffset = getROMOffsetForSelectedBank();
         instrList.removeAll();
         //do banks
@@ -358,7 +354,6 @@ public class KitEditor extends JFrame {
             Sample sample = samples[instrNo];
             if (sample != null) {
                 int sampleLength = (sample.length() / 2 - sample.length() / 2 % 0x10);
-                totSampleSize += sampleLength;
                 s[instrNo] += " (" + Integer.toHexString(sampleLength) + ")";
             }
         }
@@ -369,7 +364,7 @@ public class KitEditor extends JFrame {
     }
 
     private void updateKitSizeLabel() {
-        int sampleSize = totSampleSize;
+        int sampleSize = totalSampleSize();
         kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3fa0 bytes used");
         boolean tooFull = sampleSize > 0x3fa0;
 
@@ -585,11 +580,11 @@ public class KitEditor extends JFrame {
     }
 
     private void compileKit() {
-        if (totSampleSize > 0x3fa0) {
-            kitSizeLabel.setText(Integer.toHexString(totSampleSize) + "/3fa0 bytes used");
+        if (totalSampleSize() > 0x3fa0) {
+            kitSizeLabel.setText(Integer.toHexString(totalSampleSize()) + "/3fa0 bytes used");
             return;
         }
-        kitSizeLabel.setText(Integer.toHexString(totSampleSize) + " bytes written");
+        kitSizeLabel.setText(Integer.toHexString(totalSampleSize()) + " bytes written");
 
         byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
         int[] lengths = new int[15];
@@ -619,6 +614,14 @@ public class KitEditor extends JFrame {
         // Resets forced loop data.
         romImage[getROMOffsetForSelectedBank() + 0x5c] = 0;
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
+    }
+
+    private int totalSampleSize() {
+        int total = 0;
+        for (Sample s : samples) {
+            total += s == null ? 0 : s.length();
+        }
+        return total;
     }
 
     private void dropSample() {
