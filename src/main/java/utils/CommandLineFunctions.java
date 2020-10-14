@@ -35,19 +35,19 @@ public class CommandLineFunctions {
 
     public static void fontToPng(String fntFile, String pngFile) {
         try {
-            byte[] buffer = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.FONT_NUM_TILES_Y * 16];
+            byte[] buffer = new byte[LSDJFont.FONT_NUM_TILES_X * LSDJFont.GFX_FONT_NUM_TILES_Y * 16];
             FontIO.loadFnt(new File(fntFile), buffer);
             LSDJFont font = new LSDJFont();
             font.setRomImage(buffer);
             font.setDataOffset(0);
-            BufferedImage image = font.saveDataToImage();
+            BufferedImage image = font.saveDataToImage(false);
             ImageIO.write(image, "PNG", new File(pngFile));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void extractFontToPng(String romFileName, int numFont) {
+    public static void extractFontToPng(String romFileName, int numFont, boolean includeGfxCharacters) {
         if (numFont < 0 || numFont > 2) {
             // Already -1-ed.
             System.err.println("the font index must be comprised between 1 and 3.");
@@ -64,7 +64,8 @@ public class CommandLineFunctions {
             int selectedFontOffset = RomUtilities.findFontOffset(romImage) + ((numFont + 1) % 3) * LSDJFont.FONT_SIZE
                     + LSDJFont.FONT_HEADER_SIZE;
             font.setDataOffset(selectedFontOffset);
-            BufferedImage image = font.saveDataToImage();
+            font.setGfxDataOffset(RomUtilities.findGfxFontOffset(romImage));
+            BufferedImage image = font.saveDataToImage(includeGfxCharacters);
             ImageIO.write(image, "PNG", new File(RomUtilities.getFontName(romImage, numFont) + ".png"));
 
         } catch (IOException e) {

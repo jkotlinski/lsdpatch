@@ -269,6 +269,6 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     BufferedImage createImage() {
-        return font.saveDataToImage();
+        return font.saveDataToImage(true);
     }
 }

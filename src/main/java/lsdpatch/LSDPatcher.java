@@ -45,13 +45,13 @@ public class LSDPatcher {
         System.out.println("java -jar LSDJPatcher.jar");
         System.out.println(" Opens the GUI.\n");
 
-        System.out.println("java -jar LSDJPatcher.jar fnt2png <fntfile> <pngfile>");
+        System.out.println("java -jar LSDJPatcher.jar fnt2png [--extended] <fntfile> <pngfile>");
         System.out.println(" Exports the font file into a PNG\n");
 
         System.out.println("java -jar LSDJPatcher.jar png2fnt <font title> <pngfile> <fntfile>");
         System.out.println(" Converts the PNG into a font with given name.\n");
 
-        System.out.println("java -jar LSDJPatcher.jar romfnt2png <romFile> <fontIndex>");
+        System.out.println("java -jar LSDJPatcher.jar romfnt2png [--extended] <romFile> <fontIndex>");
         System.out.println(" Extracts the nth font from the given rom into a png named like the font.\n");
 
         System.out.println("java -jar LSDJPatcher.jar png2romfnt <romFile> <pngfile> <index> <fontname>");
@@ -102,13 +102,23 @@ public class LSDPatcher {
     private static void processArguments(String[] args) {
         String command = args[0].toLowerCase();
 
+        boolean includeGfxCharacters = false;
+        if(args.length > 2 && args[1].equalsIgnoreCase("--extended")) {
+            includeGfxCharacters = true;
+        }
+
         if (command.compareTo("fnt2png") == 0 && args.length == 3) {
             CommandLineFunctions.fontToPng(args[1], args[2]);
+        } else if (command.compareTo("fnt2png") == 0 && args.length == 4 && includeGfxCharacters) {
+            CommandLineFunctions.fontToPng(args[2], args[3]);
         } else if (command.compareTo("png2fnt") == 0 && args.length == 4) {
             CommandLineFunctions.pngToFont(args[1], args[2], args[3]);
         } else if (command.compareTo("romfnt2png") == 0 && args.length == 3) {
             // -1 to allow 1-3 range instead of 0-2
-            CommandLineFunctions.extractFontToPng(args[1], Integer.parseInt(args[2]) - 1);
+            CommandLineFunctions.extractFontToPng(args[1], Integer.parseInt(args[2]) - 1, false);
+        } else if (command.compareTo("romfnt2png") == 0 && args.length == 4 && includeGfxCharacters) {
+            // -1 to allow 1-3 range instead of 0-2
+            CommandLineFunctions.extractFontToPng(args[2], Integer.parseInt(args[3]) - 1, true);
         } else if (command.compareTo("png2romfnt") == 0 && args.length == 5) {
             // -1 to allow 1-3 range instead of 0-2
             CommandLineFunctions.loadPngToRom(args[1], args[2], Integer.parseInt(args[3]) - 1, args[4]);

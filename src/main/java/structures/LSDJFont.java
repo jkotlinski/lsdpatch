@@ -15,7 +15,8 @@ public class LSDJFont extends ROMDataManipulator {
     public static final int FONT_NUM_TILES_Y = (int)Math.ceil(TILE_COUNT/ (float)FONT_NUM_TILES_X);
     public static final int GFX_FONT_NUM_TILES_Y = (int)Math.ceil((TILE_COUNT + GFX_TILE_COUNT)/ (float)FONT_NUM_TILES_X);
     public static final int FONT_MAP_WIDTH = FONT_NUM_TILES_X * 8;
-    public static final int FONT_MAP_HEIGHT = (GFX_FONT_NUM_TILES_Y) * 8;
+    public static final int FONT_MAP_HEIGHT = FONT_NUM_TILES_Y * 8;
+    public static final int GFX_FONT_MAP_HEIGHT = (GFX_FONT_NUM_TILES_Y) * 8;
     public static final int FONT_HEADER_SIZE = 130;
     public static final int FONT_COUNT = 3;
     public static final int FONT_SIZE = 0xe96;
@@ -50,7 +51,7 @@ public class LSDJFont extends ROMDataManipulator {
     }
 
     public int getPixel(int x, int y) {
-        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= FONT_MAP_HEIGHT)
+        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= GFX_FONT_MAP_HEIGHT)
             return -1;
 
         int tileToRead = (y / 8) * 8 + x / 8;
@@ -62,7 +63,7 @@ public class LSDJFont extends ROMDataManipulator {
     }
 
     public int getGfxPixel(int x, int y) {
-        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= FONT_MAP_HEIGHT)
+        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= GFX_FONT_MAP_HEIGHT)
             return -1;
 
         int tileToRead = (y / 8) * 8 + x / 8;
@@ -88,7 +89,7 @@ public class LSDJFont extends ROMDataManipulator {
 
     private void setPixel(int x, int y, int color, Boolean editGfxCharacter) {
         assert color >= 1 && color <= 3;
-        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= FONT_MAP_HEIGHT)
+        if (x < 0 || x >= FONT_MAP_WIDTH || y < 0 || y >= GFX_FONT_MAP_HEIGHT)
             return;
         int localX = x % 8;
         int localY = y % 8;
@@ -235,31 +236,57 @@ public class LSDJFont extends ROMDataManipulator {
         return sub.toString();
     }
 
-    public BufferedImage saveDataToImage() {
-        BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, LSDJFont.FONT_MAP_HEIGHT,
+    public BufferedImage saveDataToImage(Boolean includeGfxCharacters) {
+        BufferedImage image = new BufferedImage(LSDJFont.FONT_MAP_WIDTH, includeGfxCharacters ? LSDJFont.GFX_FONT_MAP_HEIGHT : LSDJFont.FONT_MAP_HEIGHT,
                 BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < LSDJFont.FONT_MAP_HEIGHT; y++) {
-            for (int x = 0; x < LSDJFont.FONT_MAP_WIDTH; x++) {
-                int tileToRead = (y / 8) * 8 + x / 8;
-                if (tileToRead >= TILE_COUNT + GFX_TILE_COUNT)
-                    break;
-                int color;
-                if (tileToRead >= TILE_COUNT) {
-                    color = getGfxTilePixel(tileToRead - TILE_COUNT, x%8, y%8);
+
+        for (int tile = 0; tile < TILE_COUNT; ++tile) {
+            int baseX = (tile %  FONT_NUM_TILES_X)*8;
+            int baseY = (tile / FONT_NUM_TILES_X)*8;
+            for (int y = 0; y < 8; ++y) {
+                for (int x = 0; x < 8; ++x) {
+                    int color = getTilePixel(tile, x, y);
+                    switch (color) {
+                        case 1:
+                            image.setRGB(baseX + x, baseY +  y, 0x808080);
+                            break;
+                        case 2:
+                            image.setRGB(baseX + x, baseY +  y, 0x969696);
+                            break;
+                        case 3:
+                            image.setRGB(baseX + x, baseY +  y, 0x000000);
+                            break;
+                        default:
+                            image.setRGB(baseX + x, baseY +  y, 0xFFFFFF);
+                            break;
+                    }
                 }
-                else {
-                    color = getTilePixel(tileToRead, x%8, y%8);
-                }
-                switch (color) {
-                    case 1:
-                        image.setRGB(x, y, 0x808080);
-                        break;
-                    case 3:
-                        image.setRGB(x, y, 0x000000);
-                        break;
-                    default:
-                        image.setRGB(x, y, 0xFFFFFF);
-                        break;
+            }
+        }
+
+        if (includeGfxCharacters) {
+            for (int tile = 0; tile < GFX_TILE_COUNT; ++tile) {
+                int tileForPixelCoordinates=  tile + LSDJFont.TILE_COUNT;
+                int baseX = (tileForPixelCoordinates %  FONT_NUM_TILES_X)*8;
+                int baseY = (tileForPixelCoordinates / FONT_NUM_TILES_X)*8;
+                for (int y = 0; y < 8; ++y) {
+                    for (int x = 0; x < 8; ++x) {
+                        int color = getGfxTilePixel(tile, x, y);
+                        switch (color) {
+                            case 1:
+                                image.setRGB(baseX + x, baseY +  y, 0x808080);
+                                break;
+                            case 2:
+                                image.setRGB(baseX + x, baseY +  y, 0x969696);
+                                break;
+                            case 3:
+                                image.setRGB(baseX + x, baseY +  y, 0x000000);
+                                break;
+                            default:
+                                image.setRGB(baseX + x, baseY +  y, 0xFFFFFF);
+                                break;
+                        }
+                    }
                 }
             }
         }
