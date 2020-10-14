@@ -8,7 +8,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class KitArchive {
-    static public void Save(Sample[] samples, File file) throws IOException {
+    static public void save(Sample[] samples, File file) throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(file))) {
             for (int i = 0; i < samples.length; ++i) {
                 Sample sample = samples[i];
@@ -42,7 +42,7 @@ public class KitArchive {
         zipEntry.setExtra(comment.getBytes());
     }
 
-    static public void Load(File file, Sample[] samples) throws IOException {
+    static public void load(File file, Sample[] samples) throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(file))) {
             while (true) {
                 ZipEntry zipEntry = zipInputStream.getNextEntry();

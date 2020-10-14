@@ -427,7 +427,7 @@ public class KitEditor extends JFrame {
             return;
         }
         try {
-            KitArchive.Save(samples, f);
+            KitArchive.save(samples, f);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
                     e.getMessage(),
@@ -453,7 +453,7 @@ public class KitEditor extends JFrame {
 
     private void loadKitV2(File kitFile) throws IOException {
         flushWavFiles();
-        KitArchive.Load(kitFile, samples);
+        KitArchive.load(kitFile, samples);
         renameKit(kitFile.getName().split("\\.")[0]);
         for (int i = 0; i < MAX_SAMPLES; ++i) {
             if (samples[i] != null) {
