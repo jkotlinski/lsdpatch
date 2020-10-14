@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: avoid duplicate palette names when loading a palette.
  - Palette Editor: dragging color picker sliders is now more responsive.
  - Kit Editor: "Export sample" now exports sample from ROM instead of intermediate 16-bit work sample.
+ - Kit Editor: when prelistening a sample, stop already playing samples.
  - Some file dialogs would not remember the last used directory.
  - Saving a ROM when no SAV has been loaded.
 

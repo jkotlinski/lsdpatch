@@ -52,5 +52,11 @@ public class Sound {
         AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, false, false);
         clip.open(audioFormat, waveData, 0, waveData.length);
         clip.start();
+
+        for (Clip otherClip : clipPool) {
+            if (otherClip != clip) {
+                otherClip.stop();
+            }
+        }
     }
 }
