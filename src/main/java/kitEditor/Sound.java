@@ -2,27 +2,25 @@
 
 package kitEditor;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.sound.sampled.*;
 
 public class Sound {
 
     private static final ArrayList<Clip> clipPool = new ArrayList<>();
+    private static final int PLAYBACK_RATE = 48000;
 
-    private static byte[] nibblesToWaveData(byte[] gbSample) {
-        byte[] waveData = new byte[gbSample.length * 4];
+    private static byte[] unpackNibbles(byte[] gbSample) {
+        byte[] waveData = new byte[gbSample.length * 2];
         int src = 0;
         int dst = 0;
 
         while (src < gbSample.length) {
             byte sample = gbSample[src++];
-            waveData[dst++] = 0;
-            waveData[dst++] = (byte)(0xf0 & sample);
-            waveData[dst++] = 0;
-            waveData[dst++] = (byte)((0x0f & sample) << 4);
-        }
-        for (int i = 1; i < waveData.length; i += 2) {
-            waveData[i] += 128;
+            waveData[dst++] = (byte) (0xf0 & sample);
+            waveData[dst++] = (byte) ((0x0f & sample) << 4);
         }
         return waveData;
     }
@@ -39,18 +37,13 @@ public class Sound {
         return newClip;
     }
 
-    /**
-     * Plays 4-bit packed Game Boy sample. Returns unpacked data.
-     *
-     * @throws LineUnavailableException
-     */
-    @SuppressWarnings("JavaDoc")
-    static void play(byte[] gbSample, boolean halfSpeed) throws LineUnavailableException {
+    static void play(byte[] gbSample, boolean halfSpeed) throws LineUnavailableException, IOException {
         final int sampleRate = halfSpeed ? 5734 : 11468;
-        byte[] waveData = nibblesToWaveData(gbSample);
+        byte[] waveData = to16Bit(resampleToPlaybackRate(sampleRate, unpackNibbles(gbSample)));
         Clip clip = getClip();
-        AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, false, false);
-        clip.open(audioFormat, waveData, 0, waveData.length);
+        clip.open(new AudioInputStream(new ByteArrayInputStream(waveData),
+                new AudioFormat(PLAYBACK_RATE, 16, 1, true, false),
+                waveData.length));
         clip.start();
 
         for (Clip otherClip : clipPool) {
@@ -58,5 +51,36 @@ public class Sound {
                 otherClip.stop();
             }
         }
+    }
+
+    private static byte[] to16Bit(float[] waveData) {
+        byte[] dst = new byte[waveData.length * 2];
+        for (int i = 0; i < waveData.length; ++i) {
+            float sf = waveData[i];
+            assert sf >= -1;
+            assert sf <= 1;
+            short si = (short)(sf * Short.MAX_VALUE);
+            dst[i * 2] = (byte)si;
+            dst[i * 2 + 1] = (byte)(si >> 8);
+        }
+        return dst;
+    }
+
+    // Bespoke resampling routine is a sad necessity since not all systems support
+    // playback of 11468 Hz sample data.
+    private static float[] resampleToPlaybackRate(int srcSampleRate, byte[] srcBuffer) {
+        float[] dstBuffer = new float[(srcBuffer.length * PLAYBACK_RATE) / srcSampleRate];
+        for (int dst = 0; dst < dstBuffer.length; ++dst) {
+            double srcPos = (double)dst * srcSampleRate / PLAYBACK_RATE;
+            int pos1 = (int)Math.floor(srcPos);
+            int pos2 = 1 + pos1;
+            float value = ((int)srcBuffer[pos1]) & 0xf0;
+            if (pos2 < srcBuffer.length) {
+                value *= (1 - srcPos % 1);
+                value += (((int)srcBuffer[pos2]) & 0xf0) * (srcPos % 1);
+            }
+            dstBuffer[dst] = (value - 120) / 120;
+        }
+        return dstBuffer;
     }
 }
