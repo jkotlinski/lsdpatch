@@ -19,7 +19,7 @@ class sbc {
             int[] outputBuffer = new int[32];
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
-                int s = sample.readInt();
+                int s = sample.read();
                 s = (int)(Math.round((double)s / (256 * 16) + 7.5));
                 s = Math.min(0xf, Math.max(0, s));
                 outputBuffer[outputCounter] = s;
