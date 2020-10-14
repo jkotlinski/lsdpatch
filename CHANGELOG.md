@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Saving a ROM when no SAV has been loaded.
 
 ### Changed
+ - Kit Editor: kits are now saved with the original 16-bit sample data. *this change is not forward compatible!*
  - Kit Editor: "Add Sample" now automatically resamples, normalizes and dithers the sample. No need to prepare samples using sox anymore.
  - Kit Editor: dithering now uses pink noise. compared to the old noise, this is more pleasant for the ears.
  - Kit Editor: improved sound playback quality.

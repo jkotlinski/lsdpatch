@@ -10,6 +10,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class KitEditor extends JFrame {
@@ -83,17 +84,20 @@ public class KitEditor extends JFrame {
             exportSampleButton.setEnabled(enableButtons);
             Sample sample = index >= 0 ? samples[index] : null;
             boolean enableVolume = sample != null && sample.canAdjustVolume();
+            updatingVolume = true;
             ditherSpinner.setEnabled(enableVolume);
             ditherSpinner.setValue(enableVolume ? sample.ditherDb() : 0);
             volumeSpinner.setEnabled(enableVolume);
             volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
+            updatingVolume = false;
         });
         ditherSpinner.addChangeListener(e -> onVolumeChanged());
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
         saveKitButton.addActionListener(e -> saveKit());
-        renameKitButton.addActionListener(e1 -> renameKitButton_actionPerformed());
+        renameKitButton.addActionListener(e1 -> renameKit(kitTextArea.getText()));
+
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
         addSampleButton.addActionListener(e -> selectSampleToAdd());
@@ -116,6 +120,7 @@ public class KitEditor extends JFrame {
         updatingVolume = true;
         sample.setDitherDb((int)ditherSpinner.getValue());
         sample.setVolumeDb((int)volumeSpinner.getValue());
+        sample.processSamples(true);
         compileKit();
         instrList.setSelectedIndex(index);
         playSample();
@@ -422,17 +427,11 @@ public class KitEditor extends JFrame {
             return;
         }
         try {
-            byte[] buf = new byte[RomUtilities.BANK_SIZE];
-            int offset = getROMOffsetForSelectedBank();
-            RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
-
-            for (int i = 0; i < buf.length; i++) {
-                buf[i] = romImage[offset++];
-            }
-            bankFile.write(buf);
-            bankFile.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
+            KitArchive.Save(samples, f);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "File error",
                     JOptionPane.ERROR_MESSAGE);
         }
         updateRomView();
@@ -440,24 +439,42 @@ public class KitEditor extends JFrame {
 
     private void loadKit(File kitFile) {
         try {
-            byte[] buf = new byte[RomUtilities.BANK_SIZE];
-            int offset = getROMOffsetForSelectedBank();
-            RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
-            bankFile.readFully(buf);
-
-            for (byte aBuf : buf) {
-                romImage[offset++] = aBuf;
+            if (kitFile.length() == RomUtilities.BANK_SIZE) {
+                loadKitV1(kitFile);
+            } else {
+                loadKitV2(kitFile);
             }
-            bankFile.close();
-            flushWavFiles();
-            createSamplesFromRom();
-            updateBankView();
-            EditorPreferences.setLastPath("kit", kitFile.getAbsolutePath());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "File error",
                     JOptionPane.ERROR_MESSAGE);
         }
         updateRomView();
+    }
+
+    private void loadKitV2(File kitFile) throws IOException {
+        flushWavFiles();
+        KitArchive.Load(kitFile, samples);
+        renameKit(kitFile.getName().split("\\.")[0]);
+        for (int i = 0; i < MAX_SAMPLES; ++i) {
+            if (samples[i] != null) {
+                renameSample(i, samples[i].getName());
+            }
+        }
+        compileKit();
+    }
+
+    private void loadKitV1(File kitFile) throws IOException {
+        byte[] buf = new byte[RomUtilities.BANK_SIZE];
+        int offset = getROMOffsetForSelectedBank();
+        RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
+        bankFile.readFully(buf);
+        for (byte aBuf : buf) {
+            romImage[offset++] = aBuf;
+        }
+        bankFile.close();
+        flushWavFiles();
+        createSamplesFromRom();
+        updateBankView();
     }
 
     private void loadKitButton_actionPerformed() {
@@ -501,7 +518,6 @@ public class KitEditor extends JFrame {
         }
 
         flushWavFiles();
-
         updateRomView();
     }
 
@@ -509,9 +525,9 @@ public class KitEditor extends JFrame {
         samples = new Sample[MAX_SAMPLES];
     }
 
-    private void renameKitButton_actionPerformed() {
+    private void renameKit(String s) {
+        s = s.toUpperCase();
         int offset = getROMOffsetForSelectedBank() + 0x52;
-        String s = kitTextArea.getText().toUpperCase();
         for (int i = 0; i < 6; i++) {
             if (i < s.length()) {
                 romImage[offset++] = (byte) s.charAt(i);
@@ -543,19 +559,8 @@ public class KitEditor extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        int offset = getROMOffsetForSelectedBank() + 0x22 +
-                firstFreeSampleSlot() * 3;
         String s = dropExtension(wavFile).toUpperCase();
-
-        for (int i = 0; i < 3; ++i) {
-            if (i < s.length()) {
-                romImage[offset] = (byte) s.charAt(i);
-            } else {
-                romImage[offset] = '-';
-            }
-
-            offset++;
-        }
+        renameSample(firstFreeSampleSlot(), s);
 
         Sample sample;
         try {
@@ -576,6 +581,18 @@ public class KitEditor extends JFrame {
         updateRomView();
         instrList.setSelectedIndex(index);
         playSample();
+    }
+
+    private void renameSample(int sampleIndex, String sampleName) {
+        int offset = getROMOffsetForSelectedBank() + 0x22 + sampleIndex * 3;
+        for (int i = 0; i < 3; ++i) {
+            if (i < sampleName.length()) {
+                romImage[offset] = (byte) sampleName.toUpperCase().charAt(i);
+            } else {
+                romImage[offset] = '-';
+            }
+            offset++;
+        }
     }
 
     private void selectSampleToAdd() {
@@ -679,6 +696,12 @@ public class KitEditor extends JFrame {
         return null;
     }
 
+    private String getKitName() {
+        String kitName = (String)bankBox.getSelectedItem();
+        assert kitName != null;
+        return kitName.substring(kitName.indexOf(' ') + 1);
+    }
+
     private void exportAllSamplesFromKit() {
         String directory = selectAFolder();
         if (directory == null) {
@@ -686,9 +709,7 @@ public class KitEditor extends JFrame {
         }
 
         int index = 0;
-        String kitName = (String)bankBox.getSelectedItem();
-        assert kitName != null;
-        kitName = kitName.substring(kitName.indexOf(' ') + 1);
+        String kitName = getKitName();
         if (kitName.length() == 0) {
             kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
         }

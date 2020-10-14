@@ -15,7 +15,7 @@ class Sample {
     private int volumeDb = 0;
     private int ditherDb = -30;
 
-    private Sample(short[] iBuf, String iName) {
+    public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
             for (int j : iBuf) {
                 assert (j >= Short.MIN_VALUE);
@@ -32,6 +32,21 @@ class Sample {
 
     public int lengthInSamples() {
         return processedSamples.length;
+    }
+
+    // For archiver.
+    public short[] originalSamples() {
+        short[] samples = new short[lengthInSamples()];
+        if (originalSamples != null) {
+            for (int i = 0; i < lengthInSamples(); ++i) {
+                samples[i] = (short) (int) originalSamples.get(i);
+            }
+        } else {
+            if (lengthInSamples() >= 0) {
+                System.arraycopy(processedSamples, 0, samples, 0, lengthInSamples());
+            }
+        }
+        return samples;
     }
 
     public int lengthInBytes() {
@@ -70,14 +85,27 @@ class Sample {
 
     // ------------------
 
-    static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
+    public static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName());
         s.originalSamples = readSamples(file);
         s.processSamples(dither);
         return s;
     }
 
-    private void processSamples(boolean dither) {
+    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume, int dither) {
+        Sample sample = new Sample(null, name);
+        sample.setVolumeDb(volume);
+        sample.setDitherDb(dither);
+        ArrayList<Integer> intPcm = new ArrayList<>();
+        for (short s : pcm) {
+            intPcm.add((int)s);
+        }
+        sample.originalSamples = intPcm;
+        sample.processSamples(true);
+        return sample;
+    }
+
+    public void processSamples(boolean dither) {
         ArrayList<Integer> samples = new ArrayList<>(originalSamples);
         normalize(samples);
         if (dither) {
@@ -153,7 +181,6 @@ class Sample {
 
     public void setDitherDb(int value) {
         ditherDb = value;
-        processSamples(true);
     }
 
     public int volumeDb() {
@@ -162,6 +189,5 @@ class Sample {
 
     public void setVolumeDb(int value) {
         volumeDb = value;
-        processSamples(true);
     }
 }
