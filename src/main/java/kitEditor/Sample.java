@@ -8,21 +8,20 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 class Sample {
-    private final File file;
     private final String name;
-    private short[] samples;
+    private ArrayList<Integer> originalSamples;
+    private short[] processedSamples;
     private int readPos;
     private int volumeDb = 0;
     private int ditherDb = -30;
 
-    private Sample(File file, short[] iBuf, String iName) {
-        this.file = file;
+    private Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
             for (int j : iBuf) {
                 assert (j >= Short.MIN_VALUE);
                 assert (j <= Short.MAX_VALUE);
             }
-            samples = iBuf;
+            processedSamples = iBuf;
         }
         name = iName;
     }
@@ -32,7 +31,7 @@ class Sample {
     }
 
     public int lengthInSamples() {
-        return samples.length;
+        return processedSamples.length;
     }
 
     public int lengthInBytes() {
@@ -46,11 +45,11 @@ class Sample {
     }
 
     public short read() {
-        return samples[readPos++];
+        return processedSamples[readPos++];
     }
 
     public boolean canAdjustVolume() {
-        return file != null;
+        return originalSamples != null;
     }
 
     // ------------------
@@ -66,26 +65,27 @@ class Sample {
             s *= 256;
             buf[bufIt] = s;
         }
-        return new Sample(null, buf, name);
+        return new Sample(buf, name);
     }
 
     // ------------------
 
     static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
-        Sample s = new Sample(file, null, file.getName());
-        s.readFromFile(dither);
+        Sample s = new Sample(null, file.getName());
+        s.originalSamples = readSamples(file);
+        s.processSamples(dither);
         return s;
     }
 
-    private void readFromFile(boolean dither) throws IOException, UnsupportedAudioFileException {
-        ArrayList<Integer> samples = readSamples(file);
+    private void processSamples(boolean dither) {
+        ArrayList<Integer> samples = new ArrayList<>(originalSamples);
         normalize(samples);
         if (dither) {
             dither(samples);
         }
-        this.samples = new short[samples.size()];
+        processedSamples = new short[samples.size()];
         for (int i = 0; i < samples.size(); ++i) {
-            this.samples[i] = (short)Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, samples.get(i)));
+            processedSamples[i] = (short)Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, samples.get(i)));
         }
         blendWaveFrames();
     }
@@ -95,11 +95,11 @@ class Sample {
      * frame. To reduce error, average these samples.
      */
     private void blendWaveFrames() {
-        for (int i = 0x20; i < samples.length; i += 0x20) {
+        for (int i = 0x20; i < processedSamples.length; i += 0x20) {
             int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
-            short avg = (short) ((samples[i] + samples[i - n]) / 2);
-            samples[i] = avg;
-            samples[i - n] = avg;
+            short avg = (short) ((processedSamples[i] + processedSamples[i - n]) / 2);
+            processedSamples[i] = avg;
+            processedSamples[i - n] = avg;
         }
     }
 
@@ -151,17 +151,17 @@ class Sample {
         return ditherDb;
     }
 
-    public void setDitherDb(int value) throws IOException, UnsupportedAudioFileException {
+    public void setDitherDb(int value) {
         ditherDb = value;
-        readFromFile(true);
+        processSamples(true);
     }
 
     public int volumeDb() {
         return volumeDb;
     }
 
-    public void setVolumeDb(int value) throws IOException, UnsupportedAudioFileException {
+    public void setVolumeDb(int value) {
         volumeDb = value;
-        readFromFile(true);
+        processSamples(true);
     }
 }

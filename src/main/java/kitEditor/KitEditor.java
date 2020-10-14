@@ -114,18 +114,11 @@ public class KitEditor extends JFrame {
             return;
         }
         updatingVolume = true;
-        try {
-            sample.setDitherDb((int)ditherSpinner.getValue());
-            sample.setVolumeDb((int)volumeSpinner.getValue());
-            compileKit();
-            instrList.setSelectedIndex(index);
-            playSample();
-        } catch (Exception exception) {
-            JOptionPane.showMessageDialog(contentPane,
-                    exception.getMessage(),
-                    "File error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        sample.setDitherDb((int)ditherSpinner.getValue());
+        sample.setVolumeDb((int)volumeSpinner.getValue());
+        compileKit();
+        instrList.setSelectedIndex(index);
+        playSample();
         updatingVolume = false;
     }
 
