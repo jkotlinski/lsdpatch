@@ -79,7 +79,9 @@ public class Sound {
                 value *= (1 - srcPos % 1);
                 value += (((int)srcBuffer[pos2]) & 0xf0) * (srcPos % 1);
             }
-            dstBuffer[dst] = (value - 120) / 120;
+            dstBuffer[dst] = (value - 0x78) / 0x78;
+            assert dstBuffer[dst] <= 1;
+            assert dstBuffer[dst] >= -1;
         }
         return dstBuffer;
     }
