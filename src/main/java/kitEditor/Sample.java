@@ -2,10 +2,7 @@ package kitEditor;
 
 import java.io.*;
 import java.util.ArrayList;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 
 class Sample {
     private final String name;
@@ -34,8 +31,7 @@ class Sample {
         return processedSamples.length;
     }
 
-    // For archiver.
-    public short[] originalSamples() {
+    public short[] workSampleData() {
         short[] samples = new short[lengthInSamples()];
         if (originalSamples != null) {
             for (int i = 0; i < lengthInSamples(); ++i) {

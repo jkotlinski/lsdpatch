@@ -17,11 +17,11 @@ public class KitArchive {
                 }
                 ZipEntry zipEntry = new ZipEntry(Integer.toString(i));
                 writeMetaData(sample, zipEntry);
-                short[] originalSamples = sample.originalSamples();
+                short[] workSampleData = sample.workSampleData();
                 zipOutputStream.putNextEntry(zipEntry);
-                byte[] buf = new byte[originalSamples.length * 2];
+                byte[] buf = new byte[workSampleData.length * 2];
                 int dst = 0;
-                for (short s : originalSamples) {
+                for (short s : workSampleData) {
                     buf[dst++] = (byte) s;
                     buf[dst++] = (byte) (s >> 8);
                 }

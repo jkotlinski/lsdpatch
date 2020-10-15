@@ -8,18 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
  - Palette Editor: dragging color picker sliders is now more responsive.
- - Kit Editor: "Export sample" now exports sample from ROM instead of intermediate 16-bit work sample.
  - Kit Editor: when prelistening a sample, stop already playing samples.
  - Kit Editor: dither level control.
  - Some file dialogs would not remember the last used directory.
  - Saving a ROM when no SAV has been loaded.
 
 ### Changed
- - Kit Editor: kits are now saved with the original 16-bit sample data. *this change is not forward compatible!*
  - Kit Editor: "Add Sample" now automatically resamples, normalizes and dithers the sample. No need to prepare samples using sox anymore.
  - Kit Editor: dithering now uses pink noise. compared to the old noise, this is more pleasant for the ears.
- - Kit Editor: improved sound playback quality.
  - Kit Editor: when adding samples, blend wave frames to reduce impact of the [Game Boy wave refresh bug](https://www.devrs.com/gb/files/gbsnd3.gif).
+ - Kit Editor: kits are now saved with the original 16-bit sample data, to make future edits easier.
+ - Kit Editor: improved sound playback quality.
  - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
  - Kit Editor: click sample view to play.
  - Palette Editor: improved mid-tone generation.
