@@ -93,13 +93,31 @@ class Sample {
     }
 
     public void processSamples(boolean dither) {
-        short[] samples = originalSamples.clone();
-        normalize(samples);
+        int[] intBuffer = toIntBuffer(originalSamples);
+        normalize(intBuffer);
         if (dither) {
-            dither(samples);
+            dither(intBuffer);
         }
-        blendWaveFrames(samples);
-        processedSamples = samples;
+        processedSamples = toShortBuffer(intBuffer);
+        blendWaveFrames(processedSamples);
+    }
+
+    private short[] toShortBuffer(int[] intBuffer) {
+        short[] shortBuffer = new short[intBuffer.length];
+        for (int i = 0; i < intBuffer.length; ++i) {
+            int s = intBuffer[i];
+            s = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, s));
+            shortBuffer[i] = (short)s;
+        }
+        return shortBuffer;
+    }
+
+    private int[] toIntBuffer(short[] shortBuffer) {
+        int[] intBuffer = new int[shortBuffer.length];
+        for (int i = 0; i < shortBuffer.length; ++i) {
+            intBuffer[i] = shortBuffer[i];
+        }
+        return intBuffer;
     }
 
     /* Due to Game Boy audio bug, the first sample in a frame is played
@@ -137,20 +155,19 @@ class Sample {
         return shortBuf;
     }
 
-    private void dither(short[] samples) {
+    private void dither(int[] samples) {
         Random random = new Random();
         for (int i = 0; i < samples.length; ++i) {
             int s = samples[i];
             double noiseLevel = Short.MAX_VALUE * Math.pow(10, ditherDb / 20.0);
             s += random.nextGaussian() * noiseLevel;
-            s = Math.min(Short.MAX_VALUE, Math.max(Short.MIN_VALUE, s));
-            samples[i] = (short)s;
+            samples[i] = s;
         }
     }
 
-    private void normalize(short[] samples) {
+    private void normalize(int[] samples) {
         double peak = Double.MIN_VALUE;
-        for (Short sample : samples) {
+        for (int sample : samples) {
             double s = sample;
             s = s < 0 ? s / Short.MIN_VALUE : s / Short.MAX_VALUE;
             peak = Math.max(s, peak);
@@ -160,7 +177,7 @@ class Sample {
         }
         double volumeAdjust = Math.pow(10, volumeDb / 20.0);
         for (int i = 0; i < samples.length; ++i) {
-            samples[i] = (short)((samples[i] * volumeAdjust) / peak);
+            samples[i] = (int)((samples[i] * volumeAdjust) / peak);
         }
     }
 
