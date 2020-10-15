@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
-public class KitEditor extends JFrame {
+public class KitEditor extends JFrame implements SamplePicker.Listener {
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
     private int prevBankBoxIndex = -1;
     private final JComboBox<String> bankBox = new JComboBox<>();
-    private final SamplePicker instrList = new SamplePicker();
+    private final SamplePicker samplePicker = new SamplePicker();
 
     private static final int MAX_SAMPLES = 15;
     private static final int MAX_SAMPLE_SPACE = 0x3fa0;
@@ -47,15 +47,18 @@ public class KitEditor extends JFrame {
     private final JCheckBox playSpeedToggle = new JCheckBox("Play samples in half-speed");
 
     private void emptyInstrList() {
-        String[] listData = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.",
-                "12.", "13.", "14.", "15."};
-        instrList.setListData(listData);
+        String[] listData = {
+                "---", "---", "---", "---",
+                "---", "---", "---", "---",
+                "---", "---", "---", "---",
+                "---", "---", "---"
+        };
+        samplePicker.setListData(listData);
     }
 
     public KitEditor(Document document) {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
-        emptyInstrList();
         romImage = document.romImage();
         setVisible(true);
         setTitle("Kit Editor");
@@ -71,22 +74,13 @@ public class KitEditor extends JFrame {
         });
 
         pack();
+
+        samplePicker.grabFocus();
     }
 
     private void setListeners() {
         bankBox.addActionListener(bankBoxListener);
-        instrList.addListSelectionListener(() -> {
-            int index = instrList.getSelectedIndex();
-            dropSampleButton.setEnabled(index >= 0 && samples[index] != null);
-            exportSampleButton.setEnabled(getNibbles(index) != null);
-            Sample sample = index >= 0 ? samples[index] : null;
-            boolean enableVolume = sample != null && sample.canAdjustVolume();
-            updatingVolume = true;
-            volumeSpinner.setEnabled(enableVolume);
-            volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
-            updatingVolume = false;
-            playSample();
-        });
+        samplePicker.addListSelectionListener(this);
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
         loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
@@ -101,7 +95,7 @@ public class KitEditor extends JFrame {
     }
 
     private void reloadSamples() {
-        int index = instrList.getSelectedIndex();
+        int index = samplePicker.getSelectedIndex();
         try {
             for (Sample s : samples) {
                 if (s != null) {
@@ -114,7 +108,7 @@ public class KitEditor extends JFrame {
         }
         compileKit();
         updateRomView();
-        instrList.setSelectedIndex(index);
+        samplePicker.setSelectedIndex(index);
         playSample();
     }
 
@@ -123,7 +117,7 @@ public class KitEditor extends JFrame {
         if (updatingVolume) {
             return;
         }
-        int index = instrList.getSelectedIndex();
+        int index = samplePicker.getSelectedIndex();
         if (index < 0) {
             return;
         }
@@ -135,7 +129,7 @@ public class KitEditor extends JFrame {
         sample.setVolumeDb((int)volumeSpinner.getValue());
         sample.processSamples(true);
         compileKit();
-        instrList.setSelectedIndex(index);
+        samplePicker.setSelectedIndex(index);
         playSample();
         updatingVolume = false;
     }
@@ -147,14 +141,14 @@ public class KitEditor extends JFrame {
 
         createFileDrop();
 
-        instrList.setBorder(BorderFactory.createEtchedBorder());
+        samplePicker.setBorder(BorderFactory.createEtchedBorder());
 
         JPanel kitContainer = new JPanel();
         TitledBorder kitContainerBorder = new TitledBorder(BorderFactory.createEtchedBorder(), "ROM Image");
         kitContainer.setBorder(kitContainerBorder);
         kitContainer.setLayout(new MigLayout("", "[grow,fill]", ""));
         kitContainer.add(bankBox, "grow,wrap");
-        kitContainer.add(instrList, "grow,wrap");
+        kitContainer.add(samplePicker, "grow,wrap");
         kitContainer.add(kitSizeLabel, "grow,wrap");
 
         loadKitButton.setText("Load kit");
@@ -253,7 +247,7 @@ public class KitEditor extends JFrame {
         if (!playSampleToggle.isSelected()) {
             return;
         }
-        byte[] nibbles = getNibbles(instrList.getSelectedIndex());
+        byte[] nibbles = getNibbles(samplePicker.getSelectedIndex());
         if (nibbles == null) {
             return;
         }
@@ -369,7 +363,7 @@ public class KitEditor extends JFrame {
             }
             s[instrNo] = new String(buf);
         }
-        instrList.setListData(s);
+        samplePicker.setListData(s);
 
         updateKitSizeLabel();
         addSampleButton.setEnabled(firstFreeSampleSlot() != -1);
@@ -382,7 +376,7 @@ public class KitEditor extends JFrame {
 
         Color c = tooFull ? Color.red : Color.black;
         kitSizeLabel.setForeground(c);
-        instrList.setForeground(c);
+        samplePicker.setForeground(c);
     }
 
     private void bankBox_actionPerformed() {
@@ -588,7 +582,7 @@ public class KitEditor extends JFrame {
         samples[index] = sample;
         compileKit();
         updateRomView();
-        instrList.setSelectedIndex(index);
+        samplePicker.setSelectedIndex(index);
         playSample();
     }
 
@@ -657,7 +651,7 @@ public class KitEditor extends JFrame {
     }
 
     private void dropSample() {
-        ArrayList<Integer> indices = instrList.getSelectedIndices();
+        ArrayList<Integer> indices = samplePicker.getSelectedIndices();
         for (int indexIt = 0; indexIt < indices.size(); ++indexIt) {
             // Assumes that indices are sorted...
             int index = indices.get(indexIt);
@@ -683,8 +677,6 @@ public class KitEditor extends JFrame {
                 indices.set(indexIt2, indices.get(indexIt2) - 1);
             }
         }
-
-        instrList.setSelectedIndex(-1);
         compileKit();
         updateBankView();
     }
@@ -753,10 +745,29 @@ public class KitEditor extends JFrame {
         File f = FileDialogLauncher.save(this, "Save Sample", "wav");
         if (f != null) {
             try {
-                WaveFile.write(samples[instrList.getSelectedIndex()].workSampleData(), f);
+                WaveFile.write(samples[samplePicker.getSelectedIndex()].workSampleData(), f);
             } catch (IOException e) {
                 showFileErrorMessage(e);
             }
         }
+    }
+
+    @Override
+    public void selectionChanged() {
+        int index = samplePicker.getSelectedIndex();
+        dropSampleButton.setEnabled(index >= 0 && samples[index] != null);
+        exportSampleButton.setEnabled(getNibbles(index) != null);
+        Sample sample = index >= 0 ? samples[index] : null;
+        boolean enableVolume = sample != null && sample.canAdjustVolume();
+        updatingVolume = true;
+        volumeSpinner.setEnabled(enableVolume);
+        volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
+        updatingVolume = false;
+        playSample();
+    }
+
+    @Override
+    public void delete() {
+        dropSample();
     }
 }
