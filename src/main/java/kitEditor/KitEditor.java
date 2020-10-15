@@ -78,9 +78,8 @@ public class KitEditor extends JFrame {
         });
         instrList.addListSelectionListener(e -> {
             int index = instrList.getSelectedIndex();
-            boolean enableButtons = getNibbles(index) != null;
-            dropSampleButton.setEnabled(enableButtons);
-            exportSampleButton.setEnabled(enableButtons);
+            dropSampleButton.setEnabled(index >= 0 && samples[index] != null);
+            exportSampleButton.setEnabled(getNibbles(index) != null);
             Sample sample = index >= 0 ? samples[index] : null;
             boolean enableVolume = sample != null && sample.canAdjustVolume();
             updatingVolume = true;
@@ -732,7 +731,6 @@ public class KitEditor extends JFrame {
                 "Export OK!",
                 JOptionPane.INFORMATION_MESSAGE);
     }
-
 
     private void exportSample() {
         File f = FileDialogLauncher.save(this, "Save Sample", "wav");
