@@ -137,15 +137,15 @@ public class KitEditor extends JFrame {
         kitContainer.add(instrList, "grow,wrap");
         kitContainer.add(kitSizeLabel, "grow,wrap");
 
-        loadKitButton.setText("Load Kit");
-        saveKitButton.setText("Save Kit");
+        loadKitButton.setText("Load kit");
+        saveKitButton.setText("Save kit");
 
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
 
-        renameKitButton.setText("Rename Kit");
+        renameKitButton.setText("Rename kit");
 
         exportSampleButton.setEnabled(false);
-        exportSampleButton.setText("Export Sample");
+        exportSampleButton.setText("Export sample");
 
         exportAllSamplesButton.setText("Export all samples");
 
