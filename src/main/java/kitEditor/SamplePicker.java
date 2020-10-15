@@ -85,6 +85,7 @@ public class SamplePicker extends JPanel {
         }
         selectedIndices.add(selectedIndex);
         pads.get(selectedIndex).setSelected(true);
+        listener.selectionChanged();
     }
 
     public int getSelectedIndex() {

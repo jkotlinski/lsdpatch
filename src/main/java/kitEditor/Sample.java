@@ -6,11 +6,13 @@ import java.util.Random;
 import javax.sound.sampled.*;
 
 class Sample {
+    private File file;
     private final String name;
     private short[] originalSamples;
     private short[] processedSamples;
     private int readPos;
     private int volumeDb = 0;
+    private boolean dither = true;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
@@ -73,9 +75,18 @@ class Sample {
 
     public static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName());
-        s.originalSamples = readSamples(file);
-        s.processSamples(dither);
+        s.file = file;
+        s.dither = dither;
+        s.reload();
         return s;
+    }
+
+    public void reload() throws IOException, UnsupportedAudioFileException {
+        if (file == null) {
+            return;
+        }
+        originalSamples = readSamples(file);
+        processSamples(dither);
     }
 
     public static Sample createFromOriginalSamples(short[] pcm, String name, int volume, boolean dither) {

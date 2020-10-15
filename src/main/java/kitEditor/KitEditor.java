@@ -36,6 +36,7 @@ public class KitEditor extends JFrame {
     private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
     private final JTextArea kitTextArea = new JTextArea();
+    private final JButton reloadSamplesButton = new JButton("Reload samples");
     private final JButton addSampleButton = new JButton("Add sample");
     private final JButton dropSampleButton = new JButton("Drop sample(s)");
     private final JLabel kitSizeLabel = new JLabel();
@@ -95,7 +96,26 @@ public class KitEditor extends JFrame {
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
         addSampleButton.addActionListener(e -> selectSampleToAdd());
+        reloadSamplesButton.addActionListener(e -> reloadSamples());
         dropSampleButton.addActionListener(e -> dropSample());
+    }
+
+    private void reloadSamples() {
+        int index = instrList.getSelectedIndex();
+        try {
+            for (Sample s : samples) {
+                if (s != null) {
+                    s.reload();
+                }
+            }
+        } catch (Exception e) {
+            showFileErrorMessage(e);
+            e.printStackTrace();
+        }
+        compileKit();
+        updateRomView();
+        instrList.setSelectedIndex(index);
+        playSample();
     }
 
     static boolean updatingVolume = false;
@@ -162,6 +182,7 @@ public class KitEditor extends JFrame {
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
         contentPane.add(exportAllSamplesButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
+        contentPane.add(reloadSamplesButton, "grow, span 2, wrap, sg button");
         contentPane.add(dropSampleButton, "grow, span 2,wrap 10, sg button");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
