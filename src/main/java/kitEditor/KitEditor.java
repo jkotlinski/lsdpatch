@@ -12,13 +12,14 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 
 public class KitEditor extends JFrame {
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
     private int prevBankBoxIndex = -1;
     private final JComboBox<String> bankBox = new JComboBox<>();
-    private final JList<String> instrList = new JList<>();
+    private final SamplePicker instrList = new SamplePicker();
 
     private static final int MAX_SAMPLES = 15;
 
@@ -54,7 +55,6 @@ public class KitEditor extends JFrame {
         jbInit();
         emptyInstrList();
         romImage = document.romImage();
-        pack();
         setVisible(true);
         setTitle("Kit Editor");
         updateRomView();
@@ -67,16 +67,13 @@ public class KitEditor extends JFrame {
                 document.setRomImage(romImage);
             }
         });
+
+        pack();
     }
 
     private void setListeners() {
         bankBox.addActionListener(bankBoxListener);
-        instrList.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                playSample();
-            }
-        });
-        instrList.addListSelectionListener(e -> {
+        instrList.addListSelectionListener(() -> {
             int index = instrList.getSelectedIndex();
             dropSampleButton.setEnabled(index >= 0 && samples[index] != null);
             exportSampleButton.setEnabled(getNibbles(index) != null);
@@ -86,6 +83,7 @@ public class KitEditor extends JFrame {
             volumeSpinner.setEnabled(enableVolume);
             volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
             updatingVolume = false;
+            playSample();
         });
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
@@ -124,9 +122,7 @@ public class KitEditor extends JFrame {
     private void jbInit() {
         setTitle("LSDPatcher v" + LSDPatcher.getVersion());
         contentPane = (JPanel) this.getContentPane();
-        contentPane.setLayout(new MigLayout("",
-                "[150:60%:,grow][200:40%:,fill,grow]",
-                ""));
+        contentPane.setLayout(new MigLayout());
 
         createFileDrop();
 
@@ -139,7 +135,6 @@ public class KitEditor extends JFrame {
         kitContainer.add(bankBox, "grow,wrap");
         kitContainer.add(instrList, "grow,wrap");
         kitContainer.add(kitSizeLabel, "grow,wrap");
-        kitContainer.setMinimumSize(kitContainer.getPreferredSize());
 
         loadKitButton.setText("Load Kit");
         saveKitButton.setText("Save Kit");
@@ -158,15 +153,15 @@ public class KitEditor extends JFrame {
         volumeSpinner.setEnabled(false);
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
-        contentPane.add(loadKitButton, "wrap");
-        contentPane.add(saveKitButton, "wrap");
+        contentPane.add(loadKitButton, "grow, wrap");
+        contentPane.add(saveKitButton, "grow, wrap, sg button");
         contentPane.add(kitTextArea, "grow,split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
-        contentPane.add(exportSampleButton, "wrap");
-        contentPane.add(exportAllSamplesButton, "wrap");
-        contentPane.add(addSampleButton, "span 2,wrap");
-        contentPane.add(dropSampleButton, "span 2,wrap 10");
+        contentPane.add(exportSampleButton, "grow, wrap, sg button");
+        contentPane.add(exportAllSamplesButton, "grow, wrap, sg button");
+        contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
+        contentPane.add(dropSampleButton, "grow, span 2,wrap 10, sg button");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(playSpeedToggle, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
@@ -179,8 +174,6 @@ public class KitEditor extends JFrame {
             }
         });
 
-        setMinimumSize(getPreferredSize());
-        pack();
         setListeners();
     }
 
@@ -335,7 +328,6 @@ public class KitEditor extends JFrame {
         String[] s = new String[15];
 
         int bankOffset = getROMOffsetForSelectedBank();
-        instrList.removeAll();
         //do banks
 
         //update names
@@ -353,11 +345,7 @@ public class KitEditor extends JFrame {
                     }
                 }
             }
-            s[instrNo] = (instrNo + 1) + ". " + new String(buf);
-            Sample sample = samples[instrNo];
-            if (sample != null) {
-                s[instrNo] += " (" + Integer.toHexString(sample.lengthInBytes()) + ")";
-            }
+            s[instrNo] = new String(buf);
         }
         instrList.setListData(s);
 
@@ -640,34 +628,34 @@ public class KitEditor extends JFrame {
     }
 
     private void dropSample() {
-        int[] indices = instrList.getSelectedIndices();
+        ArrayList<Integer> indices = instrList.getSelectedIndices();
+        for (int indexIt = 0; indexIt < indices.size(); ++indexIt) {
+            // Assumes that indices are sorted...
+            int index = indices.get(indexIt);
 
-        for (int indexIt = 0; indexIt < indices.length; ++indexIt) {
-                // Assumes that indices are sorted...
-                int index = indices[indexIt];
+            // Moves up samples.
+            if (14 - index >= 0) System.arraycopy(samples, index + 1, samples, index, 14 - index);
+            samples[14] = null;
 
-                // Moves up samples.
-                if (14 - index >= 0) System.arraycopy(samples, index + 1, samples, index, 14 - index);
-                samples[14] = null;
+            // Moves up instr names.
+            int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
+            int i;
+            for (i = offset; i < getROMOffsetForSelectedBank() + 0x22 + 14 * 3; i += 3) {
+                romImage[i] = romImage[i + 3];
+                romImage[i + 1] = romImage[i + 4];
+                romImage[i + 2] = romImage[i + 5];
+            }
+            romImage[i] = 0;
+            romImage[i + 1] = '-';
+            romImage[i + 2] = '-';
 
-                // Moves up instr names.
-                int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
-                int i;
-                for (i = offset; i < getROMOffsetForSelectedBank() + 0x22 + 14 * 3; i += 3) {
-                    romImage[i] = romImage[i + 3];
-                    romImage[i + 1] = romImage[i + 4];
-                    romImage[i + 2] = romImage[i + 5];
-                }
-                romImage[i] = 0;
-                romImage[i + 1] = '-';
-                romImage[i + 2] = '-';
-
-                // Adjusts indices.
-                for (int indexIt2 = indexIt + 1; indexIt2 < indices.length; ++indexIt2) {
-                    --indices[indexIt2];
-                }
+            // Adjusts indices.
+            for (int indexIt2 = indexIt + 1; indexIt2 < indices.size(); ++indexIt2) {
+                indices.set(indexIt2, indices.get(indexIt2) - 1);
+            }
         }
 
+        instrList.setSelectedIndex(-1);
         compileKit();
         updateBankView();
     }
