@@ -10,7 +10,6 @@ class Sample {
     private short[] processedSamples;
     private int readPos;
     private int volumeDb = 0;
-    private int ditherDb = -30;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
@@ -88,10 +87,9 @@ class Sample {
         return s;
     }
 
-    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume, int dither) {
+    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume) {
         Sample sample = new Sample(null, name);
         sample.setVolumeDb(volume);
-        sample.setDitherDb(dither);
         ArrayList<Integer> intPcm = new ArrayList<>();
         for (short s : pcm) {
             intPcm.add((int)s);
@@ -145,11 +143,11 @@ class Sample {
         return samples;
     }
 
-    private void dither(ArrayList<Integer> samples) {
+    private static void dither(ArrayList<Integer> samples) {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.size(); ++i) {
             int s = samples.get(i);
-            double noiseLevel = Short.MAX_VALUE * Math.pow(10, ditherDb / 20.0);
+            final double noiseLevel = 256 * 4; // ad hoc.
             s += pinkNoise.nextValue() * noiseLevel;
             samples.set(i, s);
         }
@@ -169,14 +167,6 @@ class Sample {
         for (int i = 0; i < samples.size(); ++i) {
             samples.set(i, (int)((samples.get(i) * volumeAdjust) / peak));
         }
-    }
-
-    public int ditherDb() {
-        return ditherDb;
-    }
-
-    public void setDitherDb(int value) {
-        ditherDb = value;
     }
 
     public int volumeDb() {
