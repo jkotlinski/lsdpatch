@@ -35,7 +35,7 @@ public class KitEditor extends JFrame {
     private final JButton renameKitButton = new JButton();
     private final JTextArea kitTextArea = new JTextArea();
     private final JButton addSampleButton = new JButton("Add sample");
-    private final JButton dropSampleButton = new JButton("Drop sample");
+    private final JButton dropSampleButton = new JButton("Drop sample(s)");
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleCanvas sampleView = new SampleCanvas();
     private final JSpinner ditherSpinner = new JSpinner();
