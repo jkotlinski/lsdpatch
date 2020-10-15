@@ -37,7 +37,7 @@ public class FileDialogLauncher {
         boolean filenameMatchesExtension = false;
         String selectedExtension = null;
         for (String fileExtension : fileExtensions) {
-            if (fileName.endsWith("." + fileExtension)) {
+            if (fileName.toLowerCase().endsWith("." + fileExtension)) {
                 filenameMatchesExtension = true;
                 selectedExtension = fileExtension;
                 break;
