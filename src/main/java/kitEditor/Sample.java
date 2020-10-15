@@ -155,13 +155,17 @@ class Sample {
         return shortBuf;
     }
 
+    // Adds triangular probability density function dither noise.
     private void dither(int[] samples) {
         Random random = new Random();
+        float state = random.nextFloat();
         for (int i = 0; i < samples.length; ++i) {
-            int s = samples[i];
-            double noiseLevel = Short.MAX_VALUE * Math.pow(10, ditherDb / 20.0);
-            s += random.nextGaussian() * noiseLevel;
-            samples[i] = s;
+            int value = samples[i];
+            float r = state;
+            state = random.nextFloat();
+            int noiseLevel = 256 * 16;
+            value += (r - state) * noiseLevel;
+            samples[i] = value;
         }
     }
 
