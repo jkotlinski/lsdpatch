@@ -2,6 +2,7 @@ package kitEditor;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.sound.sampled.*;
 
 class Sample {
@@ -137,11 +138,11 @@ class Sample {
     }
 
     private void dither(short[] samples) {
-        PinkNoise pinkNoise = new PinkNoise(1);
+        Random random = new Random();
         for (int i = 0; i < samples.length; ++i) {
             int s = samples[i];
             double noiseLevel = Short.MAX_VALUE * Math.pow(10, ditherDb / 20.0);
-            s += pinkNoise.nextValue() * noiseLevel;
+            s += random.nextGaussian() * noiseLevel;
             s = Math.min(Short.MAX_VALUE, Math.max(Short.MIN_VALUE, s));
             samples[i] = (short)s;
         }
