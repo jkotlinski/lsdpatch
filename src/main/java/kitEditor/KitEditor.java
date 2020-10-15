@@ -22,6 +22,7 @@ public class KitEditor extends JFrame {
     private final SamplePicker instrList = new SamplePicker();
 
     private static final int MAX_SAMPLES = 15;
+    private static final int MAX_SAMPLE_SPACE = 0x3fa0;
 
     private final java.awt.event.ActionListener bankBoxListener = e -> bankBox_actionPerformed();
 
@@ -552,10 +553,17 @@ public class KitEditor extends JFrame {
             showFileErrorMessage(e);
             return;
         }
-        int index = firstFreeSampleSlot();
-        if (index == -1) {
+
+        if (sample.lengthInBytes() > MAX_SAMPLE_SPACE - totalSampleSize()) {
+            JOptionPane.showMessageDialog(this,
+                    "Free up some space and try again!",
+                    "Kit full!",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        int index = firstFreeSampleSlot();
+        assert index != -1;
         samples[index] = sample;
         compileKit();
         updateRomView();
