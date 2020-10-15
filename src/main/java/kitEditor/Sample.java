@@ -134,7 +134,10 @@ class Sample {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.length; ++i) {
             int s = samples[i];
-            final double noiseLevel = 256 * 4; // ad hoc.
+            // Noise level picked by ear. Tested by generating a slow DC slope,
+            // dithering and truncating to 4-bit. With this noise level, there
+            // are no noticeable transitions between Game Boy volumes.
+            final double noiseLevel = 1400;
             s += pinkNoise.nextValue() * noiseLevel;
             s = Math.min(Short.MAX_VALUE, Math.max(Short.MIN_VALUE, s));
             samples[i] = (short)s;
