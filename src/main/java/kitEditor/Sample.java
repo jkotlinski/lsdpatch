@@ -6,7 +6,7 @@ import javax.sound.sampled.*;
 
 class Sample {
     private final String name;
-    private ArrayList<Integer> originalSamples;
+    private short[] originalSamples;
     private short[] processedSamples;
     private int readPos;
     private int volumeDb = 0;
@@ -31,17 +31,7 @@ class Sample {
     }
 
     public short[] workSampleData() {
-        short[] samples = new short[lengthInSamples()];
-        if (originalSamples != null) {
-            for (int i = 0; i < lengthInSamples(); ++i) {
-                samples[i] = (short) (int) originalSamples.get(i);
-            }
-        } else {
-            if (lengthInSamples() >= 0) {
-                System.arraycopy(processedSamples, 0, samples, 0, lengthInSamples());
-            }
-        }
-        return samples;
+        return (originalSamples != null ? originalSamples : processedSamples).clone();
     }
 
     public int lengthInBytes() {
@@ -90,72 +80,70 @@ class Sample {
     public static Sample createFromOriginalSamples(short[] pcm, String name, int volume) {
         Sample sample = new Sample(null, name);
         sample.setVolumeDb(volume);
-        ArrayList<Integer> intPcm = new ArrayList<>();
-        for (short s : pcm) {
-            intPcm.add((int)s);
-        }
-        sample.originalSamples = intPcm;
+        sample.originalSamples = pcm;
         sample.processSamples(true);
         return sample;
     }
 
     public void processSamples(boolean dither) {
-        ArrayList<Integer> samples = new ArrayList<>(originalSamples);
+        short[] samples = originalSamples.clone();
         normalize(samples);
         if (dither) {
             dither(samples);
         }
-        processedSamples = new short[samples.size()];
-        for (int i = 0; i < samples.size(); ++i) {
-            processedSamples[i] = (short)Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, samples.get(i)));
-        }
-        blendWaveFrames();
+        blendWaveFrames(samples);
+        processedSamples = samples;
     }
 
     /* Due to Game Boy audio bug, the first sample in a frame is played
      * back using the same value as the last completed sample in previous
      * frame. To reduce error, average these samples.
      */
-    private void blendWaveFrames() {
-        for (int i = 0x20; i < processedSamples.length; i += 0x20) {
+    private static void blendWaveFrames(short[] samples) {
+        for (int i = 0x20; i < samples.length; i += 0x20) {
             int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
-            short avg = (short) ((processedSamples[i] + processedSamples[i - n]) / 2);
-            processedSamples[i] = avg;
-            processedSamples[i - n] = avg;
+            short avg = (short) ((samples[i] + samples[i - n]) / 2);
+            samples[i] = avg;
+            samples[i - n] = avg;
         }
     }
 
-    private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
+    private static short[] readSamples(File file) throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         AudioFormat outFormat = new AudioFormat(11468, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
-        ArrayList<Integer> samples = new ArrayList<>();
+        ArrayList<Short> samples = new ArrayList<>();
         while (true) {
             byte[] buf = new byte[2];
             if (convertedAis.read(buf) < 2) {
                 break;
             }
-            int sample = buf[1];
+            short sample = buf[1];
             sample *= 256;
-            sample += (int)buf[0] & 0xff;
+            sample += (short)buf[0] & 0xff;
             samples.add(sample);
         }
-        return samples;
+        short[] shortBuf = new short[samples.size()];
+        for (int i = 0; i < shortBuf.length; ++i) {
+            shortBuf[i] = samples.get(i);
+        }
+        return shortBuf;
     }
 
-    private static void dither(ArrayList<Integer> samples) {
+    private static void dither(short[] samples) {
         PinkNoise pinkNoise = new PinkNoise(1);
-        for (int i = 0; i < samples.size(); ++i) {
-            int s = samples.get(i);
+        for (int i = 0; i < samples.length; ++i) {
+            int s = samples[i];
             final double noiseLevel = 256 * 4; // ad hoc.
             s += pinkNoise.nextValue() * noiseLevel;
-            samples.set(i, s);
+            s = Math.min(Short.MAX_VALUE, Math.max(Short.MIN_VALUE, s));
+            samples[i] = (short)s;
         }
     }
 
-    private void normalize(ArrayList<Integer> samples) {
+    private void normalize(short[] samples) {
         double peak = Double.MIN_VALUE;
-        for (Integer sample : samples) {
+        for (Short sample : samples) {
             double s = sample;
             s = s < 0 ? s / Short.MIN_VALUE : s / Short.MAX_VALUE;
             peak = Math.max(s, peak);
@@ -164,8 +152,8 @@ class Sample {
             return;
         }
         double volumeAdjust = Math.pow(10, volumeDb / 20.0);
-        for (int i = 0; i < samples.size(); ++i) {
-            samples.set(i, (int)((samples.get(i) * volumeAdjust) / peak));
+        for (int i = 0; i < samples.length; ++i) {
+            samples[i] = (short)((samples[i] * volumeAdjust) / peak);
         }
     }
 
