@@ -3,7 +3,7 @@ package kitEditor;
 import java.awt.*;
 import java.awt.geom.GeneralPath;
 
-public class SampleCanvas extends Canvas {
+public class SampleView extends Canvas {
     byte[] buf;
 
     public void setBufferContent(byte[] newBuffer) {

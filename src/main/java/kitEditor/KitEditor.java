@@ -37,7 +37,7 @@ public class KitEditor extends JFrame {
     private final JButton addSampleButton = new JButton("Add sample");
     private final JButton dropSampleButton = new JButton("Drop sample(s)");
     private final JLabel kitSizeLabel = new JLabel();
-    private final SampleCanvas sampleView = new SampleCanvas();
+    private final SampleView sampleView = new SampleView();
     private final JSpinner volumeSpinner = new JSpinner();
 
     private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
