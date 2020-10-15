@@ -14,8 +14,8 @@ class Sample {
 
     // Noise level picked by ear. Tested by generating a slow DC slope,
     // dithering and truncating to 4-bit. With this noise level, the
-    // transitions between Game Boy volumes are not very noticeable.
-    private int ditherDb = -28;
+    // transitions between Game Boy volumes are not noticeable.
+    private int ditherDb = -24;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
