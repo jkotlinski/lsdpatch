@@ -11,6 +11,12 @@ class Sample {
     private int readPos;
     private int volumeDb = 0;
 
+    // Noise level picked by ear. Tested by generating a slow DC slope,
+    // dithering and truncating to 4-bit. With this noise level, there
+    // are no noticeable transitions between Game Boy volumes.
+    // final double noiseLevel = 1400;
+    private int ditherDb = -30;
+
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
             for (int j : iBuf) {
@@ -77,9 +83,10 @@ class Sample {
         return s;
     }
 
-    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume) {
+    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume, int dither) {
         Sample sample = new Sample(null, name);
         sample.setVolumeDb(volume);
+        sample.setDitherDb(dither);
         sample.originalSamples = pcm;
         sample.processSamples(true);
         return sample;
@@ -134,10 +141,7 @@ class Sample {
         PinkNoise pinkNoise = new PinkNoise(1);
         for (int i = 0; i < samples.length; ++i) {
             int s = samples[i];
-            // Noise level picked by ear. Tested by generating a slow DC slope,
-            // dithering and truncating to 4-bit. With this noise level, there
-            // are no noticeable transitions between Game Boy volumes.
-            final double noiseLevel = 1400;
+            double noiseLevel = Short.MAX_VALUE * Math.pow(10, ditherDb / 20.0);
             s += pinkNoise.nextValue() * noiseLevel;
             s = Math.min(Short.MAX_VALUE, Math.max(Short.MIN_VALUE, s));
             samples[i] = (short)s;
@@ -158,6 +162,14 @@ class Sample {
         for (int i = 0; i < samples.length; ++i) {
             samples[i] = (short)((samples[i] * volumeAdjust) / peak);
         }
+    }
+
+    public int ditherDb() {
+        return ditherDb;
+    }
+
+    public void setDitherDb(int value) {
+        ditherDb = value;
     }
 
     public int volumeDb() {

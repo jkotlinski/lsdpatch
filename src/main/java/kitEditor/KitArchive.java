@@ -35,7 +35,9 @@ public class KitArchive {
         String comment;
         comment = "name=" + sample.getName();
         if (sample.canAdjustVolume()) {
-            comment += "|volume=" + sample.volumeDb() + "|original_samples=1";
+            comment += "|volume=" + sample.volumeDb() +
+                    "|dither=" + sample.ditherDb() +
+                    "|original_samples=1";
         }
         zipEntry.setExtra(comment.getBytes());
     }
@@ -65,7 +67,8 @@ public class KitArchive {
                 if (metaData.containsKey("original_samples")) {
                     sample = Sample.createFromOriginalSamples(dstPcm,
                             (String) metaData.get("name"),
-                            (int) metaData.get("volume"));
+                            (int) metaData.get("volume"),
+                            (int) metaData.get("dither"));
                 } else {
                     sample = new Sample(dstPcm, (String) metaData.get("name"));
                 }
@@ -82,6 +85,9 @@ public class KitArchive {
             switch (key) {
                 case "name":
                     hashMap.put("name", value);
+                    break;
+                case "dither":
+                    hashMap.put("dither", Integer.parseInt(value));
                     break;
                 case "volume":
                     hashMap.put("volume", Integer.parseInt(value));
