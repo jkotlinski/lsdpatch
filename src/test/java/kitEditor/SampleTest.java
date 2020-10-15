@@ -39,4 +39,17 @@ class SampleTest {
         Assertions.assertEquals(Short.MIN_VALUE, min);
         Assertions.assertEquals(32765, max);
     }
+
+    @Test
+    void normalize() {
+        short[] buf = new short[2];
+        buf[0] = 1;
+        Sample sample = Sample.createFromOriginalSamples(buf, null, 0, Integer.MIN_VALUE);
+        Assertions.assertEquals(Short.MAX_VALUE, sample.read());
+        Assertions.assertEquals(0, sample.read());
+
+        sample = Sample.createFromOriginalSamples(buf, null, -20, Integer.MIN_VALUE);
+        Assertions.assertEquals(Short.MAX_VALUE / 10, sample.read());
+        Assertions.assertEquals(0, sample.read());
+    }
 }
