@@ -44,11 +44,11 @@ class SampleTest {
     void normalize() {
         short[] buf = new short[2];
         buf[0] = 1;
-        Sample sample = Sample.createFromOriginalSamples(buf, null, 0, Integer.MIN_VALUE);
+        Sample sample = Sample.createFromOriginalSamples(buf, null, 0, false);
         Assertions.assertEquals(Short.MAX_VALUE, sample.read());
         Assertions.assertEquals(0, sample.read());
 
-        sample = Sample.createFromOriginalSamples(buf, null, -20, Integer.MIN_VALUE);
+        sample = Sample.createFromOriginalSamples(buf, null, -20, false);
         Assertions.assertEquals(Short.MAX_VALUE / 10, sample.read());
         Assertions.assertEquals(0, sample.read());
     }

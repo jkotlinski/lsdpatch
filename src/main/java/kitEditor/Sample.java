@@ -12,11 +12,6 @@ class Sample {
     private int readPos;
     private int volumeDb = 0;
 
-    // Noise level picked by ear. Tested by generating a slow DC slope,
-    // dithering and truncating to 4-bit. With this noise level, the
-    // transitions between Game Boy volumes are not noticeable.
-    private int ditherDb = -24;
-
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
             for (int j : iBuf) {
@@ -83,12 +78,11 @@ class Sample {
         return s;
     }
 
-    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume, int dither) {
+    public static Sample createFromOriginalSamples(short[] pcm, String name, int volume, boolean dither) {
         Sample sample = new Sample(null, name);
         sample.setVolumeDb(volume);
-        sample.setDitherDb(dither);
         sample.originalSamples = pcm;
-        sample.processSamples(true);
+        sample.processSamples(dither);
         return sample;
     }
 
@@ -183,14 +177,6 @@ class Sample {
         for (int i = 0; i < samples.length; ++i) {
             samples[i] = (int)((samples[i] * volumeAdjust) / peak);
         }
-    }
-
-    public int ditherDb() {
-        return ditherDb;
-    }
-
-    public void setDitherDb(int value) {
-        ditherDb = value;
     }
 
     public int volumeDb() {
