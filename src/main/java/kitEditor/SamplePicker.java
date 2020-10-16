@@ -108,10 +108,22 @@ public class SamplePicker extends JPanel {
                         case VK_DELETE:
                             listener.delete();
                             break;
+                        case VK_A:
+                            if ((e.getModifiersEx() & CTRL_DOWN_MASK) != 0) {
+                                selectAll();
+                            }
                     }
                 }
             });
         }
+    }
+
+    private void selectAll() {
+        for (Pad pad : pads) {
+            pad.setSelected(true);
+            selectedIndices.add(pad.id);
+        }
+        listener.selectionChanged();
     }
 
     @Override
