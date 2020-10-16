@@ -83,23 +83,23 @@ public class SamplePicker extends JPanel {
                     boolean shiftDown = (e.getModifiersEx() & SHIFT_DOWN_MASK) != 0;
                     switch (e.getKeyCode()) {
                         case VK_LEFT:
-                            if (getSelectedIndex() > 0) {
-                                pads.get(getSelectedIndex() - 1).select(shiftDown);
+                            if (getFocusIndex() > 0) {
+                                pads.get(getFocusIndex() - 1).select(shiftDown);
                             }
                             break;
                         case VK_RIGHT:
-                            if (getSelectedIndex() < 14) {
-                                pads.get(getSelectedIndex() + 1).select(shiftDown);
+                            if (getFocusIndex() < 14) {
+                                pads.get(getFocusIndex() + 1).select(shiftDown);
                             }
                             break;
                         case VK_DOWN:
-                            if (getSelectedIndex() < 11) {
-                                pads.get(getSelectedIndex() + 4).select(shiftDown);
+                            if (getFocusIndex() < 11) {
+                                pads.get(getFocusIndex() + 4).select(shiftDown);
                             }
                             break;
                         case VK_UP:
-                            if (getSelectedIndex() > 3) {
-                                pads.get(getSelectedIndex() - 4).select(shiftDown);
+                            if (getFocusIndex() > 3) {
+                                pads.get(getFocusIndex() - 4).select(shiftDown);
                             }
                             break;
                         case VK_SPACE:
@@ -159,9 +159,18 @@ public class SamplePicker extends JPanel {
         listener.selectionChanged();
     }
 
-    public int getSelectedIndex() {
+    public int getFocusIndex() {
         for (Pad pad : pads) {
             if (pad.hasFocus()) {
+                return pad.id;
+            }
+        }
+        return -1;
+    }
+
+    public int getSelectedIndex() {
+        for (Pad pad : pads) {
+            if (pad.isSelected()) {
                 return pad.id;
             }
         }

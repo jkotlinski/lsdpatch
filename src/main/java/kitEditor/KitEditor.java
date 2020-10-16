@@ -438,12 +438,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void loadKit(File kitFile) {
+        flushWavFiles();
         try {
             if (kitFile.length() == RomUtilities.BANK_SIZE) {
                 loadKitV1(kitFile);
             } else {
                 loadKitV2(kitFile);
             }
+            createSamplesFromRom();
+            updateBankView();
         } catch (Exception e) {
             showFileErrorMessage(e);
         }
@@ -451,7 +454,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void loadKitV2(File kitFile) throws IOException {
-        flushWavFiles();
         KitArchive.load(kitFile, samples);
         renameKit(kitFile.getName().split("\\.")[0]);
         for (int i = 0; i < MAX_SAMPLES; ++i) {
@@ -459,7 +461,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 renameSample(i, samples[i].getName());
             }
         }
-        compileKit();
     }
 
     private void loadKitV1(File kitFile) throws IOException {
@@ -471,9 +472,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             romImage[offset++] = aBuf;
         }
         bankFile.close();
-        flushWavFiles();
-        createSamplesFromRom();
-        updateBankView();
     }
 
     private void loadKitButton_actionPerformed() {
