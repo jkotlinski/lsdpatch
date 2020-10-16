@@ -104,6 +104,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
         addSampleButton.addActionListener(e -> selectSampleToAdd());
         reloadSamplesButton.addActionListener(e -> reloadSamples());
+        reloadSamplesButton.setEnabled(false);
         dropSampleButton.addActionListener(e -> dropSample());
     }
 
@@ -600,6 +601,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
         samplePicker.setSelectedIndex(index);
         playSample();
+        reloadSamplesButton.setEnabled(true);
     }
 
     private void renameSample(int sampleIndex, String sampleName) {
