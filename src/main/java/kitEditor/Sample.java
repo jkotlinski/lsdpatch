@@ -74,7 +74,7 @@ class Sample {
     // ------------------
 
     public static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
-        Sample s = new Sample(null, file.getName());
+        Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
         s.reload();
