@@ -153,6 +153,8 @@ class Sample {
             sample += (short)buf[0] & 0xff;
             samples.add(sample);
         }
+        convertedAis.close();
+        ais.close();
         short[] shortBuf = new short[samples.size()];
         for (int i = 0; i < shortBuf.length; ++i) {
             shortBuf[i] = samples.get(i);
