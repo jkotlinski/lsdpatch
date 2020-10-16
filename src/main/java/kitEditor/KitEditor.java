@@ -28,7 +28,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final byte[] romImage;
 
-    private Sample[] samples = new Sample[MAX_SAMPLES];
+    private Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
 
     private final JButton loadKitButton = new JButton();
     private final JButton saveKitButton = new JButton();
@@ -97,7 +97,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private void reloadSamples() {
         int index = samplePicker.getSelectedIndex();
         try {
-            for (Sample s : samples) {
+            for (Sample s : samples[selectedBank]) {
                 if (s != null) {
                     s.reload();
                 }
@@ -121,7 +121,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (index < 0) {
             return;
         }
-        Sample sample = samples[index];
+        Sample sample = samples[selectedBank][index];
         if (sample == null || !sample.canAdjustVolume()) {
             return;
         }
@@ -305,13 +305,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateBankView();
     }
 
-    private int m_selected = -1;
+    private int selectedBank = -1;
 
     private int getSelectedUiBank() {
         if (bankBox.getSelectedIndex() > -1) {
-            m_selected = bankBox.getSelectedIndex();
+            selectedBank = bankBox.getSelectedIndex();
         }
-        return m_selected;
+        return selectedBank;
     }
 
     private int getSelectedROMBank() {
@@ -386,9 +386,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         // Switched bank.
         prevBankBoxIndex = index;
-        flushWavFiles();
-        createSamplesFromRom();
+        if (samples[selectedBank] == null) {
+            flushWavFiles();
+            createSamplesFromRom();
+        }
         updateBankView();
+        samplePicker.setSelectedIndex(-1);
+        selectionChanged();
     }
 
     private String getRomSampleName(int index) {
@@ -402,16 +406,16 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private void createSamplesFromRom() {
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
-            if (samples[sampleIt] != null) {
+            if (samples[selectedBank][sampleIt] != null) {
                 continue;
             }
             byte[] nibbles = getNibbles(sampleIt);
 
             if (nibbles != null) {
                 String name = getRomSampleName(sampleIt);
-                samples[sampleIt] = Sample.createFromNibbles(nibbles, name);
+                samples[selectedBank][sampleIt] = Sample.createFromNibbles(nibbles, name);
             } else {
-                samples[sampleIt] = null;
+                samples[selectedBank][sampleIt] = null;
             }
         }
     }
@@ -430,7 +434,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
         try {
-            KitArchive.save(samples, f);
+            KitArchive.save(samples[selectedBank], f);
         } catch (IOException e) {
             showFileErrorMessage(e);
         }
@@ -461,11 +465,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void loadKitV2(File kitFile) throws IOException {
-        KitArchive.load(kitFile, samples);
+        KitArchive.load(kitFile, samples[selectedBank]);
         renameKit(kitFile.getName().split("\\.")[0]);
         for (int i = 0; i < MAX_SAMPLES; ++i) {
-            if (samples[i] != null) {
-                renameSample(i, samples[i].getName());
+            Sample sample = samples[selectedBank][i];
+            if (sample != null) {
+                renameSample(i, sample.getName());
             }
         }
     }
@@ -519,7 +524,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void flushWavFiles() {
-        samples = new Sample[MAX_SAMPLES];
+        samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
     }
 
     private void renameKit(String s) {
@@ -538,7 +543,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private int firstFreeSampleSlot() {
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
-            if (samples[sampleIt] == null) {
+            if (samples[selectedBank][sampleIt] == null) {
                 return sampleIt;
             }
         }
@@ -577,7 +582,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         int index = firstFreeSampleSlot();
         assert index != -1;
-        samples[index] = sample;
+        samples[selectedBank][index] = sample;
         compileKit();
         updateRomView();
         samplePicker.setSelectedIndex(index);
@@ -612,7 +617,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
         int[] lengths = new int[15];
-        sbc.compile(newSamples, samples, lengths);
+        sbc.compile(newSamples, samples[selectedBank], lengths);
 
         //copy sampledata to ROM image
         int offset = getROMOffsetForSelectedBank() + 0x60;
@@ -642,7 +647,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private int totalSampleSize() {
         int total = 0;
-        for (Sample s : samples) {
+        for (Sample s : samples[selectedBank]) {
             total += s == null ? 0 : s.lengthInBytes();
         }
         return total;
@@ -655,8 +660,14 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             int index = indices.get(indexIt);
 
             // Moves up samples.
-            if (14 - index >= 0) System.arraycopy(samples, index + 1, samples, index, 14 - index);
-            samples[14] = null;
+            if (14 - index >= 0) {
+                System.arraycopy(samples[selectedBank],
+                        index + 1,
+                        samples[selectedBank],
+                        index,
+                        14 - index);
+            }
+            samples[selectedBank][14] = null;
 
             // Moves up instr names.
             int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
@@ -713,7 +724,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
         }
 
-        for (Sample s : samples) {
+        for (Sample s : samples[selectedBank]) {
             if (s == null) {
                 continue;
             }
@@ -743,7 +754,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         File f = FileDialogLauncher.save(this, "Save Sample", "wav");
         if (f != null) {
             try {
-                WaveFile.write(samples[samplePicker.getSelectedIndex()].workSampleData(), f);
+                WaveFile.write(samples[selectedBank][samplePicker.getSelectedIndex()].workSampleData(), f);
             } catch (IOException e) {
                 showFileErrorMessage(e);
             }
@@ -753,9 +764,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     @Override
     public void selectionChanged() {
         int index = samplePicker.getSelectedIndex();
-        dropSampleButton.setEnabled(index >= 0 && samples[index] != null);
+        dropSampleButton.setEnabled(index >= 0 && samples[selectedBank][index] != null);
         exportSampleButton.setEnabled(getNibbles(index) != null);
-        Sample sample = index >= 0 ? samples[index] : null;
+        Sample sample = index >= 0 ? samples[selectedBank][index] : null;
         boolean enableVolume = sample != null && sample.canAdjustVolume();
         updatingVolume = true;
         volumeSpinner.setEnabled(enableVolume);

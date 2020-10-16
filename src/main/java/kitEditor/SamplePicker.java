@@ -174,7 +174,7 @@ public class SamplePicker extends JPanel {
                 return pad.id;
             }
         }
-        return selectedIndices.first();
+        return selectedIndices.isEmpty() ? -1 : selectedIndices.first();
     }
 
     public ArrayList<Integer> getSelectedIndices() {
