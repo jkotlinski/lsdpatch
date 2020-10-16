@@ -14,7 +14,7 @@ class KitArchiveTest {
         tmpFile.deleteOnExit();
         Sample[] originalSamples = new Sample[3];
         originalSamples[0] = new Sample(new short[10], "FOO");
-        originalSamples[2] = Sample.createFromOriginalSamples(new short[10], "BAR", 1, false);
+        originalSamples[2] = Sample.createFromOriginalSamples(new short[10], "BAR", tmpFile, 1, false);
         KitArchive.save(originalSamples, tmpFile);
 
         Sample[] s = new Sample[3];
@@ -26,5 +26,6 @@ class KitArchiveTest {
         Assertions.assertEquals("BAR", s[2].getName());
         Assertions.assertEquals(10, s[2].lengthInSamples());
         Assertions.assertEquals(1, s[2].volumeDb());
+        Assertions.assertEquals(tmpFile.getAbsolutePath(), s[2].localPath());
     }
 }

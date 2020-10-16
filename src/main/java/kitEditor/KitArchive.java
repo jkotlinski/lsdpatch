@@ -37,6 +37,9 @@ public class KitArchive {
         if (sample.canAdjustVolume()) {
             comment += "|volume=" + sample.volumeDb() + "|original_samples=1";
         }
+        if (sample.localPath() != null) {
+            comment += "|local_path=" + sample.localPath();
+        }
         zipEntry.setExtra(comment.getBytes());
     }
 
@@ -65,6 +68,7 @@ public class KitArchive {
                 if (metaData.containsKey("original_samples")) {
                     sample = Sample.createFromOriginalSamples(dstPcm,
                             (String) metaData.get("name"),
+                            (File) metaData.get("local_path"),
                             (int) metaData.get("volume"),
                             true);
                 } else {
@@ -89,6 +93,9 @@ public class KitArchive {
                     break;
                 case "original_samples":
                     hashMap.put("original_samples", 1);
+                    break;
+                case "local_path":
+                    hashMap.put("local_path", new File(value));
                     break;
             }
         }

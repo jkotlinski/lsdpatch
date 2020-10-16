@@ -381,6 +381,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         updateKitSizeLabel();
         addSampleButton.setEnabled(firstFreeSampleSlot() != -1);
+
+        updateButtonStates();
     }
 
     private void updateKitSizeLabel() {
@@ -778,6 +780,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     @Override
     public void selectionChanged() {
+        updateButtonStates();
+        playSample();
+    }
+
+    private void updateButtonStates() {
         int index = samplePicker.getSelectedIndex();
         dropSampleButton.setEnabled(index >= 0 && samples[selectedBank][index] != null);
         exportSampleButton.setEnabled(getNibbles(index) != null);
@@ -787,7 +794,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
         updatingVolume = false;
-        playSample();
+        reloadSamplesButton.setEnabled(false);
+        for (Sample s : samples[selectedBank]) {
+            if (s != null && s.localPath() != null) {
+                reloadSamplesButton.setEnabled(true);
+            }
+        }
     }
 
     @Override
