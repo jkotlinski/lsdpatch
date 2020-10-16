@@ -111,12 +111,15 @@ public class Document {
         return romDirty || savDirty;
     }
 
-    public void clearDirty() {
-        setRomDirty(false);
+    public void setRomFile(File file) {
+        romFile = file;
+    }
+
+    public void clearSavDirty() {
         setSavDirty(false);
     }
 
-    public void setRomFile(File file) {
-        romFile = file;
+    public void clearRomDirty() {
+        setRomDirty(false);
     }
 }

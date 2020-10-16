@@ -13,8 +13,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class KitEditor extends JFrame implements SamplePicker.Listener {
+    private final Document document;
+
     public interface Listener {
         void saveRom();
     }
@@ -31,7 +34,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final java.awt.event.ActionListener bankBoxListener = e -> bankBox_actionPerformed();
 
-    private final byte[] romImage;
+    private byte[] romImage;
 
     private Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
 
@@ -64,6 +67,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     public KitEditor(Document document, Listener listener) {
         this.listener = listener;
+        this.document = document;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
         setListeners();
@@ -76,6 +80,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         saveRomButton.addActionListener(e -> {
             document.setRomImage(romImage);
             listener.saveRom();
+            romImage = document.romImage();
+            saveRomButton.setEnabled(false);
         });
 
         addWindowListener(new WindowAdapter() {
@@ -800,6 +806,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 reloadSamplesButton.setEnabled(true);
             }
         }
+        saveRomButton.setEnabled(!Arrays.equals(document.romImage(), romImage));
     }
 
     @Override

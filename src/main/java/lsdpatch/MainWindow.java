@@ -111,7 +111,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         panel.add(browseRomButton);
 
         saveButton.setEnabled(false);
-        saveButton.addActionListener(e -> onSave());
+        saveButton.addActionListener(e -> onSave(true));
         panel.add(saveButton, "span 1 4, grow y");
 
         savTextField.setMinimumSize(new Dimension(300, 0));
@@ -210,7 +210,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         setTitle(title);
     }
 
-    private void onSave() {
+    private void onSave(boolean saveSavFile) {
         File f = FileDialogLauncher.save(this, "Save ROM Image", "gb");
         if (f == null) {
             return;
@@ -222,16 +222,17 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             RomUtilities.fixChecksum(romImage);
             fileOutputStream.write(romImage);
             fileOutputStream.close();
-            if (document.savFile() != null) {
+            if (document.savFile() != null && saveSavFile) {
                 String savPath = romPath.replace(".gb", ".sav");
                 document.savFile().saveAs(savPath);
                 savTextField.setText(savPath);
                 document.loadSavFile(savPath);
+                document.clearSavDirty();
                 EditorPreferences.setLastPath("sav", savPath);
             }
             romTextField.setText(romPath);
             document.setRomFile(new File(romPath));
-            document.clearDirty();
+            document.clearRomDirty();
             EditorPreferences.setLastPath("gb", romPath);
             saveButton.setEnabled(false);
         } catch (IOException e) {
@@ -244,6 +245,6 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
 
     @Override
     public void saveRom() {
-        onSave();
+        onSave(false);
     }
 }
