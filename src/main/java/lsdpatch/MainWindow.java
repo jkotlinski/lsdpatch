@@ -218,7 +218,9 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         String romPath = f.getAbsolutePath();
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(romPath)) {
-            fileOutputStream.write(document.romImage());
+            byte[] romImage = document.romImage();
+            RomUtilities.fixChecksum(romImage);
+            fileOutputStream.write(romImage);
             fileOutputStream.close();
             if (document.savFile() != null) {
                 String savPath = romPath.replace(".gb", ".sav");

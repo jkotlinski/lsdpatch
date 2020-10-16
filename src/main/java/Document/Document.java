@@ -51,7 +51,6 @@ public class Document {
             return;
         }
         this.romImage = romImage;
-        RomUtilities.fixChecksum(this.romImage);
         setRomDirty(true);
     }
 

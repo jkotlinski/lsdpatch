@@ -180,8 +180,6 @@ public class RomUpgradeTool extends JFrame {
             return;
         }
 
-        RomUtilities.fixChecksum(remoteRomImage);
-
         document.setRomImage(remoteRomImage);
         localRomImage = remoteRomImage;
 

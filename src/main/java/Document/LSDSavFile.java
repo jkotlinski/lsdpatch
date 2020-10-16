@@ -643,7 +643,6 @@ public class LSDSavFile implements Cloneable {
             newKits[kit] = newKit;
             // Copy kit.
             System.arraycopy(lsdSngKits.get(kit), 0, romImage, newKit * 0x4000, 0x4000);
-            RomUtilities.fixChecksum(romImage);
         }
     }
 
