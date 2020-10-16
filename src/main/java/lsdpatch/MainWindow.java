@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainWindow extends JFrame implements IDocumentListener {
+public class MainWindow extends JFrame implements IDocumentListener, KitEditor.Listener {
     JTextField romTextField = new JTextField();
     JTextField savTextField = new JTextField();
 
@@ -50,7 +50,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
-        editKitsButton.addActionListener(e -> new KitEditor(document).setLocationRelativeTo(this));
+        editKitsButton.addActionListener(e -> new KitEditor(document, this).setLocationRelativeTo(this));
         panel.add(editKitsButton);
         editFontsButton.addActionListener(e -> openKitEditor());
         panel.add(editFontsButton);
@@ -238,5 +238,10 @@ public class MainWindow extends JFrame implements IDocumentListener {
                     "File save failed!",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    @Override
+    public void saveRom() {
+        onSave();
     }
 }

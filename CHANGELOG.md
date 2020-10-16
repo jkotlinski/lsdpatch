@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Saving a ROM when no SAV has been loaded.
 
 ### Added
- - Kit Editor: "Reload samples" button.
+ - Kit Editor: "Reload samples", "Save ROM" buttons.
 
 ### Changed
  - Kit Editor: "Add Sample" now automatically resamples, normalizes and dithers the sample. No need to prepare samples using sox anymore.

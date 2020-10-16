@@ -15,6 +15,11 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 public class KitEditor extends JFrame implements SamplePicker.Listener {
+    public interface Listener {
+        void saveRom();
+    }
+    Listener listener;
+
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
     private int prevBankBoxIndex = -1;
@@ -32,6 +37,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final JButton loadKitButton = new JButton();
     private final JButton saveKitButton = new JButton();
+    private final JButton saveRomButton = new JButton();
     private final JButton exportSampleButton = new JButton();
     private final JButton exportAllSamplesButton = new JButton();
     private final JButton renameKitButton = new JButton();
@@ -56,14 +62,21 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.setListData(listData);
     }
 
-    public KitEditor(Document document) {
+    public KitEditor(Document document, Listener listener) {
+        this.listener = listener;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
+        setListeners();
         romImage = document.romImage();
         setVisible(true);
         setTitle("Kit Editor");
         updateRomView();
         createSamplesFromRom();
+
+        saveRomButton.addActionListener(e -> {
+            document.setRomImage(romImage);
+            listener.saveRom();
+        });
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -149,10 +162,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         kitContainer.setLayout(new MigLayout("", "[grow,fill]", ""));
         kitContainer.add(bankBox, "grow,wrap");
         kitContainer.add(samplePicker, "grow,wrap");
-        kitContainer.add(kitSizeLabel, "grow,wrap");
+        kitContainer.add(kitSizeLabel, "grow, split 2");
+        kitContainer.add(saveRomButton, "grow");
 
-        loadKitButton.setText("Load kit");
-        saveKitButton.setText("Save kit");
+        loadKitButton.setText("Import kit");
+        saveKitButton.setText("Export kit");
+        saveRomButton.setText("Save ROM");
 
         kitTextArea.setBorder(BorderFactory.createEtchedBorder());
 
@@ -189,8 +204,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 playSample();
             }
         });
-
-        setListeners();
     }
 
     private void createFileDrop() {
