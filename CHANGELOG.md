@@ -14,14 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - Kit Editor: "Reload samples", "Save ROM" buttons.
+ - Kit Editor: .lsdkit files now include original 16-bit sample data as well as local file path, to make future edits easier.
 
 ### Changed
  - Kit Editor: "Add Sample" now automatically resamples, normalizes and dithers the sample. No need to prepare samples using sox anymore.
  - Kit Editor: switched to TPDF dithering noise, which gives way better audio quality than the old one.
  - Kit Editor: when adding samples, blend wave frames to reduce impact of the [Game Boy wave refresh bug](https://www.devrs.com/gb/files/gbsnd3.gif).
- - Kit Editor: kits are now saved with the original 16-bit sample data, to make future edits easier. note: this 16-bit sample data is discarded when switching kits or closing the kit editor!
- - Kit Editor: improved sound playback quality.
  - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
+ - Kit Editor: improved sound playback quality.
  - Kit Editor: click sample view to play.
  - Kit Editor: MPC-like UI with pads.
  - Palette Editor: improved mid-tone generation.
