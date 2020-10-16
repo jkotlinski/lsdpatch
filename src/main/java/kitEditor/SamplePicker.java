@@ -160,11 +160,6 @@ public class SamplePicker extends JPanel {
     }
 
     public int getSelectedIndex() {
-        for (Pad pad : pads) {
-            if (pad.hasFocus()) {
-                return pad.id;
-            }
-        }
         return selectedIndices.first();
     }
 
