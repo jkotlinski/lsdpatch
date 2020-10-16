@@ -83,7 +83,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.addListSelectionListener(this);
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
 
-        loadKitButton.addActionListener(e -> loadKitButton_actionPerformed());
+        loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
         renameKitButton.addActionListener(e1 -> renameKit(kitTextArea.getText()));
 
@@ -437,8 +437,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
     }
 
+    private void loadKit() {
+        File kitFile = FileDialogLauncher.load(this, "Load Sample Kit", "kit");
+        if (kitFile != null) {
+            loadKit(kitFile);
+        }
+    }
+
     private void loadKit(File kitFile) {
-        flushWavFiles();
+        createKit();
         try {
             if (kitFile.length() == RomUtilities.BANK_SIZE) {
                 loadKitV1(kitFile);
@@ -472,13 +479,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             romImage[offset++] = aBuf;
         }
         bankFile.close();
-    }
-
-    private void loadKitButton_actionPerformed() {
-        File f = FileDialogLauncher.load(this, "Load Sample Kit", "kit");
-        if (f != null) {
-            loadKit(f);
-        }
     }
 
     private String dropExtension(File f) {
