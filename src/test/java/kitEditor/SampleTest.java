@@ -21,7 +21,7 @@ class SampleTest {
             Assertions.fail(e);
         }
         Assertions.assertNotNull(sample);
-        Assertions.assertEquals("sine1s44khz.wav", sample.getName());
+        Assertions.assertEquals("sine1s44khz", sample.getName());
         Assertions.assertEquals(11469, sample.lengthInSamples());
         Assertions.assertEquals(5728, sample.lengthInBytes());
 
