@@ -108,7 +108,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
-        addSampleButton.addActionListener(e -> selectSampleToAdd());
+        addSampleButton.addActionListener(e -> addSample());
         reloadSamplesButton.addActionListener(e -> reloadSamples());
         reloadSamplesButton.setEnabled(false);
         dropSampleButton.addActionListener(e -> dropSample());
@@ -583,8 +583,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String s = dropExtension(wavFile).toUpperCase();
-        renameSample(firstFreeSampleSlot(), s);
+        String sampleName = dropExtension(wavFile).toUpperCase();
 
         Sample sample;
         try {
@@ -604,6 +603,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         int index = firstFreeSampleSlot();
         assert index != -1;
+        renameSample(index, sampleName);
         samples[selectedBank][index] = sample;
         compileKit();
         updateRomView();
@@ -624,7 +624,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
     }
 
-    private void selectSampleToAdd() {
+    private void addSample() {
         File f = FileDialogLauncher.load(this, "Load Sample", "wav");
         if (f != null) {
             addSample(f);
