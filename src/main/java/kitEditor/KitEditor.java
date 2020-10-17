@@ -25,7 +25,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private static final long serialVersionUID = -3993608561466542956L;
     private JPanel contentPane;
-    private int prevBankBoxIndex = -1;
     private final JComboBox<String> bankBox = new JComboBox<>();
     private final SamplePicker samplePicker = new SamplePicker();
 
@@ -36,7 +35,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private byte[] romImage;
 
-    private Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
+    private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
 
     private final JButton loadKitButton = new JButton();
     private final JButton saveKitButton = new JButton();
@@ -66,16 +65,16 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     public KitEditor(Document document, Listener listener) {
+        romImage = document.romImage();
         this.listener = listener;
         this.document = document;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
         setListeners();
-        romImage = document.romImage();
         setVisible(true);
         setTitle("Kit Editor");
-        updateRomView();
         createSamplesFromRom();
+        updateRomView();
 
         saveRomButton.addActionListener(e -> {
             document.setRomImage(romImage);
@@ -325,7 +324,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateBankView();
     }
 
-    private int selectedBank = -1;
+    private int selectedBank;
 
     private int getSelectedUiBank() {
         if (bankBox.getSelectedIndex() > -1) {
@@ -401,14 +400,21 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.setForeground(c);
     }
 
+    private boolean isEmpty(Sample[] samples) {
+        for (Sample s : samples) {
+            if (s != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void bankBox_actionPerformed() {
-        int index = bankBox.getSelectedIndex();
-        if (prevBankBoxIndex == index) {
+        if (selectedBank == bankBox.getSelectedIndex()) {
             return;
         }
-        // Switched bank.
-        prevBankBoxIndex = index;
-        if (samples[selectedBank] == null) {
+        selectedBank = bankBox.getSelectedIndex();
+        if (isEmpty(samples[selectedBank])) {
             flushWavFiles();
             createSamplesFromRom();
         }
@@ -546,7 +552,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void flushWavFiles() {
-        samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
+        for (int i = 0; i < MAX_SAMPLES; ++i) {
+            samples[selectedBank][i] = null;
+        }
     }
 
     private void renameKit(String s) {
