@@ -107,6 +107,10 @@ public class Document {
         return savDirty;
     }
 
+    public boolean isRomDirty() {
+        return romDirty;
+    }
+
     public boolean isDirty() {
         return romDirty || savDirty;
     }

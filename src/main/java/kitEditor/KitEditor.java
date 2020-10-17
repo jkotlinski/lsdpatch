@@ -80,7 +80,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             document.setRomImage(romImage);
             listener.saveRom();
             romImage = document.romImage();
-            saveRomButton.setEnabled(false);
+            updateButtonStates();
         });
 
         addWindowListener(new WindowAdapter() {
@@ -814,7 +814,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 reloadSamplesButton.setEnabled(true);
             }
         }
-        saveRomButton.setEnabled(!Arrays.equals(document.romImage(), romImage));
+        saveRomButton.setEnabled(!Arrays.equals(document.romImage(), romImage) || document.isRomDirty());
     }
 
     @Override
