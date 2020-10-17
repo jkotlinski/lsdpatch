@@ -165,6 +165,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             return;
         }
         savTextField.setText(savFile.getAbsolutePath());
+        document.loadSavFile(savFile.getAbsolutePath());
         updateButtonsFromTextFields();
     }
 

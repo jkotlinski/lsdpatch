@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: update of "bytes used" field.
  - Some file dialogs would not remember the last used directory.
  - Saving a ROM when no SAV has been loaded.
+ - Switching .sav would not take effect until a ROM was loaded.
 
 ### Added
  - Kit Editor: "Reload samples", "Save ROM" buttons.
