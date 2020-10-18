@@ -79,6 +79,10 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         repaint();
     }
 
+    boolean isEditingGfx() {
+        return editGfxCharacter;
+    }
+
     int getTile() {
         return selectedTile;
     }
@@ -268,7 +272,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     }
 
-    BufferedImage createImage() {
-        return font.saveDataToImage(true);
+    BufferedImage createImage(boolean includeGfxCharactere) {
+        return font.saveDataToImage(includeGfxCharactere);
     }
 }

@@ -13,6 +13,7 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     private int gfxCharOffset = -1;
     private int tileZoom = 1;
     private int displayTileSize = 8;
+    private boolean showGfxCharacters = false;
 
     public interface TileSelectListener {
         void tileSelected(int tile);
@@ -28,6 +29,11 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         addMouseListener(this);
     }
 
+    void setShowGfxCharacters(boolean show) {
+        showGfxCharacters = show;
+        repaint();
+    }
+
     void setTileSelectListener(TileSelectListener l) {
         tileSelectedListener = l;
     }
@@ -36,22 +42,37 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         gfxTileSelectedListener = l;
     }
 
+    int getCurrentNumTileOnY () {
+        return showGfxCharacters ? LSDJFont.GFX_FONT_NUM_TILES_Y : LSDJFont.FONT_NUM_TILES_Y;
+    }
+    int getCurrentUnscaledMapHeight () {
+        return showGfxCharacters ? LSDJFont.GFX_FONT_MAP_HEIGHT : LSDJFont.FONT_MAP_HEIGHT;
+    }
+    int getCurrentTileNumber () {
+        return  showGfxCharacters ? LSDJFont.GFX_TILE_COUNT + LSDJFont.TILE_COUNT : LSDJFont.TILE_COUNT;
+    }
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        int currentHeight = getCurrentUnscaledMapHeight();
+
         int widthScale = getWidth() / LSDJFont.FONT_MAP_WIDTH;
-        int heightScale = getHeight() / LSDJFont.FONT_MAP_HEIGHT;
+        int heightScale = getHeight() / currentHeight;
         tileZoom = Math.min(widthScale, heightScale);
         tileZoom = Math.max(tileZoom, 1);
         int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom) / 2;
-        int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT * tileZoom) / 2;
-        setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, LSDJFont.FONT_MAP_HEIGHT * tileZoom));
+        int offsetY = (getHeight() - currentHeight * tileZoom) / 2;
+        setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, currentHeight * tileZoom));
 
         for (int tile = 0; tile < LSDJFont.TILE_COUNT; ++tile) {
             paintTile(g, tile, offsetX, offsetY);
         }
-        for (int tile = 0; tile < LSDJFont.GFX_TILE_COUNT; ++tile) {
-            paintGfxTile(g, tile, offsetX, offsetY);
 
+        if (showGfxCharacters) {
+            for (int tile = 0; tile < LSDJFont.GFX_TILE_COUNT; ++tile) {
+                paintGfxTile(g, tile, offsetX, offsetY);
+
+            }
         }
     }
 
@@ -152,23 +173,23 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
 
     public void mouseClicked(java.awt.event.MouseEvent e) {
         int offsetX = (getWidth() - LSDJFont.FONT_MAP_WIDTH * tileZoom) / 2;
-        int offsetY = (getHeight() - LSDJFont.FONT_MAP_HEIGHT * tileZoom) / 2;
+        int offsetY = (getHeight() - getCurrentUnscaledMapHeight() * tileZoom) / 2;
 
         int realX = e.getX() - offsetX;
         int realY = e.getY() - offsetY;
 
-        if (realX < 0 || realY < 0 || realX > LSDJFont.FONT_MAP_WIDTH * tileZoom || realY > LSDJFont.FONT_MAP_HEIGHT * tileZoom)
+        if (realX < 0 || realY < 0  || realX > LSDJFont.FONT_MAP_WIDTH * tileZoom || realY > getCurrentUnscaledMapHeight() * tileZoom)
             return;
 
         int tile = (realY / displayTileSize) * LSDJFont.FONT_NUM_TILES_X +
                 realX / displayTileSize;
-        if (tile < 0 || tile >= LSDJFont.TILE_COUNT + LSDJFont.GFX_TILE_COUNT)
+        if (tile < 0 || tile >= getCurrentTileNumber())
             return;
 
         if (tile < LSDJFont.TILE_COUNT && tileSelectedListener != null) {
             tileSelectedListener.tileSelected(tile);
         }
-        else if (tile >= LSDJFont.TILE_COUNT && gfxTileSelectedListener != null) {
+        else if (showGfxCharacters && tile >= LSDJFont.TILE_COUNT && gfxTileSelectedListener != null) {
             gfxTileSelectedListener.gfxTileSelected(tile - LSDJFont.TILE_COUNT);
         }
     }

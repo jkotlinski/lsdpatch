@@ -200,6 +200,21 @@ public class LSDJFont extends ROMDataManipulator {
         }
     }
 
+    private int grayIndexToColor(int index) {
+        switch (index) {
+            case 0 :
+                return 0xFFFFFF;
+            case 1 :
+                return 0x969696;
+            case 2 :
+                return 0x808080;
+            case 3 :
+                return 0x000000;
+            default:
+                return 0xDeadBeef;
+        }
+    }
+
     public String loadImageData(String name, BufferedImage image) {
         int numTiles = image.getHeight()/8 * image.getWidth()/8;
         // Limiting to either loading text tiles or load all tiles. No partial graphical tiles loading.
@@ -245,21 +260,8 @@ public class LSDJFont extends ROMDataManipulator {
             int baseY = (tile / FONT_NUM_TILES_X)*8;
             for (int y = 0; y < 8; ++y) {
                 for (int x = 0; x < 8; ++x) {
-                    int color = getTilePixel(tile, x, y);
-                    switch (color) {
-                        case 1:
-                            image.setRGB(baseX + x, baseY +  y, 0x808080);
-                            break;
-                        case 2:
-                            image.setRGB(baseX + x, baseY +  y, 0x969696);
-                            break;
-                        case 3:
-                            image.setRGB(baseX + x, baseY +  y, 0x000000);
-                            break;
-                        default:
-                            image.setRGB(baseX + x, baseY +  y, 0xFFFFFF);
-                            break;
-                    }
+                    int colorIndex = getTilePixel(tile, x, y);
+                    image.setRGB(baseX + x, baseY + y, grayIndexToColor(colorIndex));
                 }
             }
         }
@@ -271,21 +273,8 @@ public class LSDJFont extends ROMDataManipulator {
                 int baseY = (tileForPixelCoordinates / FONT_NUM_TILES_X)*8;
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        int color = getGfxTilePixel(tile, x, y);
-                        switch (color) {
-                            case 1:
-                                image.setRGB(baseX + x, baseY +  y, 0x808080);
-                                break;
-                            case 2:
-                                image.setRGB(baseX + x, baseY +  y, 0x969696);
-                                break;
-                            case 3:
-                                image.setRGB(baseX + x, baseY +  y, 0x000000);
-                                break;
-                            default:
-                                image.setRGB(baseX + x, baseY +  y, 0xFFFFFF);
-                                break;
-                        }
+                        int colorIndex = getGfxTilePixel(tile, x, y);
+                        image.setRGB(baseX + x, baseY + y, grayIndexToColor(colorIndex));
                     }
                 }
             }
