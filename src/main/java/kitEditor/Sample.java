@@ -178,21 +178,17 @@ class Sample {
         return (int) ((d - 7.5) * 256 * 16);
     }
 
+    // Adds triangular probability density function dither noise.
     private void dither(int[] samples) {
         Random random = new Random();
         int accumulatedError = 0;
         float state = random.nextFloat();
         for (int i = 0; i < samples.length; ++i) {
-            /* Adds triangular probability density function dither noise.
-             * Feeding back the error low-pass filters the noise, shifting
-             * it towards higher frequencies.
-             */
             int originalValue = samples[i];
             float r = state;
             state = random.nextFloat();
             int noiseLevel = 256 * 16;
-            double b = 0.5; // Noise shaping low-pass cutoff.
-            samples[i] = originalValue + (int)((r - state) * noiseLevel - accumulatedError * b);
+            samples[i] = originalValue + (int)((r - state) * noiseLevel) - accumulatedError;
             accumulatedError += nibbleToInt(intToNibble(samples[i])) - originalValue;
         }
     }
