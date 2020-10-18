@@ -4,7 +4,7 @@ package kitEditor;
 
 class sbc {
 
-    public static void handle(byte[] dst, Sample[] samples, int[] byteLength) {
+    public static void compile(byte[] dst, Sample[] samples, int[] byteLength) {
         int offset = 0x60; //don't overwrite sample bank info!
         for (int sampleIt = 0; sampleIt < samples.length; sampleIt++) {
             Sample sample = samples[sampleIt];
@@ -13,28 +13,15 @@ class sbc {
             }
 
             sample.seekStart();
-            int sampleLength = sample.length();
-            // Trims the end of the sample to make it a multiple of 0x10.
-            sampleLength -= sampleLength % 0x10;
+            int sampleLength = sample.lengthInSamples();
 
             int addedBytes = 0;
-
             int[] outputBuffer = new int[32];
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
-                int s = sample.readInt();
-                s -= Short.MIN_VALUE;
-                s /= 256 * 16;
-
-                /*
-                //this is to get middle at 7.5 instead of 8.0
-                outputBuffer[outputCounter]*=0xe;
-                outputBuffer[outputCounter]/=0xf;
-                */
-
-                //range check
-                s = Math.min(0xf, s);
-                s = Math.max(0, s);
+                int s = sample.read();
+                s = (int)(Math.round((double)s / (256 * 16) + 7.5));
+                s = Math.min(0xf, Math.max(0, s));
                 outputBuffer[outputCounter] = s;
 
                 if (outputCounter == 31) {

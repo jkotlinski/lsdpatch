@@ -192,7 +192,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "Song add failed",
                     JOptionPane.ERROR_MESSAGE);
         }

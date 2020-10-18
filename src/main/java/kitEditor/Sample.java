@@ -2,52 +2,69 @@ package kitEditor;
 
 import java.io.*;
 import java.util.ArrayList;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.*;
+import java.util.Random;
+import javax.sound.sampled.*;
 
 class Sample {
+    private File file;
     private final String name;
-    private final int[] intBuf; // Signed 16-bit PCM.
+    private short[] originalSamples;
+    private short[] processedSamples;
     private int readPos;
+    private int volumeDb = 0;
+    private boolean dither = true;
 
-    private Sample(int[] iBuf, String iName) {
-        for (int j : iBuf) {
-            assert (j >= Short.MIN_VALUE);
-            assert (j <= Short.MAX_VALUE);
+    public Sample(short[] iBuf, String iName) {
+        if (iBuf != null) {
+            for (int j : iBuf) {
+                assert (j >= Short.MIN_VALUE);
+                assert (j <= Short.MAX_VALUE);
+            }
+            processedSamples = iBuf;
         }
-        intBuf = iBuf;
         name = iName;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    int length() {
-        return intBuf.length;
+    public int lengthInSamples() {
+        return processedSamples.length;
     }
 
-    void seekStart() {
+    public short[] workSampleData() {
+        return (originalSamples != null ? originalSamples : processedSamples).clone();
+    }
+
+    public int lengthInBytes() {
+        int l = lengthInSamples() / 2;
+        l -= l % 0x10;
+        return l;
+    }
+
+    public void seekStart() {
         readPos = 0;
     }
 
-    int readInt() {
-        return intBuf[readPos++];
+    public short read() {
+        return processedSamples[readPos++];
+    }
+
+    public boolean canAdjustVolume() {
+        return originalSamples != null;
     }
 
     // ------------------
 
     static Sample createFromNibbles(byte[] nibbles, String name) {
-        int[] buf = new int[nibbles.length * 2];
+        short[] buf = new short[nibbles.length * 2];
         for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
             buf[2 * nibbleIt] = (byte) (nibbles[nibbleIt] & 0xf0);
             buf[2 * nibbleIt + 1] = (byte) ((nibbles[nibbleIt] & 0xf) << 4);
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
-            int s = (byte)(buf[bufIt] - 0x80);
+            short s = (byte)(buf[bufIt] - 0x80);
             s *= 256;
             buf[bufIt] = s;
         }
@@ -56,115 +73,140 @@ class Sample {
 
     // ------------------
 
-    static Sample createFromWav(File file) throws IOException, UnsupportedAudioFileException {
-        ArrayList<Integer> samples = readSamples(file);
-        normalize(samples);
-        dither(samples);
-        int[] samplesInt = new int[samples.size()];
-        for (int i = 0; i < samples.size(); ++i) {
-            samplesInt[i] = samples.get(i);
-        }
-        return new Sample(samplesInt, file.getName());
+    public static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
+        Sample s = new Sample(null, file.getName().split("\\.")[0]);
+        s.file = file;
+        s.dither = dither;
+        s.reload();
+        return s;
     }
 
-    private static ArrayList<Integer> readSamples(File file) throws UnsupportedAudioFileException, IOException {
+    public void reload() throws IOException, UnsupportedAudioFileException {
+        if (file == null) {
+            return;
+        }
+        originalSamples = readSamples(file);
+        processSamples(dither);
+    }
+
+    public static Sample createFromOriginalSamples(short[] pcm, String name, File file, int volume, boolean dither) {
+        Sample sample = new Sample(null, name);
+        if (file != null && file.exists()) {
+            sample.file = file;
+        }
+        sample.setVolumeDb(volume);
+        sample.originalSamples = pcm;
+        sample.processSamples(dither);
+        return sample;
+    }
+
+    public void processSamples(boolean dither) {
+        int[] intBuffer = toIntBuffer(originalSamples);
+        normalize(intBuffer);
+        if (dither) {
+            dither(intBuffer);
+        }
+        processedSamples = toShortBuffer(intBuffer);
+        blendWaveFrames(processedSamples);
+    }
+
+    private short[] toShortBuffer(int[] intBuffer) {
+        short[] shortBuffer = new short[intBuffer.length];
+        for (int i = 0; i < intBuffer.length; ++i) {
+            int s = intBuffer[i];
+            s = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, s));
+            shortBuffer[i] = (short)s;
+        }
+        return shortBuffer;
+    }
+
+    private int[] toIntBuffer(short[] shortBuffer) {
+        int[] intBuffer = new int[shortBuffer.length];
+        for (int i = 0; i < shortBuffer.length; ++i) {
+            intBuffer[i] = shortBuffer[i];
+        }
+        return intBuffer;
+    }
+
+    /* Due to Game Boy audio bug, the first sample in a frame is played
+     * back using the same value as the last completed sample in previous
+     * frame. To reduce error, average these samples.
+     */
+    private static void blendWaveFrames(short[] samples) {
+        for (int i = 0x20; i < samples.length; i += 0x20) {
+            int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
+            short avg = (short) ((samples[i] + samples[i - n]) / 2);
+            samples[i] = avg;
+            samples[i - n] = avg;
+        }
+    }
+
+    private static short[] readSamples(File file) throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         AudioFormat outFormat = new AudioFormat(11468, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
-        ArrayList<Integer> samples = new ArrayList<>();
+        ArrayList<Short> samples = new ArrayList<>();
         while (true) {
             byte[] buf = new byte[2];
             if (convertedAis.read(buf) < 2) {
                 break;
             }
-            int sample = buf[1];
+            short sample = buf[1];
             sample *= 256;
-            sample += (int)buf[0] & 0xff;
+            sample += (short)buf[0] & 0xff;
             samples.add(sample);
         }
-        return samples;
+        convertedAis.close();
+        ais.close();
+        short[] shortBuf = new short[samples.size()];
+        for (int i = 0; i < shortBuf.length; ++i) {
+            shortBuf[i] = samples.get(i);
+        }
+        return shortBuf;
     }
 
-    private static void dither(ArrayList<Integer> samples) {
-        PinkNoise pinkNoise = new PinkNoise(1);
-        for (int i = 0; i < samples.size(); ++i) {
-            int s = samples.get(i);
-            /* The noise level was selected so that it will not
-             * be heard during silent parts of the sample. It is
-             * still enough to reduce bit-reduction harmonics by
-             * a couple of decibels.
-             */
-            final double noiseLevel = 0.2 * 256;
-            s += pinkNoise.nextValue() * noiseLevel;
-            s = Math.max(Short.MIN_VALUE, Math.min(s, Short.MAX_VALUE));
-            samples.set(i, s);
+    // Adds triangular probability density function dither noise.
+    private void dither(int[] samples) {
+        Random random = new Random();
+        float state = random.nextFloat();
+        for (int i = 0; i < samples.length; ++i) {
+            int value = samples[i];
+            float r = state;
+            state = random.nextFloat();
+            int noiseLevel = 256 * 16;
+            value += (r - state) * noiseLevel;
+            samples[i] = value;
         }
     }
 
-    private static void normalize(ArrayList<Integer> samples) {
-        int peak = Integer.MIN_VALUE;
-        for (Integer sample : samples) {
-            peak = Math.max(peak, Math.abs(sample));
+    private void normalize(int[] samples) {
+        double peak = Double.MIN_VALUE;
+        for (int sample : samples) {
+            double s = sample;
+            s = s < 0 ? s / Short.MIN_VALUE : s / Short.MAX_VALUE;
+            peak = Math.max(s, peak);
         }
         if (peak == 0) {
             return;
         }
-        for (int i = 0; i < samples.size(); ++i) {
-            int s = samples.get(i);
-            // Adds DC offset to avoid dithering noise on silent samples.
-            s *= Short.MAX_VALUE - 512;
-            s /= peak;
-            s += 256;
-            samples.set(i, s);
+        double volumeAdjust = Math.pow(10, volumeDb / 20.0);
+        for (int i = 0; i < samples.length; ++i) {
+            samples[i] = (int)((samples[i] * volumeAdjust) / peak);
         }
     }
 
-    // ------------------
+    public int volumeDb() {
+        return volumeDb;
+    }
 
-    void writeToWav(File f) {
-        try {
-            RandomAccessFile wavFile = new RandomAccessFile(f, "rw");
+    public void setVolumeDb(int value) {
+        volumeDb = value;
+    }
 
-            int payloadSize = intBuf.length;
-            int fileSize = intBuf.length + 0x2c;
-            int waveSize = fileSize - 8;
-
-            byte[] header = {
-                    0x52, 0x49, 0x46, 0x46,  // RIFF
-                    (byte) waveSize,
-                    (byte) (waveSize >> 8),
-                    (byte) (waveSize >> 16),
-                    (byte) (waveSize >> 24),
-                    0x57, 0x41, 0x56, 0x45,  // WAVE
-                    // --- fmt chunk
-                    0x66, 0x6D, 0x74, 0x20,  // fmt
-                    16, 0, 0, 0,  // fmt size
-                    1, 0,  // pcm
-                    1, 0,  // channel count
-                    (byte) 0xcc, 0x2c, 0, 0,  // freq (11468 hz)
-                    (byte) 0xcc, 0x2c, 0, 0,  // avg. bytes/sec
-                    1, 0,  // block align
-                    8, 0,  // bits per sample
-                    // --- data chunk
-                    0x64, 0x61, 0x74, 0x61,  // data
-                    (byte) payloadSize,
-                    (byte) (payloadSize >> 8),
-                    (byte) (payloadSize >> 16),
-                    (byte) (payloadSize >> 24)
-            };
-
-            wavFile.write(header);
-
-            byte[] unsigned = new byte[intBuf.length];
-            for (int it = 0; it < intBuf.length; ++it) {
-                unsigned[it] = (byte) (intBuf[it] / 256 + 0x80);
-            }
-            wavFile.write(unsigned);
-            wavFile.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "File error : " +e.getCause(),
-                    JOptionPane.ERROR_MESSAGE);
+    public String localPath() {
+        if (file == null) {
+            return null;
         }
+        return file.getAbsolutePath();
     }
 }
-

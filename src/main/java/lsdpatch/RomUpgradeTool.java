@@ -110,7 +110,7 @@ public class RomUpgradeTool extends JFrame {
             importAll();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "Fetching new version failed!",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -179,8 +179,6 @@ public class RomUpgradeTool extends JFrame {
                     "Palette import result.", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-
-        RomUtilities.fixChecksum(remoteRomImage);
 
         document.setRomImage(remoteRomImage);
         localRomImage = remoteRomImage;

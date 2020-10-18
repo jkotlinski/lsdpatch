@@ -187,10 +187,6 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         font.setTilePixel(selectedTile, x, y, color, editGfxCharacter);
     }
 
-    int getDirectPixel(int x, int y) {
-        return font.getPixel(x, y);
-    }
-
     public void mouseEntered(java.awt.event.MouseEvent e) {
     }
 

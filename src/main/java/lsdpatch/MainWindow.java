@@ -18,8 +18,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
-public class MainWindow extends JFrame implements IDocumentListener {
+public class MainWindow extends JFrame implements IDocumentListener, KitEditor.Listener {
     JTextField romTextField = new JTextField();
     JTextField savTextField = new JTextField();
 
@@ -49,7 +50,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
-        editKitsButton.addActionListener(e -> new KitEditor(document).setLocationRelativeTo(this));
+        editKitsButton.addActionListener(e -> new KitEditor(document, this).setLocationRelativeTo(this));
         panel.add(editKitsButton);
         editFontsButton.addActionListener(e -> openKitEditor());
         panel.add(editFontsButton);
@@ -110,7 +111,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         panel.add(browseRomButton);
 
         saveButton.setEnabled(false);
-        saveButton.addActionListener(e -> onSave());
+        saveButton.addActionListener(e -> onSave(true));
         panel.add(saveButton, "span 1 4, grow y");
 
         savTextField.setMinimumSize(new Dimension(300, 0));
@@ -164,6 +165,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
             return;
         }
         savTextField.setText(savFile.getAbsolutePath());
+        document.loadSavFile(savFile.getAbsolutePath());
         updateButtonsFromTextFields();
     }
 
@@ -209,7 +211,7 @@ public class MainWindow extends JFrame implements IDocumentListener {
         setTitle(title);
     }
 
-    private void onSave() {
+    private void onSave(boolean saveSavFile) {
         File f = FileDialogLauncher.save(this, "Save ROM Image", "gb");
         if (f == null) {
             return;
@@ -217,25 +219,33 @@ public class MainWindow extends JFrame implements IDocumentListener {
         String romPath = f.getAbsolutePath();
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(romPath)) {
-            fileOutputStream.write(document.romImage());
+            byte[] romImage = document.romImage();
+            RomUtilities.fixChecksum(romImage);
+            fileOutputStream.write(romImage);
             fileOutputStream.close();
-            if (document.savFile() != null) {
+            if (document.savFile() != null && saveSavFile) {
                 String savPath = romPath.replace(".gb", ".sav");
                 document.savFile().saveAs(savPath);
                 savTextField.setText(savPath);
                 document.loadSavFile(savPath);
+                document.clearSavDirty();
                 EditorPreferences.setLastPath("sav", savPath);
             }
             romTextField.setText(romPath);
             document.setRomFile(new File(romPath));
-            document.clearDirty();
+            document.clearRomDirty();
             EditorPreferences.setLastPath("gb", romPath);
             saveButton.setEnabled(false);
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
-                    e.getLocalizedMessage(),
+                    e.getMessage(),
                     "File save failed!",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    @Override
+    public void saveRom() {
+        onSave(false);
     }
 }

@@ -125,10 +125,9 @@ public class LSDPatcher {
         } else if (command.compareTo("clone") == 0 && args.length == 3) {
             // -1 to allow 1-3 range instead of 0-2
             CommandLineFunctions.copyAllCustomizations(args[1], args[2]);
+        } else {
+            usage();
         }
-
-        usage();
-
     }
 
 }

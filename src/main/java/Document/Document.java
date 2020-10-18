@@ -51,7 +51,6 @@ public class Document {
             return;
         }
         this.romImage = romImage;
-        RomUtilities.fixChecksum(this.romImage);
         setRomDirty(true);
     }
 
@@ -108,16 +107,23 @@ public class Document {
         return savDirty;
     }
 
+    public boolean isRomDirty() {
+        return romDirty;
+    }
+
     public boolean isDirty() {
         return romDirty || savDirty;
     }
 
-    public void clearDirty() {
-        setRomDirty(false);
+    public void setRomFile(File file) {
+        romFile = file;
+    }
+
+    public void clearSavDirty() {
         setSavDirty(false);
     }
 
-    public void setRomFile(File file) {
-        romFile = file;
+    public void clearRomDirty() {
+        setRomDirty(false);
     }
 }

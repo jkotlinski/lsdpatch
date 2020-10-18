@@ -1,13 +1,12 @@
-package utils;
+package kitEditor;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
 
-public class SampleCanvas extends Canvas {
+public class SampleView extends Canvas {
     byte[] buf;
 
-    public void setBufferContent(byte[] newBuffer)
-    {
+    public void setBufferContent(byte[] newBuffer) {
         buf = newBuffer;
         setBackground(Color.black);
     }
@@ -26,12 +25,12 @@ public class SampleCanvas extends Canvas {
         }
 
         GeneralPath gp = new GeneralPath();
-        gp.moveTo(0, h);
+        gp.moveTo(1, h);
         for (int it = 0; it < buf.length; ++it) {
-            double val = buf[it];
-            if (val < 0) val += 256;
-            val /= 0xf0;
-            gp.lineTo(it * w / (buf.length - 1), h - h * val);
+            double val = buf[it] & 0xf;
+            val -= 7.5;
+            val /= 7.5;
+            gp.lineTo(it * w / (buf.length - 1), (h + h * val) / 2);
         }
         g.setColor(Color.YELLOW);
         g.draw(gp);
