@@ -64,7 +64,7 @@ class Sample {
             buf[2 * nibbleIt + 1] = (byte) ((nibbles[nibbleIt] & 0xf) << 4);
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
-            short s = (byte) (buf[bufIt] - 0x80);
+            short s = (byte)(buf[bufIt] - 0x80);
             s *= 256;
             buf[bufIt] = s;
         }
@@ -115,7 +115,7 @@ class Sample {
         for (int i = 0; i < intBuffer.length; ++i) {
             int s = intBuffer[i];
             s = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, s));
-            shortBuffer[i] = (short) s;
+            shortBuffer[i] = (short)s;
         }
         return shortBuffer;
     }
@@ -153,7 +153,7 @@ class Sample {
             }
             short sample = buf[1];
             sample *= 256;
-            sample += (short) buf[0] & 0xff;
+            sample += (short)buf[0] & 0xff;
             samples.add(sample);
         }
         convertedAis.close();
@@ -165,31 +165,17 @@ class Sample {
         return shortBuf;
     }
 
-    public int readNibble() {
-        return intToNibble(read());
-    }
-
-    private int intToNibble(int s) {
-        s = (int) (Math.round((double) s / (256 * 16) + 7.5));
-        return Math.min(0xf, Math.max(0, s));
-    }
-
-    private int nibbleToInt(int d) {
-        return (int) ((d - 7.5) * 256 * 16);
-    }
-
     // Adds triangular probability density function dither noise.
     private void dither(int[] samples) {
         Random random = new Random();
-        int accumulatedError = 0;
         float state = random.nextFloat();
         for (int i = 0; i < samples.length; ++i) {
-            int originalValue = samples[i];
+            int value = samples[i];
             float r = state;
             state = random.nextFloat();
             int noiseLevel = 256 * 16;
-            samples[i] = originalValue + (int)((r - state) * noiseLevel) - accumulatedError;
-            accumulatedError += nibbleToInt(intToNibble(samples[i])) - originalValue;
+            value += (r - state) * noiseLevel;
+            samples[i] = value;
         }
     }
 
