@@ -20,10 +20,11 @@ import utils.FileDialogLauncher;
 import utils.FontIO;
 import utils.RomUtilities;
 
-public class FontEditor extends JFrame implements FontMap.TileSelectListener, TileEditor.TileChangedListener {
+public class FontEditor extends JFrame implements FontMap.TileSelectListener, FontMap.GfxTileSelectListener, TileEditor.TileChangedListener {
 
     private static final long serialVersionUID = 5296681614787155252L;
 
+    private final JCheckBox displayGfxCharacters = new JCheckBox();
     private final FontMap fontMap;
     private final TileEditor tileEditor;
 
@@ -79,6 +80,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         constraints.gridwidth = 3;
         contentPane.add(fontSelector, constraints);
 
+
         JPanel colorPanel = new JPanel();
         colorPanel.setLayout(new BoxLayout(colorPanel, BoxLayout.X_AXIS));
         FontEditorColorSelector colorSelector = new FontEditorColorSelector(colorPanel);
@@ -98,7 +100,6 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         constraints.gridy = 2;
         constraints.gridwidth = 3;
         constraints.gridheight = 1;
-        constraints.ipady = 0;
         contentPane.add(colorPanel, constraints);
 
         JPanel shiftButtonPanel = new JPanel();
@@ -116,16 +117,29 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         constraints.fill = GridBagConstraints.NONE;
         contentPane.add(shiftButtonPanel, constraints);
 
+
+        displayGfxCharacters.setText("Show GFX Characters");
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.gridwidth = 3;
+        constraints.gridheight = 1;
+        contentPane.add(displayGfxCharacters, constraints);
+
+
         fontMap = new FontMap();
         fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setPreferredSize(new Dimension(128, 16 * 8 * 2));
         fontMap.setTileSelectListener(this);
+        fontMap.setGfxTileSelectListener(this);
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy = 5;
         constraints.ipadx = 0;
         constraints.ipady = 0;
-        constraints.weightx = 0.1;
+        constraints.weightx = 0;
         constraints.weighty = 1;
         constraints.gridwidth = 3;
         constraints.gridheight = 1;
@@ -135,6 +149,13 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         pack();
 
         setRomImage(document.romImage());
+
+        displayGfxCharacters.addActionListener(e -> {
+            fontMap.setShowGfxCharacters(displayGfxCharacters.isSelected());
+            if (!displayGfxCharacters.isSelected() && tileEditor.isEditingGfx()) {
+                tileSelected(0);
+            }
+        });
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -208,7 +229,9 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
     public void setRomImage(byte[] romImage) {
         this.romImage = romImage;
         fontMap.setRomImage(romImage);
+        fontMap.setGfxCharOffset(RomUtilities.findGfxFontOffset(romImage));
         tileEditor.setRomImage(romImage);
+        tileEditor.setGfxDataOffset(RomUtilities.findGfxFontOffset(romImage));
 
         fontOffset = RomUtilities.findFontOffset(romImage);
         if (fontOffset == -1) {
@@ -249,6 +272,12 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
 
     public void tileSelected(int tile) {
         tileEditor.setTile(tile);
+    }
+
+
+    @Override
+    public void gfxTileSelected(int tile) {
+        tileEditor.setGfxTile(tile);
     }
 
     public void tileChanged() {
@@ -326,7 +355,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         if (f == null) {
             return;
         }
-        BufferedImage image = tileEditor.createImage();
+        BufferedImage image = tileEditor.createImage(displayGfxCharacters.isSelected());
         try {
             ImageIO.write(image, "PNG", f);
         } catch (IOException e) {

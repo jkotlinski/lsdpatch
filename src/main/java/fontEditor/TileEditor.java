@@ -19,7 +19,7 @@ package fontEditor;
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE. */
 
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -41,6 +41,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     private int selectedTile = 0;
     private int color = 3;
     private int rightColor = 3;
+    private Boolean editGfxCharacter = false;
 
     private int[][] clipboard = null;
 
@@ -61,9 +62,25 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         repaint();
     }
 
+    void setGfxDataOffset(int offset) {
+        font.setGfxDataOffset(offset);
+        repaint();
+    }
+
     void setTile(int tile) {
         selectedTile = tile;
+        editGfxCharacter = false;
         repaint();
+    }
+
+    void setGfxTile(int tile) {
+        selectedTile = tile;
+        editGfxCharacter = true;
+        repaint();
+    }
+
+    boolean isEditingGfx() {
+        return editGfxCharacter;
     }
 
     int getTile() {
@@ -91,22 +108,22 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     private int getColor(int tile, int x, int y) {
-        return font.getTilePixel(tile, x, y);
+        return editGfxCharacter? font.getGfxTilePixel(tile, x, y): font.getTilePixel(tile, x, y);
     }
 
     private void switchColor(Graphics g, int c) {
         switch (c & 3) {
             case 0:
-                g.setColor(java.awt.Color.white);
+                g.setColor(Color.white);
                 break;
             case 1:
-                g.setColor(java.awt.Color.lightGray);
+                g.setColor(Color.lightGray);
                 break;
             case 2:
-                g.setColor(java.awt.Color.pink); // Not used.
+                g.setColor(Color.darkGray); // Not used.
                 break;
             case 3:
-                g.setColor(java.awt.Color.black);
+                g.setColor(Color.black);
                 break;
         }
     }
@@ -167,7 +184,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     private void setColor(int x, int y, int color) {
-        font.setTilePixel(selectedTile, x, y, color);
+        font.setTilePixel(selectedTile, x, y, color, editGfxCharacter);
     }
 
     public void mouseEntered(java.awt.event.MouseEvent e) {
@@ -240,7 +257,9 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     void tileChanged() {
         repaint();
-        generateShadedAndInvertedTiles();
+        if(!editGfxCharacter) {
+            generateShadedAndInvertedTiles();
+        }
         tileChangedListener.tileChanged();
     }
 
@@ -249,7 +268,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     }
 
-    BufferedImage createImage() {
-        return font.saveDataToImage();
+    BufferedImage createImage(boolean includeGfxCharactere) {
+        return font.saveDataToImage(includeGfxCharactere);
     }
 }
