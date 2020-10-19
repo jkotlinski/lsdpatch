@@ -40,6 +40,7 @@ public class KitArchive {
         if (sample.localPath() != null) {
             comment += "|local_path=" + sample.localPath();
         }
+        comment += "|half_speed=" + (sample.halfSpeed() ? "1" : "0");
         zipEntry.setExtra(comment.getBytes());
     }
 
@@ -70,7 +71,8 @@ public class KitArchive {
                             (String) metaData.get("name"),
                             (File) metaData.get("local_path"),
                             (int) metaData.get("volume"),
-                            true);
+                            true,
+                            (boolean) metaData.get("half_speed"));
                 } else {
                     sample = new Sample(dstPcm, (String) metaData.get("name"));
                 }
@@ -96,6 +98,9 @@ public class KitArchive {
                     break;
                 case "local_path":
                     hashMap.put("local_path", new File(value));
+                    break;
+                case "half_speed":
+                    hashMap.put("half_speed", value.equals("1"));
                     break;
             }
         }

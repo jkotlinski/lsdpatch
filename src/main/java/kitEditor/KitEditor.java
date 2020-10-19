@@ -52,7 +52,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner volumeSpinner = new JSpinner();
 
     private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
-    private final JCheckBox playSpeedToggle = new JCheckBox("Play samples in half-speed");
+    private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
 
     private void emptyInstrList() {
         String[] listData = {
@@ -200,7 +200,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(reloadSamplesButton, "grow, span 2, wrap, sg button");
         contentPane.add(dropSampleButton, "grow, span 2,wrap 10, sg button");
         contentPane.add(playSampleToggle, "wrap");
-        contentPane.add(playSpeedToggle, "wrap");
+        contentPane.add(halfSpeed, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(sampleView, "grow, span 2, wmin 10, hmin 64");
@@ -210,6 +210,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 playSample();
             }
         });
+
+        halfSpeed.setToolTipText("Add and play samples in 5734 Hz instead of 11468 Hz.");
     }
 
     private void createFileDrop() {
@@ -271,7 +273,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
         try {
-            Sound.play(nibbles, playSpeedToggle.isSelected());
+            Sound.play(nibbles, halfSpeed.isSelected());
             sampleView.setBufferContent(nibbles);
             sampleView.repaint();
         } catch (Exception e) {
@@ -595,7 +597,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile, true);
+            sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected());
         } catch (Exception e) {
             showFileErrorMessage(e);
             return;
@@ -807,6 +809,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updatingVolume = true;
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
+        halfSpeed.setSelected(sample != null && sample.halfSpeed());
         updatingVolume = false;
         reloadSamplesButton.setEnabled(false);
         for (Sample s : samples[selectedBank]) {

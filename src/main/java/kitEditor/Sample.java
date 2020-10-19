@@ -13,6 +13,7 @@ class Sample {
     private int readPos;
     private int volumeDb = 0;
     private boolean dither = true;
+    private boolean halfSpeed = false;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
@@ -73,10 +74,11 @@ class Sample {
 
     // ------------------
 
-    public static Sample createFromWav(File file, boolean dither) throws IOException, UnsupportedAudioFileException {
+    public static Sample createFromWav(File file, boolean dither, boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
+        s.halfSpeed = halfSpeed;
         s.reload();
         return s;
     }
@@ -85,17 +87,23 @@ class Sample {
         if (file == null) {
             return;
         }
-        originalSamples = readSamples(file);
+        originalSamples = readSamples(file, halfSpeed);
         processSamples(dither);
     }
 
-    public static Sample createFromOriginalSamples(short[] pcm, String name, File file, int volume, boolean dither) {
+    public static Sample createFromOriginalSamples(short[] pcm,
+                                                   String name,
+                                                   File file,
+                                                   int volume,
+                                                   boolean dither,
+                                                   boolean halfSpeed) {
         Sample sample = new Sample(null, name);
         if (file != null && file.exists()) {
             sample.file = file;
         }
         sample.setVolumeDb(volume);
         sample.originalSamples = pcm;
+        sample.halfSpeed = halfSpeed;
         sample.processSamples(dither);
         return sample;
     }
@@ -141,9 +149,9 @@ class Sample {
         }
     }
 
-    private static short[] readSamples(File file) throws UnsupportedAudioFileException, IOException {
+    private static short[] readSamples(File file, boolean halfSpeed) throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
-        AudioFormat outFormat = new AudioFormat(11468, 16, 1, true, false);
+        AudioFormat outFormat = new AudioFormat(halfSpeed ? 5734 : 11468, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
         ArrayList<Short> samples = new ArrayList<>();
         while (true) {
@@ -208,5 +216,9 @@ class Sample {
             return null;
         }
         return file.getAbsolutePath();
+    }
+
+    public boolean halfSpeed() {
+        return halfSpeed;
     }
 }

@@ -16,7 +16,7 @@ class SampleTest {
         File file = new File(url.getFile());
         Sample sample = null;
         try {
-            sample = Sample.createFromWav(file, false);
+            sample = Sample.createFromWav(file, false, false);
         } catch (Exception e) {
             Assertions.fail(e);
         }
@@ -44,11 +44,11 @@ class SampleTest {
     void normalize() {
         short[] buf = new short[2];
         buf[0] = 1;
-        Sample sample = Sample.createFromOriginalSamples(buf, null, null, 0, false);
+        Sample sample = Sample.createFromOriginalSamples(buf, null, null, 0, false, false);
         Assertions.assertEquals(Short.MAX_VALUE, sample.read());
         Assertions.assertEquals(0, sample.read());
 
-        sample = Sample.createFromOriginalSamples(buf, null, null, -20, false);
+        sample = Sample.createFromOriginalSamples(buf, null, null, -20, false, false);
         Assertions.assertEquals(Short.MAX_VALUE / 10, sample.read());
         Assertions.assertEquals(0, sample.read());
     }
