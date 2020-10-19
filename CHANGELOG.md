@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
  - Kit Editor: improved sound playback quality.
  - Kit Editor: click sample view to play.
- - Kit Editor: MPC-like UI with pads.
+ - Kit Editor: MPC-like UI with pads. Right-click pad to rename or delete sample.
  - Kit Editor: Half-speed setting now also affects "Add sample".
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.

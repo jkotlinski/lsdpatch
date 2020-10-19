@@ -17,6 +17,7 @@ public class SamplePicker extends JPanel {
     interface Listener {
         void selectionChanged();
         void delete();
+        void renameSample(String s);
     }
 
     class Pad extends JToggleButton {
@@ -24,6 +25,38 @@ public class SamplePicker extends JPanel {
         Pad(int id) {
             this.id = id;
             setPreferredSize(new Dimension(64, 64));
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    super.mouseClicked(e);
+                    showPopup(e);
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    super.mouseClicked(e);
+                    showPopup(e);
+                }
+
+                private void showPopup(MouseEvent e) {
+                    if (!e.isPopupTrigger() || getText().equals("---")) {
+                        return;
+                    }
+                    JPopupMenu menu = new JPopupMenu();
+                    JMenuItem rename = new JMenuItem("Rename...");
+                    menu.add(rename);
+                    rename.addActionListener(e1 -> {
+                        String name = JOptionPane.showInputDialog("Enter new sample name");
+                        if (name != null) {
+                            listener.renameSample(name);
+                        }
+                    });
+                    JMenuItem delete = new JMenuItem("Delete");
+                    menu.add(delete);
+                    delete.addActionListener(e1 -> listener.delete());
+                    menu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            });
         }
 
         public void select(boolean keepOldSelection) {

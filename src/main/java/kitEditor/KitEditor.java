@@ -46,7 +46,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JTextArea kitTextArea = new JTextArea();
     private final JButton reloadSamplesButton = new JButton("Reload samples");
     private final JButton addSampleButton = new JButton("Add sample");
-    private final JButton dropSampleButton = new JButton("Drop sample(s)");
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleView sampleView = new SampleView();
     private final JSpinner volumeSpinner = new JSpinner();
@@ -110,7 +109,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addSampleButton.addActionListener(e -> addSample());
         reloadSamplesButton.addActionListener(e -> reloadSamples());
         reloadSamplesButton.setEnabled(false);
-        dropSampleButton.addActionListener(e -> dropSample());
     }
 
     private void reloadSamples() {
@@ -185,7 +183,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         exportAllSamplesButton.setText("Export all samples");
 
         addSampleButton.setEnabled(false);
-        dropSampleButton.setEnabled(false);
         volumeSpinner.setEnabled(false);
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
@@ -198,7 +195,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(exportAllSamplesButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSamplesButton, "grow, span 2, wrap, sg button");
-        contentPane.add(dropSampleButton, "grow, span 2,wrap 10, sg button");
         contentPane.add(playSampleToggle, "wrap");
         contentPane.add(halfSpeed, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
@@ -802,7 +798,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private void updateButtonStates() {
         int index = samplePicker.getSelectedIndex();
-        dropSampleButton.setEnabled(index >= 0 && samples[selectedBank][index] != null);
         exportSampleButton.setEnabled(getNibbles(index) != null);
         Sample sample = index >= 0 ? samples[selectedBank][index] : null;
         boolean enableVolume = sample != null && sample.canAdjustVolume();
@@ -823,5 +818,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     @Override
     public void delete() {
         dropSample();
+    }
+
+    @Override
+    public void renameSample(String s) {
+        renameSample(samplePicker.getSelectedIndex(), s);
+        updateRomView();
     }
 }
