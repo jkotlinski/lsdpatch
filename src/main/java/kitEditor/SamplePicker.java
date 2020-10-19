@@ -90,7 +90,7 @@ public class SamplePicker extends JPanel {
                         }
                     }
                     listener.selectionChanged();
-                    if (!e.isPopupTrigger()) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
                         listener.playSample();
                     }
                 }

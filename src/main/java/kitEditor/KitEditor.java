@@ -91,7 +91,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         });
 
         KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keyboardFocusManager.addKeyEventDispatcher(new KeyDispatcher());
+        keyboardFocusManager.addKeyEventPostProcessor(new GlobalKeyHandler());
 
         pack();
 
@@ -825,10 +825,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
     }
 
-    private class KeyDispatcher implements KeyEventDispatcher {
+    private class GlobalKeyHandler implements KeyEventPostProcessor {
         @Override
-        public boolean dispatchKeyEvent(KeyEvent e) {
-            if (e.getID() != KeyEvent.KEY_PRESSED) {
+        public boolean postProcessKeyEvent(KeyEvent e) {
+            if (e.getID() != KeyEvent.KEY_TYPED) {
+                return false;
+            }
+            if (e.isConsumed()) {
                 return false;
             }
             String playChars = "1234qwerasdfzxc";
