@@ -74,13 +74,15 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        int radius = 5;
+        int radius = 7;
+        int w = 2;
         g2d.setColor(Color.BLACK);
+        g2d.setStroke(new BasicStroke(w));
         g2d.drawOval((int) selection.getX() - radius,
                 (int) selection.getY() - radius,
                 2 * radius, 2 * radius);
         g2d.setColor(Color.WHITE);
-        --radius;
+        radius -= w;
         g2d.drawOval((int) selection.getX() - radius,
                 (int) selection.getY() - radius,
                 2 * radius, 2 * radius);

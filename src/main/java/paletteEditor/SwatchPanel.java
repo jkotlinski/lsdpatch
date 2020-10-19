@@ -118,8 +118,10 @@ public class SwatchPanel extends JPanel implements SwatchPair.Listener {
         for (SwatchPair swatchPair : swatchPairs) {
             swatchPair.deselect();
         }
-        final int w = 3;
-        swatch.setBorder(BorderFactory.createMatteBorder(w, w, w, w, Color.magenta));
+        int w = 2;
+        swatch.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(w, w, w, w, Color.BLACK),
+                BorderFactory.createMatteBorder(w, w, w, w, Color.WHITE)));
         if (listener != null) {
             listener.swatchSelected(swatch);
         }
