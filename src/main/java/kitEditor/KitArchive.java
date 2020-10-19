@@ -52,7 +52,7 @@ public class KitArchive {
                     return;
                 }
                 final int sampleIndex = Integer.parseInt(zipEntry.getName());
-                HashMap<String, Object> metaData = parseComment(new String(zipEntry.getExtra()));
+                MetaData metaData = new MetaData(zipEntry);
                 ArrayList<Byte> inPcm = new ArrayList<>();
                 while (true) {
                     int b = zipInputStream.read();
@@ -66,44 +66,45 @@ public class KitArchive {
                     dstPcm[i] = (short) (inPcm.get(i * 2) + (inPcm.get(i * 2 + 1) << 8));
                 }
                 Sample sample;
-                if (metaData.containsKey("original_samples")) {
+                if (metaData.getBoolean("original_samples")) {
                     sample = Sample.createFromOriginalSamples(dstPcm,
-                            (String) metaData.get("name"),
-                            (File) metaData.get("local_path"),
-                            (int) metaData.get("volume"),
+                            metaData.getName(),
+                            metaData.getLocalPath(),
+                            metaData.getVolume(),
                             true,
-                            (boolean) metaData.get("half_speed"));
+                            metaData.getBoolean("half_speed"));
                 } else {
-                    sample = new Sample(dstPcm, (String) metaData.get("name"));
+                    sample = new Sample(dstPcm, metaData.getName());
                 }
                 samples[sampleIndex] = sample;
             }
         }
     }
 
-    private static HashMap<String, Object> parseComment(String comment) {
-        HashMap<String, Object> hashMap = new HashMap<>();
-        for (String command : comment.split("\\|")) {
-            String key = command.split("=")[0];
-            String value = command.split("=")[1];
-            switch (key) {
-                case "name":
-                    hashMap.put("name", value);
-                    break;
-                case "volume":
-                    hashMap.put("volume", Integer.parseInt(value));
-                    break;
-                case "original_samples":
-                    hashMap.put("original_samples", 1);
-                    break;
-                case "local_path":
-                    hashMap.put("local_path", new File(value));
-                    break;
-                case "half_speed":
-                    hashMap.put("half_speed", value.equals("1"));
-                    break;
+    private static class MetaData {
+        HashMap<String, String> hashMap = new HashMap<>();
+        public MetaData(ZipEntry zipEntry) {
+            for (String command : new String(zipEntry.getExtra()).split("\\|")) {
+                String key = command.split("=")[0];
+                String value = command.split("=")[1];
+                hashMap.put(key, value);
             }
         }
-        return hashMap;
+
+        String getName() {
+            return hashMap.getOrDefault("name", null);
+        }
+
+        File getLocalPath() {
+            return new File(hashMap.get("local_path"));
+        }
+
+        boolean getBoolean(String key) {
+            return hashMap.getOrDefault(key, "0").equals("1");
+        }
+
+        int getVolume() {
+            return Integer.parseInt(hashMap.getOrDefault("volume", "0"));
+        }
     }
 }
