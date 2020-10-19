@@ -49,8 +49,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleView sampleView = new SampleView();
     private final JSpinner volumeSpinner = new JSpinner();
-
-    private final JCheckBox playSampleToggle = new JCheckBox("Play sample on click", true);
     private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
 
     private void emptyInstrList() {
@@ -195,7 +193,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(exportAllSamplesButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSamplesButton, "grow, span 2, wrap, sg button");
-        contentPane.add(playSampleToggle, "wrap");
         contentPane.add(halfSpeed, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
@@ -261,9 +258,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void playSample() {
-        if (!playSampleToggle.isSelected()) {
-            return;
-        }
         byte[] nibbles = getNibbles(samplePicker.getSelectedIndex());
         if (nibbles == null) {
             return;

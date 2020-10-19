@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
  - Font Editor: removed saving of .lsdfnt files, as well as loading/saving multiple fonts in one go.
+ - Kit Editor: "Play sample on click" toggle.
 
 ## [1.7.0] - 2020-10-06
 ### Fixed
