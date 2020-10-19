@@ -14,6 +14,9 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static java.awt.event.KeyEvent.VK_A;
+import static java.awt.event.KeyEvent.VK_DELETE;
+
 public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final Document document;
 
@@ -87,6 +90,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         });
 
+        KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keyboardFocusManager.addKeyEventDispatcher(new KeyDispatcher());
+
         pack();
 
         samplePicker.grabFocus();
@@ -145,6 +151,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         sample.processSamples(true);
         compileKit();
         samplePicker.setSelectedIndex(index);
+        Sound.stopAll();
         playSample();
         updatingVolume = false;
     }
@@ -816,5 +823,31 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     public void renameSample(String s) {
         renameSample(samplePicker.getSelectedIndex(), s);
         updateRomView();
+    }
+
+    private class KeyDispatcher implements KeyEventDispatcher {
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent e) {
+            if (e.getID() != KeyEvent.KEY_PRESSED) {
+                return false;
+            }
+            String playChars = "1234qwerasdfzxc";
+            int index = playChars.indexOf(Character.toLowerCase(e.getKeyChar()));
+            if (index != -1) {
+                samplePicker.setSelectedIndex(index);
+                playSample();
+                return true;
+            }
+
+            switch (e.getKeyCode()) {
+                case VK_DELETE:
+                    deleteSample();
+                    return true;
+                case VK_A:
+                    samplePicker.selectAll();
+                    return true;
+            }
+            return false;
+        }
     }
 }

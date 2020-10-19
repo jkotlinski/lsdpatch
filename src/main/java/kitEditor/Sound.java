@@ -45,11 +45,11 @@ public class Sound {
                 new AudioFormat(PLAYBACK_RATE, 16, 1, true, false),
                 waveData.length));
         clip.start();
+    }
 
-        for (Clip otherClip : clipPool) {
-            if (otherClip != clip) {
-                otherClip.stop();
-            }
+    static void stopAll() {
+        for (Clip clip : clipPool) {
+            clip.stop();
         }
     }
 

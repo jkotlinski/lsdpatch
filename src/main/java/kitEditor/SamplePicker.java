@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
-import static java.awt.event.KeyEvent.*;
 
 public class SamplePicker extends JPanel {
     private Listener listener;
@@ -59,20 +58,6 @@ public class SamplePicker extends JPanel {
                 }
             });
         }
-
-        public void select(boolean keepOldSelection) {
-            if (!keepOldSelection) {
-                selectedIndices.clear();
-                for (int i = 0; i < 15; ++i) {
-                    JToggleButton button = pads.get(i);
-                    button.setSelected(false);
-                }
-            }
-            selectedIndices.add(id);
-            setSelected(true);
-            grabFocus();
-            listener.selectionChanged();
-        }
     }
 
     private final ArrayList<Pad> pads;
@@ -111,56 +96,9 @@ public class SamplePicker extends JPanel {
                 }
             });
         }
-
-        for (Pad pad : pads) {
-            pad.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    super.keyPressed(e);
-                    boolean shiftDown = (e.getModifiersEx() & SHIFT_DOWN_MASK) != 0;
-                    switch (e.getKeyCode()) {
-                        case VK_LEFT:
-                            if (getFocusIndex() > 0) {
-                                pads.get(getFocusIndex() - 1).select(shiftDown);
-                                listener.playSample();
-                            }
-                            break;
-                        case VK_RIGHT:
-                            if (getFocusIndex() < 14) {
-                                pads.get(getFocusIndex() + 1).select(shiftDown);
-                                listener.playSample();
-                            }
-                            break;
-                        case VK_DOWN:
-                            if (getFocusIndex() < 11) {
-                                pads.get(getFocusIndex() + 4).select(shiftDown);
-                                listener.playSample();
-                            }
-                            break;
-                        case VK_UP:
-                            if (getFocusIndex() > 3) {
-                                pads.get(getFocusIndex() - 4).select(shiftDown);
-                                listener.playSample();
-                            }
-                            break;
-                        case VK_SPACE:
-                            listener.selectionChanged();
-                            listener.playSample();
-                            break;
-                        case VK_DELETE:
-                            listener.deleteSample();
-                            break;
-                        case VK_A:
-                            if ((e.getModifiersEx() & CTRL_DOWN_MASK) != 0) {
-                                selectAll();
-                            }
-                    }
-                }
-            });
-        }
     }
 
-    private void selectAll() {
+    void selectAll() {
         for (Pad pad : pads) {
             pad.setSelected(true);
             selectedIndices.add(pad.id);
@@ -199,15 +137,6 @@ public class SamplePicker extends JPanel {
         selectedIndices.add(selectedIndex);
         pads.get(selectedIndex).setSelected(true);
         listener.selectionChanged();
-    }
-
-    public int getFocusIndex() {
-        for (Pad pad : pads) {
-            if (pad.hasFocus()) {
-                return pad.id;
-            }
-        }
-        return -1;
     }
 
     public int getSelectedIndex() {
