@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
  - Palette Editor: dragging color picker sliders is now more responsive.
+ - Palette Editor: improved color picker visibility.
  - Kit Editor: when prelistening a sample, stop already playing samples.
  - Kit Editor: update of "bytes used" field.
  - Some file dialogs would not remember the last used directory.
