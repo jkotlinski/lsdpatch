@@ -16,7 +16,8 @@ public class SamplePicker extends JPanel {
 
     interface Listener {
         void selectionChanged();
-        void delete();
+        void playSample();
+        void deleteSample();
         void renameSample(String s);
     }
 
@@ -53,7 +54,7 @@ public class SamplePicker extends JPanel {
                     });
                     JMenuItem delete = new JMenuItem("Delete");
                     menu.add(delete);
-                    delete.addActionListener(e1 -> listener.delete());
+                    delete.addActionListener(e1 -> listener.deleteSample());
                     menu.show(e.getComponent(), e.getX(), e.getY());
                 }
             });
@@ -104,6 +105,9 @@ public class SamplePicker extends JPanel {
                         }
                     }
                     listener.selectionChanged();
+                    if (!e.isPopupTrigger()) {
+                        listener.playSample();
+                    }
                 }
             });
         }
@@ -118,28 +122,33 @@ public class SamplePicker extends JPanel {
                         case VK_LEFT:
                             if (getFocusIndex() > 0) {
                                 pads.get(getFocusIndex() - 1).select(shiftDown);
+                                listener.playSample();
                             }
                             break;
                         case VK_RIGHT:
                             if (getFocusIndex() < 14) {
                                 pads.get(getFocusIndex() + 1).select(shiftDown);
+                                listener.playSample();
                             }
                             break;
                         case VK_DOWN:
                             if (getFocusIndex() < 11) {
                                 pads.get(getFocusIndex() + 4).select(shiftDown);
+                                listener.playSample();
                             }
                             break;
                         case VK_UP:
                             if (getFocusIndex() > 3) {
                                 pads.get(getFocusIndex() - 4).select(shiftDown);
+                                listener.playSample();
                             }
                             break;
                         case VK_SPACE:
                             listener.selectionChanged();
+                            listener.playSample();
                             break;
                         case VK_DELETE:
-                            listener.delete();
+                            listener.deleteSample();
                             break;
                         case VK_A:
                             if ((e.getModifiersEx() & CTRL_DOWN_MASK) != 0) {

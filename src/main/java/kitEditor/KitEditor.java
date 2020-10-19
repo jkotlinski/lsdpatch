@@ -96,6 +96,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         bankBox.addActionListener(bankBoxListener);
         samplePicker.addListSelectionListener(this);
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
+        halfSpeed.addActionListener(e -> onVolumeChanged());
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -123,7 +124,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         compileKit();
         updateRomView();
         samplePicker.setSelectedIndex(index);
-        playSample();
     }
 
     static boolean updatingVolume = false;
@@ -141,6 +141,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         updatingVolume = true;
         sample.setVolumeDb((int)volumeSpinner.getValue());
+        sample.setHalfSpeed(halfSpeed.isSelected());
         sample.processSamples(true);
         compileKit();
         samplePicker.setSelectedIndex(index);
@@ -254,7 +255,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         return arr;
     }
 
-    private void playSample() {
+    @Override
+    public void playSample() {
         byte[] nibbles = getNibbles(samplePicker.getSelectedIndex());
         if (nibbles == null) {
             return;
@@ -784,7 +786,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     @Override
     public void selectionChanged() {
         updateButtonStates();
-        playSample();
     }
 
     private void updateButtonStates() {
@@ -807,7 +808,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     @Override
-    public void delete() {
+    public void deleteSample() {
         dropSample();
     }
 

@@ -221,4 +221,8 @@ class Sample {
     public boolean halfSpeed() {
         return halfSpeed;
     }
+
+    public void setHalfSpeed(boolean enabled) {
+        halfSpeed = enabled;
+    }
 }
