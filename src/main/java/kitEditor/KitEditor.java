@@ -6,7 +6,6 @@ import net.miginfocom.swing.MigLayout;
 import utils.*;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -159,8 +158,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.setBorder(BorderFactory.createEtchedBorder());
 
         JPanel kitContainer = new JPanel();
-        TitledBorder kitContainerBorder = new TitledBorder(BorderFactory.createEtchedBorder(), "ROM Image");
-        kitContainer.setBorder(kitContainerBorder);
         kitContainer.setLayout(new MigLayout("", "[grow,fill]", ""));
         kitContainer.add(bankBox, "grow,wrap");
         kitContainer.add(samplePicker, "grow,wrap");
@@ -171,7 +168,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         saveKitButton.setText("Export kit");
         saveRomButton.setText("Save ROM");
 
-        kitTextArea.setBorder(BorderFactory.createEtchedBorder());
+        kitTextArea.setBorder(BorderFactory.createLoweredBevelBorder());
 
         renameKitButton.setText("Rename kit");
 
@@ -186,7 +183,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "grow, wrap");
         contentPane.add(saveKitButton, "grow, wrap, sg button");
-        contentPane.add(kitTextArea, "grow,split 2");
+        contentPane.add(kitTextArea, "grow, wmin 60, split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
