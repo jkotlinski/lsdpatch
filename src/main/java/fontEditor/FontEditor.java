@@ -174,10 +174,6 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Fo
         panel.add(button);
     }
 
-    private int getFontDataLocation(int fontNumber) {
-        return fontOffset + fontNumber * LSDJFont.FONT_SIZE + LSDJFont.FONT_HEADER_SIZE;
-    }
-
     private void addMenuEntry(JMenu destination, String name, int key, ActionListener event) {
         JMenuItem newMenuEntry = new JMenuItem(name);
         newMenuEntry.setMnemonic(key);
@@ -315,14 +311,15 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Fo
 
             if (f.getName().endsWith("png")) {
                 importBitmap(f);
-                return;
+                String fontName = f.getName().trim().trim().trim().trim().toUpperCase();
+                RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
+            } else {
+                String fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
+                tileEditor.generateShadedAndInvertedTiles();
+                RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
+                tileEditor.tileChanged();
+                tileChanged();
             }
-            String fontName;
-            fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
-            tileEditor.generateShadedAndInvertedTiles();
-            RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
-            tileEditor.tileChanged();
-            tileChanged();
             // Refresh the name list.
             int previousIndex = fontSelector.getSelectedIndex();
             populateFontSelector();
