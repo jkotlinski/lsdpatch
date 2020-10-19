@@ -1,23 +1,4 @@
 package fontEditor;
-/* Copyright (C) 2017 by Johan Kotlinski
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE. */
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,13 +16,10 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
         void tileChanged();
     }
 
-    // byte[] romImage = null;
-    // int fontOffset = -1;
     private final LSDJFont font;
     private int selectedTile = 0;
     private int color = 3;
     private int rightColor = 3;
-    private Boolean editGfxCharacter = false;
 
     private int[][] clipboard = null;
 
@@ -69,18 +47,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     void setTile(int tile) {
         selectedTile = tile;
-        editGfxCharacter = false;
         repaint();
-    }
-
-    void setGfxTile(int tile) {
-        selectedTile = tile;
-        editGfxCharacter = true;
-        repaint();
-    }
-
-    boolean isEditingGfx() {
-        return editGfxCharacter;
     }
 
     int getTile() {
@@ -108,7 +75,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     private int getColor(int tile, int x, int y) {
-        return editGfxCharacter? font.getGfxTilePixel(tile, x, y): font.getTilePixel(tile, x, y);
+        return font.getTilePixel(tile, x, y);
     }
 
     private void switchColor(Graphics g, int c) {
@@ -184,7 +151,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
     }
 
     private void setColor(int x, int y, int color) {
-        font.setTilePixel(selectedTile, x, y, color, editGfxCharacter);
+        font.setTilePixel(selectedTile, x, y, color);
     }
 
     public void mouseEntered(java.awt.event.MouseEvent e) {
@@ -257,9 +224,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     void tileChanged() {
         repaint();
-        if(!editGfxCharacter) {
-            generateShadedAndInvertedTiles();
-        }
+        generateShadedAndInvertedTiles();
         tileChangedListener.tileChanged();
     }
 
@@ -268,7 +233,7 @@ class TileEditor extends JPanel implements java.awt.event.MouseListener, java.aw
 
     }
 
-    BufferedImage createImage(boolean includeGfxCharactere) {
-        return font.saveDataToImage(includeGfxCharactere);
+    BufferedImage createImage(boolean includeGfxCharacters) {
+        return font.saveDataToImage(includeGfxCharacters);
     }
 }

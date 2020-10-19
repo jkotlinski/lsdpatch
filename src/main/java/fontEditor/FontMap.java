@@ -18,12 +18,8 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     public interface TileSelectListener {
         void tileSelected(int tile);
     }
-    public interface GfxTileSelectListener {
-        void gfxTileSelected(int tile);
-    }
 
     private TileSelectListener tileSelectedListener = null;
-    private GfxTileSelectListener gfxTileSelectedListener = null;
 
     FontMap() {
         addMouseListener(this);
@@ -38,18 +34,12 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         tileSelectedListener = l;
     }
 
-    void setGfxTileSelectListener(GfxTileSelectListener l) {
-        gfxTileSelectedListener = l;
-    }
-
-    int getCurrentNumTileOnY () {
-        return showGfxCharacters ? LSDJFont.GFX_FONT_NUM_TILES_Y : LSDJFont.FONT_NUM_TILES_Y;
-    }
     int getCurrentUnscaledMapHeight () {
         return showGfxCharacters ? LSDJFont.GFX_FONT_MAP_HEIGHT : LSDJFont.FONT_MAP_HEIGHT;
     }
+
     int getCurrentTileNumber () {
-        return  showGfxCharacters ? LSDJFont.GFX_TILE_COUNT + LSDJFont.TILE_COUNT : LSDJFont.TILE_COUNT;
+        return showGfxCharacters ? LSDJFont.GFX_TILE_COUNT + LSDJFont.TILE_COUNT : LSDJFont.TILE_COUNT;
     }
 
     public void paintComponent(Graphics g) {
@@ -64,16 +54,15 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         int offsetY = (getHeight() - currentHeight * tileZoom) / 2;
         setPreferredSize(new Dimension(LSDJFont.FONT_MAP_WIDTH * tileZoom, currentHeight * tileZoom));
 
-        for (int tile = 0; tile < LSDJFont.TILE_COUNT; ++tile) {
+        for (int tile = 0; tile < tileCount(); ++tile) {
             paintTile(g, tile, offsetX, offsetY);
         }
+    }
 
-        if (showGfxCharacters) {
-            for (int tile = 0; tile < LSDJFont.GFX_TILE_COUNT; ++tile) {
-                paintGfxTile(g, tile, offsetX, offsetY);
-
-            }
-        }
+    private int tileCount() {
+        return showGfxCharacters
+                ? LSDJFont.GFX_TILE_COUNT + LSDJFont.TILE_COUNT
+                : LSDJFont.TILE_COUNT;
     }
 
     private void switchColor(Graphics g, int c) {
@@ -94,15 +83,14 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
     }
 
     private int getColor(int tile, int x, int y) {
-        int tileOffset = fontOffset + tile * 16 + y * 2;
-        int xMask = 7 - x;
-        int value = (romImage[tileOffset] >> xMask) & 1;
-        value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
-        return value;
-    }
-
-    private int getGfxColor(int tile, int x, int y) {
-        int tileOffset = gfxCharOffset + tile * 16 + y * 2;
+        int tileOffset;
+        if (tile < LSDJFont.TILE_COUNT) {
+            tileOffset = fontOffset;
+        } else {
+            tileOffset = gfxCharOffset;
+            tile -= LSDJFont.TILE_COUNT;
+        }
+        tileOffset += tile * 16 + y * 2;
         int xMask = 7 - x;
         int value = (romImage[tileOffset] >> xMask) & 1;
         value |= ((romImage[tileOffset + 1] >> xMask) & 1) << 1;
@@ -120,24 +108,8 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
                 g.fillRect(offsetX + x + column * tileZoom, offsetY + y + row * tileZoom, tileZoom, tileZoom);
             }
         }
-        if(tileZoom > 1) {
+        if (tileZoom > 1) {
             g.setColor(new Color(0.f,0.f,0.4f,0.6f));
-            g.drawRect(offsetX + x, offsetY + y, tileZoom*8, tileZoom*8);
-        }
-    }
-    private void paintGfxTile(Graphics g, int tile, int offsetX, int offsetY) {
-        displayTileSize = 8 * tileZoom;
-        int x = ((tile + LSDJFont.TILE_COUNT) % 8) * displayTileSize;
-        int y = ((tile + LSDJFont.TILE_COUNT) / 8) * displayTileSize;
-
-        for (int row = 0; row < 8; ++row) {
-            for (int column = 0; column < 8; ++column) {
-                switchColor(g, getGfxColor(tile, column, row));
-                g.fillRect(offsetX + x + column * tileZoom, offsetY + y + row * tileZoom, tileZoom, tileZoom);
-            }
-        }
-        if(tileZoom > 1) {
-            g.setColor(new Color(0.4f,0.f,0.f,0.6f));
             g.drawRect(offsetX + x, offsetY + y, tileZoom*8, tileZoom*8);
         }
     }
@@ -186,11 +158,8 @@ public class FontMap extends JPanel implements java.awt.event.MouseListener {
         if (tile < 0 || tile >= getCurrentTileNumber())
             return;
 
-        if (tile < LSDJFont.TILE_COUNT && tileSelectedListener != null) {
+        if (tileSelectedListener != null) {
             tileSelectedListener.tileSelected(tile);
-        }
-        else if (showGfxCharacters && tile >= LSDJFont.TILE_COUNT && gfxTileSelectedListener != null) {
-            gfxTileSelectedListener.gfxTileSelected(tile - LSDJFont.TILE_COUNT);
         }
     }
 }
