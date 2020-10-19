@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Palette Editor: improved color picker visibility.
  - Kit Editor: when prelistening a sample, stop already playing samples.
  - Kit Editor: update of "bytes used" field.
+ - Font Editor: when loading font from .png, set font name from file.
  - Some file dialogs would not remember the last used directory.
  - Saving a ROM when no SAV has been loaded.
  - Switching .sav would not take effect until a ROM was loaded.
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Kit Editor: "Reload samples", "Save ROM" buttons.
  - Kit Editor: .lsdkit files now include original 16-bit sample data as well as local file path, to make future edits easier.
+ - Kit Editor: automatic silence trimming.
  - Font Editor: support for editing graphics characters.
 
 ### Changed

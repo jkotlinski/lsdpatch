@@ -22,7 +22,7 @@ class SampleTest {
         }
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz", sample.getName());
-        Assertions.assertEquals(11469, sample.lengthInSamples());
+        Assertions.assertEquals(11468, sample.lengthInSamples());
         Assertions.assertEquals(5728, sample.lengthInBytes());
 
         int sum = 0;
@@ -43,13 +43,14 @@ class SampleTest {
     @Test
     void normalize() {
         short[] buf = new short[2];
-        buf[0] = 1;
+        buf[0] = -1;
+        buf[1] = 1;
         Sample sample = Sample.createFromOriginalSamples(buf, null, null, 0, false, false);
+        Assertions.assertEquals(-Short.MAX_VALUE, sample.read());
         Assertions.assertEquals(Short.MAX_VALUE, sample.read());
-        Assertions.assertEquals(0, sample.read());
 
         sample = Sample.createFromOriginalSamples(buf, null, null, -20, false, false);
+        Assertions.assertEquals(-Short.MAX_VALUE / 10, sample.read());
         Assertions.assertEquals(Short.MAX_VALUE / 10, sample.read());
-        Assertions.assertEquals(0, sample.read());
     }
 }

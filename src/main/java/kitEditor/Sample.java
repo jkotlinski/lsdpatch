@@ -114,8 +114,55 @@ class Sample {
         if (dither) {
             dither(intBuffer);
         }
+        intBuffer = trimSilence(intBuffer);
         processedSamples = toShortBuffer(intBuffer);
         blendWaveFrames(processedSamples);
+}
+
+    private int[] trimSilence(int[] intBuffer) {
+        return trimSilenceLeft(trimSilenceRight(intBuffer));
+    }
+
+    private boolean sign(int i) {
+        return i < 0;
+    }
+
+    final int SILENCE_THRESHOLD = Short.MAX_VALUE / 8;
+    private int[] trimSilenceLeft(int[] srcBuf) {
+        for (int i = 0; i < srcBuf.length; ++i) {
+            if (Math.abs(srcBuf[i]) >= SILENCE_THRESHOLD) {
+                for (int j = i - 1; j >= 0; --j) {
+                    if (srcBuf[j] == 0 || sign(srcBuf[j]) != sign(srcBuf[i])) {
+                        // found zero crossing
+                        j++;
+                        int[] newBuf = new int[srcBuf.length - j];
+                        if (newBuf.length >= 0) {
+                            System.arraycopy(srcBuf, j, newBuf, 0, newBuf.length);
+                        }
+                        return newBuf;
+                    }
+                }
+                return srcBuf;
+            }
+        }
+        return srcBuf;
+    }
+
+    private int[] trimSilenceRight(int[] srcBuf) {
+        for (int i = srcBuf.length - 1; i >= 0; --i) {
+            if (Math.abs(srcBuf[i]) >= SILENCE_THRESHOLD) {
+                for (int j = i + 1; j < srcBuf.length; ++j) {
+                    if (srcBuf[j] == 0 || sign(srcBuf[j]) != sign(srcBuf[i])) {
+                        // found zero crossing
+                        int[] newBuf = new int[j];
+                        System.arraycopy(srcBuf, 0, newBuf, 0, newBuf.length);
+                        return newBuf;
+                    }
+                }
+                return srcBuf;
+            }
+        }
+        return srcBuf;
     }
 
     private short[] toShortBuffer(int[] intBuffer) {
