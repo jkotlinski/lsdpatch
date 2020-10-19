@@ -830,18 +830,18 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private class GlobalKeyHandler implements KeyEventPostProcessor {
         @Override
         public boolean postProcessKeyEvent(KeyEvent e) {
-            if (e.getID() != KeyEvent.KEY_TYPED) {
-                return false;
-            }
             if (e.isConsumed()) {
                 return false;
             }
-            String playChars = "1234qwerasdfzxc";
-            int index = playChars.indexOf(Character.toLowerCase(e.getKeyChar()));
-            if (index != -1) {
-                samplePicker.setSelectedIndex(index);
-                playSample();
-                return true;
+
+            if (e.getModifiersEx() == 0 && e.getID() == KeyEvent.KEY_TYPED) {
+                String playChars = "1234qwerasdfzxc";
+                int index = playChars.indexOf(Character.toLowerCase(e.getKeyChar()));
+                if (index != -1) {
+                    samplePicker.setSelectedIndex(index);
+                    playSample();
+                    return true;
+                }
             }
 
             switch (e.getKeyCode()) {
@@ -849,7 +849,10 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                     deleteSample();
                     return true;
                 case VK_A:
-                    samplePicker.selectAll();
+                    boolean ctrlDown = (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0;
+                    if (ctrlDown) {
+                        samplePicker.selectAll();
+                    }
                     return true;
             }
             return false;
