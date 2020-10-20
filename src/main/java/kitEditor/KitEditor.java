@@ -14,9 +14,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static java.awt.event.KeyEvent.VK_A;
-import static java.awt.event.KeyEvent.VK_DELETE;
-
 public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final Document document;
 
@@ -91,7 +88,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         });
 
         KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keyboardFocusManager.addKeyEventPostProcessor(new GlobalKeyHandler());
+        keyboardFocusManager.addKeyEventPostProcessor(new PadKeyHandler());
 
         pack();
 
@@ -823,35 +820,20 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
     }
 
-    private class GlobalKeyHandler implements KeyEventPostProcessor {
+    private class PadKeyHandler implements KeyEventPostProcessor {
         @Override
         public boolean postProcessKeyEvent(KeyEvent e) {
-            if (e.isConsumed()) {
+            if (e.isConsumed() || e.getModifiersEx() != 0 || e.getID() != KeyEvent.KEY_TYPED) {
                 return false;
             }
-
-            if (e.getModifiersEx() == 0 && e.getID() == KeyEvent.KEY_TYPED) {
-                String playChars = "1234qwerasdfzxc";
-                int index = playChars.indexOf(Character.toLowerCase(e.getKeyChar()));
-                if (index != -1) {
-                    samplePicker.setSelectedIndex(index);
-                    playSample();
-                    return true;
-                }
+            String playChars = "1234qwerasdfzxc";
+            int index = playChars.indexOf(Character.toLowerCase(e.getKeyChar()));
+            if (index == -1) {
+                return false;
             }
-
-            switch (e.getKeyCode()) {
-                case VK_DELETE:
-                    deleteSample();
-                    return true;
-                case VK_A:
-                    boolean ctrlDown = (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0;
-                    if (ctrlDown) {
-                        samplePicker.selectAll();
-                    }
-                    return true;
-            }
-            return false;
+            samplePicker.setSelectedIndex(index);
+            playSample();
+            return true;
         }
     }
 }
