@@ -168,8 +168,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         kitContainer.add(kitSizeLabel, "grow, split 2");
         kitContainer.add(saveRomButton, "grow");
 
-        loadKitButton.setText("Import kit");
-        saveKitButton.setText("Export kit");
+        loadKitButton.setText("Load kit");
+        saveKitButton.setText("Save kit");
         saveRomButton.setText("Save ROM");
 
         kitTextArea.setBorder(BorderFactory.createLoweredBevelBorder());

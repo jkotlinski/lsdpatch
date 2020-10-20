@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: click sample view to play.
  - Kit Editor: MPC-like UI with pads. Play by clicking or keys 1234QWERASDFZXC. Right-click pad to rename or delete sample.
  - Kit Editor: Half-speed setting now also affects "Add sample".
+ - Kit Editor: Renamed "Export kit" to "Save kit".
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.
  - Improved command line feedback.
