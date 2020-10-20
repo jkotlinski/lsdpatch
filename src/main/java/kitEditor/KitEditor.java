@@ -142,16 +142,14 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
         Sample sample = samples[selectedBank][index];
-        if (sample == null) {
+        if (sample == null || !sample.canAdjustVolume()) {
             return;
         }
         updatingVolume = true;
+        sample.setVolumeDb((int)volumeSpinner.getValue());
         sample.setHalfSpeed(halfSpeed.isSelected());
-        if (sample.canAdjustVolume()) {
-            sample.setVolumeDb((int) volumeSpinner.getValue());
-            sample.processSamples(true);
-            compileKit();
-        }
+        sample.processSamples(true);
+        compileKit();
         samplePicker.setSelectedIndex(index);
         Sound.stopAll();
         playSample();
