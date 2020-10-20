@@ -761,7 +761,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private class PadKeyHandler implements KeyEventPostProcessor {
         @Override
         public boolean postProcessKeyEvent(KeyEvent e) {
-            if (e.isConsumed() || e.getModifiersEx() != 0 || e.getID() != KeyEvent.KEY_TYPED) {
+            // Makes sure we do nothing if a text field has focus.
+            if (e.getID() != KeyEvent.KEY_TYPED || e.isConsumed()) {
+                return false;
+            }
+            if (e.getModifiersEx() != 0) {
                 return false;
             }
             String playChars = "1234qwerasdfzxc";
