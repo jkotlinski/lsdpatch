@@ -40,7 +40,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JButton saveKitButton = new JButton();
     private final JButton saveRomButton = new JButton();
     private final JButton exportSampleButton = new JButton();
-    private final JButton exportAllSamplesButton = new JButton();
     private final JButton clearKitButton = new JButton("Clear kit");
     private final JButton renameKitButton = new JButton();
     private final JTextArea kitTextArea = new JTextArea();
@@ -108,7 +107,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         renameKitButton.addActionListener(e -> renameKit(kitTextArea.getText()));
 
         exportSampleButton.addActionListener(e -> exportSample());
-        exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
         addSampleButton.addActionListener(e -> addSample());
         reloadSamplesButton.addActionListener(e -> reloadSamples());
         reloadSamplesButton.setEnabled(false);
@@ -181,8 +179,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         exportSampleButton.setEnabled(false);
         exportSampleButton.setText("Export sample");
 
-        exportAllSamplesButton.setText("Export all samples");
-
         addSampleButton.setEnabled(false);
         volumeSpinner.setEnabled(false);
 
@@ -194,7 +190,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(renameKitButton, "wrap 10");
 
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
-        contentPane.add(exportAllSamplesButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSamplesButton, "grow, span 2, wrap, sg button");
         contentPane.add(halfSpeed, "wrap");
@@ -716,66 +711,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         compileKit();
         updateBankView();
-    }
-
-    // TODO : put this in a factory eventually
-    private String selectAFolder() {
-        JFileChooser chooser = new JFileChooser();
-
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setAcceptAllFileFilterUsed(false);
-        chooser.setCurrentDirectory(new File(EditorPreferences.lastDirectory("wav")));
-        chooser.setDialogTitle("Export all samples to directory");
-
-        int returnVal = chooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            return chooser.getSelectedFile().toString();
-        }
-        return null;
-    }
-
-    private String getKitName() {
-        String kitName = (String)bankBox.getSelectedItem();
-        assert kitName != null;
-        return kitName.substring(kitName.indexOf(' ') + 1);
-    }
-
-    private void exportAllSamplesFromKit() {
-        String directory = selectAFolder();
-        if (directory == null) {
-            return;
-        }
-
-        int index = 0;
-        String kitName = getKitName();
-        if (kitName.length() == 0) {
-            kitName = String.format("Untitled-%02d", bankBox.getSelectedIndex());
-        }
-
-        for (Sample s : samples[selectedBank]) {
-            if (s == null) {
-                continue;
-            }
-
-            String sampleName = s.getName();
-            if (sampleName.length() == 0) {
-                sampleName = "[untitled]";
-            }
-            File exportedFile = new File(directory,
-                    String.format("%s - %02d - %s.wav", kitName, index + 1, sampleName));
-            try {
-                WaveFile.write(s.workSampleData(), exportedFile);
-            } catch (IOException e) {
-                showFileErrorMessage(e);
-                EditorPreferences.setLastPath("wav", exportedFile.getAbsolutePath());
-            }
-            index++;
-        }
-
-        JOptionPane.showMessageDialog(this,
-                "Saved " + index + " wave files!",
-                "Export OK!",
-                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void exportSample() {
