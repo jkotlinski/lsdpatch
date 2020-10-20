@@ -41,6 +41,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JButton saveRomButton = new JButton();
     private final JButton exportSampleButton = new JButton();
     private final JButton exportAllSamplesButton = new JButton();
+    private final JButton clearKitButton = new JButton("Clear kit");
     private final JButton renameKitButton = new JButton();
     private final JTextArea kitTextArea = new JTextArea();
     private final JButton reloadSamplesButton = new JButton("Reload samples");
@@ -103,7 +104,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
-        renameKitButton.addActionListener(e1 -> renameKit(kitTextArea.getText()));
+        clearKitButton.addActionListener(e -> createKit());
+        renameKitButton.addActionListener(e -> renameKit(kitTextArea.getText()));
 
         exportSampleButton.addActionListener(e -> exportSample());
         exportAllSamplesButton.addActionListener(e -> exportAllSamplesFromKit());
@@ -187,6 +189,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "grow, wrap");
         contentPane.add(saveKitButton, "grow, wrap, sg button");
+        contentPane.add(clearKitButton, "gaptop 5, grow, wrap, sg button");
         contentPane.add(kitTextArea, "grow, wmin 60, split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
