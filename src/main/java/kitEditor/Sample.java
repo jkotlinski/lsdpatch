@@ -111,58 +111,45 @@ class Sample {
     public void processSamples(boolean dither) {
         int[] intBuffer = toIntBuffer(originalSamples);
         normalize(intBuffer);
+        intBuffer = trimSilence(intBuffer);
         if (dither) {
             dither(intBuffer);
         }
-        intBuffer = trimSilence(intBuffer);
         processedSamples = toShortBuffer(intBuffer);
         blendWaveFrames(processedSamples);
 }
 
     private int[] trimSilence(int[] intBuffer) {
-        return trimSilenceLeft(trimSilenceRight(intBuffer));
+        int headPos = headPos(intBuffer);
+        int tailPos = tailPos(intBuffer);
+        if (headPos > tailPos) {
+            return intBuffer;
+        }
+        int[] newBuffer = new int[tailPos + 1 - headPos];
+        System.arraycopy(intBuffer, headPos, newBuffer, 0, newBuffer.length);
+        return newBuffer;
     }
 
-    private boolean sign(int i) {
-        return i < 0;
-    }
+    final int SILENCE_THRESHOLD = Short.MAX_VALUE / 16;
 
-    final int SILENCE_THRESHOLD = Short.MAX_VALUE / 8;
-    private int[] trimSilenceLeft(int[] srcBuf) {
-        for (int i = 0; i < srcBuf.length; ++i) {
-            if (Math.abs(srcBuf[i]) >= SILENCE_THRESHOLD) {
-                for (int j = i - 1; j >= 0; --j) {
-                    if (srcBuf[j] == 0 || sign(srcBuf[j]) != sign(srcBuf[i])) {
-                        // found zero crossing
-                        j++;
-                        int[] newBuf = new int[srcBuf.length - j];
-                        if (newBuf.length >= 0) {
-                            System.arraycopy(srcBuf, j, newBuf, 0, newBuf.length);
-                        }
-                        return newBuf;
-                    }
-                }
-                return srcBuf;
+    private int headPos(int[] buf) {
+        int i;
+        for (i = 0; i < buf.length; ++i) {
+            if (Math.abs(buf[i]) >= SILENCE_THRESHOLD) {
+                break;
             }
         }
-        return srcBuf;
+        return i;
     }
 
-    private int[] trimSilenceRight(int[] srcBuf) {
-        for (int i = srcBuf.length - 1; i >= 0; --i) {
-            if (Math.abs(srcBuf[i]) >= SILENCE_THRESHOLD) {
-                for (int j = i + 1; j < srcBuf.length; ++j) {
-                    if (srcBuf[j] == 0 || sign(srcBuf[j]) != sign(srcBuf[i])) {
-                        // found zero crossing
-                        int[] newBuf = new int[j];
-                        System.arraycopy(srcBuf, 0, newBuf, 0, newBuf.length);
-                        return newBuf;
-                    }
-                }
-                return srcBuf;
+    private int tailPos(int[] buf) {
+        int i;
+        for (i = buf.length - 1; i >= 0; --i) {
+            if (Math.abs(buf[i]) >= SILENCE_THRESHOLD) {
+                break;
             }
         }
-        return srcBuf;
+        return i;
     }
 
     private short[] toShortBuffer(int[] intBuffer) {

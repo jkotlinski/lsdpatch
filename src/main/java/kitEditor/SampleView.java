@@ -30,7 +30,7 @@ public class SampleView extends Canvas {
             double val = buf[it] & 0xf;
             val -= 7.5;
             val /= 7.5;
-            gp.lineTo(it * w / buf.length, h * (1 - val) / 2);
+            gp.lineTo(it * w / (buf.length - 1), h * (1 - val) / 2);
         }
         g.setColor(Color.YELLOW);
         g.draw(gp);
