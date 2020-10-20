@@ -45,11 +45,11 @@ class SampleTest {
         short[] buf = new short[2];
         buf[0] = -1;
         buf[1] = 1;
-        Sample sample = Sample.createFromOriginalSamples(buf, null, null, 0, false, false);
+        Sample sample = Sample.createFromOriginalSamples(buf, null, null, 0, false);
         Assertions.assertEquals(-Short.MAX_VALUE, sample.read());
         Assertions.assertEquals(Short.MAX_VALUE, sample.read());
 
-        sample = Sample.createFromOriginalSamples(buf, null, null, -20, false, false);
+        sample = Sample.createFromOriginalSamples(buf, null, null, -20, false);
         Assertions.assertEquals(-Short.MAX_VALUE / 10, sample.read());
         Assertions.assertEquals(Short.MAX_VALUE / 10, sample.read());
     }

@@ -40,7 +40,6 @@ public class KitArchive {
         if (sample.localPath() != null) {
             comment += "|local_path=" + sample.localPath();
         }
-        comment += "|half_speed=" + (sample.halfSpeed() ? "1" : "0");
         zipEntry.setExtra(comment.getBytes());
     }
 
@@ -66,13 +65,12 @@ public class KitArchive {
                     dstPcm[i] = (short) (inPcm.get(i * 2) + (inPcm.get(i * 2 + 1) << 8));
                 }
                 Sample sample;
-                if (metaData.getBoolean("original_samples")) {
+                if (metaData.getOriginalSamples()) {
                     sample = Sample.createFromOriginalSamples(dstPcm,
                             metaData.getName(),
                             metaData.getLocalPath(),
                             metaData.getVolume(),
-                            true,
-                            metaData.getBoolean("half_speed"));
+                            true);
                 } else {
                     sample = new Sample(dstPcm, metaData.getName());
                 }
@@ -99,8 +97,8 @@ public class KitArchive {
             return new File(hashMap.get("local_path"));
         }
 
-        boolean getBoolean(String key) {
-            return hashMap.getOrDefault(key, "0").equals("1");
+        boolean getOriginalSamples() {
+            return hashMap.getOrDefault("original_samples", "0").equals("1");
         }
 
         int getVolume() {

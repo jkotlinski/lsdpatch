@@ -13,7 +13,6 @@ class Sample {
     private int readPos;
     private int volumeDb = 0;
     private boolean dither = true;
-    private boolean halfSpeed = false;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
@@ -78,12 +77,11 @@ class Sample {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
-        s.halfSpeed = halfSpeed;
-        s.reload();
+        s.reload(halfSpeed);
         return s;
     }
 
-    public void reload() throws IOException, UnsupportedAudioFileException {
+    public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
         if (file == null) {
             return;
         }
@@ -95,15 +93,13 @@ class Sample {
                                                    String name,
                                                    File file,
                                                    int volume,
-                                                   boolean dither,
-                                                   boolean halfSpeed) {
+                                                   boolean dither) {
         Sample sample = new Sample(null, name);
         if (file != null && file.exists()) {
             sample.file = file;
         }
         sample.setVolumeDb(volume);
         sample.originalSamples = pcm;
-        sample.halfSpeed = halfSpeed;
         sample.processSamples(dither);
         return sample;
     }
@@ -250,13 +246,5 @@ class Sample {
             return null;
         }
         return file.getAbsolutePath();
-    }
-
-    public boolean halfSpeed() {
-        return halfSpeed;
-    }
-
-    public void setHalfSpeed(boolean enabled) {
-        halfSpeed = enabled;
     }
 }

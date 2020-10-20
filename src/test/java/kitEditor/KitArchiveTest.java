@@ -18,8 +18,7 @@ class KitArchiveTest {
                 "BAR",
                 tmpFile,
                 1,
-                false,
-                true);
+                false);
         KitArchive.save(originalSamples, tmpFile);
 
         Sample[] s = new Sample[3];
@@ -31,7 +30,6 @@ class KitArchiveTest {
         Assertions.assertEquals("BAR", s[2].getName());
         Assertions.assertEquals(10, s[2].lengthInSamples());
         Assertions.assertEquals(1, s[2].volumeDb());
-        Assertions.assertTrue(s[2].halfSpeed());
         Assertions.assertEquals(tmpFile.getAbsolutePath(), s[2].localPath());
     }
 }

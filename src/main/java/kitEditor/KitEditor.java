@@ -102,7 +102,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         bankBox.addActionListener(bankBoxListener);
         samplePicker.addListSelectionListener(this);
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
-        halfSpeed.addActionListener(e -> onVolumeChanged());
+        halfSpeed.addActionListener(e -> reloadSamples());
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -120,7 +120,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         try {
             for (Sample s : samples[selectedBank]) {
                 if (s != null) {
-                    s.reload();
+                    s.reload(halfSpeed.isSelected());
                 }
             }
         } catch (Exception e) {
@@ -147,7 +147,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         updatingVolume = true;
         sample.setVolumeDb((int)volumeSpinner.getValue());
-        sample.setHalfSpeed(halfSpeed.isSelected());
         sample.processSamples(true);
         compileKit();
         samplePicker.setSelectedIndex(index);
@@ -803,7 +802,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updatingVolume = true;
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
-        halfSpeed.setSelected(sample != null && sample.halfSpeed());
         updatingVolume = false;
         reloadSamplesButton.setEnabled(false);
         for (Sample s : samples[selectedBank]) {
