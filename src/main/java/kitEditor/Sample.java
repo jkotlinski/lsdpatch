@@ -226,10 +226,7 @@ class Sample {
         volumeDb = value;
     }
 
-    public String localPath() {
-        if (file == null) {
-            return null;
-        }
-        return file.getAbsolutePath();
+    public File getFile() {
+        return file;
     }
 }

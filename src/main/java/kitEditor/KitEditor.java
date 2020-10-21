@@ -5,12 +5,11 @@ import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
 import utils.*;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -465,10 +464,35 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
             bankFile.write(buf);
             bankFile.close();
+
+            saveKitMetaFile(f);
         } catch (IOException e) {
             showFileErrorMessage(e);
         }
         updateRomView();
+    }
+
+    private void saveKitMetaFile(File kitFile) throws IOException {
+        File kitMetaFile = new File(kitFile.getAbsolutePath() + ".editorinfo");
+        boolean hasFiles = false;
+        for (Sample s : samples[selectedBank]) {
+            if (s != null && s.getFile() != null) {
+                hasFiles = true;
+                break;
+            }
+        }
+        if (!hasFiles) {
+            return;
+        }
+        try (FileWriter fileWriter = new FileWriter(kitMetaFile)) {
+            for (Sample s : samples[selectedBank]) {
+                if (s == null || s.getFile() == null) {
+                    fileWriter.write("\n");
+                    continue;
+                }
+                fileWriter.write(s.getFile().getAbsolutePath() + "|" + s.volumeDb() + "\n");
+            }
+        }
     }
 
     private void loadKit() {
@@ -499,11 +523,36 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             bankFile.close();
             flushWavFiles();
             createSamplesFromRom();
+            loadKitMetaFile(kitFile);
             updateBankView();
-        } catch (IOException e) {
+        } catch (IOException | UnsupportedAudioFileException e) {
             showFileErrorMessage(e);
         }
         updateRomView();
+    }
+
+    private void loadKitMetaFile(File kitFile) throws IOException, UnsupportedAudioFileException {
+        File kitMetaFile = new File(kitFile.getAbsolutePath() + ".editorinfo");
+        if (!kitMetaFile.exists()) {
+            return;
+        }
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(kitMetaFile))) {
+            for (int i = 0; i < MAX_SAMPLES; ++i) {
+                String line = fileReader.readLine();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                String[] chunks = line.split("\\|");
+                File sampleFile = new File(chunks[0]);
+                if (!sampleFile.exists()) {
+                    continue;
+                }
+                int volume = Integer.parseInt(chunks[1]);
+                Sample sample = Sample.createFromWav(sampleFile, true, halfSpeed.isSelected());
+                sample.setVolumeDb(volume);
+                samples[selectedBank][i] = sample;
+            }
+        }
     }
 
     private String dropExtension(File f) {
@@ -738,7 +787,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updatingVolume = false;
         reloadSamplesButton.setEnabled(false);
         for (Sample s : samples[selectedBank]) {
-            if (s != null && s.localPath() != null) {
+            if (s != null && s.getFile() != null) {
                 reloadSamplesButton.setEnabled(true);
             }
         }
