@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final Document document;
@@ -382,14 +383,16 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateButtonStates();
     }
 
-    private void updateKitSizeLabel() {
-        int sampleSize = totalSampleSize();
-        kitSizeLabel.setText(Integer.toHexString(sampleSize) + "/3fa0 bytes used");
-        boolean tooFull = sampleSize > 0x3fa0;
+    boolean kitTooBig() {
+        return totalSampleSizeInBytes() > MAX_SAMPLE_SPACE;
+    }
 
-        Color c = tooFull ? Color.red : Color.black;
-        kitSizeLabel.setForeground(c);
-        samplePicker.setForeground(c);
+    private void updateKitSizeLabel() {
+        int sampleRate = halfSpeed.isSelected() ? 5734 : 11468;
+        int bytesFree = MAX_SAMPLE_SPACE - totalSampleSizeInBytes();
+        float timeFree = (bytesFree * 2.f) / sampleRate;
+        kitSizeLabel.setText(String.format(Locale.US, "%.3f seconds free", timeFree));
+        kitSizeLabel.setForeground(timeFree < 0 ? Color.red : Color.black);
     }
 
     private boolean isEmpty(Sample[] samples) {
@@ -593,7 +596,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
 
-        if (sample.lengthInBytes() > MAX_SAMPLE_SPACE - totalSampleSize()) {
+        if (sample.lengthInBytes() > MAX_SAMPLE_SPACE - totalSampleSizeInBytes()) {
             JOptionPane.showMessageDialog(this,
                     "Free up some space and try again!",
                     "Kit full!",
@@ -632,11 +635,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void compileKit() {
-        if (totalSampleSize() > 0x3fa0) {
-            kitSizeLabel.setText(Integer.toHexString(totalSampleSize()) + "/3fa0 bytes used");
+        if (kitTooBig()) {
             return;
         }
-        kitSizeLabel.setText(Integer.toHexString(totalSampleSize()) + " bytes written");
 
         byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
         int[] lengths = new int[15];
@@ -668,7 +669,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
     }
 
-    private int totalSampleSize() {
+    private int totalSampleSizeInBytes() {
         int total = 0;
         for (Sample s : samples[selectedBank]) {
             total += s == null ? 0 : s.lengthInBytes();
@@ -744,7 +745,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 reloadSamplesButton.setEnabled(true);
             }
         }
-        saveRomButton.setEnabled(!Arrays.equals(document.romImage(), romImage) || document.isRomDirty());
+        saveRomButton.setEnabled(!kitTooBig() &&
+                (!Arrays.equals(document.romImage(), romImage) ||
+                        document.isRomDirty()));
     }
 
     @Override
