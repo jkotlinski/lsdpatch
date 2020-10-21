@@ -117,8 +117,8 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         constraints.fill = GridBagConstraints.NONE;
         contentPane.add(shiftButtonPanel, constraints);
 
-
-        displayGfxCharacters.setText("Show GFX Characters");
+        displayGfxCharacters.setText("Show graphics characters");
+        displayGfxCharacters.setToolTipText("Changes made to graphics characters will apply to all fonts.");
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
         constraints.gridy = 4;
@@ -127,7 +127,6 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
         constraints.gridwidth = 3;
         constraints.gridheight = 1;
         contentPane.add(displayGfxCharacters, constraints);
-
 
         fontMap = new FontMap();
         fontMap.setMinimumSize(new Dimension(128, 16 * 8 * 2));
