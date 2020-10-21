@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - Kit Editor: "Reload samples", "Save ROM", "Clear kit" buttons.
- - Kit Editor: .lsdkit files now include original 16-bit sample data as well as local file path, to make future edits easier.
  - Kit Editor: automatic silence trimming.
  - Font Editor: support for editing graphics characters.
 

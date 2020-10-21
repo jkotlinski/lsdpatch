@@ -98,14 +98,6 @@ public class SamplePicker extends JPanel {
         }
     }
 
-    void selectAll() {
-        for (Pad pad : pads) {
-            pad.setSelected(true);
-            selectedIndices.add(pad.id);
-        }
-        listener.selectionChanged();
-    }
-
     @Override
     public void grabFocus() {
         pads.get(0).grabFocus();

@@ -456,8 +456,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (f == null) {
             return;
         }
+        byte[] buf = new byte[RomUtilities.BANK_SIZE];
+        int offset = getROMOffsetForSelectedBank();
         try {
-            KitArchive.save(samples[selectedBank], f);
+            RandomAccessFile bankFile = new RandomAccessFile(f, "rw");
+            for (int i = 0; i < buf.length; i++) {
+                buf[i] = romImage[offset++];
+            }
+            bankFile.write(buf);
+            bankFile.close();
         } catch (IOException e) {
             showFileErrorMessage(e);
         }
@@ -473,40 +480,30 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private void loadKit(File kitFile) {
         createKit();
+        renameKit(kitFile.getName());
+        byte[] buf = new byte[RomUtilities.BANK_SIZE];
+        int offset = getROMOffsetForSelectedBank();
         try {
-            if (kitFile.length() == RomUtilities.BANK_SIZE) {
-                loadKitV1(kitFile);
-            } else {
-                loadKitV2(kitFile);
+            RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
+            bankFile.readFully(buf);
+            if (buf[0] != 0x60 || buf[1] != 0x40) {
+                JOptionPane.showMessageDialog(this,
+                        "Malformed kit file!",
+                        "File error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            for (byte aBuf : buf) {
+                romImage[offset++] = aBuf;
+            }
+            bankFile.close();
+            flushWavFiles();
             createSamplesFromRom();
             updateBankView();
-        } catch (Exception e) {
+        } catch (IOException e) {
             showFileErrorMessage(e);
         }
         updateRomView();
-    }
-
-    private void loadKitV2(File kitFile) throws IOException {
-        KitArchive.load(kitFile, samples[selectedBank]);
-        renameKit(kitFile.getName().split("\\.")[0]);
-        for (int i = 0; i < MAX_SAMPLES; ++i) {
-            Sample sample = samples[selectedBank][i];
-            if (sample != null) {
-                renameSample(i, sample.getName());
-            }
-        }
-    }
-
-    private void loadKitV1(File kitFile) throws IOException {
-        byte[] buf = new byte[RomUtilities.BANK_SIZE];
-        int offset = getROMOffsetForSelectedBank();
-        RandomAccessFile bankFile = new RandomAccessFile(kitFile, "r");
-        bankFile.readFully(buf);
-        for (byte aBuf : buf) {
-            romImage[offset++] = aBuf;
-        }
-        bankFile.close();
     }
 
     private String dropExtension(File f) {
