@@ -89,21 +89,6 @@ class Sample {
         processSamples(dither);
     }
 
-    public static Sample createFromOriginalSamples(short[] pcm,
-                                                   String name,
-                                                   File file,
-                                                   int volume,
-                                                   boolean dither) {
-        Sample sample = new Sample(null, name);
-        if (file != null && file.exists()) {
-            sample.file = file;
-        }
-        sample.setVolumeDb(volume);
-        sample.originalSamples = pcm;
-        sample.processSamples(dither);
-        return sample;
-    }
-
     public void processSamples(boolean dither) {
         int[] intBuffer = toIntBuffer(originalSamples);
         normalize(intBuffer);
