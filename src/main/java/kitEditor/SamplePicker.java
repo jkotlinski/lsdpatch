@@ -17,6 +17,7 @@ public class SamplePicker extends JPanel {
         void selectionChanged();
         void playSample();
         void deleteSample();
+        void replaceSample();
         void renameSample(String s);
     }
 
@@ -51,6 +52,9 @@ public class SamplePicker extends JPanel {
                             listener.renameSample(name);
                         }
                     });
+                    JMenuItem replace = new JMenuItem("Replace...");
+                    menu.add(replace);
+                    replace.addActionListener(e1 -> listener.replaceSample());
                     JMenuItem delete = new JMenuItem("Delete");
                     menu.add(delete);
                     delete.addActionListener(e1 -> listener.deleteSample());

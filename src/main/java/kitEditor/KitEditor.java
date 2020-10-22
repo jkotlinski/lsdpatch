@@ -387,10 +387,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         return totalSampleSizeInBytes() > MAX_SAMPLE_SPACE;
     }
 
+    private int bytesFree() {
+        return MAX_SAMPLE_SPACE - totalSampleSizeInBytes();
+    }
+
     private void updateKitSizeLabel() {
         int sampleRate = halfSpeed.isSelected() ? 5734 : 11468;
-        int bytesFree = MAX_SAMPLE_SPACE - totalSampleSizeInBytes();
-        float timeFree = (bytesFree * 2.f) / sampleRate;
+        float timeFree = (bytesFree() * 2.f) / sampleRate;
         kitSizeLabel.setText(String.format(Locale.US, "%.3f seconds free", timeFree));
         kitSizeLabel.setForeground(timeFree < 0 ? Color.red : Color.black);
     }
@@ -634,7 +637,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
         String sampleName = dropExtension(wavFile).toUpperCase();
-
         Sample sample;
         try {
             sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected());
@@ -659,7 +661,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
         samplePicker.setSelectedIndex(index);
         playSample();
-        reloadSamplesButton.setEnabled(true);
     }
 
     private void renameSample(int sampleIndex, String sampleName) {
@@ -800,6 +801,35 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     @Override
     public void deleteSample() {
         dropSample();
+    }
+
+    @Override
+    public void replaceSample() {
+        File wavFile = FileDialogLauncher.load(this, "Load Sample", "wav");
+        if (wavFile == null) {
+            return;
+        }
+        try {
+            final int index = samplePicker.getSelectedIndex();
+            Sample newSample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected());
+            Sample existingSample = samples[selectedBank][index];
+            int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
+            if (bytesFreeAfterAdd < 0) {
+                JOptionPane.showMessageDialog(contentPane,
+                        "Free up some space and try again!",
+                        "Kit full!",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            samples[selectedBank][index] = newSample;
+            renameSample(index, dropExtension(wavFile).toUpperCase());
+            compileKit();
+            updateRomView();
+            playSample();
+        } catch (IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+            showFileErrorMessage(e);
+        }
     }
 
     @Override
