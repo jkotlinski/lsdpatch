@@ -26,6 +26,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private JPanel contentPane;
     private final JComboBox<String> bankBox = new JComboBox<>();
     private final SamplePicker samplePicker = new SamplePicker();
+    private final String SETTINGS_FILE_EXTENSION = ".settings";
 
     private static final int MAX_SAMPLES = 15;
     private static final int MAX_SAMPLE_SPACE = 0x3fa0;
@@ -465,15 +466,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             bankFile.write(buf);
             bankFile.close();
 
-            saveKitMetaFile(f);
+            saveKitSettings(f);
         } catch (IOException e) {
             showFileErrorMessage(e);
         }
         updateRomView();
     }
 
-    private void saveKitMetaFile(File kitFile) throws IOException {
-        File kitMetaFile = new File(kitFile.getAbsolutePath() + ".editorinfo");
+    private void saveKitSettings(File kitFile) throws IOException {
+        File kitSettingsFile = new File(kitFile.getAbsolutePath() + SETTINGS_FILE_EXTENSION);
         boolean hasFiles = false;
         for (Sample s : samples[selectedBank]) {
             if (s != null && s.getFile() != null) {
@@ -484,7 +485,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (!hasFiles) {
             return;
         }
-        try (FileWriter fileWriter = new FileWriter(kitMetaFile)) {
+        try (FileWriter fileWriter = new FileWriter(kitSettingsFile)) {
             for (Sample s : samples[selectedBank]) {
                 if (s == null || s.getFile() == null) {
                     fileWriter.write("\n");
@@ -523,7 +524,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             bankFile.close();
             flushWavFiles();
             createSamplesFromRom();
-            loadKitMetaFile(kitFile);
+            loadKitSettings(kitFile);
             updateBankView();
         } catch (IOException | UnsupportedAudioFileException e) {
             showFileErrorMessage(e);
@@ -531,12 +532,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
     }
 
-    private void loadKitMetaFile(File kitFile) throws IOException, UnsupportedAudioFileException {
-        File kitMetaFile = new File(kitFile.getAbsolutePath() + ".editorinfo");
-        if (!kitMetaFile.exists()) {
+    private void loadKitSettings(File kitFile) throws IOException, UnsupportedAudioFileException {
+        File kitSettingsFile = new File(kitFile.getAbsolutePath() + SETTINGS_FILE_EXTENSION);
+        if (!kitSettingsFile.exists()) {
             return;
         }
-        try (BufferedReader fileReader = new BufferedReader(new FileReader(kitMetaFile))) {
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(kitSettingsFile))) {
             for (int i = 0; i < MAX_SAMPLES; ++i) {
                 String line = fileReader.readLine();
                 if (line.isEmpty()) {
