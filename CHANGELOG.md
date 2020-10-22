@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Switching .sav would not take effect until a ROM was loaded.
 
 ### Added
+ - Kit Editor: MPC-like UI with pads. Play by clicking or keys 1234QWERASDFZXC. Right-click pad to rename, replace or delete sample.
  - Kit Editor: "Reload samples", "Save ROM", "Clear kit" buttons.
  - Kit Editor: automatic silence trimming.
  - Kit Editor: when saving kits, remember source sample files + volumes.
@@ -29,7 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
  - Kit Editor: improved sound playback quality.
  - Kit Editor: click sample view to play.
- - Kit Editor: MPC-like UI with pads. Play by clicking or keys 1234QWERASDFZXC. Right-click pad to rename, replace or delete sample.
  - Kit Editor: Half-speed setting now also affects "Add sample".
  - Kit Editor: Renamed "Export kit" to "Save kit".
  - Kit Editor: Show unused space in seconds instead of bytes.
