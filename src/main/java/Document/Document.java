@@ -54,7 +54,7 @@ public class Document {
         setRomDirty(true);
     }
 
-    public void loadRomImage(String romPath) {
+    public void loadRomImage(String romPath) throws IOException {
         romFile = new File(romPath);
         romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
         try {
@@ -64,19 +64,21 @@ public class Document {
             EditorPreferences.setLastPath("gb", romPath);
         } catch (IOException ioe) {
             romImage = null;
+            throw ioe;
         }
         setRomDirty(false);
     }
 
-    public void loadSavFile(String savPath) {
+    public void loadSavFile(String savPath) throws IOException {
+        savDirty = false;
         try {
             savFile = new LSDSavFile();
             savFile.loadFromSav(savPath);
             EditorPreferences.setLastPath("sav", savPath);
         } catch (IOException e) {
             savFile = null;
+            throw e;
         }
-        savDirty = false;
     }
 
     public LSDSavFile savFile() {

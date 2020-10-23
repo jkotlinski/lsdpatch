@@ -123,8 +123,24 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         browseSavButton.addActionListener(e -> onBrowseSavButtonPress());
         panel.add(browseSavButton);
 
-        document.loadRomImage(EditorPreferences.lastPath("gb"));
-        document.loadSavFile(EditorPreferences.lastPath("sav"));
+        try {
+            document.loadRomImage(EditorPreferences.lastPath("gb"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "ROM load failed!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        try {
+            document.loadSavFile(EditorPreferences.lastPath("sav"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    ".sav load failed!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
         updateButtonsFromTextFields();
     }
 
@@ -141,13 +157,28 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         if (romFile == null) {
             return;
         }
+
         String romPath = romFile.getAbsolutePath();
-        romTextField.setText(romPath);
-        document.loadRomImage(romPath);
+        try {
+            document.loadRomImage(romPath);
+            romTextField.setText(romPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "ROM load failed!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
         String savPath = romPath.replaceFirst(".gb", ".sav");
-        document.loadSavFile(savPath);
-        EditorPreferences.setLastPath("sav", savPath);
-        savTextField.setText(savPath);
+        try {
+            document.loadSavFile(savPath);
+            savTextField.setText(savPath);
+            EditorPreferences.setLastPath("sav", savPath);
+        } catch (IOException e) {
+            savTextField.setText("");
+            e.printStackTrace();
+        }
         updateButtonsFromTextFields();
     }
 
@@ -164,8 +195,16 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         if (savFile == null) {
             return;
         }
-        savTextField.setText(savFile.getAbsolutePath());
-        document.loadSavFile(savFile.getAbsolutePath());
+        try {
+            document.loadSavFile(savFile.getAbsolutePath());
+            savTextField.setText(savFile.getAbsolutePath());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    ".sav load failed!",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
         updateButtonsFromTextFields();
     }
 

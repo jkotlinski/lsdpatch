@@ -30,9 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
  - Kit Editor: improved sound playback quality.
  - Kit Editor: click sample view to play.
- - Kit Editor: Half-speed setting now also affects "Add sample".
- - Kit Editor: Renamed "Export kit" to "Save kit".
- - Kit Editor: Show unused space in seconds instead of bytes.
+ - Kit Editor: half-speed setting now also affects "Add sample".
+ - Kit Editor: renamed "Export kit" to "Save kit".
+ - Kit Editor: show unused space in seconds instead of bytes.
  - Palette Editor: improved mid-tone generation.
  - Various file dialog improvements.
  - Improved command line feedback.
