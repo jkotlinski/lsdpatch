@@ -1,8 +1,5 @@
 package Document;
 
-import utils.EditorPreferences;
-import utils.RomUtilities;
-
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
