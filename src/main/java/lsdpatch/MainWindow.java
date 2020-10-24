@@ -126,22 +126,24 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         try {
             document.loadRomImage(EditorPreferences.lastPath("gb"));
         } catch (IOException e) {
+            clearRomTextField();
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    e.getMessage(),
-                    "ROM load failed!",
-                    JOptionPane.ERROR_MESSAGE);
         }
         try {
             document.loadSavFile(EditorPreferences.lastPath("sav"));
         } catch (IOException e) {
+            clearSavTextField();
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    e.getMessage(),
-                    ".sav load failed!",
-                    JOptionPane.ERROR_MESSAGE);
         }
         updateButtonsFromTextFields();
+    }
+
+    private void clearRomTextField() {
+        romTextField.setText("");
+    }
+
+    private void clearSavTextField() {
+        savTextField.setText("");
     }
 
     private void onBrowseRomButtonPress() {
@@ -176,7 +178,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             savTextField.setText(savPath);
             EditorPreferences.setLastPath("sav", savPath);
         } catch (IOException e) {
-            savTextField.setText("");
+            clearSavTextField();
             e.printStackTrace();
         }
         updateButtonsFromTextFields();
