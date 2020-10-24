@@ -165,6 +165,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             document.loadRomImage(romPath);
             romTextField.setText(romPath);
         } catch (IOException e) {
+            resetRomTextField();
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
                     e.getMessage(),
@@ -201,6 +202,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             document.loadSavFile(savFile.getAbsolutePath());
             savTextField.setText(savFile.getAbsolutePath());
         } catch (IOException e) {
+            resetSavTextField();
             JOptionPane.showMessageDialog(this,
                     e.getMessage(),
                     ".sav load failed!",
