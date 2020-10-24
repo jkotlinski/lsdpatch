@@ -126,24 +126,24 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         try {
             document.loadRomImage(EditorPreferences.lastPath("gb"));
         } catch (IOException e) {
-            clearRomTextField();
+            resetRomTextField();
             e.printStackTrace();
         }
         try {
             document.loadSavFile(EditorPreferences.lastPath("sav"));
         } catch (IOException e) {
-            clearSavTextField();
+            resetSavTextField();
             e.printStackTrace();
         }
         updateButtonsFromTextFields();
     }
 
-    private void clearRomTextField() {
-        romTextField.setText("");
+    private void resetRomTextField() {
+        romTextField.setText("Select LSDj ROM file -->");
     }
 
-    private void clearSavTextField() {
-        savTextField.setText("");
+    private void resetSavTextField() {
+        savTextField.setText("Select LSDj .sav file -->");
     }
 
     private void onBrowseRomButtonPress() {
@@ -178,7 +178,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             savTextField.setText(savPath);
             EditorPreferences.setLastPath("sav", savPath);
         } catch (IOException e) {
-            clearSavTextField();
+            resetSavTextField();
             e.printStackTrace();
         }
         updateButtonsFromTextFields();
