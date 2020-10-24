@@ -16,11 +16,7 @@ import utils.StretchIcon;
 
 import javax.swing.*;
 
-public class PaletteEditor
-        extends JFrame
-        implements ActionListener, SwatchPair.Listener {
-    private static final long serialVersionUID = 5286120830758415869L;
-
+public class PaletteEditor extends JFrame implements SwatchPair.Listener {
     private byte[] romImage = null;
     private int paletteOffset = -1;
     private int nameOffset = -1;
@@ -100,7 +96,7 @@ public class PaletteEditor
 
         paletteSelector = new JComboBox<>();
         paletteSelector.setEditable(true);
-        paletteSelector.addActionListener(this);
+        paletteSelector.addActionListener(e -> onPaletteRenamed());
         paletteSelector.addItemListener(e -> onPaletteSelected());
         topRowPanel.add(paletteSelector);
 
@@ -319,6 +315,7 @@ public class PaletteEditor
         if (name == null) {
             return;
         }
+        name = name.toUpperCase();
         if (name.length() >= RomUtilities.PALETTE_NAME_SIZE) {
             name = name.substring(0, RomUtilities.PALETTE_NAME_SIZE - 1);
         } else {
@@ -599,10 +596,4 @@ public class PaletteEditor
 		populatePaletteSelector();
 		paletteSelector.setSelectedIndex(paletteIndex);
 	}
-
-    public void actionPerformed(java.awt.event.ActionEvent e) {
-        if (e.getActionCommand().equals("comboBoxEdited")) {
-            onPaletteRenamed();
-        }
-    }
 }

@@ -5,18 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+ - Palette Editor: make sure palette names are upper case.
 
 ## [1.8.0] - 2020-10-24
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
  - Palette Editor: dragging color picker sliders is now more responsive.
  - Palette Editor: improved color picker visibility.
- - Kit Editor: when prelistening a sample, stop already playing samples.
  - Kit Editor: update of "bytes used" field.
- - Font Editor: when loading font from .png, set font name from file.
+ - Font Editor: when loading font from .png, set font name from the file name.
  - Some file dialogs would not remember the last used directory.
  - Saving a ROM when no SAV has been loaded.
- - Switching .sav would not take effect until a ROM was loaded.
+ - Switching .sav would not take effect until loading a ROM.
 
 ### Added
  - Kit Editor: MPC-like UI with pads. Play by clicking or keys 1234QWERASDFZXC. Right-click pad to rename, replace or delete sample.
@@ -27,9 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Kit Editor: "Add Sample" now automatically resamples, normalizes and dithers the sample. No need to prepare samples using sox anymore.
- - Kit Editor: switched to TPDF dithering noise, which gives way better audio quality than the old one.
+ - Kit Editor: switched to TPDF dither for improved sound.
  - Kit Editor: when adding samples, blend wave frames to reduce impact of the [Game Boy wave refresh bug](https://www.devrs.com/gb/files/gbsnd3.gif).
- - Kit Editor: volume control now adjusts sample volume instead of prelisten volume.
+ - Kit Editor: volume control now adjusts sample volume instead of pre-listening volume.
  - Kit Editor: improved sound playback quality.
  - Kit Editor: click sample view to play.
  - Kit Editor: half-speed setting now also affects "Add sample".
