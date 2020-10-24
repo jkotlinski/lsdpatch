@@ -57,6 +57,7 @@ public class Document {
     public void loadRomImage(String romPath) throws IOException {
         romFile = new File(romPath);
         romImage = new byte[RomUtilities.BANK_SIZE * RomUtilities.BANK_COUNT];
+        setRomDirty(false);
         try {
             RandomAccessFile f = new RandomAccessFile(romFile, "r");
             f.readFully(romImage);
@@ -66,7 +67,6 @@ public class Document {
             romImage = null;
             throw ioe;
         }
-        setRomDirty(false);
     }
 
     public void loadSavFile(String savPath) throws IOException {
