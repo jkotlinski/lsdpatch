@@ -16,7 +16,7 @@ class SampleTest {
         URL url = classLoader.getResource("sine1s44khz.wav");
         assert url != null;
         File file = new File(url.getFile());
-        Sample sample = Sample.createFromWav(file, false, false);
+        Sample sample = Sample.createFromWav(file, false, false, 0);
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz", sample.getName());
         Assertions.assertEquals(11468, sample.lengthInSamples());
@@ -44,9 +44,7 @@ class SampleTest {
         assert url != null;
         File file = new File(url.getFile());
 
-        Sample sample = Sample.createFromWav(file, false, false);
-        sample.setVolumeDb(-20);
-        sample.processSamples(false);
+        Sample sample = Sample.createFromWav(file, false, false, -20);
 
         int sum = 0;
         int min = Integer.MAX_VALUE;

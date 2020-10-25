@@ -73,10 +73,12 @@ class Sample {
 
     // ------------------
 
-    public static Sample createFromWav(File file, boolean dither, boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
+    public static Sample createFromWav(File file, boolean dither, boolean halfSpeed, int volumeDb)
+            throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
+        s.volumeDb = volumeDb;
         s.reload(halfSpeed);
         return s;
     }
@@ -151,9 +153,12 @@ class Sample {
         return intBuffer;
     }
 
-    /* Due to Game Boy audio bug, the first sample in a frame is played
-     * back using the same value as the last completed sample in previous
-     * frame. To reduce error, average these samples.
+    /* Due to the Game Boy wave refresh bug, the first sample in a frame is
+     * played back using the last completed sample in previous frame.
+     * To reduce the resulting noise, average these samples.
+     *
+     * Note: This code introduces noise on emulators that do not implement
+     * the Game Boy wave refresh bug.
      */
     private static void blendWaveFrames(short[] samples) {
         for (int i = 0x20; i < samples.length; i += 0x20) {

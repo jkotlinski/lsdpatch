@@ -5,11 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Fixed
- - Palette Editor: make sure palette names are upper case.
 
-### Changed
- - Kit Editor: reduced wave blending noise for machines and emulators that do not suffer from the Game Boy wave refresh bug.
+## [1.8.1] - 2020-10-25
+### Fixed
+ - Kit Editor: loading kits with sample volumes stored in settings file.
+ - Kit Editor: reduced wave blending noise for emulators that do not have the Game Boy wave refresh bug.
+ - Palette Editor: force palette names to upper case.
 
 ## [1.8.0] - 2020-10-24
 ### Fixed

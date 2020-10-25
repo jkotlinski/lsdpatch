@@ -552,9 +552,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                     continue;
                 }
                 int volume = Integer.parseInt(chunks[1]);
-                Sample sample = Sample.createFromWav(sampleFile, true, halfSpeed.isSelected());
-                sample.setVolumeDb(volume);
-                samples[selectedBank][i] = sample;
+                samples[selectedBank][i] = Sample.createFromWav(sampleFile, true, halfSpeed.isSelected(), volume);
             }
         }
     }
@@ -639,7 +637,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         String sampleName = dropExtension(wavFile).toUpperCase();
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected());
+            sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0);
         } catch (Exception e) {
             showFileErrorMessage(e);
             return;
@@ -811,7 +809,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         try {
             final int index = samplePicker.getSelectedIndex();
-            Sample newSample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected());
+            Sample newSample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0);
             Sample existingSample = samples[selectedBank][index];
             int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
