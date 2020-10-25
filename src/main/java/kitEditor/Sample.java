@@ -158,9 +158,7 @@ class Sample {
     private static void blendWaveFrames(short[] samples) {
         for (int i = 0x20; i < samples.length; i += 0x20) {
             int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
-            short avg = (short) ((samples[i] + samples[i - n]) / 2);
-            samples[i] = avg;
-            samples[i - n] = avg;
+            samples[i - n] = (short) ((samples[i] + samples[i - n]) / 2);
         }
     }
 

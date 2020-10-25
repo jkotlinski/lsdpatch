@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Palette Editor: make sure palette names are upper case.
 
+### Changed
+ - Kit Editor: reduced wave blending noise for machines and emulators that do not suffer from the Game Boy wave refresh bug.
+
 ## [1.8.0] - 2020-10-24
 ### Fixed
  - Palette Editor: avoid duplicate palette names when loading a palette.
