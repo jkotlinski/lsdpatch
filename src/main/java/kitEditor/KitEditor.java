@@ -151,6 +151,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         Sound.stopAll();
         playSample();
         updatingVolume = false;
+        updateKitSizeLabel();
     }
 
     private void jbInit() {
