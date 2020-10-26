@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+ - Kit Editor: refresh sample view when the sample is reloaded.
  - Kit Editor: update "seconds free" after volume change.
 
 ## [1.8.1] - 2020-10-25

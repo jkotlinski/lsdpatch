@@ -266,13 +266,21 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         try {
             Sound.play(nibbles, halfSpeed.isSelected());
-            sampleView.setBufferContent(nibbles);
-            sampleView.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Audio error",
                     JOptionPane.INFORMATION_MESSAGE);
             e.printStackTrace();
         }
+        updateSampleView();
+    }
+
+    private void updateSampleView() {
+        byte[] nibbles = getNibbles(samplePicker.getSelectedIndex());
+        if (nibbles == null) {
+            return;
+        }
+        sampleView.setBufferContent(nibbles);
+        sampleView.repaint();
     }
 
     private boolean isKitBank(int a_bank) {
@@ -316,6 +324,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         bankBox.setSelectedIndex(tmp == -1 ? 0 : tmp);
         bankBox.addActionListener(bankBoxListener);
         updateBankView();
+        updateSampleView();
     }
 
     private int selectedBank;
