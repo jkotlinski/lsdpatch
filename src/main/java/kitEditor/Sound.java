@@ -76,6 +76,9 @@ public class Sound {
     }
 
     public static short[] resample(float inSampleRate, float outSampleRate, short[] samples) {
+        if (inSampleRate == outSampleRate) {
+            return samples;
+        }
         float[] inBuf = new float[samples.length];
         for (int i = 0; i < inBuf.length; ++i) {
             inBuf[i] = (float) samples[i] / -Short.MIN_VALUE;
@@ -88,8 +91,8 @@ public class Sound {
 
         // avoid clipping
         float peak = 0;
-        for (int i = 0; i < outBuf.length; ++i) {
-            peak = Math.max(peak, Math.abs(outBuf[i]));
+        for (float v : outBuf) {
+            peak = Math.max(peak, Math.abs(v));
         }
         if (peak > 1) {
             for (int i = 0; i < outBuf.length; ++i) {
@@ -99,8 +102,6 @@ public class Sound {
 
         short[] finalBuf = new short[result.outputSamplesGenerated];
         for (int i = 0; i < finalBuf.length; ++i) {
-            assert outBuf[i] >= -1;
-            assert outBuf[i] <= 1;
             finalBuf[i] = (short)(outBuf[i] * Short.MAX_VALUE);
         }
         return finalBuf;
