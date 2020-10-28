@@ -1,9 +1,6 @@
 package kitEditor;
 
-import com.laszlosystems.libresample4j.Resampler;
-
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Random;
 import javax.sound.sampled.*;
 
@@ -174,38 +171,17 @@ class Sample {
         float inSampleRate = ais.getFormat().getSampleRate();
         AudioFormat outFormat = new AudioFormat(inSampleRate, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
-        ArrayList<Short> samples = new ArrayList<>();
-        while (true) {
-            byte[] buf = new byte[2];
-            if (convertedAis.read(buf) < 2) {
-                break;
-            }
-            short sample = buf[1];
-            sample *= 256;
-            sample += (short)buf[0] & 0xff;
-            samples.add(sample);
+        byte[] b = new byte[convertedAis.available()];
+        convertedAis.read(b);
+        short[] samples = new short[b.length / 2];
+        for (int i = 0; i < samples.length; ++i) {
+            samples[i] = (short) ((b[i * 2 + 1] * 256) + ((short)b[i * 2] & 0xff));
         }
         convertedAis.close();
         ais.close();
 
-        // Prepare for resampling.
-        float[] inBuf = new float[samples.size()];
-        for (int i = 0; i < inBuf.length; ++i) {
-            inBuf[i] = (float)samples.get(i) / -Short.MIN_VALUE;
-        }
-
         float outSampleRate = halfSpeed ? 5734 : 11468;
-        double factor = outSampleRate / inSampleRate;
-        float[] outBuf = new float[(int)(inBuf.length * factor + 1)];
-        Resampler resampler = new Resampler(true, factor, factor);
-        Resampler.Result result = resampler.process(factor, inBuf, 0, inBuf.length, true, outBuf, 0, outBuf.length);
-
-        short[] finalBuf = new short[result.outputSamplesGenerated];
-        for (int i = 0; i < finalBuf.length; ++i) {
-            assert outBuf[i] >= -1 && outBuf[i] <= 1;
-            finalBuf[i] = (short)(outBuf[i] * Short.MAX_VALUE);
-        }
-        return finalBuf;
+        return Sound.resample(inSampleRate, outSampleRate, samples);
     }
 
     // Adds triangular probability density function dither noise.

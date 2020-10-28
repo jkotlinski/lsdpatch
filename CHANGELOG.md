@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
- - Kit Editor: use libresample4j for resampling. dramatically improves sound quality.
+ - Kit Editor: dramatically improved resampling using libresample4j.
  - Kit Editor: refresh sample view when the sample is reloaded.
  - Kit Editor: update "seconds free" after volume change.
 

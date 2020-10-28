@@ -19,7 +19,7 @@ class SampleTest {
         Sample sample = Sample.createFromWav(file, false, false, 0);
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz", sample.getName());
-        Assertions.assertEquals(11468, sample.lengthInSamples());
+        Assertions.assertEquals(11467, sample.lengthInSamples());
         Assertions.assertEquals(5728, sample.lengthInBytes());
 
         int sum = 0;
@@ -33,8 +33,8 @@ class SampleTest {
         }
         int avg = sum / sample.lengthInSamples();
         Assertions.assertEquals(0, avg);
-        Assertions.assertEquals(Short.MIN_VALUE, min);
-        Assertions.assertEquals(32765, max);
+        Assertions.assertEquals(-Short.MAX_VALUE, min);
+        Assertions.assertEquals(Short.MAX_VALUE, max);
     }
 
     @Test
