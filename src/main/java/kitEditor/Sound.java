@@ -86,9 +86,21 @@ public class Sound {
         Resampler resampler = new Resampler(true, factor, factor);
         Resampler.Result result = resampler.process(factor, inBuf, 0, inBuf.length, true, outBuf, 0, outBuf.length);
 
+        // avoid clipping
+        float peak = 0;
+        for (int i = 0; i < outBuf.length; ++i) {
+            peak = Math.max(peak, Math.abs(outBuf[i]));
+        }
+        if (peak > 1) {
+            for (int i = 0; i < outBuf.length; ++i) {
+                outBuf[i] /= peak;
+            }
+        }
+
         short[] finalBuf = new short[result.outputSamplesGenerated];
         for (int i = 0; i < finalBuf.length; ++i) {
-            outBuf[i] = Math.max(-1, Math.min(1, outBuf[i]));
+            assert outBuf[i] >= -1;
+            assert outBuf[i] <= 1;
             finalBuf[i] = (short)(outBuf[i] * Short.MAX_VALUE);
         }
         return finalBuf;
