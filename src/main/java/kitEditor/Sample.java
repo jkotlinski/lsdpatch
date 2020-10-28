@@ -172,7 +172,8 @@ class Sample {
         AudioFormat outFormat = new AudioFormat(inSampleRate, 16, 1, true, false);
         AudioInputStream convertedAis = AudioSystem.getAudioInputStream(outFormat, ais);
         byte[] b = new byte[convertedAis.available()];
-        convertedAis.read(b);
+        int read = convertedAis.read(b);
+        assert read == b.length;
         short[] samples = new short[b.length / 2];
         for (int i = 0; i < samples.length; ++i) {
             samples[i] = (short) ((b[i * 2 + 1] * 256) + ((short)b[i * 2] & 0xff));
