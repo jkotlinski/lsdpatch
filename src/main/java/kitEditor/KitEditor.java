@@ -275,11 +275,14 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void updateSampleView() {
-        byte[] nibbles = getNibbles(samplePicker.getSelectedIndex());
+        int sampleIndex = samplePicker.getSelectedIndex();
+        byte[] nibbles = getNibbles(sampleIndex);
         if (nibbles == null) {
             return;
         }
-        sampleView.setBufferContent(nibbles);
+        float duration = samples[selectedBank][sampleIndex].lengthInSamples();
+        duration /= halfSpeed.isSelected() ? 5734 : 11468;
+        sampleView.setBufferContent(nibbles, duration);
         sampleView.repaint();
     }
 

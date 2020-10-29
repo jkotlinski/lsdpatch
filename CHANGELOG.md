@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: update "seconds free" after volume change.
  - Kit Editor: pad kit banks with "rst" instead of "nop" instructions, for crash detection.
 
+### Added
+ - Kit Editor: print sample duration in sample view.
+
 ## [1.8.1] - 2020-10-25
 ### Fixed
  - Kit Editor: loading kits with sample volumes stored in settings file.

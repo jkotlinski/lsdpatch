@@ -2,13 +2,16 @@ package kitEditor;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
+import java.util.Locale;
 
 public class SampleView extends Canvas {
-    byte[] buf;
+    private byte[] buf;
+    private float duration;
 
-    public void setBufferContent(byte[] newBuffer) {
+    public void setBufferContent(byte[] newBuffer, float duration) {
         buf = newBuffer;
         setBackground(Color.black);
+        this.duration = duration;
     }
 
     @Override
@@ -34,5 +37,19 @@ public class SampleView extends Canvas {
         }
         g.setColor(Color.YELLOW);
         g.draw(gp);
+
+        drawDuration(g, (int) w, (int) h);
+    }
+
+    private void drawDuration(Graphics2D g, int w, int h) {
+        int x = -34;
+        int y = -2;
+        String durationText = String.format(Locale.US, "%.3fs", duration);
+        g.setColor(Color.BLACK);
+        g.drawString(durationText, w + x, h + y);
+        --x;
+        --y;
+        g.setColor(Color.WHITE);
+        g.drawString(durationText, w + x, h + y);
     }
 }
