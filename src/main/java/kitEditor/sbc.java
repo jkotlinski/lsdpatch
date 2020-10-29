@@ -36,5 +36,8 @@ class sbc {
 
             byteLength[sampleIt] = addedBytes;
         }
+        while (offset < 0x4000) {
+            dst[offset++] = -1; // rst opcode
+        }
     }
 }
