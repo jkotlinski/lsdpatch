@@ -80,8 +80,15 @@ public class Sound {
             return samples;
         }
         float[] inBuf = new float[samples.length];
+        float dcOffset = 0;
         for (int i = 0; i < inBuf.length; ++i) {
             inBuf[i] = (float) samples[i] / -Short.MIN_VALUE;
+            dcOffset += inBuf[i] / inBuf.length;
+        }
+
+        // Removes DC offset.
+        for (int i = 0; i < inBuf.length; ++i) {
+            inBuf[i] -= dcOffset;
         }
 
         double factor = outSampleRate / inSampleRate;
