@@ -100,6 +100,14 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         bankBox.addActionListener(bankBoxListener);
         samplePicker.addListSelectionListener(this);
         volumeSpinner.addChangeListener(e -> onVolumeChanged());
+        ((JSpinner.DefaultEditor)volumeSpinner.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    requestFocus();
+                }
+            }
+        });
         halfSpeed.addActionListener(e -> reloadSamples());
 
         loadKitButton.addActionListener(e -> loadKit());

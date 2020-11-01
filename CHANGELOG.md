@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
  - Kit Editor: sample duration right alignment.
- - Kit Editor: press enter in text field to rename a kit.
+ - Kit Editor: made text fields handle "enter" key.
 
 ### Changed
  - Kit Editor: now removes DC offset before resampling.
