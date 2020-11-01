@@ -42,9 +42,9 @@ public class SampleView extends Canvas {
     }
 
     private void drawDuration(Graphics2D g, int w, int h) {
-        int x = -34;
-        int y = -2;
         String durationText = String.format(Locale.US, "%.3fs", duration);
+        int x = -g.getFontMetrics().stringWidth(durationText) - 1;
+        int y = -2;
         g.setColor(Color.BLACK);
         g.drawString(durationText, w + x, h + y);
         --x;
