@@ -43,7 +43,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JButton exportSampleButton = new JButton();
     private final JButton clearKitButton = new JButton("Clear kit");
     private final JButton renameKitButton = new JButton();
-    private final JTextArea kitTextArea = new JTextArea();
+    private final JTextField kitNameTextField = new JTextField();
     private final JButton reloadSamplesButton = new JButton("Reload samples");
     private final JButton addSampleButton = new JButton("Add sample");
     private final JLabel kitSizeLabel = new JLabel();
@@ -105,7 +105,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
         clearKitButton.addActionListener(e -> createKit());
-        renameKitButton.addActionListener(e -> renameKit(kitTextArea.getText()));
+        renameKitButton.addActionListener(e -> renameKit(kitNameTextField.getText()));
+        kitNameTextField.addActionListener(e -> {
+            renameKit(kitNameTextField.getText());
+            requestFocus();
+        });
 
         exportSampleButton.addActionListener(e -> exportSample());
         addSampleButton.addActionListener(e -> addSample());
@@ -174,7 +178,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         saveKitButton.setText("Save kit");
         saveRomButton.setText("Save ROM");
 
-        kitTextArea.setBorder(BorderFactory.createLoweredBevelBorder());
+        kitNameTextField.setBorder(BorderFactory.createLoweredBevelBorder());
 
         renameKitButton.setText("Rename kit");
 
@@ -188,7 +192,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(loadKitButton, "grow, wrap");
         contentPane.add(saveKitButton, "grow, wrap, sg button");
         contentPane.add(clearKitButton, "gaptop 5, grow, wrap, sg button");
-        contentPane.add(kitTextArea, "grow, wmin 60, split 2");
+        contentPane.add(kitNameTextField, "grow, wmin 60, split 2");
         contentPane.add(renameKitButton, "wrap 10");
 
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
