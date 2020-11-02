@@ -44,7 +44,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JButton clearKitButton = new JButton("Clear kit");
     private final JButton renameKitButton = new JButton();
     private final JTextField kitNameTextField = new JTextField();
-    private final JButton reloadSamplesButton = new JButton("Reload samples");
+    private final JButton reloadSampleButton = new JButton("Reload sample");
     private final JButton addSampleButton = new JButton("Add sample");
     private final JLabel kitSizeLabel = new JLabel();
     private final SampleView sampleView = new SampleView();
@@ -108,7 +108,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
             }
         });
-        halfSpeed.addActionListener(e -> reloadSamples());
+        halfSpeed.addActionListener(e -> reloadSample());
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -121,24 +121,24 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         exportSampleButton.addActionListener(e -> exportSample());
         addSampleButton.addActionListener(e -> addSample());
-        reloadSamplesButton.addActionListener(e -> reloadSamples());
-        reloadSamplesButton.setEnabled(false);
+        reloadSampleButton.addActionListener(e -> reloadSample());
+        reloadSampleButton.setEnabled(false);
     }
 
-    private void reloadSamples() {
+    private void reloadSample() {
         int index = samplePicker.getSelectedIndex();
-        try {
-            for (Sample s : samples[selectedBank]) {
-                if (s != null) {
-                    s.reload(halfSpeed.isSelected());
-                }
+        Sample sample = samples[selectedBank][index];
+        if (sample != null) {
+            try {
+                sample.reload(halfSpeed.isSelected());
+            } catch (Exception e) {
+                showFileErrorMessage(e);
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            showFileErrorMessage(e);
-            e.printStackTrace();
         }
         compileKit();
         updateRomView();
+        playSample();
         samplePicker.setSelectedIndex(index);
     }
 
@@ -205,7 +205,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
-        contentPane.add(reloadSamplesButton, "grow, span 2, wrap, sg button");
+        contentPane.add(reloadSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(halfSpeed, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
@@ -810,12 +810,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.volumeDb() : 0);
         updatingVolume = false;
-        reloadSamplesButton.setEnabled(false);
-        for (Sample s : samples[selectedBank]) {
-            if (s != null && s.getFile() != null) {
-                reloadSamplesButton.setEnabled(true);
-            }
-        }
+        reloadSampleButton.setEnabled(enableVolume);
         saveRomButton.setEnabled(!kitTooBig() &&
                 (!Arrays.equals(document.romImage(), romImage) ||
                         document.isRomDirty()));
