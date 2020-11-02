@@ -113,7 +113,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         volumeSpinner.addChangeListener(e -> onSpinnerChanged());
         addEnterHandler(volumeSpinner);
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
-        addEnterHandler(trimSpinner);
         halfSpeed.addActionListener(e -> reloadAllSamples());
 
         loadKitButton.addActionListener(e -> loadKit());
@@ -846,6 +845,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
         trimSpinner.setModel(new SpinnerNumberModel(sample.getTrim(), 0, maxTrim, 1));
+        addEnterHandler(trimSpinner);
         modelMaxTrim = maxTrim;
     }
 
