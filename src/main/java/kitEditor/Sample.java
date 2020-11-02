@@ -9,8 +9,10 @@ class Sample {
     private final String name;
     private short[] originalSamples;
     private short[] processedSamples;
+    private int untrimmedLengthInSamples = -1;
     private int readPos;
     private int volumeDb = 0;
+    private int trim = 0;
     private boolean dither = true;
 
     public Sample(short[] iBuf, String iName) {
@@ -30,6 +32,10 @@ class Sample {
 
     public int lengthInSamples() {
         return processedSamples.length;
+    }
+
+    public int untrimmedLengthInSamples() {
+        return untrimmedLengthInSamples == -1 ? lengthInSamples() : untrimmedLengthInSamples;
     }
 
     public short[] workSampleData() {
@@ -72,12 +78,13 @@ class Sample {
 
     // ------------------
 
-    public static Sample createFromWav(File file, boolean dither, boolean halfSpeed, int volumeDb)
+    public static Sample createFromWav(File file, boolean dither, boolean halfSpeed, int volumeDb, int trim)
             throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
         s.volumeDb = volumeDb;
+        s.trim = trim;
         s.reload(halfSpeed);
         return s;
     }
@@ -93,7 +100,7 @@ class Sample {
     public void processSamples(boolean dither) {
         int[] intBuffer = toIntBuffer(originalSamples);
         normalize(intBuffer);
-        intBuffer = trimSilence(intBuffer);
+        intBuffer = trim(intBuffer);
         if (dither) {
             dither(intBuffer);
         }
@@ -101,12 +108,14 @@ class Sample {
         blendWaveFrames(processedSamples);
 }
 
-    private int[] trimSilence(int[] intBuffer) {
+    private int[] trim(int[] intBuffer) {
         int headPos = headPos(intBuffer);
         int tailPos = tailPos(intBuffer);
         if (headPos > tailPos) {
             return intBuffer;
         }
+        untrimmedLengthInSamples = tailPos + 1 - headPos;
+        tailPos = Math.max(headPos, tailPos - trim * 32);
         int[] newBuffer = new int[tailPos + 1 - headPos];
         System.arraycopy(intBuffer, headPos, newBuffer, 0, newBuffer.length);
         return newBuffer;
@@ -225,5 +234,13 @@ class Sample {
 
     public File getFile() {
         return file;
+    }
+
+    public void setTrim(int value) {
+        trim = value;
+    }
+
+    public int getTrim() {
+        return trim;
     }
 }

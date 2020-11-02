@@ -16,7 +16,7 @@ class SampleTest {
         URL url = classLoader.getResource("sine1s44khz.wav");
         assert url != null;
         File file = new File(url.getFile());
-        Sample sample = Sample.createFromWav(file, false, false, 0);
+        Sample sample = Sample.createFromWav(file, false, false, 0, 0);
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz", sample.getName());
         Assertions.assertEquals(11467, sample.lengthInSamples());
@@ -44,7 +44,7 @@ class SampleTest {
         assert url != null;
         File file = new File(url.getFile());
 
-        Sample sample = Sample.createFromWav(file, false, false, -20);
+        Sample sample = Sample.createFromWav(file, false, false, -20, 0);
 
         int sum = 0;
         int min = Integer.MAX_VALUE;
@@ -59,5 +59,25 @@ class SampleTest {
         Assertions.assertEquals(0, avg);
         Assertions.assertEquals(Short.MIN_VALUE / 10, min);
         Assertions.assertEquals(Short.MAX_VALUE / 10, max);
+    }
+
+    @Test
+    void trim() throws IOException, UnsupportedAudioFileException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL url = classLoader.getResource("sine1s44khz.wav");
+        assert url != null;
+        File file = new File(url.getFile());
+
+        Sample sample = Sample.createFromWav(file, false, false, 0, 0);
+        Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
+        Assertions.assertEquals(11467, sample.lengthInSamples());
+
+        sample = Sample.createFromWav(file, false, false, 0, 1);
+        Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
+        Assertions.assertEquals(11435, sample.lengthInSamples());
+
+        sample = Sample.createFromWav(file, false, false, 0, 10000);
+        Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
+        Assertions.assertEquals(1, sample.lengthInSamples());
     }
 }
