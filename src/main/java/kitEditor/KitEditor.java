@@ -108,7 +108,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
             }
         });
-        halfSpeed.addActionListener(e -> reloadSample());
+        halfSpeed.addActionListener(e -> reloadAllSamples());
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -123,6 +123,23 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addSampleButton.addActionListener(e -> addSample());
         reloadSampleButton.addActionListener(e -> reloadSample());
         reloadSampleButton.setEnabled(false);
+    }
+
+    private void reloadAllSamples() {
+        int index = samplePicker.getSelectedIndex();
+        try {
+            for (Sample s : samples[selectedBank]) {
+                if (s != null) {
+                    s.reload(halfSpeed.isSelected());
+                }
+            }
+        } catch (Exception e) {
+            showFileErrorMessage(e);
+            e.printStackTrace();
+        }
+        compileKit();
+        updateRomView();
+        samplePicker.setSelectedIndex(index);
     }
 
     private void reloadSample() {
