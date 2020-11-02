@@ -96,11 +96,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.grabFocus();
     }
 
-    private void setListeners() {
-        bankBox.addActionListener(bankBoxListener);
-        samplePicker.addListSelectionListener(this);
-        volumeSpinner.addChangeListener(e -> onVolumeChanged());
-        ((JSpinner.DefaultEditor)volumeSpinner.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
+    private void addEnterHandler(JSpinner spinner) {
+        ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -108,6 +105,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
             }
         });
+    }
+
+    private void setListeners() {
+        bankBox.addActionListener(bankBoxListener);
+        samplePicker.addListSelectionListener(this);
+        volumeSpinner.addChangeListener(e -> onVolumeChanged());
+        addEnterHandler(volumeSpinner);
         halfSpeed.addActionListener(e -> reloadAllSamples());
 
         loadKitButton.addActionListener(e -> loadKit());
