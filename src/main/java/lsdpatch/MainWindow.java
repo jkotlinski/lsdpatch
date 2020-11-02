@@ -72,6 +72,8 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
                 super.windowClosing(e);
             }
         });
+
+       NewVersionChecker.checkGithub(this);
     }
 
     private void openRomUpgradeTool() {
@@ -244,7 +246,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
     }
 
     private void updateTitle() {
-        String title = "LSDPatcher v" + LSDPatcher.getVersion();
+        String title = "LSDPatcher v" + NewVersionChecker.getCurrentVersion();
         if (document.romImage() != null) {
             title = title + " - " + document.romFile().getName();
             if (document.isDirty()) {

@@ -8,11 +8,8 @@ import structures.LSDJFont;
 import utils.RomUtilities;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -57,16 +54,8 @@ public class RomUpgradeTool extends JFrame {
         upgradeStableButton.addActionListener(e -> upgrade(stablePath));
         upgradeDevelopButton.addActionListener(e -> upgrade(developPath));
         upgradeArduinoBoyButton.addActionListener(e -> upgrade(arduinoBoyPath));
-        viewChangeLogButton.addActionListener(e -> openInBrowser(changeLogPath));
-        viewLicenseButton.addActionListener(e -> openInBrowser(licensePath));
-    }
-
-    private void openInBrowser(String path) {
-        try {
-            Desktop.getDesktop().browse(new URI(path));
-        } catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
-        }
+        viewChangeLogButton.addActionListener(e -> WwwUtil.openInBrowser(changeLogPath));
+        viewLicenseButton.addActionListener(e -> WwwUtil.openInBrowser(licensePath));
     }
 
     private boolean versionCompare(String localVersion, String remoteVersion) {
@@ -133,7 +122,7 @@ public class RomUpgradeTool extends JFrame {
     }
 
     private String fetchLatestRemoteVersion(String basePath) throws IOException {
-        String page = fetchWwwPage(new URL(basePath));
+        String page = WwwUtil.fetchWwwPage(new URL(basePath));
         Pattern p = Pattern.compile("lsdj\\d_\\d_\\d[-a-zA-Z]*\\.zip");
         Matcher m = p.matcher(page);
         if (m.find()) {
@@ -142,22 +131,6 @@ public class RomUpgradeTool extends JFrame {
         } else {
             return null;
         }
-    }
-
-    private String fetchWwwPage(URL url) throws IOException {
-        InputStream is;
-        BufferedReader br;
-        String line;
-        StringBuilder lines = new StringBuilder();
-
-        is = url.openStream();
-        br = new BufferedReader(new InputStreamReader(is));
-
-        while ((line = br.readLine()) != null) {
-            lines.append(line);
-        }
-        is.close();
-        return lines.toString();
     }
 
     private void importAll() {

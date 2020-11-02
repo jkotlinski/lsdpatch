@@ -12,14 +12,6 @@ import java.util.HashMap;
 import java.util.prefs.Preferences;
 
 public class LSDPatcher {
-    public static String getVersion() {
-        String version = GlobalHolder.class.getPackage().getImplementationVersion();
-        if (version == null) {
-            return "DEV";
-        }
-        return version;
-    }
-
     private static void initUi() {
         JFrame frame = new MainWindow();
         // Validate frames that have preset sizes
@@ -41,7 +33,7 @@ public class LSDPatcher {
     }
 
     private static void usage() {
-        System.out.printf("LSDJPatcher v%s\n\n", getVersion());
+        System.out.printf("LSDJPatcher v%s\n\n", NewVersionChecker.getCurrentVersion());
         System.out.println("java -jar LSDJPatcher.jar");
         System.out.println(" Opens the GUI.\n");
 

@@ -1,7 +1,6 @@
 package kitEditor;
 
 import Document.Document;
-import lsdpatch.LSDPatcher;
 import net.miginfocom.swing.MigLayout;
 import utils.*;
 
@@ -192,7 +191,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void jbInit() {
-        setTitle("LSDPatcher v" + LSDPatcher.getVersion());
         contentPane = (JPanel) this.getContentPane();
         contentPane.setLayout(new MigLayout());
 
