@@ -75,7 +75,7 @@ public class Sound {
         }
     }
 
-    public static short[] resample(float inSampleRate, float outSampleRate, short[] samples) {
+    public static short[] resample(double inSampleRate, double outSampleRate, short[] samples) {
         if (inSampleRate == outSampleRate) {
             return samples;
         }

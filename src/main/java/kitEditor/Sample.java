@@ -12,6 +12,7 @@ class Sample {
     private int untrimmedLengthInSamples = -1;
     private int readPos;
     private int volumeDb = 0;
+    private int pitchSemitones = 0;
     private int trim = 0;
     private boolean dither = true;
 
@@ -78,13 +79,19 @@ class Sample {
 
     // ------------------
 
-    public static Sample createFromWav(File file, boolean dither, boolean halfSpeed, int volumeDb, int trim)
+    public static Sample createFromWav(File file,
+                                       boolean dither,
+                                       boolean halfSpeed,
+                                       int volumeDb,
+                                       int trim,
+                                       int pitch)
             throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
         s.volumeDb = volumeDb;
         s.trim = trim;
+        s.pitchSemitones = pitch;
         s.reload(halfSpeed);
         return s;
     }
@@ -93,7 +100,8 @@ class Sample {
         if (file == null) {
             return;
         }
-        originalSamples = readSamples(file, halfSpeed);
+        double outFactor = Math.pow(2.0, -pitchSemitones / 12.0);
+        originalSamples = readSamples(file, halfSpeed, outFactor);
         processSamples(dither);
     }
 
@@ -175,7 +183,7 @@ class Sample {
         }
     }
 
-    private static short[] readSamples(File file, boolean halfSpeed) throws UnsupportedAudioFileException, IOException {
+    private static short[] readSamples(File file, boolean halfSpeed, double outRateFactor) throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         float inSampleRate = ais.getFormat().getSampleRate();
         AudioFormat outFormat = new AudioFormat(inSampleRate, 16, 1, true, false);
@@ -190,7 +198,8 @@ class Sample {
         convertedAis.close();
         ais.close();
 
-        float outSampleRate = halfSpeed ? 5734 : 11468;
+        double outSampleRate = halfSpeed ? 5734 : 11468;
+        outSampleRate *= outRateFactor;
         return Sound.resample(inSampleRate, outSampleRate, samples);
     }
 
@@ -224,7 +233,7 @@ class Sample {
         }
     }
 
-    public int volumeDb() {
+    public int getVolumeDb() {
         return volumeDb;
     }
 
@@ -242,5 +251,13 @@ class Sample {
 
     public int getTrim() {
         return trim;
+    }
+
+    public void setPitchSemitones(int value) {
+        pitchSemitones = value;
+    }
+
+    public int getPitchSemitones() {
+        return pitchSemitones;
     }
 }

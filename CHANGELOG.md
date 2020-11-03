@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+ - Kit Editor: pitch spinner, for changing sample pitch by semitone.
  - Kit Editor: trim spinner, for reducing sample length.
  - new version check at startup.
 

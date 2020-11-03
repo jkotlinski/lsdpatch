@@ -16,7 +16,7 @@ class SampleTest {
         URL url = classLoader.getResource("sine1s44khz.wav");
         assert url != null;
         File file = new File(url.getFile());
-        Sample sample = Sample.createFromWav(file, false, false, 0, 0);
+        Sample sample = Sample.createFromWav(file, false, false, 0, 0, 0);
         Assertions.assertNotNull(sample);
         Assertions.assertEquals("sine1s44khz", sample.getName());
         Assertions.assertEquals(11467, sample.lengthInSamples());
@@ -44,7 +44,7 @@ class SampleTest {
         assert url != null;
         File file = new File(url.getFile());
 
-        Sample sample = Sample.createFromWav(file, false, false, -20, 0);
+        Sample sample = Sample.createFromWav(file, false, false, -20, 0, 0);
 
         int sum = 0;
         int min = Integer.MAX_VALUE;
@@ -68,16 +68,35 @@ class SampleTest {
         assert url != null;
         File file = new File(url.getFile());
 
-        Sample sample = Sample.createFromWav(file, false, false, 0, 0);
+        Sample sample = Sample.createFromWav(file, false, false, 0, 0, 0);
         Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
         Assertions.assertEquals(11467, sample.lengthInSamples());
 
-        sample = Sample.createFromWav(file, false, false, 0, 1);
+        sample = Sample.createFromWav(file, false, false, 0, 1, 0);
         Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
         Assertions.assertEquals(11435, sample.lengthInSamples());
 
-        sample = Sample.createFromWav(file, false, false, 0, 10000);
+        sample = Sample.createFromWav(file, false, false, 0, 10000, 0);
         Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
         Assertions.assertEquals(1, sample.lengthInSamples());
+    }
+
+    @Test
+    void pitch() throws IOException, UnsupportedAudioFileException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL url = classLoader.getResource("sine1s44khz.wav");
+        assert url != null;
+        File file = new File(url.getFile());
+
+        Sample sample = Sample.createFromWav(file, false, false, 0, 0, 0);
+        Assertions.assertEquals(11467, sample.lengthInSamples());
+
+        // octave down
+        sample = Sample.createFromWav(file, false, false, 0, 0, -12);
+        Assertions.assertEquals(11467 * 2 + 1, sample.lengthInSamples());
+
+        // octave up
+        sample = Sample.createFromWav(file, false, false, 0, 0, 12);
+        Assertions.assertEquals(11467 / 2, sample.lengthInSamples());
     }
 }
