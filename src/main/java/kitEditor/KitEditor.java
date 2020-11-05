@@ -867,8 +867,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (modelMaxTrim == maxTrim) {
             return;
         }
-        int value = Math.min(maxTrim, sample.getTrim());
-        trimSpinner.setModel(new SpinnerNumberModel(value, 0, maxTrim, 1));
+        trimSpinner.setModel(new SpinnerNumberModel(sample.getTrim(), 0, maxTrim, 1));
         addEnterHandler(trimSpinner);
         modelMaxTrim = maxTrim;
     }
@@ -883,9 +882,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         volumeSpinner.setValue(enableVolume ? sample.getVolumeDb() : 0);
         pitchSpinner.setEnabled(enableVolume);
         pitchSpinner.setValue(enableVolume ? sample.getPitchSemitones() : 0);
-        trimSpinner.setEnabled(enableVolume);
-        updateTrimModel(sample);
-        trimSpinner.setValue(enableVolume ? sample.getTrim() : 0);
+        trimSpinner.setEnabled(enableVolume && sample.untrimmedLengthInSamples() > 32);
+        if (trimSpinner.isEnabled()) {
+            updateTrimModel(sample);
+            trimSpinner.setValue(enableVolume ? sample.getTrim() : 0);
+        }
         handlingSpinnerChange = false;
         reloadSampleButton.setEnabled(enableVolume);
         saveRomButton.setEnabled(!kitTooBig() &&

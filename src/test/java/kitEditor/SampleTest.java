@@ -78,7 +78,7 @@ class SampleTest {
 
         sample = Sample.createFromWav(file, false, false, 0, 10000, 0);
         Assertions.assertEquals(11467, sample.untrimmedLengthInSamples());
-        Assertions.assertEquals(1, sample.lengthInSamples());
+        Assertions.assertEquals(32, sample.lengthInSamples());
     }
 
     @Test
