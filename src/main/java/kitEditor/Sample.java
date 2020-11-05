@@ -126,7 +126,16 @@ class Sample {
         tailPos = Math.max(headPos, tailPos - trim * 32);
         int[] newBuffer = new int[tailPos + 1 - headPos];
         System.arraycopy(intBuffer, headPos, newBuffer, 0, newBuffer.length);
-        return newBuffer;
+
+        if (newBuffer.length >= 32) {
+            return newBuffer;
+        }
+
+        // Extends to 32 samples.
+        untrimmedLengthInSamples = 32;
+        int[] zeroPadded = new int[32];
+        System.arraycopy(newBuffer, 0, zeroPadded, 0, newBuffer.length);
+        return zeroPadded;
     }
 
     final int SILENCE_THRESHOLD = Short.MAX_VALUE / 16;
