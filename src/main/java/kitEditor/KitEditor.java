@@ -867,7 +867,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (modelMaxTrim == maxTrim) {
             return;
         }
-        trimSpinner.setModel(new SpinnerNumberModel(sample.getTrim(), 0, maxTrim, 1));
+        int value = Math.min(maxTrim, sample.getTrim());
+        trimSpinner.setModel(new SpinnerNumberModel(value, 0, maxTrim, 1));
         addEnterHandler(trimSpinner);
         modelMaxTrim = maxTrim;
     }
