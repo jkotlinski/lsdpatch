@@ -73,7 +73,9 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             }
         });
 
-       NewVersionChecker.checkGithub(this);
+        setResizable(false);
+
+        NewVersionChecker.checkGithub(this);
     }
 
     private void openRomUpgradeTool() {

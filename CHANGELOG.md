@@ -5,14 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
- - Kit Editor: pitch spinner, for changing sample pitch by semitone.
- - Kit Editor: trim spinner, for reducing sample length.
- - new version check at startup.
-
 ### Fixed
  - Kit Editor: sample duration right alignment.
  - Kit Editor: made text fields handle "enter" key.
+ - Made main window non-resizable.
+
+### Added
+ - Kit Editor: pitch spinner, for changing sample pitch by semitone.
+ - Kit Editor: trim spinner, for reducing sample length.
+ - New version check at startup.
 
 ### Changed
  - Kit Editor: now removes DC offset before resampling.
