@@ -19,7 +19,7 @@ class HuePanel extends JPanel implements MouseListener, MouseMotionListener {
     }
 
     HuePanel() {
-        setMinimumSize(new Dimension(width, height));
+        setPreferredSize(new Dimension(width, height));
         addMouseListener(this);
         addMouseMotionListener(this);
     }

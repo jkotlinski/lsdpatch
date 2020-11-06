@@ -26,7 +26,7 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
     public SaturationBrightnessPanel(HuePanel huePanel) {
         this.huePanel = huePanel;
         huePanel.subscribe(this);
-        setMinimumSize(new Dimension(width, height));
+        setPreferredSize(new Dimension(width, height));
         addMouseListener(this);
         addMouseMotionListener(this);
     }

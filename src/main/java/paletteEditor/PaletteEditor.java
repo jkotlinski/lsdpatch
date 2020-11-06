@@ -126,7 +126,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
 
         swatchPanel.addListener(this);
 
-        previewSongLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
+        previewSongLabel.setPreferredSize(new Dimension(160 * previewScale, 144 * previewScale));
         contentPane.add(previewSongLabel);
         previewSongLabel.addMouseListener(new MouseListener() {
             @Override
@@ -146,7 +146,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         contentPane.add(midPanel);
         contentPane.add(swatchPanel);
 
-        previewInstrLabel.setMinimumSize(new Dimension(160 * previewScale, 144 * previewScale));
+        previewInstrLabel.setPreferredSize(new Dimension(160 * previewScale, 144 * previewScale));
         previewInstrLabel.addMouseListener(new MouseListener() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -182,7 +182,6 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         });
 
         pack();
-        setMinimumSize(getPreferredSize());
 
         // Needs to be here for the swatchSelected callback.
         swatchPanel.normalSwatchPair.selectBackground();
