@@ -23,8 +23,8 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
     private final int previewScale = 2;
     java.io.File clipboard;
 
-    private final JLabel previewSongLabel = new JLabel();
-    private final JLabel previewInstrLabel = new JLabel();
+    private final JLabel songScreenShot = new JLabel();
+    private final JLabel instrScreenShot = new JLabel();
 
     private final ColorPicker colorPicker = new ColorPicker();
 
@@ -126,9 +126,9 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
 
         swatchPanel.addListener(this);
 
-        previewSongLabel.setPreferredSize(new Dimension(160 * previewScale, 144 * previewScale));
-        contentPane.add(previewSongLabel);
-        previewSongLabel.addMouseListener(new MouseListener() {
+        songScreenShot.setPreferredSize(new Dimension(160 * previewScale, 144 * previewScale));
+        contentPane.add(songScreenShot);
+        songScreenShot.addMouseListener(new MouseListener() {
             @Override
             public void mousePressed(MouseEvent e) {
                 songImagePressed(e);
@@ -146,8 +146,8 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         contentPane.add(midPanel);
         contentPane.add(swatchPanel);
 
-        previewInstrLabel.setPreferredSize(new Dimension(160 * previewScale, 144 * previewScale));
-        previewInstrLabel.addMouseListener(new MouseListener() {
+        instrScreenShot.setPreferredSize(new Dimension(160 * previewScale, 144 * previewScale));
+        instrScreenShot.addMouseListener(new MouseListener() {
             @Override
             public void mousePressed(MouseEvent e) {
                 instrImagePressed(e);
@@ -161,7 +161,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
-        contentPane.add(previewInstrLabel, "gap 10");
+        contentPane.add(instrScreenShot, "gap 10");
 
         try {
             songImage = javax.imageio.ImageIO.read(getClass().getResource("/song.bmp"));
@@ -426,8 +426,8 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
     }
 
     private void updateSongAndInstrScreens() {
-        previewSongLabel.setIcon(new StretchIcon(modifyUsingPalette(songImage)));
-        previewInstrLabel.setIcon(new StretchIcon(modifyUsingPalette(instrImage)));
+        songScreenShot.setIcon(new StretchIcon(modifyUsingPalette(songImage)));
+        instrScreenShot.setIcon(new StretchIcon(modifyUsingPalette(instrImage)));
     }
 
     private void updateSwatches(int colorSetIndex, SwatchPair swatchPair) {
