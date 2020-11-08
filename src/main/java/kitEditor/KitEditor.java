@@ -81,16 +81,18 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             updateButtonStates();
         });
 
+        KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        PadKeyHandler padKeyHandler = new PadKeyHandler();
+        keyboardFocusManager.addKeyEventPostProcessor(padKeyHandler);
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
+                keyboardFocusManager.removeKeyEventPostProcessor(padKeyHandler);
                 document.setRomImage(romImage);
             }
         });
-
-        KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keyboardFocusManager.addKeyEventPostProcessor(new PadKeyHandler());
 
         pack();
 
