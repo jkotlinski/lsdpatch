@@ -118,7 +118,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         pitchSpinner.addChangeListener(e -> onSpinnerChanged());
         addEnterHandler(pitchSpinner);
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
-        halfSpeed.addActionListener(e -> reloadAllSamples());
+        halfSpeed.addActionListener(e -> onHalfSpeedChanged());
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -133,6 +133,20 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addSampleButton.addActionListener(e -> addSample());
         reloadSampleButton.addActionListener(e -> reloadSample());
         reloadSampleButton.setEnabled(false);
+    }
+
+    private void onHalfSpeedChanged() {
+        // Update trim accordingly.
+        for (Sample s : samples[selectedBank]) {
+            if (s != null) {
+                if (halfSpeed.isSelected()) {
+                    s.setTrim(s.getTrim() / 2);
+                } else {
+                    s.setTrim(s.getTrim() * 2);
+                }
+            }
+        }
+        reloadAllSamples();
     }
 
     private void reloadAllSamples() {
