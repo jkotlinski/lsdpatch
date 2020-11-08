@@ -56,6 +56,8 @@ public class RomUpgradeTool extends JFrame {
         upgradeArduinoBoyButton.addActionListener(e -> upgrade(arduinoBoyPath));
         viewChangeLogButton.addActionListener(e -> WwwUtil.openInBrowser(changeLogPath));
         viewLicenseButton.addActionListener(e -> WwwUtil.openInBrowser(licensePath));
+
+        setResizable(false);
     }
 
     private boolean versionCompare(String localVersion, String remoteVersion) {

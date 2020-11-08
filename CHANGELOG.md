@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: sample duration right alignment.
  - Kit Editor: made text fields handle "enter" key.
  - Kit Editor: stop listening to keypresses when window is closed.
- - Palette Editor: resize window handling.
- - Made main window non-resizable.
+ - Various window resize issues.
 
 ### Added
  - Kit Editor: pitch spinner, for changing sample pitch by semitone.

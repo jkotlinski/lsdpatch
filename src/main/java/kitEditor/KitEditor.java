@@ -97,6 +97,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         pack();
 
         samplePicker.grabFocus();
+
+        setResizable(false);
     }
 
     private void addEnterHandler(JSpinner spinner) {
