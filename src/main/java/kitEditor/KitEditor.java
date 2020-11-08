@@ -722,16 +722,18 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         Sample sample;
         try {
             sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0, 0, 0);
+            int bytesFreeAfterAdd = MAX_SAMPLE_SPACE - totalSampleSizeInBytes() - sample.lengthInBytes();
+            if (bytesFreeAfterAdd < 0) {
+                int trim = -bytesFreeAfterAdd / 16;
+                sample.setTrim(trim);
+                sample.reload(halfSpeed.isSelected());
+                JOptionPane.showMessageDialog(this,
+                        "Trimmed sample to fit.",
+                        "Kit full!",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         } catch (Exception e) {
             showFileErrorMessage(e);
-            return;
-        }
-
-        if (sample.lengthInBytes() > MAX_SAMPLE_SPACE - totalSampleSizeInBytes()) {
-            JOptionPane.showMessageDialog(this,
-                    "Free up some space and try again!",
-                    "Kit full!",
-                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -743,6 +745,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
         samplePicker.setSelectedIndex(index);
         playSample();
+        updateButtonStates();
     }
 
     private void renameSample(int sampleIndex, String sampleName) {
@@ -891,6 +894,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         handlingSpinnerChange = false;
         reloadSampleButton.setEnabled(enableVolume);
+        addSampleButton.setEnabled(totalSampleSizeInBytes() < MAX_SAMPLE_SPACE);
         saveRomButton.setEnabled(!kitTooBig() &&
                 (!Arrays.equals(document.romImage(), romImage) ||
                         document.isRomDirty()));

@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Kit Editor: now removes DC offset before resampling.
  - Kit Editor: changed "Reload samples" button to "Reload sample".
+ - Kit Editor: when adding a too big sample, trim sample end to fit.
+ - Kit Editor: disabled "Add sample" button when kit is full.
 
 ## [1.9.0] - 2020-10-31
 ### Fixed
