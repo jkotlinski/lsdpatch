@@ -130,7 +130,7 @@ class Sample {
             } else {
                 d = -1.0 + Math.exp(d);
             }
-            d = Math.tanh(d);
+            // d = Math.tanh(d); - also popular and liked
             d *= Short.MAX_VALUE;
             intBuffer[i] = (int)d;
         }
