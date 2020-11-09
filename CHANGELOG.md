@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Kit Editor: pitch spinner, for changing sample pitch by semitone.
  - Kit Editor: trim spinner, for reducing sample length.
+ - Kit Editor: soft clip option.
  - New version check at startup.
 
 ### Changed
@@ -21,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: changed "Reload samples" button to "Reload sample".
  - Kit Editor: when adding a too big sample, trim sample end to fit.
  - Kit Editor: disabled "Add sample" button when kit is full.
- - Kit Editor: soft clip when amplifying samples.
 
 ## [1.9.0] - 2020-10-31
 ### Fixed

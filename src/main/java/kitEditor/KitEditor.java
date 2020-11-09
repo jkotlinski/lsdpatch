@@ -51,6 +51,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner pitchSpinner = new JSpinner();
     private final JSpinner trimSpinner = new JSpinner();
     private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
+    private final JCheckBox softClip = new JCheckBox("Soft-clip");
 
     private void emptyInstrList() {
         String[] listData = {
@@ -121,6 +122,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addEnterHandler(pitchSpinner);
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
         halfSpeed.addActionListener(e -> onHalfSpeedChanged());
+        softClip.addActionListener(e -> onSpinnerChanged());
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -185,9 +187,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.setSelectedIndex(index);
     }
 
-    static boolean handlingSpinnerChange = false;
+    static boolean updatingButtonStates = false;
     private void onSpinnerChanged() {
-        if (handlingSpinnerChange) {
+        if (updatingButtonStates) {
             return;
         }
         int index = samplePicker.getSelectedIndex();
@@ -198,7 +200,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (sample == null || !sample.canAdjustVolume()) {
             return;
         }
-        handlingSpinnerChange = true;
+        updatingButtonStates = true;
         sample.setVolumeDb((int)volumeSpinner.getValue());
         if ((int)pitchSpinner.getValue() != sample.getPitchSemitones()) {
             sample.setPitchSemitones((int) pitchSpinner.getValue());
@@ -210,12 +212,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         }
         sample.setTrim((int)trimSpinner.getValue());
+        sample.setSoftClip(softClip.isSelected());
         sample.processSamples(true);
         compileKit();
         samplePicker.setSelectedIndex(index);
         Sound.stopAll();
         playSample();
-        handlingSpinnerChange = false;
+        updatingButtonStates = false;
         updateKitSizeLabel();
     }
 
@@ -260,7 +263,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSampleButton, "grow, span 2, wrap, sg button");
-        contentPane.add(halfSpeed, "wrap");
+        contentPane.add(halfSpeed, "split 2");
+        contentPane.add(softClip, "wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(new JLabel("Pitch (semitone):"), "split 2");
@@ -652,7 +656,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                         halfSpeed.isSelected(),
                         volume,
                         trim,
-                        pitch);
+                        pitch,
+                        false);
             }
         }
     }
@@ -737,7 +742,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         String sampleName = dropExtension(wavFile).toUpperCase();
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0, 0, 0);
+            sample = Sample.createFromWav(wavFile,
+                    true,
+                    halfSpeed.isSelected(),
+                    0,
+                    0,
+                    0,
+                    false);
             int bytesFreeAfterAdd = MAX_SAMPLE_SPACE - totalSampleSizeInBytes() - sample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
                 int trim = -bytesFreeAfterAdd / 16;
@@ -898,7 +909,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         exportSampleButton.setEnabled(getNibbles(index) != null);
         Sample sample = index >= 0 ? samples[selectedBank][index] : null;
         boolean enableVolume = sample != null && sample.canAdjustVolume();
-        handlingSpinnerChange = true;
+        updatingButtonStates = true;
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.getVolumeDb() : 0);
         pitchSpinner.setEnabled(enableVolume);
@@ -908,8 +919,10 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             updateTrimModel(sample);
             trimSpinner.setValue(enableVolume ? sample.getTrim() : 0);
         }
-        handlingSpinnerChange = false;
+        softClip.setSelected(enableVolume && sample.getSoftClip());
+        updatingButtonStates = false;
         reloadSampleButton.setEnabled(enableVolume);
+        softClip.setEnabled(enableVolume);
         addSampleButton.setEnabled(totalSampleSizeInBytes() < MAX_SAMPLE_SPACE);
         saveRomButton.setEnabled(!kitTooBig() &&
                 (!Arrays.equals(document.romImage(), romImage) ||
@@ -929,7 +942,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         try {
             final int index = samplePicker.getSelectedIndex();
-            Sample newSample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0, 0, 0);
+            Sample newSample = Sample.createFromWav(wavFile,
+                    true,
+                    halfSpeed.isSelected(),
+                    0,
+                    0,
+                    0,
+                    false);
             Sample existingSample = samples[selectedBank][index];
             int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
