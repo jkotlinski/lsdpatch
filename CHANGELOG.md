@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: sample duration right alignment.
  - Kit Editor: made text fields handle "enter" key.
  - Kit Editor: stop listening to keypresses when window is closed.
+ - Kit Editor: make focus return to main window when bank is changed.
  - Various window resize issues.
 
 ### Added

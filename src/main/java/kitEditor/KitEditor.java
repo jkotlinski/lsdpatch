@@ -495,6 +495,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void bankBox_actionPerformed() {
+        requestFocus();
         if (selectedBank == bankBox.getSelectedIndex()) {
             return;
         }
