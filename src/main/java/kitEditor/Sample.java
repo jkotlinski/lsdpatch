@@ -14,7 +14,6 @@ class Sample {
     private int volumeDb = 0;
     private int pitchSemitones = 0;
     private int trim = 0;
-    private boolean softClip = false;
     private boolean dither = true;
 
     public Sample(short[] iBuf, String iName) {
@@ -85,8 +84,7 @@ class Sample {
                                        boolean halfSpeed,
                                        int volumeDb,
                                        int trim,
-                                       int pitch,
-                                       boolean softClip)
+                                       int pitch)
             throws IOException, UnsupportedAudioFileException {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
@@ -94,7 +92,6 @@ class Sample {
         s.volumeDb = volumeDb;
         s.trim = trim;
         s.pitchSemitones = pitch;
-        s.softClip = softClip;
         s.reload(halfSpeed);
         return s;
     }
@@ -111,9 +108,6 @@ class Sample {
     public void processSamples(boolean dither) {
         int[] intBuffer = toIntBuffer(originalSamples);
         normalize(intBuffer, volumeDb);
-        if (softClip) {
-            softClip(intBuffer);
-        }
         intBuffer = trim(intBuffer);
         if (dither) {
             dither(intBuffer);
@@ -125,11 +119,6 @@ class Sample {
     private static void softClip(int[] intBuffer) {
         for (int i = 0; i < intBuffer.length; ++i) {
             double d = (double)intBuffer[i] / Short.MAX_VALUE;
-            if (d > 0) {
-                d = 1.0 - Math.exp(-d);
-            } else {
-                d = -1.0 + Math.exp(d);
-            }
             d = Math.tanh(d);
             d *= Short.MAX_VALUE;
             intBuffer[i] = (int)d;
@@ -260,6 +249,10 @@ class Sample {
         for (int i = 0; i < samples.length; ++i) {
             samples[i] = (int)((samples[i] * volumeAdjust) / peak);
         }
+
+        if (volumeDb > 0) {
+            softClip(samples);
+        }
     }
 
     public int getVolumeDb() {
@@ -288,13 +281,5 @@ class Sample {
 
     public int getPitchSemitones() {
         return pitchSemitones;
-    }
-
-    public boolean getSoftClip() {
-        return softClip;
-    }
-
-    public void setSoftClip(boolean value) {
-        softClip = value;
     }
 }
