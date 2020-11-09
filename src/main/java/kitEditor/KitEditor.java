@@ -585,8 +585,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 fileWriter.write(s.getFile().getAbsolutePath() +
                         "|" + s.getVolumeDb() +
                         "|" + s.getTrim() +
-                        "|" + s.getPitchSemitones() +
-                        "|" + (s.getSoftClip() ? '1' : '0') + "\n");
+                        "|" + s.getPitchSemitones() + "\n");
             }
         }
     }
@@ -652,10 +651,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 if (chunks.length > 3) {
                     pitch = Integer.parseInt(chunks[3]);
                 }
-                boolean softClip = false;
-                if (chunks.length > 4) {
-                    softClip = Integer.parseInt(chunks[4]) == 1;
-                }
                 samples[selectedBank][i] = Sample.createFromWav(
                         sampleFile,
                         true,
@@ -663,7 +658,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                         volume,
                         trim,
                         pitch,
-                        softClip);
+                        false);
             }
         }
     }
