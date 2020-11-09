@@ -107,7 +107,7 @@ class Sample {
 
     public void processSamples(boolean dither) {
         int[] intBuffer = toIntBuffer(originalSamples);
-        normalize(intBuffer, volumeDb);
+        normalize(intBuffer);
         intBuffer = trim(intBuffer);
         if (dither) {
             dither(intBuffer);
@@ -115,16 +115,6 @@ class Sample {
         processedSamples = toShortBuffer(intBuffer);
         blendWaveFrames(processedSamples);
 }
-
-    private static void softClip(int[] intBuffer) {
-        for (int i = 0; i < intBuffer.length; ++i) {
-            double d = (double)intBuffer[i] / Short.MAX_VALUE;
-            d = Math.tanh(d);
-            d *= Short.MAX_VALUE;
-            intBuffer[i] = (int)d;
-        }
-        normalize(intBuffer, 0);
-    }
 
     private int[] trim(int[] intBuffer) {
         int headPos = headPos(intBuffer);
@@ -235,7 +225,7 @@ class Sample {
         }
     }
 
-    private static void normalize(int[] samples, int volumeDb) {
+    private void normalize(int[] samples) {
         double peak = Double.MIN_VALUE;
         for (int sample : samples) {
             double s = sample;
@@ -248,10 +238,6 @@ class Sample {
         double volumeAdjust = Math.pow(10, volumeDb / 20.0);
         for (int i = 0; i < samples.length; ++i) {
             samples[i] = (int)((samples[i] * volumeAdjust) / peak);
-        }
-
-        if (volumeDb > 0) {
-            softClip(samples);
         }
     }
 
