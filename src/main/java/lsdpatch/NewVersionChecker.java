@@ -22,12 +22,12 @@ public class NewVersionChecker {
         }
         String response;
         try {
-            String apiPath = "https://api.github.com/repos/jkotlinski/lsdpatch/releases";
+            String apiPath = "https://api.github.com/repos/jkotlinski/lsdpatch/releases/latest";
             response = WwwUtil.fetchWwwPage(new URL(apiPath));
         } catch (IOException e) {
             return;
         }
-        if (response.contains('"' + 'v' + currentVersion + '"')) {
+        if (response.contains("\"v" + currentVersion + '"')) {
             return;
         }
         if (JOptionPane.showConfirmDialog(parent,

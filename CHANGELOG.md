@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.10.1] - 2020-11-10
+### Fixed
+ - New version check at startup.
+
 ## [1.10.0] - 2020-11-10
 ### Fixed
  - Kit Editor: sample duration right alignment.
