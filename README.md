@@ -5,10 +5,6 @@ A tool for modifying songs, samples, fonts and palettes on [Little Sound Dj][lsd
 
 [Download][releases] | [Fonts][lsdfnts] | [Palettes][lsdpals]
 
-## Tutorials
-- [Tutorial by Little-Scale](http://little-scale.blogspot.com/2008/11/how-to-prepare-samples-and-create-lsdj.html)
-- [Video tutorial by 2xAA](http://www.youtube.com/watch?v=FGeVrW5Jxww)
-
 ## Building
 
 Build using [Maven](https://maven.apache.org/): `mvn package`
