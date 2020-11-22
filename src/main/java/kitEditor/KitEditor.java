@@ -934,11 +934,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             Sample existingSample = samples[selectedBank][index];
             int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
-                JOptionPane.showMessageDialog(contentPane,
-                        "Free up some space and try again!",
+                int trim = -bytesFreeAfterAdd / 16;
+                newSample.setTrim(trim);
+                newSample.reload(halfSpeed.isSelected());
+                JOptionPane.showMessageDialog(this,
+                        "Trimmed sample to fit.",
                         "Kit full!",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
+                        JOptionPane.INFORMATION_MESSAGE);
             }
             samples[selectedBank][index] = newSample;
             renameSample(index, dropExtension(wavFile).toUpperCase());
