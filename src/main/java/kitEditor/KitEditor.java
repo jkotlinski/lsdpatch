@@ -36,6 +36,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
 
+    private final JButton previousBankButton = new JButton("-");
+    private final JButton nextBankButton = new JButton("+");
+
     private final JButton loadKitButton = new JButton();
     private final JButton saveKitButton = new JButton();
     private final JButton saveRomButton = new JButton();
@@ -121,6 +124,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addEnterHandler(pitchSpinner);
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
         halfSpeed.addActionListener(e -> onHalfSpeedChanged());
+
+        previousBankButton.addActionListener(e -> bankBox.setSelectedIndex(bankBox.getSelectedIndex() - 1));
+        nextBankButton.addActionListener(e -> bankBox.setSelectedIndex(bankBox.getSelectedIndex() + 1));
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
@@ -229,7 +235,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         JPanel kitContainer = new JPanel();
         kitContainer.setLayout(new MigLayout("", "[grow,fill]", ""));
-        kitContainer.add(bankBox, "grow,wrap");
+        kitContainer.add(bankBox, "grow,split 3");
+        kitContainer.add(previousBankButton);
+        kitContainer.add(nextBankButton, "wrap");
         kitContainer.add(samplePicker, "grow,wrap");
         kitContainer.add(kitSizeLabel, "grow, split 2");
         kitContainer.add(saveRomButton, "grow");
@@ -915,6 +923,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         saveRomButton.setEnabled(!kitTooBig() &&
                 (!Arrays.equals(document.romImage(), romImage) ||
                         document.isRomDirty()));
+
+        previousBankButton.setEnabled(selectedBank > 0);
+        nextBankButton.setEnabled(selectedBank + 1 < bankBox.getItemCount());
     }
 
     @Override
