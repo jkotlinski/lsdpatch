@@ -36,8 +36,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
 
-    private final JButton previousBankButton = new JButton("-");
-    private final JButton nextBankButton = new JButton("+");
+    private final JButton previousBankButton = new JButton("<");
+    private final JButton nextBankButton = new JButton(">");
 
     private final JButton loadKitButton = new JButton();
     private final JButton saveKitButton = new JButton();
