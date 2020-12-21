@@ -93,7 +93,7 @@ public class RomUtilities {
         // backgrounds, which are defined directly after the palettes
         // in bank 1.
         int baseOffset = findScreenBackgroundData(romImage);
-        if (baseOffset == 1)
+        if (baseOffset == -1)
         {
             return -1;
         }
@@ -178,5 +178,11 @@ public class RomUtilities {
 
         romImage[0x14E] = (byte) ((checksum014E & 0xFF00) >> 8);
         romImage[0x14F] = (byte) (checksum014E & 0x00FF);
+    }
+
+    public static boolean validatePaletteData(byte[] romImage) {
+        return getNumberOfPalettes(romImage) > 0 &&
+                findPaletteNameOffset(romImage) > 0 &&
+                findPaletteOffset(romImage) > 0;
     }
 }

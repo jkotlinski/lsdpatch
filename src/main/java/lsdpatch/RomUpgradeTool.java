@@ -138,8 +138,8 @@ public class RomUpgradeTool extends JFrame {
     private void importAll() {
         if (importKits() == 0) {
             JOptionPane.showMessageDialog(this,
-                    "Palette copy error.",
-                    "Palette import result.", JOptionPane.INFORMATION_MESSAGE);
+                    "Kit copy error.",
+                    "Kit import result.", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         if (!importFonts()) {
@@ -176,6 +176,13 @@ public class RomUpgradeTool extends JFrame {
 
             otherOpenRom.readFully(otherRomImage);
             otherOpenRom.close();
+
+            if (!RomUtilities.validatePaletteData(remoteRomImage)) {
+                throw new Exception("Could not read palette data from remote ROM image!");
+            }
+            if (!RomUtilities.validatePaletteData(otherRomImage)) {
+                throw new Exception("Could not read palette data from local ROM image!");
+            }
 
             int ownPaletteOffset = RomUtilities.findPaletteOffset(romImage);
             int ownPaletteNameOffset = RomUtilities.findPaletteNameOffset(romImage);

@@ -221,7 +221,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         boolean romOk = romImage != null;
         String savPath = savTextField.getText();
         boolean savPathOk = savPath.endsWith(".sav") && new File(savPath).exists();
-        boolean foundPalettes = romOk && RomUtilities.getNumberOfPalettes(romImage) != -1;
+        boolean foundPalettes = romOk && RomUtilities.validatePaletteData(romImage);
 
         romTextField.setBackground(romOk ? Color.white : Color.pink);
         savTextField.setBackground(savPathOk ? Color.white : Color.pink);
@@ -229,7 +229,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         editKitsButton.setEnabled(romOk);
         editFontsButton.setEnabled(romOk && foundPalettes);
         editPalettesButton.setEnabled(romOk && foundPalettes);
-        upgradeRomButton.setEnabled(romOk);
+        upgradeRomButton.setEnabled(romOk && foundPalettes);
         songManagerButton.setEnabled(savPathOk && romOk);
     }
 
