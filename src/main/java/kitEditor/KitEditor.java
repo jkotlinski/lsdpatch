@@ -65,7 +65,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.setListData(listData);
     }
 
-    public KitEditor(Document document, Listener listener) {
+    public KitEditor(JFrame parent, Document document, Listener listener) {
+        parent.setEnabled(false);
+
         romImage = document.romImage();
         this.listener = listener;
         this.document = document;
@@ -94,6 +96,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 super.windowClosing(e);
                 keyboardFocusManager.removeKeyEventPostProcessor(padKeyHandler);
                 document.setRomImage(romImage);
+                parent.setEnabled(true);
             }
         });
 

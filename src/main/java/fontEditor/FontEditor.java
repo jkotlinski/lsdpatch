@@ -35,7 +35,9 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
     private int selectedFontOffset = -1;
     private int previousSelectedFont = -1;
 
-    public FontEditor(Document document) {
+    public FontEditor(JFrame parent, Document document) {
+        parent.setEnabled(false);
+
         setTitle("Font Editor");
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setBounds(100, 100, 800, 600);
@@ -160,6 +162,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 document.setRomImage(fontMap.romImage());
+                parent.setEnabled(true);
             }
         });
     }

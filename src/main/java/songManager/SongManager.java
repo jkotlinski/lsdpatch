@@ -29,7 +29,9 @@ public class SongManager extends JFrame implements ListSelectionListener {
 
     LSDSavFile savFile;
     
-    public SongManager(Document document) {
+    public SongManager(JFrame parent, Document document) {
+        parent.setEnabled(false);
+
         romImage = document.romImage();
         savFile = document.savFile();
 
@@ -70,6 +72,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
                 super.windowClosing(e);
                 document.setSavFile(savFile);
                 document.setRomImage(romImage);
+                parent.setEnabled(true);
             }
         });
 

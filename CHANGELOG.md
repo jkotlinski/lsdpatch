@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Error handling when palettes cannot be parsed.
+ - Modal subwindows.
 
 ## [1.10.2] - 2020-11-22
 ### Fixed

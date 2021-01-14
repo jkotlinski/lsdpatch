@@ -50,9 +50,11 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         songManagerButton.addActionListener(e -> openSongManager());
         panel.add(songManagerButton);
 
-        editKitsButton.addActionListener(e -> new KitEditor(document, this).setLocationRelativeTo(this));
+        editKitsButton.addActionListener(e ->
+                new KitEditor(this, document, this).setLocationRelativeTo(this));
         panel.add(editKitsButton);
-        editFontsButton.addActionListener(e -> openKitEditor());
+
+        editFontsButton.addActionListener(e -> openFontEditor());
         panel.add(editFontsButton);
 
         editPalettesButton.addActionListener(e -> openPaletteEditor());
@@ -79,25 +81,25 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
     }
 
     private void openRomUpgradeTool() {
-        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(document);
+        RomUpgradeTool romUpgradeTool = new RomUpgradeTool(this, document);
         romUpgradeTool.setLocationRelativeTo(this);
         romUpgradeTool.setVisible(true);
     }
 
     private void openSongManager() {
-        SongManager savManager = new SongManager(document);
+        SongManager savManager = new SongManager(this, document);
         savManager.setLocationRelativeTo(this);
         savManager.setVisible(true);
     }
 
     private void openPaletteEditor() {
-        PaletteEditor editor = new PaletteEditor(document);
+        PaletteEditor editor = new PaletteEditor(this, document);
         editor.setLocationRelativeTo(this);
         editor.setVisible(true);
     }
 
-    private void openKitEditor() {
-        FontEditor fontEditor = new FontEditor(document);
+    private void openFontEditor() {
+        FontEditor fontEditor = new FontEditor(this, document);
         fontEditor.setLocationRelativeTo(this);
         fontEditor.setVisible(true);
     }

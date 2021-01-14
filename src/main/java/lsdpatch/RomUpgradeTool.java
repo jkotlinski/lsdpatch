@@ -8,6 +8,7 @@ import structures.LSDJFont;
 import utils.RomUtilities;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.URL;
@@ -28,7 +29,9 @@ public class RomUpgradeTool extends JFrame {
     private final byte[] remoteRomImage;
     private final Document document;
 
-    RomUpgradeTool(Document document) {
+    RomUpgradeTool(JFrame parent, Document document) {
+        parent.setEnabled(false);
+
         this.document = document;
         localRomFile = document.romFile();
         localRomImage = document.romImage();
@@ -58,6 +61,14 @@ public class RomUpgradeTool extends JFrame {
         viewLicenseButton.addActionListener(e -> WwwUtil.openInBrowser(licensePath));
 
         setResizable(false);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                parent.setEnabled(true);
+            }
+        });
     }
 
     private boolean versionCompare(String localVersion, String remoteVersion) {

@@ -78,7 +78,9 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         mnEdit.add(menuItemPaste);
     }
 
-    public PaletteEditor(Document document) {
+    public PaletteEditor(JFrame parent, Document document) {
+        parent.setEnabled(false);
+
         setupMenuBar();
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -178,6 +180,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 document.setRomImage(romImage);
+                parent.setEnabled(true);
             }
         });
 
