@@ -151,7 +151,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         for (Sample s : samples[selectedBank]) {
             if (s != null) {
                 if (halfSpeed.isSelected()) {
-                    s.setTrim(s.getTrim() / 2);
+                    s.setTrim((int)Math.ceil(s.getTrim() / 2.0)); // Round upwards.
                 } else {
                     s.setTrim(s.getTrim() * 2);
                 }

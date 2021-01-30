@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: bank switching buttons.
 
 ### Fixed
+ - Kit Editor: clicking Half-speed twice could reduce trimming, making sample too long.
  - Error handling when palettes cannot be parsed.
  - Modal subwindows.
 
