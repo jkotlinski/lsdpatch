@@ -120,7 +120,7 @@ class Sample {
         int headPos = headPos(intBuffer);
         int tailPos = tailPos(intBuffer);
         if (headPos > tailPos) {
-            return intBuffer;
+            return new int[0];
         }
         untrimmedLengthInSamples = tailPos + 1 - headPos;
         tailPos = Math.max(headPos, tailPos - trim * 32);
@@ -254,6 +254,7 @@ class Sample {
     }
 
     public void setTrim(int value) {
+        assert value >= 0;
         trim = value;
     }
 

@@ -5,13 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
- - Kit Editor: bank switching buttons.
-
 ### Fixed
- - Kit Editor: clicking Half-speed twice could reduce trimming, making sample too long.
+ - Kit Editor: trim to fit when changing volume.
+ - Kit Editor: various trimming related errors.
  - Error handling when palettes cannot be parsed.
  - Modal subwindows.
+
+### Added
+ - Kit Editor: bank switching buttons.
 
 ## [1.10.2] - 2020-11-22
 ### Fixed

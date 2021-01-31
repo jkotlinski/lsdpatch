@@ -221,6 +221,23 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         sample.setTrim((int)trimSpinner.getValue());
         sample.processSamples(true);
         compileKit();
+        if (bytesFree() < 0) {
+            // Sample did not fit, likely due to increased volume. Trim to fit.
+            int fixedTrim = sample.getTrim() - bytesFree() / 16;
+            assert fixedTrim >= 0;
+            trimSpinner.setValue(fixedTrim);
+            sample.setTrim(fixedTrim);
+            sample.processSamples(true);
+            compileKit();
+        }
+        // Makes sure trim is in valid range.
+        int maxTrim = maxTrim(sample);
+        if ((int)trimSpinner.getValue() > maxTrim) {
+            trimSpinner.setValue(maxTrim);
+            sample.setTrim(maxTrim);
+            sample.processSamples(true);
+            compileKit();
+        }
         samplePicker.setSelectedIndex(index);
         Sound.stopAll();
         playSample();
@@ -891,16 +908,24 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateButtonStates();
     }
 
+    private int maxTrim(Sample sample) {
+        int maxTrim = sample.untrimmedLengthInSamples() / 32 - 1;
+        return Math.max(0, maxTrim);
+    }
+
     private int modelMaxTrim;
     private void updateTrimModel(Sample sample) {
         if (sample == null) {
             return;
         }
-        int maxTrim = sample.untrimmedLengthInSamples() / 32 - 1;
+        int maxTrim = maxTrim(sample);
         if (modelMaxTrim == maxTrim) {
             return;
         }
-        trimSpinner.setModel(new SpinnerNumberModel(sample.getTrim(), 0, maxTrim, 1));
+        int trim = sample.getTrim();
+        assert trim >= 0;
+        trim = Math.min(trim, maxTrim);
+        trimSpinner.setModel(new SpinnerNumberModel(trim, 0, maxTrim, 1));
         addEnterHandler(trimSpinner);
         modelMaxTrim = maxTrim;
     }
