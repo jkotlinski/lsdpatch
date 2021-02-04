@@ -216,10 +216,32 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
             button.setText(altText);
     }
 
+    private String getFontName(int i) {
+        return RomUtilities.getFontName(romImage, i);
+    }
+
     private void populateFontSelector() {
         fontSelector.removeAllItems();
+
         for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
-            fontSelector.addItem(RomUtilities.getFontName(romImage, i));
+            char[] name = getFontName(i).toCharArray();
+
+            // Avoids duplicate names by appending incrementing number to duplicates.
+            for (int j = 0; j < i; ++j) {
+                if (!getFontName(j).equals(new String(name))) {
+                    continue;
+                }
+                char lastChar = name[name.length - 1];
+                if (Character.isDigit(lastChar)) {
+                    ++lastChar;
+                } else {
+                    lastChar = '1';
+                }
+                name[name.length - 1] = lastChar;
+                RomUtilities.setFontName(romImage, i, new String(name));
+            }
+
+            fontSelector.addItem(new String(name));
         }
     }
 

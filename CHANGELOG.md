@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
  - Kit Editor: various volume and trimming errors.
+ - Font Editor: avoid duplicate font names.
  - Error handling when palettes cannot be parsed.
  - .sav file not found for ROM images ending with ".gb.gb".
  - .png file extension got included in font name when loading a font PNG.
