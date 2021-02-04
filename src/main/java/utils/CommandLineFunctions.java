@@ -146,6 +146,13 @@ public class CommandLineFunctions {
             }
 
             {
+                int inBaseGfxOffset = RomUtilities.findGfxFontOffset(originRomFile);
+                int outBaseGfxOffset = RomUtilities.findGfxFontOffset(destinationRomFile);
+                System.arraycopy(originRomFile, inBaseGfxOffset, destinationRomFile, outBaseGfxOffset,
+                        (LSDJFont.GFX_TILE_COUNT * LSDJFont.FONT_TILE_SIZE));
+            }
+
+            {
                 int inBaseFontOffset = RomUtilities.findFontOffset(originRomFile);
                 int outBaseFontOffset = RomUtilities.findFontOffset(destinationRomFile);
 
