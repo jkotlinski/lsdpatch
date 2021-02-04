@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Error handling when palettes cannot be parsed.
  - .sav file not found for ROM images ending with ".gb.gb".
  - .png file extension got included in font name when loading a font PNG.
+ - ROM upgrade did not preserve graphics characters.
 
 ### Changed
  - Subwindows are now modal.

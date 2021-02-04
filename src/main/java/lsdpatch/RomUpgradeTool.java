@@ -242,6 +242,10 @@ public class RomUpgradeTool extends JFrame {
 
             System.arraycopy(otherRomImage, otherFontOffset, romImage, ownFontOffset, LSDJFont.FONT_SIZE * LSDJFont.FONT_COUNT);
 
+            int ownGfxOffset = RomUtilities.findGfxFontOffset(romImage);
+            int otherGfxOffset = RomUtilities.findGfxFontOffset(otherRomImage);
+            System.arraycopy(otherRomImage, otherGfxOffset, romImage, ownGfxOffset, LSDJFont.GFX_SIZE);
+
             for (int i = 0; i < LSDJFont.FONT_COUNT; ++i) {
                 RomUtilities.setFontName(romImage, i, RomUtilities.getFontName(otherRomImage, i));
             }

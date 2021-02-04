@@ -22,6 +22,7 @@ public class LSDJFont extends ROMDataManipulator {
     public static final int FONT_SIZE = 0xe96;
     public static final int FONT_NAME_LENGTH = 4;
     public static final int FONT_TILE_SIZE = 16;
+    public static final int GFX_SIZE = FONT_TILE_SIZE * GFX_TILE_COUNT;
 
     private int gfxDataOffset = -1;
 
