@@ -306,7 +306,7 @@ public class FontEditor extends JFrame implements FontMap.TileSelectListener, Ti
 
             if (f.getName().endsWith("png")) {
                 importBitmap(f);
-                String fontName = f.getName().trim().trim().trim().trim().toUpperCase();
+                String fontName = f.getName().replaceFirst(".png$", "").toUpperCase();
                 RomUtilities.setFontName(romImage, fontSelector.getSelectedIndex(), fontName);
             } else {
                 String fontName = FontIO.loadFnt(f, romImage, selectedFontOffset);
