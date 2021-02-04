@@ -179,7 +179,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
                     JOptionPane.ERROR_MESSAGE);
         }
 
-        String savPath = romPath.replaceFirst(".gb", ".sav");
+        String savPath = romPath.replaceFirst(".gb$", ".sav");
         try {
             document.loadSavFile(savPath);
             savTextField.setText(savPath);

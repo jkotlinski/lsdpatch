@@ -6,10 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
- - Kit Editor: trim to fit when changing volume.
- - Kit Editor: various trimming related errors.
+ - Kit Editor: various volume and trimming errors.
  - Error handling when palettes cannot be parsed.
- - Modal subwindows.
+ - .sav file not found for ROM images ending with ".gb.gb".
+
+### Changed
+ - Subwindows are now modal.
 
 ### Added
  - Kit Editor: bank switching buttons.
