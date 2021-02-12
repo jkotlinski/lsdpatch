@@ -174,7 +174,7 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             resetRomTextField();
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
-                    e.getMessage(),
+                    e.getMessage() == null ? "Could not load " + romPath : e.getMessage(),
                     "ROM load failed!",
                     JOptionPane.ERROR_MESSAGE);
         }
