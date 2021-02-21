@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.10.4] - 2021-02-22
+### Fixed
+ - Kit Editor: removed high-pass filtering when prelistening samples.
+
 ## [1.10.3] - 2021-02-12
 ### Fixed
  - Kit Editor: various volume and trimming errors.

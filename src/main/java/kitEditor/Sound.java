@@ -48,16 +48,22 @@ public class Sound {
         return newClip;
     }
 
-
-
     static void play(byte[] gbSample, boolean halfSpeed) throws LineUnavailableException, IOException {
         final int sampleRate = halfSpeed ? 5734 : 11468;
-        byte[] b = toByteArray(resample(sampleRate, PLAYBACK_RATE, unpackNibbles(gbSample)));
+        byte[] b = toByteArray(resampleNearestNeighbor(sampleRate, PLAYBACK_RATE, unpackNibbles(gbSample)));
         Clip clip = getClip();
         clip.open(new AudioInputStream(new ByteArrayInputStream(b),
                 new AudioFormat(PLAYBACK_RATE, 16, 1, true, false),
                 b.length / 2));
         clip.start();
+    }
+
+    private static short[] resampleNearestNeighbor(int srcRate, int dstRate, short[] src) {
+        short[] dst = new short[dstRate * src.length / srcRate];
+        for (int i = 0; i < dst.length; ++i) {
+            dst[i] = src[i * srcRate / dstRate];
+        }
+        return dst;
     }
 
     private static byte[] toByteArray(short[] waveData) {
