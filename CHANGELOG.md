@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.4] - 2021-02-22
 ### Fixed
- - Kit Editor: removed high-pass filtering when prelistening samples.
+ - Kit Editor: removed sample prelisten low-pass filter.
 
 ## [1.10.3] - 2021-02-12
 ### Fixed
