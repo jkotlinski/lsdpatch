@@ -55,16 +55,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner trimSpinner = new JSpinner();
     private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
 
-    private void emptyInstrList() {
-        String[] listData = {
-                "---", "---", "---", "---",
-                "---", "---", "---", "---",
-                "---", "---", "---", "---",
-                "---", "---", "---"
-        };
-        samplePicker.setListData(listData);
-    }
-
     public KitEditor(JFrame parent, Document document, Listener listener) {
         parent.setEnabled(false);
 
@@ -391,7 +381,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         return (l_char_1 == 0x60 && l_char_2 == 0x40);
     }
 
-    private boolean isEmptyKitBank(int a_bank) {
+    private boolean isUninitializedBank(int a_bank) {
         int l_offset = (a_bank) * RomUtilities.BANK_SIZE;
         byte l_char_1 = romImage[l_offset++];
         byte l_char_2 = romImage[l_offset];
@@ -399,7 +389,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private String getKitName(int a_bank) {
-        if (isEmptyKitBank(a_bank)) {
+        if (isUninitializedBank(a_bank)) {
             return "Empty";
         }
 
@@ -418,7 +408,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         int l_ui_index = 0;
         for (int bankNo = 0; bankNo < RomUtilities.BANK_COUNT; bankNo++) {
-            if (isKitBank(bankNo) || isEmptyKitBank(bankNo)) {
+            if (isKitBank(bankNo) || isUninitializedBank(bankNo)) {
                 bankBox.addItem(Integer.toHexString(++l_ui_index).toUpperCase() + ". " + getKitName(bankNo));
             }
         }
@@ -442,7 +432,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         int l_ui_bank = 0;
 
         for (; ; ) {
-            if (isKitBank(l_rom_bank) || isEmptyKitBank(l_rom_bank)) {
+            if (isKitBank(l_rom_bank) || isUninitializedBank(l_rom_bank)) {
                 if (getSelectedUiBank() == l_ui_bank) {
                     return l_rom_bank;
                 }
@@ -458,11 +448,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void updateBankView() {
-        if (isEmptyKitBank(getSelectedROMBank())) {
-            emptyInstrList();
-            return;
-        }
-
         byte[] buf = new byte[3];
         String[] s = new String[15];
 
@@ -524,6 +509,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         }
         selectedBank = bankBox.getSelectedIndex();
+        if (isUninitializedBank(getSelectedROMBank())) {
+            createKit();
+        }
         if (isEmpty(samples[selectedBank])) {
             flushWavFiles();
             createSamplesFromRom();
@@ -753,9 +741,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void addSample(File wavFile) {
-        if (isEmptyKitBank(getSelectedROMBank())) {
-            createKit();
-        }
         if (firstFreeSampleSlot() == -1) {
             JOptionPane.showMessageDialog(contentPane,
                     "Can't add sample, kit is full!",
