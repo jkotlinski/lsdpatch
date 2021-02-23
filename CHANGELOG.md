@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
  - Kit Editor: garbled sample names when renaming an uninitialized kit.
+ - Kit Editor: slow switching to high numbered kits.
 
 ## [1.10.4] - 2021-02-22
 ### Fixed

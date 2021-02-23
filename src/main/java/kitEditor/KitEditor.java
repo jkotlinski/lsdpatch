@@ -333,16 +333,19 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (index < 0) {
             return null;
         }
-        int offset = getSelectedROMBank() * RomUtilities.BANK_SIZE + index * 2;
+        final int romBank = getSelectedROMBank();
+        int offset = romBank * RomUtilities.BANK_SIZE + index * 2;
         int start = (0xff & romImage[offset]) | ((0xff & romImage[offset + 1]) << 8);
         int stop = (0xff & romImage[offset + 2]) | ((0xff & romImage[offset + 3]) << 8);
         if (stop <= start) {
             return null;
         }
         byte[] arr = new byte[stop - start];
-        for (int i = start; i < stop; ++i) {
-            arr[i - start] = romImage[getSelectedROMBank() * RomUtilities.BANK_SIZE - RomUtilities.BANK_SIZE + i];
-        }
+        System.arraycopy(romImage,
+                (romBank - 1) * RomUtilities.BANK_SIZE + start,
+                arr,
+                0,
+                stop - start);
         return arr;
     }
 
