@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: garbled sample names when renaming an uninitialized kit.
  - Kit Editor: slow switching to high numbered kits.
 
+### Changed
+ - ROM upgrade tool will now accept new versions ending with A-Z.
+
 ## [1.10.4] - 2021-02-22
 ### Fixed
  - Kit Editor: removed sample prelisten low-pass filter.

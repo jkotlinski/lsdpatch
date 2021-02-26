@@ -136,7 +136,7 @@ public class RomUpgradeTool extends JFrame {
 
     private String fetchLatestRemoteVersion(String basePath) throws IOException {
         String page = WwwUtil.fetchWwwPage(new URL(basePath));
-        Pattern p = Pattern.compile("lsdj\\d_\\d_\\d[-a-zA-Z]*\\.zip");
+        Pattern p = Pattern.compile("lsdj\\d_\\d_[0-9A-Z][-a-zA-Z]*\\.zip");
         Matcher m = p.matcher(page);
         if (m.find()) {
             MatchResult matchResult = m.toMatchResult();
