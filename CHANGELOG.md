@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - ROM upgrade tool will now accept new versions ending with A-Z.
 
+### Removed
+ - Kit Editor: wave blending for wave refresh bug.
+
 ## [1.10.4] - 2021-02-22
 ### Fixed
  - Kit Editor: removed sample prelisten low-pass filter.
