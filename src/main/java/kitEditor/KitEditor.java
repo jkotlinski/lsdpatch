@@ -118,8 +118,31 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
         halfSpeed.addActionListener(e -> onHalfSpeedChanged());
 
-        previousBankButton.addActionListener(e -> bankBox.setSelectedIndex(bankBox.getSelectedIndex() - 1));
-        nextBankButton.addActionListener(e -> bankBox.setSelectedIndex(bankBox.getSelectedIndex() + 1));
+        Action previousBankAction = new AbstractAction("previous bank") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bankBox.setSelectedIndex(bankBox.getSelectedIndex() - 1);
+            }
+        };
+        previousBankAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("F1"));
+        previousBankButton.addActionListener(previousBankAction);
+        previousBankButton.getActionMap().put("previousBankAction", previousBankAction);
+        previousBankButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                (KeyStroke) previousBankAction.getValue(Action.ACCELERATOR_KEY), "previousBankAction");
+        previousBankButton.setToolTipText("F1");
+
+        Action nextBankAction = new AbstractAction("next bank") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bankBox.setSelectedIndex(bankBox.getSelectedIndex() + 1);
+            }
+        };
+        nextBankAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("F2"));
+        nextBankButton.addActionListener(nextBankAction);
+        nextBankButton.getActionMap().put("nextBankAction", nextBankAction);
+        nextBankButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                (KeyStroke) nextBankAction.getValue(Action.ACCELERATOR_KEY), "nextBankAction");
+        nextBankButton.setToolTipText("F2");
 
         loadKitButton.addActionListener(e -> loadKit());
         saveKitButton.addActionListener(e -> saveKit());
