@@ -109,6 +109,7 @@ public class SamplePicker extends JPanel {
 
     private Pad createPad() {
         Pad pad = new Pad(pads.size());
+        pad.setToolTipText("Play pads using keys: 1234 QWER ASDF ZXC");
         pads.add(pad);
         add(pad, (pads.size() % 4) == 0 ? "wrap, sg button" : "");
         return pad;
