@@ -113,6 +113,7 @@ class Sample {
             dither(intBuffer);
         }
         processedSamples = toShortBuffer(intBuffer);
+        blendWaveFrames(processedSamples);
 }
 
     private int[] trim(int[] intBuffer) {
@@ -174,6 +175,20 @@ class Sample {
             intBuffer[i] = shortBuffer[i];
         }
         return intBuffer;
+    }
+
+    /* Due to the Game Boy wave refresh bug, the first sample in a frame is
+     * played back using the last completed sample in previous frame.
+     * To reduce the resulting noise, average these samples.
+     *
+     * Note: This code introduces noise on emulators that do not implement
+     * the Game Boy wave refresh bug.
+     */
+    private static void blendWaveFrames(short[] samples) {
+        for (int i = 0x20; i < samples.length; i += 0x20) {
+            int n = 2; // Tested on DMG-01 with 440 Hz sine wave.
+            samples[i - n] = (short) ((samples[i] + samples[i - n]) / 2);
+        }
     }
 
     private static short[] readSamples(File file, boolean halfSpeed, double outRateFactor) throws UnsupportedAudioFileException, IOException {
