@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Kit Editor: garbled sample names when renaming an uninitialized kit.
  - Kit Editor: slow switching to high numbered kits.
  - ROM upgrade tool would not find new versions ending with A-Z.
+ - Disallow ROM upgrade if there are unsaved changes.
 
 ### Added
  - Kit Editor: F1/F2 shortcut for previous/next bank.

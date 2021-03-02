@@ -235,18 +235,10 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
         songManagerButton.setEnabled(savPathOk && romOk);
     }
 
-    public void onRomDirty(boolean dirty) {
+    public void onDocumentDirty(boolean dirty) {
         updateTitle();
-        if (dirty) {
-            saveButton.setEnabled(true);
-        }
-    }
-
-    public void onSavDirty(boolean dirty) {
-        updateTitle();
-        if (dirty) {
-            saveButton.setEnabled(true);
-        }
+        upgradeRomButton.setEnabled(!dirty);
+        saveButton.setEnabled(dirty);
     }
 
     private void updateTitle() {

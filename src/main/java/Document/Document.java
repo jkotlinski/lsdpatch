@@ -28,18 +28,20 @@ public class Document {
         return romFile;
     }
 
+    private void publishDocumentDirty() {
+        for (IDocumentListener documentListener : documentListeners) {
+            documentListener.onDocumentDirty(isDirty());
+        }
+    }
+
     private void setRomDirty(boolean dirty) {
         romDirty = dirty;
-        for (IDocumentListener documentListener : documentListeners) {
-            documentListener.onRomDirty(dirty);
-        }
+        publishDocumentDirty();
     }
 
     private void setSavDirty(boolean dirty) {
         savDirty = dirty;
-        for (IDocumentListener documentListener : documentListeners) {
-            documentListener.onSavDirty(dirty);
-        }
+        publishDocumentDirty();
     }
 
     public byte[] romImage() {
@@ -70,7 +72,7 @@ public class Document {
     }
 
     public void loadSavFile(String savPath) throws IOException {
-        savDirty = false;
+        setSavDirty(false);
         try {
             savFile = new LSDSavFile();
             savFile.loadFromSav(savPath);
