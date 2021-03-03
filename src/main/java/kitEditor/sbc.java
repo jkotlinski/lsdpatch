@@ -22,6 +22,7 @@ class sbc {
                 int s = sample.read();
                 s = (int)(Math.round((double)s / (256 * 16) + 7.5));
                 s = Math.min(0xf, Math.max(0, s));
+                s = 0xf - s; // Game Boy has inverted audio
                 outputBuffer[outputCounter] = s;
 
                 if (outputCounter == 31) {

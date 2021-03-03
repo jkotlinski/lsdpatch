@@ -66,8 +66,8 @@ class Sample {
     static Sample createFromNibbles(byte[] nibbles, String name) {
         short[] buf = new short[nibbles.length * 2];
         for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
-            buf[2 * nibbleIt] = (byte) (nibbles[nibbleIt] & 0xf0);
-            buf[2 * nibbleIt + 1] = (byte) ((nibbles[nibbleIt] & 0xf) << 4);
+            buf[2 * nibbleIt] = (byte) (0xf0 - (nibbles[nibbleIt] & 0xf0));
+            buf[2 * nibbleIt + 1] = (byte) ((0xf - (nibbles[nibbleIt] & 0xf)) << 4);
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
             short s = (byte)(buf[bufIt] - 0x80);

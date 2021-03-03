@@ -6,17 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+ - Kit Editor: inversed sample polarity. broken since always.
  - Kit Editor: garbled sample names when renaming an uninitialized kit.
  - Kit Editor: slow switching to high numbered kits.
  - ROM upgrade tool would not find new versions ending with A-Z.
- - Disallow ROM upgrade if there are unsaved changes.
+ - Disabled ROM upgrade if there are unsaved changes.
 
 ### Added
  - Kit Editor: F1/F2 shortcut for previous/next bank.
  - Kit Editor: Sample pad tooltip.
 
 ### Removed
- - Kit Editor: wave blending for wave refresh bug.
+ - Kit Editor: wave blending, which didn't quite work due to timing issues.
 
 ## [1.10.4] - 2021-02-22
 ### Fixed

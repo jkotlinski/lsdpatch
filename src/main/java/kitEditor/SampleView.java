@@ -31,6 +31,7 @@ public class SampleView extends Canvas {
         gp.moveTo(1, h);
         for (int it = 0; it < buf.length; ++it) {
             double val = buf[it] & 0xf;
+            val = 0xf - val;
             val -= 7.5;
             val /= 7.5;
             gp.lineTo(it * w / (buf.length - 1), h * (1 - val) / 2);
