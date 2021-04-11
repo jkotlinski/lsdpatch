@@ -581,7 +581,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void saveKit() {
-        File f = FileDialogLauncher.save(this, "Export Kit", "kit");
+        File f = FileDialogLauncher.save(this, "Save Kit", "kit");
         if (f == null) {
             return;
         }
@@ -856,6 +856,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         // Resets forced loop data.
         romImage[getROMOffsetForSelectedBank() + 0x5c] = 0;
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
+
+        // Version.
+        romImage[getROMOffsetForSelectedBank() + 0x5f] = 1;
     }
 
     private int totalSampleSizeInBytes() {
