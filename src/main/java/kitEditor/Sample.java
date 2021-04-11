@@ -65,9 +65,12 @@ class Sample {
 
     static Sample createFromNibbles(byte[] nibbles, String name) {
         short[] buf = new short[nibbles.length * 2];
+
+        // Starting from LSDj 9.2.0, first sample is skipped to compensate for wave refresh bug.
+        // This rotates the wave frame leftwards, to mirror sbc.java.
         for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
-            buf[2 * nibbleIt] = (byte) (0xf0 - (nibbles[nibbleIt] & 0xf0));
-            buf[2 * nibbleIt + 1] = (byte) ((0xf - (nibbles[nibbleIt] & 0xf)) << 4);
+            buf[(2 * nibbleIt + 31) % 32] = (byte) (0xf0 - (nibbles[nibbleIt] & 0xf0));
+            buf[(2 * nibbleIt + 32) % 32] = (byte) ((0xf - (nibbles[nibbleIt] & 0xf)) << 4);
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
             short s = (byte)(buf[bufIt] - 0x80);

@@ -23,7 +23,10 @@ class sbc {
                 s = (int)(Math.round((double)s / (256 * 16) + 7.5));
                 s = Math.min(0xf, Math.max(0, s));
                 s = 0xf - s; // Game Boy has inverted audio
-                outputBuffer[outputCounter] = s;
+
+                // Starting from LSDj 9.2.0, first sample is skipped to compensate for wave refresh bug.
+                // This rotates the wave frame rightwards.
+                outputBuffer[(outputCounter + 1) % 32] = s;
 
                 if (outputCounter == 31) {
                     for (int j = 0; j != 32; j += 2) {
