@@ -856,9 +856,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         // Resets forced loop data.
         romImage[getROMOffsetForSelectedBank() + 0x5c] = 0;
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
-
-        // Version.
-        romImage[getROMOffsetForSelectedBank() + 0x5f] = 1;
     }
 
     private int totalSampleSizeInBytes() {
