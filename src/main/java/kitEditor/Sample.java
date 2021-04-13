@@ -68,9 +68,14 @@ class Sample {
 
         // Starting from LSDj 9.2.0, first sample is skipped to compensate for wave refresh bug.
         // This rotates the wave frame leftwards, to mirror sbc.java.
-        for (int nibbleIt = 0; nibbleIt < nibbles.length; ++nibbleIt) {
-            buf[(2 * nibbleIt + 31) % 32] = (byte) (0xf0 - (nibbles[nibbleIt] & 0xf0));
-            buf[(2 * nibbleIt + 32) % 32] = (byte) ((0xf - (nibbles[nibbleIt] & 0xf)) << 4);
+        for (int i = 0; i < nibbles.length; i += 16) {
+            for (int j = 0; j < 16; ++j) {
+                int b = nibbles[i + j];
+                int dst = ((2 * j + 31) % 32) + (i * 2);
+                buf[dst] = (byte) (0xf0 - (b & 0xf0));
+                dst = 2 * (i + j);
+                buf[dst] = (byte) ((0xf - (b & 0xf)) << 4);
+            }
         }
         for (int bufIt = 0; bufIt < buf.length; ++bufIt) {
             short s = (byte)(buf[bufIt] - 0x80);
