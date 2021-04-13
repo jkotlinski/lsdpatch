@@ -50,7 +50,7 @@ public class Sound {
 
     static void play(byte[] gbSample, boolean halfSpeed) throws LineUnavailableException, IOException {
         final int sampleRate = halfSpeed ? 5734 : 11468;
-        byte[] b = toByteArray(resampleNearestNeighbor(sampleRate, PLAYBACK_RATE, unpackNibbles(gbSample)));
+        byte[] b = toByteArray(resampleForPlayback(sampleRate, unpackNibbles(gbSample)));
         Clip clip = getClip();
         clip.open(new AudioInputStream(new ByteArrayInputStream(b),
                 new AudioFormat(PLAYBACK_RATE, 16, 1, true, false),
@@ -58,10 +58,11 @@ public class Sound {
         clip.start();
     }
 
-    private static short[] resampleNearestNeighbor(int srcRate, int dstRate, short[] src) {
-        short[] dst = new short[dstRate * src.length / srcRate];
+    private static short[] resampleForPlayback(int srcRate, short[] src) {
+        short[] dst = new short[Sound.PLAYBACK_RATE * src.length / srcRate];
+        // Nearest neighbor resampling is good for emulating Game Boy sound.
         for (int i = 0; i < dst.length; ++i) {
-            dst[i] = src[i * srcRate / dstRate];
+            dst[i] = src[i * srcRate / Sound.PLAYBACK_RATE];
         }
         return dst;
     }
