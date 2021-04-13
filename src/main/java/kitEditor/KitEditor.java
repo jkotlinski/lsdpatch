@@ -352,6 +352,26 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         });
     }
 
+    private static void unSwizzle(byte[] packedNibbles) {
+        assert(packedNibbles.length % 16 == 0);
+
+        // Rotates the wave frame left and inverts the signal. Mirrors sbc.java.
+        byte[] tmpBuf = new byte[packedNibbles.length * 2];
+        for (int i = 0; i < packedNibbles.length; i += 16) {
+            for (int j = 0; j < 16; ++j) {
+                int b = packedNibbles[i + j];
+                int dst = ((2 * j + 31) % 32) + (i * 2);
+                tmpBuf[dst] = (byte) ((0xf0 - (b & 0xf0)) >> 4);
+                dst = 2 * (i + j);
+                tmpBuf[dst] = (byte) ((0xf - (b & 0xf)) << 4);
+            }
+        }
+
+        for (int i = 0; i < packedNibbles.length; ++i) {
+            packedNibbles[i] = (byte)(tmpBuf[i * 2] | tmpBuf[i * 2 + 1]);
+        }
+    }
+
     private byte[] getNibbles(int index) {
         if (index < 0) {
             return null;
@@ -369,6 +389,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 arr,
                 0,
                 stop - start);
+        unSwizzle(arr);
         return arr;
     }
 
