@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    in wrong order after changing wave.
    best used with Little Sound Dj 9.2.0 and above.
 
+### Fixed
+ - Kit Editor: minor UI issues.
+
 ## [1.10.5] - 2021-03-05
 ### Fixed
  - Kit Editor: inversed sample polarity. broken since always.

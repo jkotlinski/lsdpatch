@@ -28,8 +28,9 @@ public class SampleView extends Canvas {
         }
 
         GeneralPath gp = new GeneralPath();
-        gp.moveTo(1, h);
+        gp.moveTo(0, h / 2);
         for (int it = 0; it < buf.length; ++it) {
+            // Only draws every second sample. This is probably OK.
             double val = buf[it] & 0xf;
             val = 0xf - val;
             val -= 7.5;
