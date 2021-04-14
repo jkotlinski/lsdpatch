@@ -186,6 +186,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
                 if (f.getName().toLowerCase().endsWith(".lsdsng") ||
                         f.getName().toLowerCase().endsWith(".lsdprj")) {
                     savFile.addSongFromFile(f.getAbsoluteFile().toString(), romImage);
+                    EditorPreferences.setLastPath("lsdprj", f.getAbsolutePath());
                 } else {
                     JOptionPane.showMessageDialog(this,
                             "Unknown file extension: " + f.getName(),

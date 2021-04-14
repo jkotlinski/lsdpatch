@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Kit Editor: sample preview playback had inverted polarity.
  - Kit Editor: minor UI issues.
+ - Song Manager: remember last used .lsdprj path.
  - Clearing kits would not free up space for adding .lsdprj songs.
 
 ## [1.10.5] - 2021-03-05
