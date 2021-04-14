@@ -58,7 +58,7 @@ public class SongManager extends JFrame implements ListSelectionListener {
         MigLayout layout = new MigLayout("wrap", "[]8[]");
         panel.setLayout(layout);
         panel.add(songs, "cell 0 0 1 6, growx, growy");
-        panel.add(jRamUsageIndicator, "cell 0 3 1 1, growx");
+        panel.add(jRamUsageIndicator, "cell 0 6 1 1, growx");
         panel.add(addLsdSngButton, "cell 1 0 1 1, growx");
         panel.add(exportLsdSngButton, "cell 1 1 1 1, growx");
         panel.add(clearSlotButton, "cell 1 2 1 1, growx, gaptop 10, aligny top");
