@@ -1,5 +1,7 @@
 package Document;
 
+import utils.RomUtilities;
+
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
@@ -644,16 +646,10 @@ public class LSDSavFile implements Cloneable {
     }
 
     private int findFreeKit(byte[] romImage) {
-        for (int i = 0; i < romImage.length / 0x4000; ++i) {
-            boolean empty = true;
-            for (int j = 0; j < 0x4000; ++j) {
-                if (romImage[i * 0x4000 + j] != -1) {
-                    empty = false;
-                    break;
-                }
-            }
-            if (empty) {
-                return i;
+        for (int bank = 0; bank < romImage.length / RomUtilities.BANK_SIZE; ++bank) {
+            int offset = bank * RomUtilities.BANK_SIZE;
+            if (romImage[offset] == -1 && romImage[offset + 1] == -1) {
+                return bank;
             }
         }
         return -1;

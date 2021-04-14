@@ -734,10 +734,10 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private void createKit() {
         //clear all bank
-        int offset = getROMOffsetForSelectedBank() + 2;
+        int offset = getROMOffsetForSelectedBank();
         int max_offset = getROMOffsetForSelectedBank() + RomUtilities.BANK_SIZE;
         while (offset < max_offset) {
-            romImage[offset++] = 0;
+            romImage[offset++] = -1;
         }
 
         //clear kit name
