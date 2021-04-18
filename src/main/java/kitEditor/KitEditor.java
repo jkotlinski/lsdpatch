@@ -32,6 +32,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final java.awt.event.ActionListener bankBoxListener = e -> bankBox_actionPerformed();
 
+    private static final byte KIT_VERSION_1 = 1;
+
     private byte[] romImage;
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
@@ -389,8 +391,25 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 arr,
                 0,
                 stop - start);
-        unSwizzle(arr);
+        if (isBankSwizzled()) {
+            unSwizzle(arr);
+        }
         return arr;
+    }
+
+    private boolean isBankSwizzled() {
+        return bankVersion() == KIT_VERSION_1;
+    }
+
+    private byte bankVersion() {
+        // This version field is new for lsdpatcher 1.11.1 and lsdj 9.2.2.
+        // Old kits may have preexisting data here: it cannot be
+        // assumed that all old kits are set to version 0.
+        return romImage[versionOffset()];
+    }
+
+    private int versionOffset() {
+        return getROMOffsetForSelectedBank() + 0x5f;
     }
 
     @Override
@@ -877,6 +896,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         // Resets forced loop data.
         romImage[getROMOffsetForSelectedBank() + 0x5c] = 0;
         romImage[getROMOffsetForSelectedBank() + 0x5d] = 0;
+
+        // Version number.
+        romImage[versionOffset()] = KIT_VERSION_1;
     }
 
     private int totalSampleSizeInBytes() {
