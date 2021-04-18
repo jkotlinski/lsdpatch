@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.11.1] - 2021-04-18
 ### Changed
  - Kit Editor: added internal versioning field to kits, that tells if they were
    created using lsdpatcher 1.11.1 or above. this allows adding old kits to
