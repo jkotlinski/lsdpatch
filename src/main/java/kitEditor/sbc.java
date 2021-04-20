@@ -22,17 +22,17 @@ class sbc {
                 int s = sample.read();
 
                 /* Theoretically, 7.5 would be in the middle, but
-                 * DMG noise spikes seem to go towards 9.
-                 * 8 is a compromise between maximum dynamic range
-                 * and lowered noise spikes on DMG. This should be
-                 * kept as an integer due to the way software
-                 * mixing is performed.
+                 * DMG noise spikes seem to go towards 6.
+                 * 7 is a compromise between maximum dynamic range
+                 * and lowered noise spikes on DMG.
+                 * Kept as an integer due to the way software mixing
+                 * is performed. (7+7=7)
                  */
-                final int DC_CENTER = 8;
+                final int DC_CENTER = 7;
 
-                s = (int)(Math.round((double)s / (256 * 16) + DC_CENTER));
+                // Game Boy audio signal is inverted.
+                s = (int)(Math.round(DC_CENTER - (double)s / (256 * 16)));
                 s = Math.min(0xf, Math.max(0, s));
-                s = 0xf - s; // Game Boy has inverted audio
 
                 // Starting from LSDj 9.2.0, first sample is skipped to compensate for wave refresh bug.
                 // This rotates the wave frame rightwards.
