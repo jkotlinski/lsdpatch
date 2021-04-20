@@ -20,7 +20,17 @@ class sbc {
             int outputCounter = 0;
             for (int i = 0; i < sampleLength; i++) {
                 int s = sample.read();
-                s = (int)(Math.round((double)s / (256 * 16) + 7.5));
+
+                /* Theoretically, 7.5 would be in the middle, but
+                 * DMG noise spikes seem to go towards 9.
+                 * 8 is a compromise between maximum dynamic range
+                 * and lowered noise spikes on DMG. This should be
+                 * kept as an integer due to the way software
+                 * mixing is performed.
+                 */
+                final int DC_CENTER = 8;
+
+                s = (int)(Math.round((double)s / (256 * 16) + DC_CENTER));
                 s = Math.min(0xf, Math.max(0, s));
                 s = 0xf - s; // Game Boy has inverted audio
 

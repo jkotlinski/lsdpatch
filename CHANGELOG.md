@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Changed
+ - Kit Editor: tweaked DC level to reduce DMG noise.
+
 ## [1.11.1] - 2021-04-18
 ### Changed
  - Kit Editor: added internal versioning field to kits, that tells if they were
