@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
- - Kit Editor: tweaked DC level to reduce DMG noise.
+ - Kit Editor: tweaked DC level to reduce DMG noise. works best with
+   lsdj 9.2.2 and above.
 
 ## [1.11.1] - 2021-04-18
 ### Changed
