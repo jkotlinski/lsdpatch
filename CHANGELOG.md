@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.11.3] - 2021-04-25
+### Changed
+ - Kit Editor: reverted 1.11.2 changes due to cymbal dithering problems.
+
 ## [1.11.2] - 2021-04-23
 ### Changed
  - Kit Editor: tweaked DC level to reduce DMG noise. works best with
