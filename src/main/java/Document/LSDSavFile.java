@@ -641,6 +641,7 @@ public class LSDSavFile implements Cloneable {
             }
             newKits[kit] = newKit;
             // Copy kit.
+            // TODO: this might be a good place to swizzle old kits for improved sound quality. See sbc.java
             System.arraycopy(lsdSngKits.get(kit), 0, romImage, newKit * 0x4000, 0x4000);
         }
     }
