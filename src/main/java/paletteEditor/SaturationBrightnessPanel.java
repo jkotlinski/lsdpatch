@@ -14,9 +14,6 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
 
     private Listener listener;
 
-    final int width = 254;
-    final int height = 244;
-
     final Point selection = new Point();
 
     HuePanel huePanel;
@@ -26,7 +23,7 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
     public SaturationBrightnessPanel(HuePanel huePanel) {
         this.huePanel = huePanel;
         huePanel.subscribe(this);
-        setPreferredSize(new Dimension(width, height));
+        setPreferredSize(new Dimension(254, 244));
         addMouseListener(this);
         addMouseMotionListener(this);
     }
@@ -36,7 +33,7 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
         assert(saturation <= 1);
         assert(brightness >= 0);
         assert(brightness <= 1);
-        selection.setLocation(saturation * width, (1 - brightness) * height);
+        selection.setLocation(saturation * getWidth(), (1 - brightness) * getHeight());
         repaint();
     }
 
@@ -50,21 +47,21 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
     }
 
     public float saturation() {
-        return (float) selection.getX() / width;
+        return (float) selection.getX() / getWidth();
     }
 
     public float brightness() {
-        return 1 - (float)selection.getY()/width;
+        return 1 - (float)selection.getY() / getHeight();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                float s = (float) x / width;
-                float b = 1 - (float) y / width;
+        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < getHeight(); ++y) {
+            for (int x = 0; x < getWidth(); ++x) {
+                float s = (float) x / getWidth();
+                float b = 1 - (float) y / getHeight();
                 Color color = Color.getHSBColor(huePanel.hue(), s, b);
                 color = new Color(ColorUtil.colorCorrect(color));
                 image.setRGB(x, y, color.getRGB());
@@ -113,8 +110,8 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        selection.x = Math.min(width, Math.max(0, e.getX()));
-        selection.y = Math.min(height, Math.max(0, e.getY()));
+        selection.x = Math.min(getWidth(), Math.max(0, e.getX()));
+        selection.y = Math.min(getHeight(), Math.max(0, e.getY()));
         if (listener != null) {
             listener.saturationBrightnessChanged();
         }
