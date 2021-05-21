@@ -6,6 +6,10 @@ import java.util.LinkedList;
 import java.util.Random;
 
 public class Swatch extends JPanel {
+    public RGB555 rgb() {
+        return rgb555;
+    }
+
     public interface Listener {
         void swatchChanged();
     }

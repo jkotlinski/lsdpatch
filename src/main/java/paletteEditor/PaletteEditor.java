@@ -455,7 +455,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
     @Override
     public void swatchSelected(Swatch swatch) {
         selectedSwatch = swatch;
-        colorPicker.setColor(swatch.r(), swatch.g(), swatch.b());
+        colorPicker.setColor(swatch.rgb());
         colorPicker.subscribe((r, g, b) -> {
                     updatingSwatches = true;
                     swatch.setRGB(r, g, b);
@@ -471,7 +471,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
             updateRomFromSwatches();
             updateSongAndInstrScreens();
             if (selectedSwatch != null) {
-                colorPicker.setColor(selectedSwatch.r(), selectedSwatch.g(), selectedSwatch.b());
+                colorPicker.setColor(selectedSwatch.rgb());
             }
         }
     }

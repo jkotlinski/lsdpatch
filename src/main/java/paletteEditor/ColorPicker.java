@@ -28,14 +28,10 @@ public class ColorPicker extends JPanel implements HuePanel.Listener, Saturation
         add(huePanel, "gap 5");
     }
 
-    public void setColor(int r, int g, int b) {
-        assert(r >= 0 && r < 32);
-        assert(g >= 0 && g < 32);
-        assert(b >= 0 && b < 32);
-
-        r <<= 3;
-        g <<= 3;
-        b <<= 3;
+    public void setColor(RGB555 rgb) {
+        int r = rgb.r << 3;
+        int g = rgb.g << 3;
+        int b = rgb.b << 3;
         r *= 0xff;
         r /= 0xf8;
         g *= 0xff;
@@ -47,6 +43,7 @@ public class ColorPicker extends JPanel implements HuePanel.Listener, Saturation
         Color.RGBtoHSB(r, g, b, hsb);
         huePanel.setHue(hsb[0]);
         saturationBrightnessPanel.setSaturationBrightness(hsb[1], hsb[2]);
+        saturationBrightnessPanel.printRGB555(rgb);
     }
 
     public void subscribe(Listener listener) {

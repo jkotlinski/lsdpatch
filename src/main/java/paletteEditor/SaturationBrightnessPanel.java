@@ -8,6 +8,11 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listener, MouseListener, MouseMotionListener {
+    private RGB555 rgb555 = null;
+    public void printRGB555(RGB555 rgb555) {
+        this.rgb555 = rgb555;
+    }
+
     interface Listener {
         void saturationBrightnessChanged();
     }
@@ -83,6 +88,12 @@ public class SaturationBrightnessPanel extends JPanel implements HuePanel.Listen
         g2d.drawOval((int) selection.getX() - radius,
                 (int) selection.getY() - radius,
                 2 * radius, 2 * radius);
+
+        String colorString = rgb555.r + "," + rgb555.g + "," + rgb555.b;
+        FontMetrics fm = g2d.getFontMetrics();
+        g2d.drawString(colorString,
+                getWidth() - fm.stringWidth(colorString),
+                getHeight() - fm.getDescent());
     }
 
     @Override
