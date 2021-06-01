@@ -5,11 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
- - Palette Editor: Show selected color RGB value in color picker.
 
+## [1.11.4] - 2021-06-01
 ### Fixed
  - Palette Editor: Color picker could not pick black (0,0,0) due to UI scaling bug.
+
+### Added
+ - Palette Editor: Show selected color RGB value in color picker.
 
 ## [1.11.3] - 2021-04-25
 ### Changed
