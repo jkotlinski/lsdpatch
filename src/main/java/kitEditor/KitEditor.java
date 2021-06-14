@@ -269,10 +269,10 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         JMenu preferences = new JMenu("Preferences");
         JMenuItem lpFilter = new JMenuItem("Low-Pass Filter...");
         lpFilter.addActionListener(e -> {
-            Resampler.RollOff = Double.parseDouble(
-                    JOptionPane.showInputDialog("Kaiser Window Roll-Off (0-1, 1=Nyquist)", Resampler.RollOff));
             Resampler.Beta = Double.parseDouble(
                     JOptionPane.showInputDialog("Kaiser Window Beta", Resampler.Beta));
+            Resampler.RollOff = Double.parseDouble(
+                    JOptionPane.showInputDialog("Kaiser Window Roll-Off (0-1, 1=Nyquist)", Resampler.RollOff));
         });
         preferences.add(lpFilter);
 
