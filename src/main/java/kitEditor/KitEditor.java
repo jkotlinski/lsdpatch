@@ -1,6 +1,7 @@
 package kitEditor;
 
 import Document.Document;
+import com.laszlosystems.libresample4j.Resampler;
 import net.miginfocom.swing.MigLayout;
 import utils.*;
 
@@ -57,6 +58,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner trimSpinner = new JSpinner();
     private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
 
+    private boolean dither = true;
+
     public KitEditor(JFrame parent, Document document, Listener listener) {
         parent.setEnabled(false);
 
@@ -65,6 +68,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         this.document = document;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         jbInit();
+        addMenu();
         setListeners();
         setVisible(true);
         setTitle("Kit Editor");
@@ -258,6 +262,30 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         playSample();
         handlingSpinnerChange = false;
         updateKitSizeLabel();
+    }
+
+    private void addMenu() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu preferences = new JMenu("Preferences");
+        JMenuItem lpFilter = new JMenuItem("Low-Pass Filter...");
+        lpFilter.addActionListener(e -> {
+            Resampler.RollOff = Double.parseDouble(
+                    JOptionPane.showInputDialog("Kaiser Window Roll-Off (0-1, 1=Nyquist)", Resampler.RollOff));
+            Resampler.Beta = Double.parseDouble(
+                    JOptionPane.showInputDialog("Kaiser Window Beta", Resampler.Beta));
+        });
+        preferences.add(lpFilter);
+
+        JCheckBoxMenuItem ditherItem = new JCheckBoxMenuItem("Dither");
+        ditherItem.setState(dither);
+        ditherItem.addActionListener(e -> {
+            dither = !dither;
+            ditherItem.setState(dither);
+        });
+        preferences.add(ditherItem);
+
+        menuBar.add(preferences);
+        setJMenuBar(menuBar);
     }
 
     private void jbInit() {
@@ -731,7 +759,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
                 samples[selectedBank][i] = Sample.createFromWav(
                         sampleFile,
-                        true,
+                        dither,
                         halfSpeed.isSelected(),
                         volume,
                         trim,
@@ -817,7 +845,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         String sampleName = dropExtension(wavFile).toUpperCase();
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0, 0, 0);
+            sample = Sample.createFromWav(wavFile, dither, halfSpeed.isSelected(), 0, 0, 0);
             int bytesFreeAfterAdd = MAX_SAMPLE_SPACE - totalSampleSizeInBytes() - sample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
                 int trim = -bytesFreeAfterAdd / 16;
@@ -1023,7 +1051,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         try {
             final int index = samplePicker.getSelectedIndex();
-            Sample newSample = Sample.createFromWav(wavFile, true, halfSpeed.isSelected(), 0, 0, 0);
+            Sample newSample = Sample.createFromWav(wavFile, dither, halfSpeed.isSelected(), 0, 0, 0);
             Sample existingSample = samples[selectedBank][index];
             int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {

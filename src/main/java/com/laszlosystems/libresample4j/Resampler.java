@@ -45,6 +45,9 @@ public class Resampler {
     private int Yp;
     private double Time;
 
+    public static double RollOff = 0.99; // johan
+    public static double Beta = 14; // johan
+
     /**
      * Clone an existing resampling session. Faster than creating one from scratch.
      *
@@ -91,12 +94,9 @@ public class Resampler {
         this.LpScl = 1.0f;
         this.Nwing = Npc * (this.Nmult - 1) / 2; // # of filter coeffs in right wing
 
-        double Rolloff = 0.90;
-        double Beta = 6;
-
         double[] Imp64 = new double[this.Nwing];
 
-        FilterKit.lrsLpFilter(Imp64, this.Nwing, 0.5 * Rolloff, Beta, Npc);
+        FilterKit.lrsLpFilter(Imp64, this.Nwing, 0.5 * RollOff, Beta, Npc);
         this.Imp = new float[this.Nwing];
         this.ImpD = new float[this.Nwing];
 
