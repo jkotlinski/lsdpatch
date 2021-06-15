@@ -264,15 +264,21 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateKitSizeLabel();
     }
 
+    private double ask(String message, double value) {
+        try {
+            value = Double.parseDouble(JOptionPane.showInputDialog(message, value));
+        } catch (NullPointerException | NumberFormatException ignored) {
+        }
+        return value;
+    }
+
     private void addMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu preferences = new JMenu("Preferences");
         JMenuItem lpFilter = new JMenuItem("Low-Pass Filter...");
         lpFilter.addActionListener(e -> {
-            Resampler.Beta = Double.parseDouble(
-                    JOptionPane.showInputDialog("Kaiser Window Beta", Resampler.Beta));
-            Resampler.RollOff = Double.parseDouble(
-                    JOptionPane.showInputDialog("Kaiser Window Roll-Off (0-1, 1=Nyquist)", Resampler.RollOff));
+            Resampler.Beta = ask("Kaiser Window Beta", Resampler.Beta);
+            Resampler.RollOff = ask( "Kaiser Window Roll-Off (0-1, 1=Nyquist)", Resampler.RollOff);
         });
         preferences.add(lpFilter);
 
