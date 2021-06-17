@@ -122,7 +122,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addEnterHandler(pitchSpinner);
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
         halfSpeed.addActionListener(e -> onHalfSpeedChanged());
-        dither.addActionListener(e -> onDitherChanged());
+        dither.addActionListener(e -> onSpinnerChanged());
 
         Action previousBankAction = new AbstractAction("previous bank") {
             @Override
@@ -179,10 +179,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         reloadAllSamples();
     }
     
-    private void onDitherChanged() {
-        onSpinnerChanged();        
-    }
-
     private void reloadAllSamples() {
         int index = samplePicker.getSelectedIndex();
         try {
