@@ -46,7 +46,7 @@ public class Resampler {
     private double Time;
 
     public static double RollOff = 0.99; // johan
-    public static double Beta = 6;
+    public static double Beta = 14;
 
     /**
      * Clone an existing resampling session. Faster than creating one from scratch.
