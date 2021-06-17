@@ -238,7 +238,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         }
         sample.setTrim((int)trimSpinner.getValue());
-        sample.processSamples(true);
+        sample.processSamples(dither);
         compileKit();
         if (bytesFree() < 0) {
             // Sample did not fit, likely due to increased volume. Trim to fit.
@@ -246,7 +246,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             assert fixedTrim >= 0;
             trimSpinner.setValue(fixedTrim);
             sample.setTrim(fixedTrim);
-            sample.processSamples(true);
+            sample.processSamples(dither);
             compileKit();
         }
         // Makes sure trim is in valid range.
@@ -254,7 +254,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if ((int)trimSpinner.getValue() > maxTrim) {
             trimSpinner.setValue(maxTrim);
             sample.setTrim(maxTrim);
-            sample.processSamples(true);
+            sample.processSamples(dither);
             compileKit();
         }
         samplePicker.setSelectedIndex(index);
