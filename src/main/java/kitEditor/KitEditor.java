@@ -57,8 +57,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner pitchSpinner = new JSpinner();
     private final JSpinner trimSpinner = new JSpinner();
     private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
-
-    private boolean dither = true;
+    private final JCheckBox dither = new JCheckBox("Dither", true);
 
     public KitEditor(JFrame parent, Document document, Listener listener) {
         parent.setEnabled(false);
@@ -123,6 +122,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         addEnterHandler(pitchSpinner);
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
         halfSpeed.addActionListener(e -> onHalfSpeedChanged());
+        dither.addActionListener(e -> onDitherChanged());
 
         Action previousBankAction = new AbstractAction("previous bank") {
             @Override
@@ -177,6 +177,10 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         }
         reloadAllSamples();
+    }
+    
+    private void onDitherChanged() {
+        onSpinnerChanged();        
     }
 
     private void reloadAllSamples() {
@@ -238,7 +242,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         }
         sample.setTrim((int)trimSpinner.getValue());
-        sample.processSamples(true);
+        sample.processSamples(dither.isSelected());
         compileKit();
         if (bytesFree() < 0) {
             // Sample did not fit, likely due to increased volume. Trim to fit.
@@ -246,7 +250,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             assert fixedTrim >= 0;
             trimSpinner.setValue(fixedTrim);
             sample.setTrim(fixedTrim);
-            sample.processSamples(true);
+            sample.processSamples(dither.isSelected());
             compileKit();
         }
         // Makes sure trim is in valid range.
@@ -254,7 +258,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if ((int)trimSpinner.getValue() > maxTrim) {
             trimSpinner.setValue(maxTrim);
             sample.setTrim(maxTrim);
-            sample.processSamples(true);
+            sample.processSamples(dither.isSelected());
             compileKit();
         }
         samplePicker.setSelectedIndex(index);
@@ -281,14 +285,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             Resampler.RollOff = ask( "Kaiser Window Roll-Off (0-1, 1=Nyquist)", Resampler.RollOff);
         });
         preferences.add(lpFilter);
-
-        JCheckBoxMenuItem ditherItem = new JCheckBoxMenuItem("Dither");
-        ditherItem.setState(dither);
-        ditherItem.addActionListener(e -> {
-            dither = !dither;
-            ditherItem.setState(dither);
-        });
-        preferences.add(ditherItem);
 
         menuBar.add(preferences);
         setJMenuBar(menuBar);
@@ -326,6 +322,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         volumeSpinner.setEnabled(false);
         pitchSpinner.setEnabled(false);
         trimSpinner.setEnabled(false);
+        dither.setEnabled(false);
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "grow, wrap");
@@ -337,7 +334,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSampleButton, "grow, span 2, wrap, sg button");
-        contentPane.add(halfSpeed, "wrap");
+        contentPane.add(halfSpeed, "split 2");
+        contentPane.add(dither, "grow, wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(new JLabel("Pitch (semitone):"), "split 2");
@@ -765,7 +763,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
                 samples[selectedBank][i] = Sample.createFromWav(
                         sampleFile,
-                        dither,
+                        dither.isSelected(),
                         halfSpeed.isSelected(),
                         volume,
                         trim,
@@ -851,7 +849,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         String sampleName = dropExtension(wavFile).toUpperCase();
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile, dither, halfSpeed.isSelected(), 0, 0, 0);
+            sample = Sample.createFromWav(wavFile, dither.isSelected(), halfSpeed.isSelected(), 0, 0, 0);
             int bytesFreeAfterAdd = MAX_SAMPLE_SPACE - totalSampleSizeInBytes() - sample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
                 int trim = -bytesFreeAfterAdd / 16;
@@ -1024,6 +1022,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         Sample sample = index >= 0 ? samples[selectedBank][index] : null;
         boolean enableVolume = sample != null && sample.canAdjustVolume();
         handlingSpinnerChange = true;
+        dither.setEnabled(enableVolume);
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.getVolumeDb() : 0);
         pitchSpinner.setEnabled(enableVolume);
@@ -1057,7 +1056,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         try {
             final int index = samplePicker.getSelectedIndex();
-            Sample newSample = Sample.createFromWav(wavFile, dither, halfSpeed.isSelected(), 0, 0, 0);
+            Sample newSample = Sample.createFromWav(wavFile, dither.isSelected(), halfSpeed.isSelected(), 0, 0, 0);
             Sample existingSample = samples[selectedBank][index];
             int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
