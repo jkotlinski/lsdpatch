@@ -346,7 +346,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         });
 
-        halfSpeed.setToolTipText("Add and play samples in 5734 Hz instead of 11468 Hz.");
+        dither.setToolTipText("Removes 4-bit distortion by adding noise.");
+        halfSpeed.setToolTipText("Half sample-rate, double kit length. Use with SPEED 0.5X kit setting.");
     }
 
     private void createFileDrop() {
