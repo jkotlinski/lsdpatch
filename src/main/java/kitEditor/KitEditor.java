@@ -282,7 +282,16 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         });
         preferences.add(lpFilter);
 
-        menuBar.add(preferences);
+        JMenu edit = new JMenu("Edit");
+        JMenuItem trimAll = new JMenuItem("Trim all samples to fit");
+        trimAll.addActionListener(e -> {
+            trimAllSamples();
+        });
+        edit.add(trimAll);
+
+        menuBar.add(preferences);        
+        menuBar.add(edit);
+        
         setJMenuBar(menuBar);
     }
 
@@ -1039,6 +1048,84 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         previousBankButton.setEnabled(selectedBank > 0);
         nextBankButton.setEnabled(selectedBank + 1 < bankBox.getItemCount());
     }
+    
+    private void trimAllSamples() {
+        if (firstFreeSampleSlot() == 0 || firstFreeSampleSlot() == 1) {
+                JOptionPane.showMessageDialog(this,
+                        "Add more than 1 sample",
+                        "No samples to trim",
+                        JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        int numberOfSamples = firstFreeSampleSlot() > 1 ? firstFreeSampleSlot() : MAX_SAMPLES;
+        int trimmableSamples = 0, usedBytes = 0;
+        for (int sampleIt = 0; sampleIt < numberOfSamples; ++sampleIt) {
+            Sample sample = samples[selectedBank][sampleIt];
+            if (sample != null) {
+                trimmableSamples = sample.canAdjustVolume() ? trimmableSamples + 1 : trimmableSamples;
+                usedBytes = sample.canAdjustVolume() ? usedBytes : usedBytes + sample.untrimmedLengthInBytes();
+            }
+        }
+        if (trimmableSamples < 1) {
+            JOptionPane.showMessageDialog(this,
+                "No trimmable samples",
+                "No samples to trim",
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        int equalSampleLength = (int)((MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples);
+        // first calculate if any samples are shorter than equal length and add
+        int addLength = 0, sampleCount = 0;
+        for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
+            Sample sample = samples[selectedBank][sampleIt];
+            if (sample != null && sample.canAdjustVolume()) {
+                if (sample.untrimmedLengthInBytes() < equalSampleLength) {
+                    addLength += equalSampleLength - sample.untrimmedLengthInBytes();
+                    ++sampleCount;
+                }
+            }
+        }
+        int maxEqualSampleLength = sampleCount > 0 && trimmableSamples > sampleCount
+            ? equalSampleLength + (int)addLength / (trimmableSamples - sampleCount)
+            : equalSampleLength;
+        for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
+            Sample sample = samples[selectedBank][sampleIt];
+            if (sample != null && sample.canAdjustVolume()) {
+                int trim = sample.untrimmedLengthInBytes() > maxEqualSampleLength 
+                    ? (int)Math.round((sample.untrimmedLengthInBytes() - maxEqualSampleLength) / 16.0)
+                    : 0;
+                sample.setTrim(trim);
+            }
+        }
+        samplePicker.setSelectedIndex(numberOfSamples - 1);
+        Sample sample = samples[selectedBank][numberOfSamples - 1];
+        if (bytesFree() < 0) {
+            // adjust last sample to account for rounding
+            int fixedTrim = sample.getTrim() - bytesFree() / 16;
+            assert fixedTrim > 0;
+            trimSpinner.setValue(fixedTrim);
+            sample.setTrim(fixedTrim);
+            sample.processSamples(dither.isSelected());
+            compileKit();
+        }
+        // Makes sure trim is in valid range.
+        int maxTrim = maxTrim(sample);
+        if ((int)trimSpinner.getValue() > maxTrim) {
+            trimSpinner.setValue(maxTrim);
+            sample.setTrim(maxTrim);
+            sample.processSamples(dither.isSelected());
+            compileKit();
+        }
+        updateButtonStates();
+        reloadAllSamples();
+        compileKit();
+        updateRomView();
+        JOptionPane.showMessageDialog(this,
+                "Trimmed all samples to fit.",
+                "Kit full",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+    
 
     @Override
     public void deleteSample() {
