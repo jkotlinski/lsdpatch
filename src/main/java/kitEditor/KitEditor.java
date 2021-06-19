@@ -292,7 +292,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         edit.addMenuListener(new MenuListener() {
             @Override
             public void menuSelected(MenuEvent e) {
-                trimAll.setEnabled(firstFreeSampleSlot() > 1);
+                trimAll.setEnabled(firstFreeSampleSlot() != 0 &&
+                        firstFreeSampleSlot() != 1);
             }
 
             @Override
