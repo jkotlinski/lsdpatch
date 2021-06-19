@@ -1129,7 +1129,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
         JOptionPane.showMessageDialog(this,
                 "Trimmed all samples to fit.",
-                "Kit full",
+                "Done",
                 JOptionPane.INFORMATION_MESSAGE);
     }
     
