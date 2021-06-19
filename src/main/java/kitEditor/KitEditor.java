@@ -7,6 +7,8 @@ import utils.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -284,10 +286,21 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         JMenu edit = new JMenu("Edit");
         JMenuItem trimAll = new JMenuItem("Trim all samples to fit");
-        trimAll.addActionListener(e -> {
-            trimAllSamples();
-        });
+        trimAll.addActionListener(e -> trimAllSamples());
         edit.add(trimAll);
+
+        edit.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent e) {
+                trimAll.setEnabled(firstFreeSampleSlot() > 1);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) { }
+
+            @Override
+            public void menuCanceled(MenuEvent e) { }
+        });
 
         menuBar.add(preferences);        
         menuBar.add(edit);
@@ -1048,15 +1061,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         previousBankButton.setEnabled(selectedBank > 0);
         nextBankButton.setEnabled(selectedBank + 1 < bankBox.getItemCount());
     }
-    
+
     private void trimAllSamples() {
-        if (firstFreeSampleSlot() == 0 || firstFreeSampleSlot() == 1) {
-                JOptionPane.showMessageDialog(this,
-                        "Add more than 1 sample",
-                        "No samples to trim",
-                        JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
         int numberOfSamples = firstFreeSampleSlot() > 1 ? firstFreeSampleSlot() : MAX_SAMPLES;
         int trimmableSamples = 0, usedBytes = 0;
         for (int sampleIt = 0; sampleIt < numberOfSamples; ++sampleIt) {
@@ -1073,7 +1079,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        int equalSampleLength = (int)((MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples);
+        int equalSampleLength = ((MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples);
         // first calculate if any samples are shorter than equal length and add
         int addLength = 0, sampleCount = 0;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
@@ -1086,7 +1092,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         }
         int maxEqualSampleLength = sampleCount > 0 && trimmableSamples > sampleCount
-            ? equalSampleLength + (int)addLength / (trimmableSamples - sampleCount)
+            ? equalSampleLength + addLength / (trimmableSamples - sampleCount)
             : equalSampleLength;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
             Sample sample = samples[selectedBank][sampleIt];
