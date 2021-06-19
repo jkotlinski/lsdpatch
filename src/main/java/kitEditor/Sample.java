@@ -39,6 +39,12 @@ class Sample {
         return untrimmedLengthInSamples == -1 ? lengthInSamples() : untrimmedLengthInSamples;
     }
 
+    public int untrimmedLengthInBytes() {
+        int l = untrimmedLengthInSamples() / 2;
+        l -= l % 0x10;
+        return l;
+    }
+
     public short[] workSampleData() {
         return (originalSamples != null ? originalSamples : processedSamples).clone();
     }

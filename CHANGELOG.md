@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Sample Editor: Moved dither preference to main window.
+ 
+### Added
+ - Sample Editor: Edit menu for trim all samples to equal length
 
 ## [1.11.5] - 2021-06-16
 ### Changed
