@@ -1129,10 +1129,42 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateRomView();
         JOptionPane.showMessageDialog(this,
                 "Trimmed all samples to fit.",
-                "Kit full",
+                "Done",
                 JOptionPane.INFORMATION_MESSAGE);
     }
+
+    private void duplicateSample() {
+        int index = samplePicker.getSelectedIndex();
+        int dest = firstFreeSampleSlot();
+        if (dest != -1) {
+            // copy sample data
+            System.arraycopy(samples[selectedBank],
+                index,
+                samples[selectedBank],
+                dest, 
+                1);
+            // copy sample name 
+            int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
+            int freeOffset = getROMOffsetForSelectedBank() + 0x22 + dest * 3;
+            romImage[freeOffset] = romImage[offset];
+            romImage[freeOffset + 1] = romImage[offset + 1];
+            romImage[freeOffset + 2] = romImage[offset + 2];
+        } else {
+            JOptionPane.showMessageDialog(contentPane,
+                    "Can't duplicate sample, kit is full!",
+                    "Kit full",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        compileKit();
+        updateBankView();
+    }
     
+
+    @Override
+    public void dupeSample() {
+        duplicateSample();
+    }
 
     @Override
     public void deleteSample() {
