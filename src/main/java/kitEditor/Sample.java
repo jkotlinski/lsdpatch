@@ -104,6 +104,16 @@ class Sample {
         return s;
     }
 
+    public static Sample dupeSample(Sample sample) throws IOException, UnsupportedAudioFileException {
+      Sample s = new Sample(sample.workSampleData(), sample.getName());
+      s.file = sample.file != null ? sample.file : null;
+      s.dither = sample.dither;
+      s.volumeDb = sample.volumeDb;
+      s.trim = sample.trim;
+      s.pitchSemitones = sample.pitchSemitones;
+      return s;
+    }
+
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
         if (file == null) {
             return;

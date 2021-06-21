@@ -1080,7 +1080,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        int equalSampleLength = ((MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples);
+        int equalSampleLength = (MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples;
         // first calculate if any samples are shorter than equal length and add
         int addLength = 0, sampleCount = 0;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
@@ -1092,7 +1092,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
             }
         }
-        int maxEqualSampleLength = sampleCount > 0 && trimmableSamples > sampleCount
+        int maxEqualSampleLength = trimmableSamples > sampleCount
             ? equalSampleLength + addLength / (trimmableSamples - sampleCount)
             : equalSampleLength;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
@@ -1136,28 +1136,44 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private void duplicateSample() {
         int index = samplePicker.getSelectedIndex();
         int dest = firstFreeSampleSlot();
+        Sample firstSample = samples[selectedBank][index];
+        Sample dupeSample;
         if (dest != -1) {
             // copy sample data
-            System.arraycopy(samples[selectedBank],
-                index,
-                samples[selectedBank],
-                dest, 
-                1);
-            // copy sample name 
-            int offset = getROMOffsetForSelectedBank() + 0x22 + index * 3;
-            int freeOffset = getROMOffsetForSelectedBank() + 0x22 + dest * 3;
-            romImage[freeOffset] = romImage[offset];
-            romImage[freeOffset + 1] = romImage[offset + 1];
-            romImage[freeOffset + 2] = romImage[offset + 2];
+            try {
+            dupeSample = Sample.dupeSample(firstSample);
+            dupeSample.reload(halfSpeed.isSelected());
+            } catch (Exception e) {
+                showFileErrorMessage(e);
+                return;
+            }
+            samples[selectedBank][dest] = dupeSample;
+            renameSample(dest, firstSample.getName());
+            if (bytesFree() < 0 && firstSample.canAdjustVolume()) {
+                int fixedTrim = dupeSample.getTrim() - bytesFree() / 16;
+                assert fixedTrim > 0;
+                dupeSample.setTrim(fixedTrim);
+            } else if (bytesFree() < 0) {
+                samples[selectedBank][dest] = null;
+                JOptionPane.showMessageDialog(contentPane,
+                        "Can't duplicate sample, kit is full!",
+                        "Kit full",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         } else {
             JOptionPane.showMessageDialog(contentPane,
                     "Can't duplicate sample, kit is full!",
                     "Kit full",
                     JOptionPane.ERROR_MESSAGE);
             return;
-        }
+        } 
+        reloadAllSamples();
         compileKit();
-        updateBankView();
+        updateRomView();
+        samplePicker.setSelectedIndex(dest);
+        playSample();
+        updateButtonStates();
     }
     
 
