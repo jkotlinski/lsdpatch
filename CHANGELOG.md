@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  
 ### Added
  - Sample Editor: Edit menu for trim all samples to equal length
+ - Sample Editor: "Duplicate sample" in context menu
 
 ## [1.11.5] - 2021-06-16
 ### Changed
