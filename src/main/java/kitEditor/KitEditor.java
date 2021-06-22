@@ -40,6 +40,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private byte[] romImage;
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
+    
+    private Sample clipboard = new Sample(null, null);
 
     private final JButton previousBankButton = new JButton("<");
     private final JButton nextBankButton = new JButton(">");
@@ -285,8 +287,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         preferences.add(lpFilter);
 
         JMenu edit = new JMenu("Edit");
+        JMenuItem pasteSampleMenuItem = new JMenuItem("Paste sample");
+        pasteSampleMenuItem.addActionListener(e -> pasteSample());
         JMenuItem trimAll = new JMenuItem("Trim all samples to fit");
         trimAll.addActionListener(e -> trimAllSamples());
+
+        edit.add(pasteSampleMenuItem);
         edit.add(trimAll);
 
         edit.addMenuListener(new MenuListener() {
@@ -294,6 +300,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             public void menuSelected(MenuEvent e) {
                 trimAll.setEnabled(firstFreeSampleSlot() != 0 &&
                         firstFreeSampleSlot() != 1);
+                pasteSampleMenuItem.setEnabled(firstFreeSampleSlot() != 0 &&
+                        firstFreeSampleSlot() != 1 && clipboard != null);
             }
 
             @Override
@@ -1133,10 +1141,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void duplicateSample() {
-        int index = samplePicker.getSelectedIndex();
+    private void duplicateSample(Sample sample) {
+        if (sample == null) {
+          return;
+        }
         int dest = firstFreeSampleSlot();
-        Sample firstSample = samples[selectedBank][index];
+        Sample firstSample = sample;
         Sample dupeSample;
         if (dest != -1) {
             // copy sample data
@@ -1176,10 +1186,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         updateButtonStates();
     }
     
+    private void pasteSample() {
+        duplicateSample(clipboard);
+    }
 
     @Override
     public void dupeSample() {
-        duplicateSample();
+        int index = samplePicker.getSelectedIndex();
+        Sample sample = samples[selectedBank][index];
+        duplicateSample(sample);
     }
 
     @Override
@@ -1222,6 +1237,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     public void renameSample(String s) {
         renameSample(samplePicker.getSelectedIndex(), s);
         updateRomView();
+    }
+
+    @Override
+    public void copySample() {
+        int index = samplePicker.getSelectedIndex();
+        clipboard = samples[selectedBank][index];
     }
 
     private class PadKeyHandler implements KeyEventPostProcessor {

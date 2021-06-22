@@ -20,6 +20,7 @@ public class SamplePicker extends JPanel {
         void dupeSample();
         void replaceSample();
         void renameSample(String s);
+        void copySample();
     }
 
     class Pad extends JToggleButton {
@@ -45,6 +46,9 @@ public class SamplePicker extends JPanel {
                         return;
                     }
                     JPopupMenu menu = new JPopupMenu();
+                    JMenuItem copy = new JMenuItem("Copy");
+                    menu.add(copy);
+                    copy.addActionListener(e1 -> listener.copySample());
                     JMenuItem rename = new JMenuItem("Rename...");
                     menu.add(rename);
                     rename.addActionListener(e1 -> {
