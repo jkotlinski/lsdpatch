@@ -1166,14 +1166,14 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             } else if (bytesFree() < 0) {
                 samples[selectedBank][dest] = null;
                 JOptionPane.showMessageDialog(contentPane,
-                        "Can't duplicate sample, kit is full!",
+                        "Can't add sample, kit is full!",
                         "Kit full",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
         } else {
             JOptionPane.showMessageDialog(contentPane,
-                    "Can't duplicate sample, kit is full!",
+                    "Can't add sample, kit is full!",
                     "Kit full",
                     JOptionPane.ERROR_MESSAGE);
             return;
