@@ -15,8 +15,6 @@ class Sample implements Cloneable {
     private int pitchSemitones = 0;
     private int trim = 0;
     private boolean dither = true;
-    private short[] sampleDataClipboard = null;
-    private String sampleNameClipboard = null;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
