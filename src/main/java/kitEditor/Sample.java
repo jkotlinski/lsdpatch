@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.Random;
 import javax.sound.sampled.*;
 
-class Sample {
+class Sample implements Cloneable {
     private File file;
     private final String name;
     private short[] originalSamples;
@@ -15,6 +15,8 @@ class Sample {
     private int pitchSemitones = 0;
     private int trim = 0;
     private boolean dither = true;
+    private short[] sampleDataClipboard = null;
+    private String sampleNameClipboard = null;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
@@ -67,6 +69,8 @@ class Sample {
         return originalSamples != null;
     }
 
+
+
     // ------------------
 
     static Sample createFromNibbles(byte[] nibbles, String name) {
@@ -104,14 +108,8 @@ class Sample {
         return s;
     }
 
-    public static Sample dupeSample(Sample sample) throws IOException, UnsupportedAudioFileException {
-      Sample s = new Sample(sample.workSampleData(), sample.getName());
-      s.file = sample.file != null ? sample.file : null;
-      s.dither = sample.dither;
-      s.volumeDb = sample.volumeDb;
-      s.trim = sample.trim;
-      s.pitchSemitones = sample.pitchSemitones;
-      return s;
+    public static Sample dupeSample(Sample sample) throws IOException, CloneNotSupportedException {
+      return (Sample)sample.clone();
     }
 
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
