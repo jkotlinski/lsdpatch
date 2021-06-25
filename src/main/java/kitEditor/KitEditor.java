@@ -905,6 +905,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void renameSample(int sampleIndex, String sampleName) {
+        samples[selectedBank][sampleIndex].setName(sampleName);
         int offset = getROMOffsetForSelectedBank() + 0x22 + sampleIndex * 3;
         for (int i = 0; i < 3; ++i) {
             if (i < sampleName.length()) {
@@ -914,6 +915,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
             offset++;
         }
+
     }
 
     private void addSample() {

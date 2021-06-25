@@ -6,7 +6,7 @@ import javax.sound.sampled.*;
 
 class Sample implements Cloneable {
     private File file;
-    private final String name;
+    private String name;
     private short[] originalSamples;
     private short[] processedSamples;
     private int untrimmedLengthInSamples = -1;
@@ -29,6 +29,10 @@ class Sample implements Cloneable {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String sampleName) {
+        name = sampleName.toUpperCase().substring(0,3);
     }
 
     public int lengthInSamples() {
