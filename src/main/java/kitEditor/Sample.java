@@ -27,6 +27,19 @@ class Sample {
         name = iName;
     }
 
+    Sample(Sample s) {
+        file = s.file;
+        name = s.name;
+        originalSamples = s.originalSamples;
+        processedSamples = s.processedSamples;
+        untrimmedLengthInSamples = s.untrimmedLengthInSamples;
+        readPos = s.readPos;
+        volumeDb = s.volumeDb;
+        pitchSemitones = s.pitchSemitones;
+        trim = s.trim;
+        dither = s.dither;
+    }
+
     public String getName() {
         return name;
     }
@@ -111,13 +124,7 @@ class Sample {
     }
 
     public static Sample dupeSample(Sample sample) {
-        Sample s = new Sample(sample.workSampleData(), sample.getName());
-        s.file = sample.file;
-        s.dither = sample.dither;
-        s.volumeDb = sample.volumeDb;
-        s.trim = sample.trim;
-        s.pitchSemitones = sample.pitchSemitones;
-        return s;
+      return new Sample(sample);
     }
 
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
