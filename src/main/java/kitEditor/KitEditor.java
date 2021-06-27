@@ -895,8 +895,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         int index = firstFreeSampleSlot();
         assert index != -1;
-        renameSample(index, sampleName);
         samples[selectedBank][index] = sample;
+        renameSample(index, sampleName);
         compileKit();
         updateRomView();
         samplePicker.setSelectedIndex(index);

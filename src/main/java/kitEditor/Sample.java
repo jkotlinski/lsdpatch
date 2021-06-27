@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.Random;
 import javax.sound.sampled.*;
 
-class Sample implements Cloneable {
+class Sample {
     private File file;
     private String name;
     private short[] originalSamples;
@@ -110,8 +110,14 @@ class Sample implements Cloneable {
         return s;
     }
 
-    public static Sample dupeSample(Sample sample) throws IOException, CloneNotSupportedException {
-      return (Sample)sample.clone();
+    public static Sample dupeSample(Sample sample) {
+        Sample s = new Sample(sample.workSampleData(), sample.getName());
+        s.file = sample.file;
+        s.dither = sample.dither;
+        s.volumeDb = sample.volumeDb;
+        s.trim = sample.trim;
+        s.pitchSemitones = sample.pitchSemitones;
+        return s;
     }
 
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
