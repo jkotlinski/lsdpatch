@@ -27,7 +27,7 @@ class Sample {
         name = iName;
     }
 
-    Sample(Sample s) {
+    public Sample(Sample s) {
         file = s.file;
         name = s.name;
         originalSamples = s.originalSamples;
@@ -121,10 +121,6 @@ class Sample {
         s.pitchSemitones = pitch;
         s.reload(halfSpeed);
         return s;
-    }
-
-    public static Sample dupeSample(Sample sample) {
-      return new Sample(sample);
     }
 
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
