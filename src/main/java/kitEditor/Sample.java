@@ -6,7 +6,7 @@ import javax.sound.sampled.*;
 
 class Sample {
     private File file;
-    private final String name;
+    private String name;
     private short[] originalSamples;
     private short[] processedSamples;
     private int untrimmedLengthInSamples = -1;
@@ -27,8 +27,25 @@ class Sample {
         name = iName;
     }
 
+    Sample(Sample s) {
+        file = s.file;
+        name = s.name;
+        originalSamples = s.originalSamples;
+        processedSamples = s.processedSamples;
+        untrimmedLengthInSamples = s.untrimmedLengthInSamples;
+        readPos = s.readPos;
+        volumeDb = s.volumeDb;
+        pitchSemitones = s.pitchSemitones;
+        trim = s.trim;
+        dither = s.dither;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String sampleName) {
+        name = sampleName.toUpperCase().substring(0,3);
     }
 
     public int lengthInSamples() {
@@ -67,6 +84,8 @@ class Sample {
         return originalSamples != null;
     }
 
+
+
     // ------------------
 
     static Sample createFromNibbles(byte[] nibbles, String name) {
@@ -102,6 +121,10 @@ class Sample {
         s.pitchSemitones = pitch;
         s.reload(halfSpeed);
         return s;
+    }
+
+    public static Sample dupeSample(Sample sample) {
+      return new Sample(sample);
     }
 
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {

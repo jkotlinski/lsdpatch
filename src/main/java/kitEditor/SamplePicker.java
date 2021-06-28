@@ -17,8 +17,10 @@ public class SamplePicker extends JPanel {
         void selectionChanged();
         void playSample();
         void deleteSample();
+        void dupeSample();
         void replaceSample();
         void renameSample(String s);
+        void copySample();
     }
 
     class Pad extends JToggleButton {
@@ -44,6 +46,9 @@ public class SamplePicker extends JPanel {
                         return;
                     }
                     JPopupMenu menu = new JPopupMenu();
+                    JMenuItem copy = new JMenuItem("Copy");
+                    menu.add(copy);
+                    copy.addActionListener(e1 -> listener.copySample());
                     JMenuItem rename = new JMenuItem("Rename...");
                     menu.add(rename);
                     rename.addActionListener(e1 -> {
@@ -55,6 +60,9 @@ public class SamplePicker extends JPanel {
                     JMenuItem replace = new JMenuItem("Replace...");
                     menu.add(replace);
                     replace.addActionListener(e1 -> listener.replaceSample());
+                    JMenuItem duplicate = new JMenuItem("Duplicate");
+                    menu.add(duplicate);
+                    duplicate.addActionListener(e1 -> listener.dupeSample());
                     JMenuItem delete = new JMenuItem("Delete");
                     menu.add(delete);
                     delete.addActionListener(e1 -> listener.deleteSample());

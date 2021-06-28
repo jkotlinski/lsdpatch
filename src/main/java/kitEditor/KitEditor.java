@@ -40,6 +40,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private byte[] romImage;
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
+    
+    private Sample[] clipboard = new Sample[MAX_SAMPLES];
 
     private final JButton previousBankButton = new JButton("<");
     private final JButton nextBankButton = new JButton(">");
@@ -285,8 +287,12 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         preferences.add(lpFilter);
 
         JMenu edit = new JMenu("Edit");
+        JMenuItem pasteSampleMenuItem = new JMenuItem("Paste");
+        pasteSampleMenuItem.addActionListener(e -> pasteSample());
         JMenuItem trimAll = new JMenuItem("Trim all samples to fit");
         trimAll.addActionListener(e -> trimAllSamples());
+
+        edit.add(pasteSampleMenuItem);
         edit.add(trimAll);
 
         edit.addMenuListener(new MenuListener() {
@@ -294,6 +300,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             public void menuSelected(MenuEvent e) {
                 trimAll.setEnabled(firstFreeSampleSlot() != 0 &&
                         firstFreeSampleSlot() != 1);
+                pasteSampleMenuItem.setEnabled(firstFreeSampleSlot() >= 0 &&
+                        firstFreeSampleSlot() < 15 && clipboard[0] != null);
             }
 
             @Override
@@ -887,8 +895,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         int index = firstFreeSampleSlot();
         assert index != -1;
-        renameSample(index, sampleName);
         samples[selectedBank][index] = sample;
+        renameSample(index, sampleName);
         compileKit();
         updateRomView();
         samplePicker.setSelectedIndex(index);
@@ -897,6 +905,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void renameSample(int sampleIndex, String sampleName) {
+        samples[selectedBank][sampleIndex].setName(sampleName);
         int offset = getROMOffsetForSelectedBank() + 0x22 + sampleIndex * 3;
         for (int i = 0; i < 3; ++i) {
             if (i < sampleName.length()) {
@@ -906,6 +915,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
             offset++;
         }
+
     }
 
     private void addSample() {
@@ -1080,7 +1090,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        int equalSampleLength = ((MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples);
+        int equalSampleLength = (MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples;
         // first calculate if any samples are shorter than equal length and add
         int addLength = 0, sampleCount = 0;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
@@ -1092,7 +1102,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
             }
         }
-        int maxEqualSampleLength = sampleCount > 0 && trimmableSamples > sampleCount
+        int maxEqualSampleLength = trimmableSamples > sampleCount
             ? equalSampleLength + addLength / (trimmableSamples - sampleCount)
             : equalSampleLength;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
@@ -1132,7 +1142,65 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 "Done",
                 JOptionPane.INFORMATION_MESSAGE);
     }
+
+    private void duplicateSample(Sample sample) {
+        if (sample == null) {
+          return;
+        }
+        int dest = firstFreeSampleSlot();
+        Sample firstSample = sample;
+        Sample dupeSample;
+        if (dest != -1) {
+            // copy sample data
+            try {
+            dupeSample = Sample.dupeSample(firstSample);
+            dupeSample.reload(halfSpeed.isSelected());
+            } catch (Exception e) {
+                showFileErrorMessage(e);
+                return;
+            }
+            samples[selectedBank][dest] = dupeSample;
+            renameSample(dest, firstSample.getName());
+            if (bytesFree() < 0 && firstSample.canAdjustVolume()) {
+                int fixedTrim = dupeSample.getTrim() - bytesFree() / 16;
+                assert fixedTrim > 0;
+                dupeSample.setTrim(fixedTrim);
+            } else if (bytesFree() < 0) {
+                samples[selectedBank][dest] = null;
+                JOptionPane.showMessageDialog(contentPane,
+                        "Can't add sample, kit is full!",
+                        "Kit full",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            JOptionPane.showMessageDialog(contentPane,
+                    "Can't add sample, kit is full!",
+                    "Kit full",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        } 
+        reloadAllSamples();
+        compileKit();
+        updateRomView();
+        samplePicker.setSelectedIndex(dest);
+        playSample();
+        updateButtonStates();
+    }
     
+    private void pasteSample() {
+        for (int index = 0; index < clipboard.length; ++index) {
+            if (clipboard[index] != null) {
+                duplicateSample(clipboard[index]);
+            }
+        }
+    }
+
+    @Override
+    public void dupeSample() {
+        int index = samplePicker.getSelectedIndex();
+        duplicateSample(samples[selectedBank][index]);
+    }
 
     @Override
     public void deleteSample() {
@@ -1174,6 +1242,14 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     public void renameSample(String s) {
         renameSample(samplePicker.getSelectedIndex(), s);
         updateRomView();
+    }
+
+    @Override
+    public void copySample() {
+        ArrayList<Integer> indices = samplePicker.getSelectedIndices();
+        for (int index = 0; index < clipboard.length; ++index) {
+            clipboard[index] = index < indices.size() ? samples[selectedBank][indices.get(index)] : null;
+        }
     }
 
     private class PadKeyHandler implements KeyEventPostProcessor {
