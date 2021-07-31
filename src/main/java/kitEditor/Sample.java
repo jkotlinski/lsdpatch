@@ -27,7 +27,7 @@ class Sample {
         name = iName;
     }
 
-    Sample(Sample s) {
+    public Sample(Sample s) {
         file = s.file;
         name = s.name;
         originalSamples = s.originalSamples;
