@@ -874,7 +874,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String sampleName = dropExtension(wavFile).toUpperCase();
+        String sampleName = (dropExtension(wavFile).toUpperCase() + "---").substring(0,3);
         Sample sample;
         try {
             sample = Sample.createFromWav(wavFile, dither.isSelected(), halfSpeed.isSelected(), 0, 0, 0);
