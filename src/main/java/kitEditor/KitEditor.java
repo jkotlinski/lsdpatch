@@ -41,7 +41,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
     
-    private final Sample[] clipboard = new Sample[MAX_SAMPLES];
+    private Sample[] clipboard = new Sample[MAX_SAMPLES];
 
     private final JButton previousBankButton = new JButton("<");
     private final JButton nextBankButton = new JButton(">");
@@ -874,7 +874,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String sampleName = dropExtension(wavFile).toUpperCase();
+        String sampleName = (dropExtension(wavFile).toUpperCase() + "---").substring(0,3);
         Sample sample;
         try {
             sample = Sample.createFromWav(wavFile, dither.isSelected(), halfSpeed.isSelected(), 0, 0, 0);
@@ -1148,19 +1148,20 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
           return;
         }
         int dest = firstFreeSampleSlot();
+        Sample firstSample = sample;
         Sample dupeSample;
         if (dest != -1) {
             // copy sample data
             try {
-            dupeSample = new Sample(sample);
+            dupeSample = Sample.dupeSample(firstSample);
             dupeSample.reload(halfSpeed.isSelected());
             } catch (Exception e) {
                 showFileErrorMessage(e);
                 return;
             }
             samples[selectedBank][dest] = dupeSample;
-            renameSample(dest, sample.getName());
-            if (bytesFree() < 0 && sample.canAdjustVolume()) {
+            renameSample(dest, firstSample.getName());
+            if (bytesFree() < 0 && firstSample.canAdjustVolume()) {
                 int fixedTrim = dupeSample.getTrim() - bytesFree() / 16;
                 assert fixedTrim > 0;
                 dupeSample.setTrim(fixedTrim);
@@ -1188,9 +1189,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
     
     private void pasteSample() {
-        for (Sample sample : clipboard) {
-            if (sample != null) {
-                duplicateSample(sample);
+        for (int index = 0; index < clipboard.length; ++index) {
+            if (clipboard[index] != null) {
+                duplicateSample(clipboard[index]);
             }
         }
     }

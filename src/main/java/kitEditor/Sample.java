@@ -123,6 +123,10 @@ class Sample {
         return s;
     }
 
+    public static Sample dupeSample(Sample sample) {
+      return new Sample(sample);
+    }
+
     public void reload(boolean halfSpeed) throws IOException, UnsupportedAudioFileException {
         if (file == null) {
             return;
