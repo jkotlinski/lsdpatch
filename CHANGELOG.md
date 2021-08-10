@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
  - Sample Editor: Dither preference.
+ - Sample Editor: Allow filenames less than 3 characters in length.
 
 ### Changed
  - Sample Editor: Moved dither preference to main window.
  
 ### Added
- - Sample Editor: Edit menu for trim all samples to equal length
- - Sample Editor: "Duplicate sample" in context menu
- - Sample Editor: Copy/paste
+ - Sample Editor: "Duplicate sample" and "Copy" in context menu
+ - Sample Editor: Edit menu for "Trim all samples to equal length" and "Paste"
 
 ## [1.11.5] - 2021-06-16
 ### Changed
