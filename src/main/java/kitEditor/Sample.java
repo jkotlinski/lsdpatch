@@ -224,7 +224,8 @@ class Sample {
 
         double outSampleRate = halfSpeed ? 5734 : 11468;
         outSampleRate *= outRateFactor;
-        return Sound.resample(inSampleRate, outSampleRate, samples);
+        // return Sound.resampleHighQuality(inSampleRate, outSampleRate, samples);
+        return Sound.resampleNearestNeighbor(inSampleRate, outSampleRate, samples);
     }
 
     // Adds triangular probability density function dither noise.

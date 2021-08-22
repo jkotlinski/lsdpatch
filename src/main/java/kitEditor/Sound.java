@@ -82,7 +82,7 @@ public class Sound {
         }
     }
 
-    public static short[] resample(double inSampleRate, double outSampleRate, short[] samples) {
+    public static short[] resampleHighQuality(double inSampleRate, double outSampleRate, short[] samples) {
         if (inSampleRate == outSampleRate) {
             return samples;
         }
@@ -121,4 +121,11 @@ public class Sound {
         return finalBuf;
     }
 
+    public static short[] resampleNearestNeighbor(float inSampleRate, double outSampleRate, short[] samples) {
+        short[] out = new short[(int)(outSampleRate * samples.length / inSampleRate) + 1];
+        for (int i = 0; i < out.length; ++i) {
+            out[i] = samples[(int)(i * inSampleRate / outSampleRate)];
+        }
+        return out;
+    }
 }
