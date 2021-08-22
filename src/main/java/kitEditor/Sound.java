@@ -122,9 +122,11 @@ public class Sound {
     }
 
     public static short[] resampleNearestNeighbor(float inSampleRate, double outSampleRate, short[] samples) {
-        short[] out = new short[(int)(outSampleRate * samples.length / inSampleRate) + 1];
+        short[] out = new short[(int)(outSampleRate * samples.length / inSampleRate)];
         for (int i = 0; i < out.length; ++i) {
-            out[i] = samples[(int)(i * inSampleRate / outSampleRate)];
+            double pos = i * inSampleRate / outSampleRate;
+            double k = pos % 1.0;
+            out[i] = (short) (samples[(int)pos] * (1.0 - k) + samples[(int)pos + 1] * k);
         }
         return out;
     }
