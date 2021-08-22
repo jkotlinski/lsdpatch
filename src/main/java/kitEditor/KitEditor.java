@@ -727,7 +727,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 fileWriter.write(s.getFile().getAbsolutePath() +
                         "|" + s.getVolumeDb() +
                         "|" + s.getTrim() +
-                        "|" + s.getPitchSemitones() + "\n");
+                        "|" + s.getPitchSemitones() +
+                        "|" + s.getDither() + "\n");
             }
         }
     }
@@ -793,9 +794,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 if (chunks.length > 3) {
                     pitch = Integer.parseInt(chunks[3]);
                 }
+                boolean dither = true;
+                if (chunks.length > 4) {
+                    dither = chunks[4];
+                }
                 samples[selectedBank][i] = Sample.createFromWav(
                         sampleFile,
-                        dither.isSelected(),
+                        dither,
                         halfSpeed.isSelected(),
                         volume,
                         trim,
