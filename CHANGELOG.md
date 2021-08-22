@@ -8,22 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.11.6] - 2021-08-18
 ### Fixed
- - Sample Editor: Dither preference.
- - Sample Editor: Allow filenames less than 3 characters in length.
+ - Kit Editor: Dither preference.
+ - Kit Editor: Allow filenames less than 3 characters in length.
 
 ### Changed
- - Sample Editor: Moved dither preference to main window.
+ - Kit Editor: Moved dither preference to main window.
  
 ### Added
- - Sample Editor: "Duplicate sample" and "Copy" in context menu
- - Sample Editor: Edit menu for "Trim all samples to equal length" and "Paste"
+ - Kit Editor: "Duplicate sample" and "Copy" in context menu
+ - Kit Editor: Edit menu for "Trim all samples to equal length" and "Paste"
 
 ## [1.11.5] - 2021-06-16
 ### Changed
- - Sample Editor: Tweaked resampler lowpass-filter settings to preserve more treble.
+ - Kit Editor: Tweaked resampler lowpass-filter settings to preserve more treble.
 
 ### Added
- - Sample Editor: Preferences menu for low-pass filter and dither.
+ - Kit Editor: Preferences menu for low-pass filter and dither.
 
 ## [1.11.4] - 2021-06-01
 ### Fixed
