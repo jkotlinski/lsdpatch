@@ -60,7 +60,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner volumeSpinner = new JSpinner();
     private final JSpinner pitchSpinner = new JSpinner();
     private final JSpinner trimSpinner = new JSpinner();
-    private final JCheckBox halfSpeed = new JCheckBox("Half-speed");
+    private final JCheckBoxMenuItem halfSpeed = new JCheckBoxMenuItem("Half-speed");
     private final JCheckBox dither = new JCheckBox("Dither", true);
 
     public KitEditor(JFrame parent, Document document, Listener listener) {
@@ -279,6 +279,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private void addMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu preferences = new JMenu("Preferences");
+        preferences.add(halfSpeed);
         JMenuItem lpFilter = new JMenuItem("Low-Pass Filter...");
         lpFilter.addActionListener(e -> {
             Resampler.Beta = ask("Kaiser Window Beta", Resampler.Beta);
@@ -361,7 +362,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSampleButton, "grow, span 2, wrap, sg button");
-        contentPane.add(halfSpeed, "split 2");
         contentPane.add(dither, "grow, wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
