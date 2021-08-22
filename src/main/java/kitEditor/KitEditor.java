@@ -263,7 +263,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             compileKit();
         }
         samplePicker.setSelectedIndex(index);
-        System.out.print(sample.getDither());
         dither.setSelected(sample.getDither());
         Sound.stopAll();
         playSample();
