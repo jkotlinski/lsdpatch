@@ -796,7 +796,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
                 boolean dither = true;
                 if (chunks.length > 4) {
-                    dither = chunks[4];
+                    dither = chunks[4] == "true" ? true : false;
                 }
                 samples[selectedBank][i] = Sample.createFromWav(
                         sampleFile,
