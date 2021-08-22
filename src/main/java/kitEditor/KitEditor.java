@@ -243,6 +243,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         sample.setTrim((int)trimSpinner.getValue());
         sample.processSamples(dither.isSelected());
+        sample.setDither(dither.isSelected());
         compileKit();
         if (bytesFree() < 0) {
             // Sample did not fit, likely due to increased volume. Trim to fit.
@@ -262,6 +263,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             compileKit();
         }
         samplePicker.setSelectedIndex(index);
+        System.out.print(sample.getDither());
+        dither.setSelected(sample.getDither());
         Sound.stopAll();
         playSample();
         handlingSpinnerChange = false;
@@ -474,7 +477,9 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     @Override
     public void playSample() {
-        byte[] nibbles = getNibbles(samplePicker.getSelectedIndex());
+        int index = samplePicker.getSelectedIndex();
+        dither.setSelected(samples[selectedBank][index].getDither());
+        byte[] nibbles = getNibbles(index);
         if (nibbles == null) {
             return;
         }
