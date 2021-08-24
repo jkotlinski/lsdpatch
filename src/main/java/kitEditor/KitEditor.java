@@ -41,7 +41,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private final Sample[][] samples = new Sample[RomUtilities.BANK_COUNT][MAX_SAMPLES];
     
-    private Sample[] clipboard = new Sample[MAX_SAMPLES];
+    private final Sample[] clipboard = new Sample[MAX_SAMPLES];
 
     private final JButton previousBankButton = new JButton("<");
     private final JButton nextBankButton = new JButton(">");
@@ -582,7 +582,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         String[] s = new String[15];
 
         int bankOffset = getROMOffsetForSelectedBank();
-        //do banks
 
         //update names
         int offset = bankOffset + 0x22;
@@ -796,7 +795,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
                 boolean dither = true;
                 if (chunks.length > 4) {
-                    dither = chunks[4] == "true" ? true : false;
+                    dither = chunks[4].equals("true");
                 }
                 samples[selectedBank][i] = Sample.createFromWav(
                         sampleFile,
@@ -1084,22 +1083,22 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
     private void trimAllSamples() {
         int numberOfSamples = firstFreeSampleSlot() > 1 ? firstFreeSampleSlot() : MAX_SAMPLES;
-        int trimmableSamples = 0, usedBytes = 0;
+        int samplesToTrim = 0, usedBytes = 0;
         for (int sampleIt = 0; sampleIt < numberOfSamples; ++sampleIt) {
             Sample sample = samples[selectedBank][sampleIt];
             if (sample != null) {
-                trimmableSamples = sample.canAdjustVolume() ? trimmableSamples + 1 : trimmableSamples;
+                samplesToTrim = sample.canAdjustVolume() ? samplesToTrim + 1 : samplesToTrim;
                 usedBytes = sample.canAdjustVolume() ? usedBytes : usedBytes + sample.untrimmedLengthInBytes();
             }
         }
-        if (trimmableSamples < 1) {
+        if (samplesToTrim < 1) {
             JOptionPane.showMessageDialog(this,
-                "No trimmable samples",
+                "No samples to trim",
                 "No samples to trim",
                 JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        int equalSampleLength = (MAX_SAMPLE_SPACE - usedBytes)  / trimmableSamples;
+        int equalSampleLength = (MAX_SAMPLE_SPACE - usedBytes)  / samplesToTrim;
         // first calculate if any samples are shorter than equal length and add
         int addLength = 0, sampleCount = 0;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
@@ -1111,8 +1110,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                 }
             }
         }
-        int maxEqualSampleLength = trimmableSamples > sampleCount
-            ? equalSampleLength + addLength / (trimmableSamples - sampleCount)
+        int maxEqualSampleLength = samplesToTrim > sampleCount
+            ? equalSampleLength + addLength / (samplesToTrim - sampleCount)
             : equalSampleLength;
         for (int sampleIt = 0; sampleIt < MAX_SAMPLES; ++sampleIt) {
             Sample sample = samples[selectedBank][sampleIt];
@@ -1156,26 +1155,25 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         if (sample == null) {
           return;
         }
-        int dest = firstFreeSampleSlot();
-        Sample firstSample = sample;
+        int sampleSlot = firstFreeSampleSlot();
         Sample dupeSample;
-        if (dest != -1) {
+        if (sampleSlot != -1) {
             // copy sample data
             try {
-            dupeSample = Sample.dupeSample(firstSample);
+            dupeSample = Sample.dupeSample(sample);
             dupeSample.reload(halfSpeed.isSelected());
             } catch (Exception e) {
                 showFileErrorMessage(e);
                 return;
             }
-            samples[selectedBank][dest] = dupeSample;
-            renameSample(dest, firstSample.getName());
-            if (bytesFree() < 0 && firstSample.canAdjustVolume()) {
+            samples[selectedBank][sampleSlot] = dupeSample;
+            renameSample(sampleSlot, sample.getName());
+            if (bytesFree() < 0 && sample.canAdjustVolume()) {
                 int fixedTrim = dupeSample.getTrim() - bytesFree() / 16;
                 assert fixedTrim > 0;
                 dupeSample.setTrim(fixedTrim);
             } else if (bytesFree() < 0) {
-                samples[selectedBank][dest] = null;
+                samples[selectedBank][sampleSlot] = null;
                 JOptionPane.showMessageDialog(contentPane,
                         "Can't add sample, kit is full!",
                         "Kit full",
@@ -1192,15 +1190,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         reloadAllSamples();
         compileKit();
         updateRomView();
-        samplePicker.setSelectedIndex(dest);
+        samplePicker.setSelectedIndex(sampleSlot);
         playSample();
         updateButtonStates();
     }
     
     private void pasteSample() {
-        for (int index = 0; index < clipboard.length; ++index) {
-            if (clipboard[index] != null) {
-                duplicateSample(clipboard[index]);
+        for (Sample sample : clipboard) {
+            if (sample != null) {
+                duplicateSample(sample);
             }
         }
     }
