@@ -133,10 +133,10 @@ class Sample {
         }
         double outFactor = Math.pow(2.0, -pitchSemitones / 12.0);
         originalSamples = readSamples(file, halfSpeed, outFactor);
-        processSamples(dither);
+        processSamples();
     }
 
-    public void processSamples(boolean dither) {
+    public void processSamples() {
         int[] intBuffer = toIntBuffer(originalSamples);
         normalize(intBuffer);
         intBuffer = trim(intBuffer);
