@@ -477,7 +477,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     @Override
     public void playSample() {
         int index = samplePicker.getSelectedIndex();
-        dither.setSelected(samples[selectedBank][index].getDither());
+        Sample sample = samples[selectedBank][index];
+        if (sample == null) {
+            return;
+        }
+        dither.setSelected(sample.getDither());
         byte[] nibbles = getNibbles(index);
         if (nibbles == null) {
             return;
