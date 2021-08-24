@@ -15,6 +15,7 @@ class Sample {
     private int pitchSemitones = 0;
     private int trim = 0;
     private boolean dither = true;
+    private boolean hqResample = true;
 
     public Sample(short[] iBuf, String iName) {
         if (iBuf != null) {
@@ -38,6 +39,7 @@ class Sample {
         pitchSemitones = s.pitchSemitones;
         trim = s.trim;
         dither = s.dither;
+        hqResample = s.hqResample;
     }
 
     public String getName() {
@@ -109,6 +111,7 @@ class Sample {
     public static Sample createFromWav(File file,
                                        boolean dither,
                                        boolean halfSpeed,
+                                       boolean hqResample,
                                        int volumeDb,
                                        int trim,
                                        int pitch)
@@ -116,6 +119,7 @@ class Sample {
         Sample s = new Sample(null, file.getName().split("\\.")[0]);
         s.file = file;
         s.dither = dither;
+        s.hqResample = hqResample;
         s.volumeDb = volumeDb;
         s.trim = trim;
         s.pitchSemitones = pitch;
@@ -132,7 +136,7 @@ class Sample {
             return;
         }
         double outFactor = Math.pow(2.0, -pitchSemitones / 12.0);
-        originalSamples = readSamples(file, halfSpeed, outFactor);
+        originalSamples = readSamples(file, halfSpeed, hqResample, outFactor);
         processSamples();
     }
 
@@ -207,7 +211,11 @@ class Sample {
         return intBuffer;
     }
 
-    private static short[] readSamples(File file, boolean halfSpeed, double outRateFactor) throws UnsupportedAudioFileException, IOException {
+    private static short[] readSamples(File file,
+                                       boolean halfSpeed,
+                                       boolean hqResample,
+                                       double outRateFactor)
+            throws UnsupportedAudioFileException, IOException {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         float inSampleRate = ais.getFormat().getSampleRate();
         AudioFormat outFormat = new AudioFormat(inSampleRate, 16, 1, true, false);
@@ -224,8 +232,9 @@ class Sample {
 
         double outSampleRate = halfSpeed ? 5734 : 11468;
         outSampleRate *= outRateFactor;
-        // return Sound.resampleHighQuality(inSampleRate, outSampleRate, samples);
-        return Sound.resampleNearestNeighbor(inSampleRate, outSampleRate, samples);
+        return hqResample
+                ? Sound.resampleHighQuality(inSampleRate, outSampleRate, samples)
+                : Sound.resampleNearestNeighbor(inSampleRate, outSampleRate, samples);
     }
 
     // Adds triangular probability density function dither noise.
@@ -293,5 +302,14 @@ class Sample {
 
     public boolean getDither() {
         return dither;
+    }
+
+    public void setHqResample(boolean value) {
+        System.out.println("setHqResample " + true);
+        hqResample = value;
+    }
+
+    public boolean getHqResample() {
+        return hqResample;
     }
 }

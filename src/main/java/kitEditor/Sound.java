@@ -83,6 +83,7 @@ public class Sound {
     }
 
     public static short[] resampleHighQuality(double inSampleRate, double outSampleRate, short[] samples) {
+        System.out.println("resample hq");
         if (inSampleRate == outSampleRate) {
             return samples;
         }
@@ -122,6 +123,7 @@ public class Sound {
     }
 
     public static short[] resampleNearestNeighbor(float inSampleRate, double outSampleRate, short[] samples) {
+        System.out.println("resample nearest");
         short[] out = new short[(int)(outSampleRate * samples.length / inSampleRate)];
         for (int i = 0; i < out.length; ++i) {
             double pos = i * inSampleRate / outSampleRate;

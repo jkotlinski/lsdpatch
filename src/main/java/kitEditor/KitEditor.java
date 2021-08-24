@@ -62,6 +62,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner trimSpinner = new JSpinner();
     private final JCheckBoxMenuItem halfSpeed = new JCheckBoxMenuItem("Half-speed");
     private final JCheckBox dither = new JCheckBox("Dither", true);
+    private final JCheckBox filter = new JCheckBox("Filter", true);
 
     public KitEditor(JFrame parent, Document document, Listener listener) {
         parent.setEnabled(false);
@@ -127,6 +128,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         trimSpinner.addChangeListener(e -> onSpinnerChanged());
         halfSpeed.addActionListener(e -> onHalfSpeedChanged());
         dither.addActionListener(e -> onSpinnerChanged());
+        filter.addActionListener(e -> onSpinnerChanged());
 
         Action previousBankAction = new AbstractAction("previous bank") {
             @Override
@@ -243,6 +245,15 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         sample.setTrim((int)trimSpinner.getValue());
         sample.setDither(dither.isSelected());
+        if (sample.getHqResample() != filter.isSelected()) {
+            sample.setHqResample(filter.isSelected());
+            try {
+                sample.reload(halfSpeed.isSelected());
+            } catch (Exception e) {
+                showFileErrorMessage(e);
+                return;
+            }
+        }
         sample.processSamples();
         compileKit();
         if (bytesFree() < 0) {
@@ -264,6 +275,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         samplePicker.setSelectedIndex(index);
         dither.setSelected(sample.getDither());
+        filter.setSelected(sample.getHqResample());
         Sound.stopAll();
         playSample();
         handlingSpinnerChange = false;
@@ -353,6 +365,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         pitchSpinner.setEnabled(false);
         trimSpinner.setEnabled(false);
         dither.setEnabled(false);
+        filter.setEnabled(false);
 
         contentPane.add(kitContainer, "grow, cell 0 0, spany");
         contentPane.add(loadKitButton, "grow, wrap");
@@ -364,7 +377,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         contentPane.add(exportSampleButton, "grow, wrap, sg button");
         contentPane.add(addSampleButton, "grow, span 2, wrap, sg button");
         contentPane.add(reloadSampleButton, "grow, span 2, wrap, sg button");
-        contentPane.add(dither, "grow, wrap");
+        contentPane.add(dither, "grow, split 2");
+        contentPane.add(filter, "grow, wrap");
         contentPane.add(new JLabel("Volume (dB):"), "split 2");
         contentPane.add(volumeSpinner, "grow, wrap");
         contentPane.add(new JLabel("Pitch (semitone):"), "split 2");
@@ -380,6 +394,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         });
 
         dither.setToolTipText("Removes 4-bit distortion by adding noise.");
+        filter.setToolTipText("Removes aliasing by using low-pass filter.");
         halfSpeed.setToolTipText("Half sample-rate, double kit length. Use with SPEED 0.5X kit setting.");
     }
 
@@ -478,6 +493,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     public void playSample() {
         int index = samplePicker.getSelectedIndex();
         dither.setSelected(samples[selectedBank][index].getDither());
+        filter.setSelected(samples[selectedBank][index].getHqResample());
         byte[] nibbles = getNibbles(index);
         if (nibbles == null) {
             return;
@@ -801,6 +817,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
                         sampleFile,
                         dither,
                         halfSpeed.isSelected(),
+                        true,
                         volume,
                         trim,
                         pitch);
@@ -885,7 +902,13 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         String sampleName = (dropExtension(wavFile).toUpperCase() + "---").substring(0,3);
         Sample sample;
         try {
-            sample = Sample.createFromWav(wavFile, dither.isSelected(), halfSpeed.isSelected(), 0, 0, 0);
+            sample = Sample.createFromWav(wavFile,
+                    dither.isSelected(),
+                    halfSpeed.isSelected(),
+                    filter.isSelected(),
+                    0,
+                    0,
+                    0);
             int bytesFreeAfterAdd = MAX_SAMPLE_SPACE - totalSampleSizeInBytes() - sample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
                 int trim = -bytesFreeAfterAdd / 16;
@@ -1061,6 +1084,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         boolean enableVolume = sample != null && sample.canAdjustVolume();
         handlingSpinnerChange = true;
         dither.setEnabled(enableVolume);
+        filter.setEnabled(enableVolume);
         volumeSpinner.setEnabled(enableVolume);
         volumeSpinner.setValue(enableVolume ? sample.getVolumeDb() : 0);
         pitchSpinner.setEnabled(enableVolume);
@@ -1222,7 +1246,11 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         try {
             final int index = samplePicker.getSelectedIndex();
-            Sample newSample = Sample.createFromWav(wavFile, dither.isSelected(), halfSpeed.isSelected(), 0, 0, 0);
+            Sample newSample = Sample.createFromWav(wavFile,
+                    dither.isSelected(),
+                    halfSpeed.isSelected(),
+                    filter.isSelected(),
+                    0, 0, 0);
             Sample existingSample = samples[selectedBank][index];
             int bytesFreeAfterAdd = bytesFree() - newSample.lengthInBytes() + existingSample.lengthInBytes();
             if (bytesFreeAfterAdd < 0) {
