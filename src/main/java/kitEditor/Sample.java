@@ -285,4 +285,12 @@ class Sample {
     public int getPitchSemitones() {
         return pitchSemitones;
     }
+
+    public void setDither(boolean value) {
+        dither = value;
+    }
+
+    public boolean getDither() {
+        return dither;
+    }
 }
