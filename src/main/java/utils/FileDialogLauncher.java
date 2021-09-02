@@ -18,6 +18,10 @@ public class FileDialogLauncher {
         return open(parent, title, new String[] { fileExtension }, FileDialog.SAVE);
     }
 
+    public static File save(JFrame parent, String title, String[] fileExtensions) {
+        return open(parent, title, fileExtensions, FileDialog.SAVE);
+    }
+
     private static File open(JFrame parent, String title, String[] fileExtensions, int mode) {
         FileDialog fileDialog = new FileDialog(parent, title, mode);
         fileDialog.setDirectory(EditorPreferences.lastDirectory(fileExtensions[0]));

@@ -161,7 +161,9 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             return;
         }
 
-        File romFile = FileDialogLauncher.load(this, "Select LSDj ROM Image", "gb");
+        File romFile = FileDialogLauncher.load(this,
+                "Select LSDj ROM Image",
+                new String[]{ "gb", "gbc" });
         if (romFile == null) {
             return;
         }
@@ -179,7 +181,9 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
                     JOptionPane.ERROR_MESSAGE);
         }
 
-        String savPath = romPath.replaceFirst(".gb$", ".sav");
+        String savPath = romPath
+                .replaceFirst(".gbc$", ".sav")
+                .replaceFirst(".gb$", ".sav");
         try {
             document.loadSavFile(savPath);
             savTextField.setText(savPath);
@@ -253,7 +257,9 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
     }
 
     private void onSave(boolean saveSavFile) {
-        File f = FileDialogLauncher.save(this, "Save ROM Image", "gb");
+        File f = FileDialogLauncher.save(this,
+                "Save ROM Image",
+                new String[]{ "gb", "gbc" });
         if (f == null) {
             return;
         }
@@ -265,7 +271,9 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             fileOutputStream.write(romImage);
             fileOutputStream.close();
             if (document.savFile() != null && saveSavFile) {
-                String savPath = romPath.replace(".gb", ".sav");
+                String savPath = romPath
+                        .replace(".gbc", ".sav")
+                        .replace(".gb", ".sav");
                 document.savFile().saveAs(savPath);
                 savTextField.setText(savPath);
                 document.loadSavFile(savPath);

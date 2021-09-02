@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
- - Kit Editor: Update dither per sample
+ - Kit Editor: Update dither per sample.
  - Kit Editor: Moved "half-speed" preference to menu.
+ - ROM files may now use .gbc extension.
 
 ## [1.11.6] - 2021-08-18
 ### Fixed
