@@ -4,7 +4,7 @@ package kitEditor;
 
 class sbc {
 
-    public static void compile(byte[] dst, Sample[] samples, int[] byteLength) {
+    public static void compile(byte[] dst, Sample[] samples, int[] byteLength, boolean gameBoyAdvancePolarity) {
         int offset = 0x60; //don't overwrite sample bank info!
         for (int sampleIt = 0; sampleIt < samples.length; sampleIt++) {
             Sample sample = samples[sampleIt];
@@ -22,7 +22,10 @@ class sbc {
                 int s = sample.read();
                 s = (int)(Math.round((double)s / (256 * 16) + 7.5));
                 s = Math.min(0xf, Math.max(0, s));
-                s = 0xf - s; // Game Boy has inverted audio
+                if (!gameBoyAdvancePolarity) {
+                    // Use DMG polarity, where 0xf = -1.0 and 0 = 1.0.
+                    s = 0xf - s;
+                }
 
                 // Starting from LSDj 9.2.0, first sample is skipped to compensate for wave refresh bug.
                 // This rotates the wave frame rightwards.

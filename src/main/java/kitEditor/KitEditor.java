@@ -62,6 +62,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     private final JSpinner trimSpinner = new JSpinner();
     private final JCheckBoxMenuItem halfSpeed = new JCheckBoxMenuItem("Half-speed");
     private final JCheckBox dither = new JCheckBox("Dither", true);
+    private final JMenuItem useGameBoyAdvancePolarity = new JCheckBoxMenuItem("Invert Polarity for GBA");
 
     public KitEditor(JFrame parent, Document document, Listener listener) {
         parent.setEnabled(false);
@@ -282,6 +283,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         JMenuBar menuBar = new JMenuBar();
         JMenu preferences = new JMenu("Preferences");
         preferences.add(halfSpeed);
+        useGameBoyAdvancePolarity.addActionListener(e -> reloadAllSamples());
+        preferences.add(useGameBoyAdvancePolarity);
         JMenuItem lpFilter = new JMenuItem("Low-Pass Filter...");
         lpFilter.addActionListener(e -> {
             Resampler.Beta = ask("Kaiser Window Beta", Resampler.Beta);
@@ -944,7 +947,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
 
         byte[] newSamples = new byte[RomUtilities.BANK_SIZE];
         int[] lengths = new int[15];
-        sbc.compile(newSamples, samples[selectedBank], lengths);
+        sbc.compile(newSamples, samples[selectedBank], lengths, useGameBoyAdvancePolarity.isSelected());
 
         //copy sampledata to ROM image
         int offset = getROMOffsetForSelectedBank() + 0x60;
@@ -1147,7 +1150,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         }
         updateButtonStates();
         reloadAllSamples();
-        compileKit();
         updateRomView();
         JOptionPane.showMessageDialog(this,
                 "Trimmed all samples to fit.",
@@ -1192,7 +1194,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             return;
         } 
         reloadAllSamples();
-        compileKit();
         updateRomView();
         samplePicker.setSelectedIndex(sampleSlot);
         playSample();
