@@ -4,8 +4,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class FileDialogLauncher {
+class CustomFileFilter implements java.io.FilenameFilter {
+    CustomFileFilter(String[] fileExtensions) {
+        this.fileExtensions = fileExtensions;
+    }
 
+    @Override
+    public boolean accept(File dir, String name) {
+        for (String fileExtension : fileExtensions) {
+            if (name.endsWith(fileExtension)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    String[] fileExtensions;
+}
+
+public class FileDialogLauncher {
     public static File load(JFrame parent, String title, String fileExtension) {
         return open(parent, title, new String[] { fileExtension }, FileDialog.LOAD);
     }
@@ -22,14 +39,24 @@ public class FileDialogLauncher {
         return open(parent, title, fileExtensions, FileDialog.SAVE);
     }
 
+    private static void setFilenameFilter(FileDialog fileDialog, String[] fileExtensions) {
+        if (System.getProperty("os.name").contains("Windows")) {
+            // Works on Windows only.
+            StringBuilder fileMatch = new StringBuilder("*." + fileExtensions[0]);
+            for (int i = 1; i < fileExtensions.length; ++i) {
+                fileMatch.append(";*.").append(fileExtensions[i]);
+            }
+            fileDialog.setFile(fileMatch.toString());
+        } else {
+            // Does not work on Windows.
+            fileDialog.setFilenameFilter(new CustomFileFilter(fileExtensions));
+        }
+    }
+
     private static File open(JFrame parent, String title, String[] fileExtensions, int mode) {
         FileDialog fileDialog = new FileDialog(parent, title, mode);
         fileDialog.setDirectory(EditorPreferences.lastDirectory(fileExtensions[0]));
-        StringBuilder fileMatch = new StringBuilder("*." + fileExtensions[0]);
-        for (int i = 1; i < fileExtensions.length; ++i) {
-            fileMatch.append(";*.").append(fileExtensions[i]);
-        }
-        fileDialog.setFile(fileMatch.toString());
+        setFilenameFilter(fileDialog, fileExtensions);
         fileDialog.setVisible(true);
 
         String directory = fileDialog.getDirectory();

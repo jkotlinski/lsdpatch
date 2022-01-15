@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Palette Editor: Switched to SameBoy "harsh reality" color correction.
 
+### Fixed
+ - Filename filtering in non-Windows file dialogs broke in 1.8.0.
+
 ## [1.12.0] - 2021-10-01
 ### Added
  - Kit Editor: "Invert Polarity for GBA" preference.
