@@ -133,13 +133,11 @@ public class MainWindow extends JFrame implements IDocumentListener, KitEditor.L
             document.loadRomImage(EditorPreferences.lastPath("gb"));
         } catch (IOException e) {
             resetRomTextField();
-            e.printStackTrace();
         }
         try {
             document.loadSavFile(EditorPreferences.lastPath("sav"));
         } catch (IOException e) {
             resetSavTextField();
-            e.printStackTrace();
         }
         updateButtonsFromTextFields();
     }
