@@ -25,6 +25,7 @@ public class ColorUtil {
         return color / 0xf8;
     }
 
+    // From Sameboy.
     public static int colorCorrect(java.awt.Color c) {
         return colorCorrect(c.getRed(), c.getGreen(), c.getBlue());
     }
@@ -36,8 +37,6 @@ public class ColorUtil {
             b = (((b >> 3) << 3) * 0xff) / 0xf8;
             return (r << 16) | (g << 8) | b;
         }
-
-        // SameBoy "harsh reality" color correction.
 
         r >>= 3;
         g >>= 3;
@@ -51,16 +50,17 @@ public class ColorUtil {
         int new_g = (g * 3 + b) / 4;
         int new_b = b;
 
-        g = new_r;
-        b = new_r;
+        r = new_r;
+        g = new_r; // correct, according to LIJI
+        b = new_r; // correct, according to LIJI
 
-        new_r = new_r * 7 / 8 + (    g + b) / 16;
-        new_g = new_g * 7 / 8 + (r   +   b) / 16;
-        new_b = new_b * 7 / 8 + (r + g    ) / 16;
+        new_r = new_r * 7 / 8 + (g + b) / 16;
+        new_g = new_g * 7 / 8 + (r + b) / 16;
+        new_b = new_b * 7 / 8 + (r + g) / 16;
 
-        new_r = new_r * (162 - 67) / 255 + 67;
-        new_g = new_g * (167 - 62) / 255 + 62;
-        new_b = new_b * (157 - 58) / 255 + 58;
+        new_r = new_r * (224 - 32) / 255 + 32;
+        new_g = new_g * (220 - 36) / 255 + 36;
+        new_b = new_b * (216 - 40) / 255 + 40;
 
         return (new_r << 16) | (new_g << 8) | new_b;
     }
