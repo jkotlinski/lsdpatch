@@ -6,10 +6,10 @@ import java.awt.color.ColorSpace;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Objects;
 
 import Document.Document;
 import net.miginfocom.swing.MigLayout;
-import utils.EditorPreferences;
 import utils.FileDialogLauncher;
 import utils.RomUtilities;
 import utils.StretchIcon;
@@ -22,6 +22,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
     private int nameOffset = -1;
     private final int previewScale = 2;
     java.io.File clipboard;
+    private boolean desaturate = false;
 
     private final JLabel songScreenShot = new JLabel();
     private final JLabel instrScreenShot = new JLabel();
@@ -41,8 +42,6 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
 
     private boolean updatingSwatches = false;
     private boolean populatingPaletteSelector = false;
-
-    private final JToggleButton desaturateToggleButton = new javax.swing.JCheckBox("Desaturate");
 
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -102,26 +101,31 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         paletteSelector.addItemListener(e -> onPaletteSelected());
         topRowPanel.add(paletteSelector);
 
-        boolean rawScreen = EditorPreferences.getKey("raw", "0").equals("1");
-        JToggleButton rawToggleButton = new JCheckBox("Raw");
-        rawToggleButton.setSelected(rawScreen);
-        ColorUtil.setRawScreen(rawScreen);
-        rawToggleButton.addItemListener(e -> {
-            boolean enabled = ColorUtil.toggleRawScreen();
-            ColorUtil.setRawScreen(enabled);
-            EditorPreferences.putKey("raw", enabled ? "1" : "0");
+        String colorSpaceTooltip = "Check all color spaces to make sure your palette works on all screens.";
+        JLabel colorSpaceLabel = new JLabel("Color space:");
+        colorSpaceLabel.setToolTipText(colorSpaceTooltip);
+        topRowPanel.add(colorSpaceLabel);
+
+        JComboBox<String> colorSpaceBox = new JComboBox<>();
+        colorSpaceBox.addItem("Emulator");
+        colorSpaceBox.addItem("Reality");
+        colorSpaceBox.addItem("Desaturated");
+        colorSpaceBox.addItem("Raw");
+        topRowPanel.add(colorSpaceBox);
+        colorSpaceBox.setToolTipText(colorSpaceTooltip);
+        colorSpaceBox.addItemListener(e -> {
+            if (e.getItem() == "Raw") {
+                ColorUtil.setColorSpace(ColorUtil.ColorSpace.Raw);
+            } else if (e.getItem() == "Emulator") {
+                ColorUtil.setColorSpace(ColorUtil.ColorSpace.Emulator);
+            } else {
+                ColorUtil.setColorSpace(ColorUtil.ColorSpace.Reality);
+            }
+            desaturate = (e.getItem() == "Desaturated");
             updateSongAndInstrScreens();
             colorPicker.repaint();
             updateAllSwatches();
         });
-        rawToggleButton.setToolTipText("Display palette with no color conversion."
-                + " Poor Game Boy emulators can look like this.");
-        topRowPanel.add(rawToggleButton);
-
-        desaturateToggleButton.addItemListener(e -> updateSongAndInstrScreens());
-        desaturateToggleButton.setToolTipText(
-                "Making the palette work in grayscale is needed for the color-blind and good for everyone else.");
-        topRowPanel.add(desaturateToggleButton);
 
         midPanel.add(topRowPanel, "grow, wrap");
         midPanel.add(colorPicker);
@@ -166,8 +170,8 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         contentPane.add(instrScreenShot, "gap 10");
 
         try {
-            songImage = javax.imageio.ImageIO.read(getClass().getResource("/song.bmp"));
-            instrImage = javax.imageio.ImageIO.read(getClass().getResource("/instr.bmp"));
+            songImage = javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResource("/song.bmp")));
+            instrImage = javax.imageio.ImageIO.read(Objects.requireNonNull(getClass().getResource("/instr.bmp")));
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -421,7 +425,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
                 dstImage.setRGB(x, y, correctedRgb);
             }
         }
-        if (desaturateToggleButton.isSelected()) {
+        if (desaturate) {
             ColorSpace colorSpace = ColorSpace.getInstance(java.awt.color.ColorSpace.CS_GRAY);
             return new java.awt.image.ColorConvertOp(colorSpace, null).filter(dstImage, dstImage);
         }

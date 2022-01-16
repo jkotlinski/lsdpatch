@@ -84,11 +84,11 @@ class SwatchPair implements Swatch.Listener {
     }
 
     private RGB555 findMidTone(RGB555 bg, RGB555 fg) {
-        boolean prevRawScreen = ColorUtil.rawScreen;
-        ColorUtil.rawScreen = false;
+        ColorUtil.ColorSpace prevColorSpace = ColorUtil.colorSpace;
+        ColorUtil.colorSpace = ColorUtil.ColorSpace.Emulator;
         Color target = midToneTarget(bg, fg);
         RGB555 bestRgb = findBestRgb(new RGB555(15, 15, 15), target);
-        ColorUtil.rawScreen = prevRawScreen;
+        ColorUtil.colorSpace = prevColorSpace;
         return bestRgb;
     }
 

@@ -6,15 +6,15 @@ public class ColorUtil {
             119, 130, 141, 153, 166, 177, 188, 200, 209, 221, 230, 238, 245, 249, 252, 255
     };
 
-    static public boolean rawScreen;
-
-    public static void setRawScreen(boolean enabled) {
-        rawScreen = enabled;
+    enum ColorSpace {
+        Emulator,
+        Reality,
+        Raw
     }
+    static public ColorSpace colorSpace = ColorSpace.Emulator;
 
-    public static boolean toggleRawScreen() {
-        rawScreen = !rawScreen;
-        return rawScreen;
+    public static void setColorSpace(ColorSpace colorSpace_) {
+        colorSpace = colorSpace_;
     }
 
     public static int to8bit(int color) {
@@ -31,7 +31,7 @@ public class ColorUtil {
     }
 
     public static int colorCorrect(int r, int g, int b) {
-        if (rawScreen) {
+        if (colorSpace == ColorSpace.Raw) {
             r = (((r >> 3) << 3) * 0xff) / 0xf8;
             g = (((g >> 3) << 3) * 0xff) / 0xf8;
             b = (((b >> 3) << 3) * 0xff) / 0xf8;
@@ -50,7 +50,6 @@ public class ColorUtil {
         int new_g = (g * 3 + b) / 4;
         int new_b = b;
 
-        r = new_r;
         g = new_r; // correct, according to LIJI
         b = new_r; // correct, according to LIJI
 
@@ -58,9 +57,16 @@ public class ColorUtil {
         new_g = new_g * 7 / 8 + (r + b) / 16;
         new_b = new_b * 7 / 8 + (r + g) / 16;
 
-        new_r = new_r * (224 - 32) / 255 + 32;
-        new_g = new_g * (220 - 36) / 255 + 36;
-        new_b = new_b * (216 - 40) / 255 + 40;
+        if (colorSpace == ColorSpace.Emulator) {
+            new_r = new_r * (224 - 32) / 255 + 32;
+            new_g = new_g * (220 - 36) / 255 + 36;
+            new_b = new_b * (216 - 40) / 255 + 40;
+        } else {
+            assert colorSpace == ColorSpace.Reality;
+            new_r = new_r * (162 - 67) / 255 + 67;
+            new_g = new_g * (167 - 62) / 255 + 62;
+            new_b = new_b * (157 - 58) / 255 + 58;
+        }
 
         return (new_r << 16) | (new_g << 8) | new_b;
     }
