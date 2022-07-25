@@ -1,9 +1,11 @@
 package paletteEditor;
 
+import static java.lang.Math.pow;
+
 public class ColorUtil {
     private static final int[] scaleChannelWithCurve = {
-            0, 5, 8, 11, 16, 22, 28, 36, 43, 51, 59, 67, 77, 87, 97, 107,
-            119, 130, 141, 153, 166, 177, 188, 200, 209, 221, 230, 238, 245, 249, 252, 255
+            0, 6, 12, 20, 28, 36, 45, 56, 66, 76, 88, 100, 113, 125, 137, 149, 161, 172,
+            182, 192, 202, 210, 218, 225, 232, 238, 243, 247, 250, 252, 254, 255
     };
 
     enum ColorSpace {
@@ -46,26 +48,29 @@ public class ColorUtil {
         g = scaleChannelWithCurve[g];
         b = scaleChannelWithCurve[b];
 
+        double gamma = 2.2;
+
+        int new_g = (int)(pow((pow(g / 255.0, gamma) * 3 + pow(b / 255.0, gamma)) / 4, 1 / gamma) * 255);
         int new_r = r;
-        int new_g = (g * 3 + b) / 4;
         int new_b = b;
 
-        g = new_r; // correct, according to LIJI
-        b = new_r; // correct, according to LIJI
+        // r = new_r;
+        g = new_r;
+        b = new_r;
 
         new_r = new_r * 7 / 8 + (g + b) / 16;
         new_g = new_g * 7 / 8 + (r + b) / 16;
         new_b = new_b * 7 / 8 + (r + g) / 16;
 
         if (colorSpace == ColorSpace.Emulator) {
-            new_r = new_r * (224 - 32) / 255 + 32;
-            new_g = new_g * (220 - 36) / 255 + 36;
-            new_b = new_b * (216 - 40) / 255 + 40;
+            new_r = new_r * (220 - 40) / 255 + 40;
+            new_g = new_g * (224 - 36) / 255 + 36;
+            new_b = new_b * (216 - 32) / 255 + 32;
         } else {
             assert colorSpace == ColorSpace.Reality;
-            new_r = new_r * (162 - 67) / 255 + 67;
-            new_g = new_g * (167 - 62) / 255 + 62;
-            new_b = new_b * (157 - 58) / 255 + 58;
+            new_r = new_r * (162 - 45) / 255 + 45;
+            new_g = new_g * (167 - 41) / 255 + 41;
+            new_b = new_b * (157 - 38) / 255 + 38;
         }
 
         return (new_r << 16) | (new_g << 8) | new_b;
