@@ -1,6 +1,7 @@
 package paletteEditor;
 
 import static java.lang.Math.pow;
+import static java.lang.Math.round;
 
 public class ColorUtil {
     private static final int[] scaleChannelWithCurve = {
@@ -50,7 +51,7 @@ public class ColorUtil {
 
         double gamma = 2.2;
 
-        int new_g = (int)(pow((pow(g / 255.0, gamma) * 3 + pow(b / 255.0, gamma)) / 4, 1 / gamma) * 255);
+        int new_g = (int)round(pow((pow(g / 255.0, gamma) * 3 + pow(b / 255.0, gamma)) / 4, 1 / gamma) * 255);
         int new_r = r;
         int new_b = b;
 
