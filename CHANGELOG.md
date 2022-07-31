@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
- - Palette Editor: Improved color correction, from Sameboy 0.15.3.
+ - Palette Editor: Updated color correction to match Sameboy 0.15.4 "Modern - Balanced" and "Harsh Reality" settings.
 
 ## [1.13.0] - 2022-04-11
 ### Fixed

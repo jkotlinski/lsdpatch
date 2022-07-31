@@ -49,26 +49,21 @@ public class ColorUtil {
         g = scaleChannelWithCurve[g];
         b = scaleChannelWithCurve[b];
 
-        double gamma = 2.2;
+        double gamma = colorSpace == ColorSpace.Emulator ? 1.6 : 2.2;
 
         int new_g = (int)round(pow((pow(g / 255.0, gamma) * 3 + pow(b / 255.0, gamma)) / 4, 1 / gamma) * 255);
         int new_r = r;
         int new_b = b;
 
-        // r = new_r;
-        g = new_r;
-        b = new_r;
+        if (colorSpace == ColorSpace.Reality) {
+            // r = new_r;
+            g = new_r;
+            b = new_r;
 
-        new_r = new_r * 7 / 8 + (g + b) / 16;
-        new_g = new_g * 7 / 8 + (r + b) / 16;
-        new_b = new_b * 7 / 8 + (r + g) / 16;
+            new_r = new_r * 7 / 8 + (g + b) / 16;
+            new_g = new_g * 7 / 8 + (r + b) / 16;
+            new_b = new_b * 7 / 8 + (r + g) / 16;
 
-        if (colorSpace == ColorSpace.Emulator) {
-            new_r = new_r * (220 - 40) / 255 + 40;
-            new_g = new_g * (224 - 36) / 255 + 36;
-            new_b = new_b * (216 - 32) / 255 + 32;
-        } else {
-            assert colorSpace == ColorSpace.Reality;
             new_r = new_r * (162 - 45) / 255 + 45;
             new_g = new_g * (167 - 41) / 255 + 41;
             new_b = new_b * (157 - 38) / 255 + 38;
