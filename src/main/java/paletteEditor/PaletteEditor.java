@@ -101,22 +101,26 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         paletteSelector.addItemListener(e -> onPaletteSelected());
         topRowPanel.add(paletteSelector);
 
-        String colorSpaceTooltip = "Make sure your palette works for all screens.";
+        String colorSpaceTooltip = "Check all screen types to make sure your palette works for everyone.";
         JLabel colorSpaceLabel = new JLabel("Screen:");
         colorSpaceLabel.setToolTipText(colorSpaceTooltip);
         topRowPanel.add(colorSpaceLabel);
 
         JComboBox<String> colorSpaceBox = new JComboBox<>();
-        String ips = "Modern LCD";
+        String ips = "Backlit IPS";
         String gbc = "Game Boy Color";
         String gray = "Desaturated";
+        String raw = "Raw sRGB";
         colorSpaceBox.addItem(ips);
         colorSpaceBox.addItem(gbc);
         colorSpaceBox.addItem(gray);
+        colorSpaceBox.addItem(raw);
         topRowPanel.add(colorSpaceBox);
         colorSpaceBox.setToolTipText(colorSpaceTooltip);
         colorSpaceBox.addItemListener(e -> {
-            if (e.getItem() == ips) {
+            if (e.getItem() == raw) {
+                ColorUtil.setColorSpace(ColorUtil.ColorSpace.Raw);
+            } else if (e.getItem() == ips) {
                 ColorUtil.setColorSpace(ColorUtil.ColorSpace.Emulator);
             } else {
                 ColorUtil.setColorSpace(ColorUtil.ColorSpace.Reality);

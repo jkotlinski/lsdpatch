@@ -8,9 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Palette Editor: Updated color correction to match Sameboy 0.15.4.
 
-### Removed
- - Palette Editor: "Raw" color correction.
-
 ## [1.13.0] - 2022-04-11
 ### Fixed
  - Filename filtering in non-Windows file dialogs broke in 1.8.0.
