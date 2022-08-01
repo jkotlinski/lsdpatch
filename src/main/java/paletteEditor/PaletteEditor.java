@@ -107,21 +107,25 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         topRowPanel.add(colorSpaceLabel);
 
         JComboBox<String> colorSpaceBox = new JComboBox<>();
-        colorSpaceBox.addItem("Modern");
-        colorSpaceBox.addItem("Real CGB");
-        colorSpaceBox.addItem("Desaturated");
-        colorSpaceBox.addItem("Raw sRGB");
+        String ips = "Backlit IPS";
+        String gbc = "Game Boy Color";
+        String gray = "Desaturated";
+        String raw = "Raw sRGB";
+        colorSpaceBox.addItem(ips);
+        colorSpaceBox.addItem(gbc);
+        colorSpaceBox.addItem(gray);
+        colorSpaceBox.addItem(raw);
         topRowPanel.add(colorSpaceBox);
         colorSpaceBox.setToolTipText(colorSpaceTooltip);
         colorSpaceBox.addItemListener(e -> {
-            if (e.getItem() == "Raw sRGB") {
+            if (e.getItem() == raw) {
                 ColorUtil.setColorSpace(ColorUtil.ColorSpace.Raw);
-            } else if (e.getItem() == "Modern") {
+            } else if (e.getItem() == ips) {
                 ColorUtil.setColorSpace(ColorUtil.ColorSpace.Emulator);
             } else {
                 ColorUtil.setColorSpace(ColorUtil.ColorSpace.Reality);
             }
-            desaturate = (e.getItem() == "Desaturated");
+            desaturate = (e.getItem() == gray);
             updateSongAndInstrScreens();
             colorPicker.repaint();
             updateAllSwatches();
