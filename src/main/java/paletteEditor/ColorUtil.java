@@ -41,8 +41,7 @@ public class ColorUtil {
         g = scaleChannelWithCurve[g];
         b = scaleChannelWithCurve[b];
 
-        double gamma = colorSpace == ColorSpace.Emulator ? 1.6 : 2.2;
-
+        double gamma = 2.2;
         int new_g = (int)round(pow((pow(g / 255.0, gamma) * 3 + pow(b / 255.0, gamma)) / 4, 1 / gamma) * 255);
         int new_r = r;
         int new_b = b;
