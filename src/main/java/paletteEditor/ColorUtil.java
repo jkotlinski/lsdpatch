@@ -11,8 +11,7 @@ public class ColorUtil {
 
     enum ColorSpace {
         Emulator,
-        Reality,
-        Raw
+        Reality
     }
     static public ColorSpace colorSpace = ColorSpace.Emulator;
 
@@ -34,13 +33,6 @@ public class ColorUtil {
     }
 
     public static int colorCorrect(int r, int g, int b) {
-        if (colorSpace == ColorSpace.Raw) {
-            r = (((r >> 3) << 3) * 0xff) / 0xf8;
-            g = (((g >> 3) << 3) * 0xff) / 0xf8;
-            b = (((b >> 3) << 3) * 0xff) / 0xf8;
-            return (r << 16) | (g << 8) | b;
-        }
-
         r >>= 3;
         g >>= 3;
         b >>= 3;
