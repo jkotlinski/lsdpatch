@@ -107,7 +107,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
         topRowPanel.add(colorSpaceLabel);
 
         JComboBox<String> colorSpaceBox = new JComboBox<>();
-        String ips = "Backlit IPS";
+        String ips = "Modern LCD";
         String gbc = "Game Boy Color";
         String gray = "Desaturated";
         String raw = "Raw sRGB";
