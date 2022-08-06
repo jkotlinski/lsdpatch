@@ -56,12 +56,12 @@ public class ColorUtil {
 
         if (colorSpace == ColorSpace.Reality) {
             // r = new_r;
-            g = new_r;
-            b = new_r;
+            g = new_g;
+            // b = new_b;
 
-            new_r = new_r * 7 / 8 + (g + b) / 16;
-            new_g = new_g * 7 / 8 + (r + b) / 16;
-            new_b = new_b * 7 / 8 + (r + g) / 16;
+            new_r = new_r * 15 / 16 + (g + b) / 32;
+            new_g = new_g * 15 / 16 + (r + b) / 32;
+            new_b = new_b * 15 / 16 + (r + g) / 32;
 
             new_r = new_r * (162 - 45) / 255 + 45;
             new_g = new_g * (167 - 41) / 255 + 41;
