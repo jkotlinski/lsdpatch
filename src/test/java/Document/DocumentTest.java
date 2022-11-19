@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 class DocumentTest {
 
@@ -27,7 +28,7 @@ class DocumentTest {
         document.setSavFile(newSavFile);
         Assertions.assertFalse(document.isSavDirty());
 
-        File tempFile = File.createTempFile("lsdpatcher", ".sav");
+        File tempFile = Files.createTempFile("lsdpatcher", ".sav").toFile();
         tempFile.deleteOnExit();
         FileOutputStream fos = new FileOutputStream(tempFile);
         for (int i = 0; i < 0x8000 * 4; ++i) {

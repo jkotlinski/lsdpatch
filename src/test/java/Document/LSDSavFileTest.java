@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -50,7 +51,7 @@ class LSDSavFileTest {
     @Test
     void saveAs() throws Exception {
         LSDSavFile savFile = new LSDSavFile();
-        File file = File.createTempFile("lsdpatcher", ".sav");
+        File file = Files.createTempFile("lsdpatcher", ".sav").toFile();
         file.deleteOnExit();
         savFile.saveAs(file.getAbsolutePath());
     }

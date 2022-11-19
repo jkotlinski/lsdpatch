@@ -6,6 +6,7 @@ import java.awt.color.ColorSpace;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Objects;
 
 import Document.Document;
@@ -547,7 +548,7 @@ public class PaletteEditor extends JFrame implements SwatchPair.Listener {
 
     private void copyPalette() {
 	    try {
-		    clipboard = java.io.File.createTempFile("lsdpatcher", "palette");
+		    clipboard = Files.createTempFile("lsdpatcher", "palette").toFile();
 	    } catch (Exception e) {
 		    e.printStackTrace();
 	    }
