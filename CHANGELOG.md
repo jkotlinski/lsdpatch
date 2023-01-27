@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Changed
+
+## [1.13.1] - 2023-01-27
+### Fixed
  - Palette Editor: Updated color correction to match Sameboy 0.15.x.
 
 ## [1.13.0] - 2022-04-11
