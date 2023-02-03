@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
 
 ## [1.13.1] - 2023-01-27
 ### Fixed
@@ -317,3 +317,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.19] - 2011-08-20
 ### Fixed
  - Loading a long sample threw a confusing, empty error message. Thanks to Clay Morrow for reporting.
+
+
+[unreleased]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.1..HEAD
+[1.13.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.0..v1.13.1
+[1.13.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.12.0..v1.13.0
+[1.12.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.6..v1.12.0
+[1.11.6]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.5..v1.11.6
+[1.11.5]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.4..v1.11.5
+[1.11.4]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.3..v1.11.4
+[1.11.3]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.2..v1.11.3
+[1.11.2]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.1..v1.11.2
+[1.11.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.11.0..v1.11.1
+[1.11.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.10.5..v1.11.0
+[1.10.5]: https://github.com/jkotlinski/lsdpatch/compare/v1.10.4..v1.10.5
+[1.10.4]: https://github.com/jkotlinski/lsdpatch/compare/v1.10.3..v1.10.4
+[1.10.3]: https://github.com/jkotlinski/lsdpatch/compare/v1.10.2..v1.10.3
+[1.10.2]: https://github.com/jkotlinski/lsdpatch/compare/v1.10.1..v1.10.2
+[1.10.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.10.0..v1.10.1
+[1.10.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.9.0..v1.10.0
+[1.9.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.8.1..v1.9.0
+[1.8.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.8.0..v1.8.1
+[1.8.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.7.0..v1.8.0
+[1.7.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.6.0..v1.7.0
+[1.6.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.5.0..v1.6.0
+[1.5.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.4.2..v1.5.0
+[1.4.2]: https://github.com/jkotlinski/lsdpatch/compare/v1.4.1..v1.4.2
+[1.4.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.4.0..v1.4.1
+[1.4.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.3.0..v1.4.0
+[1.3.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.2.0..v1.3.0
+[1.2.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.6..v1.2.0
+[1.1.6]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.5..v1.1.6
+[1.1.5]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.4..v1.1.5
+[1.1.4]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.3..v1.1.4
+[1.1.3]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.2..v1.1.3
+[1.1.2]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.1..v1.1.2
+[1.1.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.1.0..v1.1.1
+[1.1.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.0.2..v1.1.0
+[1.0.2]: https://github.com/jkotlinski/lsdpatch/compare/v1.0.1..v1.0.2
+[1.0.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.0.0..v1.0.1
+[1.0.0]: https://github.com/jkotlinski/lsdpatch/compare/v0.19...v1.0.0
+[0.19]: https://github.com/jkotlinski/lsdpatch/releases/tag/v0.19
