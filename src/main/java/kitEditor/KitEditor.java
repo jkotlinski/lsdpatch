@@ -100,6 +100,8 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
             }
         });
 
+        add(contentPane);
+
         pack();
 
         samplePicker.grabFocus();
@@ -324,7 +326,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
     }
 
     private void jbInit() {
-        contentPane = (JPanel) this.getContentPane();
+        contentPane = new JPanel();
         contentPane.setLayout(new MigLayout());
 
         createFileDrop();
