@@ -74,7 +74,6 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         jbInit();
         addMenu();
         setListeners();
-        setVisible(true);
         setTitle("Kit Editor");
         createSamplesFromRom();
         updateRomView();
@@ -107,6 +106,7 @@ public class KitEditor extends JFrame implements SamplePicker.Listener {
         samplePicker.grabFocus();
 
         setResizable(false);
+        setVisible(true);
     }
 
     private void addEnterHandler(JSpinner spinner) {
