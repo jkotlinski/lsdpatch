@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Kit Editor: tiny window size on Linux.
 
-## [1.13.2] - 2024-09-18
+## [1.13.3] - 2024-09-20
 ### Fixed
  - Kit Editor: tiny window size on Linux.
 
@@ -325,7 +325,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Loading a long sample threw a confusing, empty error message. Thanks to Clay Morrow for reporting.
 
 
-[unreleased]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.2..HEAD
+[unreleased]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.3..HEAD
+[1.13.3]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.2..v1.13.3
 [1.13.2]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.1..v1.13.2
 [1.13.1]: https://github.com/jkotlinski/lsdpatch/compare/v1.13.0..v1.13.1
 [1.13.0]: https://github.com/jkotlinski/lsdpatch/compare/v1.12.0..v1.13.0
