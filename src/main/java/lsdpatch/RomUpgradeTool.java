@@ -45,11 +45,13 @@ public class RomUpgradeTool extends JFrame {
         JButton upgradeStableButton = new JButton("Stable version (recommended!)");
         JButton upgradeDevelopButton = new JButton("Development version (experimental!)");
         JButton upgradeArduinoBoyButton = new JButton("ArduinoBoy version");
+        JButton upgradeFromFileButton = new JButton("Select ROM file...");
         JButton viewChangeLogButton = new JButton("View Changelog");
         JButton viewLicenseButton = new JButton("View License Information");
         panel.add(upgradeStableButton, "growx");
         panel.add(upgradeDevelopButton, "growx");
         panel.add(upgradeArduinoBoyButton, "growx");
+        panel.add(upgradeFromFileButton, "growx");
         panel.add(viewChangeLogButton, "growx, gaptop 10");
         panel.add(viewLicenseButton, "growx");
         pack();
@@ -57,6 +59,7 @@ public class RomUpgradeTool extends JFrame {
         upgradeStableButton.addActionListener(e -> upgrade(stablePath));
         upgradeDevelopButton.addActionListener(e -> upgrade(developPath));
         upgradeArduinoBoyButton.addActionListener(e -> upgrade(arduinoBoyPath));
+        upgradeFromFileButton.addActionListener(e -> upgradeFromSelectedFile());
         viewChangeLogButton.addActionListener(e -> WwwUtil.openInBrowser(changeLogPath));
         viewLicenseButton.addActionListener(e -> WwwUtil.openInBrowser(licensePath));
 
@@ -310,5 +313,55 @@ public class RomUpgradeTool extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
         return 0;
+    }
+
+    private void upgradeFromSelectedFile() {
+        try {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Select ROM File");
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Game Boy ROM (*.gb)", "gb"));
+
+            int result = fileChooser.showOpenDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+
+            File customRomFile = fileChooser.getSelectedFile();
+            if (!customRomFile.exists() || customRomFile.length() != remoteRomImage.length) {
+                JOptionPane.showMessageDialog(this,
+                        "Invalid ROM file! File must be " + remoteRomImage.length + " bytes.",
+                        "Invalid File",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int reply = JOptionPane.showConfirmDialog(this,
+                    "Upgrade to " + customRomFile.getName() + "?\n\n" +
+                    "This will copy all kits, fonts, and palettes from\n" +
+                    localRomFile.getName() + " to the selected ROM.",
+                    "Upgrade to Selected ROM?",
+                    JOptionPane.YES_NO_OPTION);
+            if (reply != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            try (FileInputStream fis = new FileInputStream(customRomFile)) {
+                int bytesRead = 0;
+                while (bytesRead < remoteRomImage.length) {
+                    int read = fis.read(remoteRomImage, bytesRead, remoteRomImage.length - bytesRead);
+                    if (read == -1) {
+                        throw new IOException("Unexpected end of file");
+                    }
+                    bytesRead += read;
+                }
+            }
+
+            importAll();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "Error loading ROM",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
